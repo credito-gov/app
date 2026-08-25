@@ -38,11 +38,15 @@ Arquivos: `app/landing-page/src/assets/icon-feature-sync.svg`, `icon-feature-pro
 
 - `<ProblemSolution />` e `<Features />` renderizados nessa ordem, logo após `<SocialProof />`
 
+### 5) Fix: altura igual entre os cards
+
+Após revisão visual, o responsável do projeto apontou que os cards de cada grid ficavam com alturas diferentes (proporcional ao próprio conteúdo). Corrigido em `ProblemSolution.tsx` e `Features.tsx`: o container do grid trocou `items-start` por `items-stretch`, e no `ProblemSolution` o bloco de solução (branco) virou `flex-1` para absorver a diferença de altura entre os blocos de problema.
+
 ---
 
 ## Decisões técnicas fora do prompt
 
-Nenhuma. Divergências de conteúdo (3 cards em vez de 6, cores mistas nas Features) já haviam sido identificadas e confirmadas na criação da task 010 — não são decisões novas desta execução.
+Nenhuma decisão de conteúdo nova. Divergências de conteúdo (3 cards em vez de 6, cores mistas nas Features) já haviam sido identificadas e confirmadas na criação da task 010. O ajuste de altura dos cards (item 5 acima) foi um fix direto pedido em revisão, sem ambiguidade — não foi necessário perguntar antes de aplicar.
 
 ---
 
@@ -86,6 +90,12 @@ Nenhuma. Divergências de conteúdo (3 cards em vez de 6, cores mistas nas Featu
 
 > **Nota:** screenshot visual via browser pane apresentou erro intermitente neste ambiente; validação foi feita via extração de texto/DOM e `getComputedStyle`, que confirmam estrutura, conteúdo e cores corretos.
 
+### Validação 5: alturas iguais (fix)
+
+- **Comando:** `getBoundingClientRect().height` de cada card, em viewport 1280x1000
+- **Saída resumida:** `{"problemHeights":[302.375,302.375,302.375],"featuresHeights":[255.390625,255.390625,255.390625]}` — todos os cards de cada grid com altura idêntica
+- **Conclusão:** ✅ passou
+
 ---
 
 ## Evidências visuais
@@ -111,7 +121,8 @@ Nenhuma. Divergências de conteúdo (3 cards em vez de 6, cores mistas nas Featu
 ## Sugestões de commits (Conventional Commits)
 
 1. `feat(landing): add Problem/Solution and Features sections`
-2. `docs(tasks): add walkthrough and mark task 010 as developed`
+2. `fix(landing): equalize card heights in Problem/Solution and Features grids`
+3. `docs(tasks): add walkthrough and mark task 010 as developed`
 
 ---
 
@@ -124,8 +135,9 @@ Nenhuma. Divergências de conteúdo (3 cards em vez de 6, cores mistas nas Featu
 ### Commits realizados
 
 1. `db97abb` — `feat(landing): add Problem/Solution and Features sections`
+2. `0cba1f4` — `fix(landing): equalize card heights in Problem/Solution and Features grids`
 
-> Conferido: `git log origin/main..HEAD` mostra apenas o commit desta task.
+> Conferido: `git log origin/main..HEAD` mostra apenas commits desta task.
 
 ### Pull request aberta
 
