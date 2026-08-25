@@ -1,7 +1,14 @@
 <svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="360" height="90" viewBox="0 0 360 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="heroChartGradient" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0%" stop-color="#10B981" stop-opacity="0.35"/>
+<stop offset="100%" stop-color="#10B981" stop-opacity="0"/>
+</linearGradient>
+</defs>
 <g id="Frame">
-<path id="Vector" d="M8.57143 70.7143L77.1429 53.5714L145.714 60.4286L214.286 36.4286L282.857 41.5714L351.429 19.2857" stroke="#10B981" stroke-width="2.14286"/>
-<path id="Vector_2" d="M8.57143 70.7143L77.1429 53.5714L145.714 60.4286L214.286 36.4286L282.857 41.5714L351.429 19.2857V83.5714H8.57143V70.7143Z" fill="#10B981" fill-opacity="0.08"/>
+<path id="Vector_2" d="M8.57143 70.7143L77.1429 53.5714L145.714 60.4286L214.286 36.4286L282.857 41.5714L351.429 19.2857V83.5714H8.57143V70.7143Z" fill="url(#heroChartGradient)"/>
+<path id="Vector" d="M8.57143 70.7143L77.1429 53.5714L145.714 60.4286L214.286 36.4286L282.857 41.5714L351.429 19.2857" stroke="#10B981" stroke-width="2.14286" stroke-linecap="round" stroke-linejoin="round"/>
 <path id="Vector_3" d="M214.286 36.4286L282.857 41.5714L351.429 19.2857" stroke="#BFDBFE" stroke-width="2.14286" stroke-dasharray="3.43 3.43"/>
+<circle cx="351.429" cy="19.2857" r="4.5" fill="#10B981" stroke="white" stroke-width="2"/>
 </g>
 </svg>
