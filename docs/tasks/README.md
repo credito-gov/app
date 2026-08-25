@@ -17,7 +17,7 @@
 | [006](006-landing-page-architecture.md) | **Landing Page — Arquitetura**: stack, scaffold, Dockerfile, deploy Render.com | `feat/006-landing-page-arch` | — | ✅ | — | ✅ | ✅ [PR #1](https://github.com/credito-gov/app/pull/1) | ✅ | Landing Page 1 |
 | [007](007-landing-header.md) | **Landing Page — Header (Navbar)**: logo, links, CTA, responsivo | `feat/007-landing-header` | 006 | ✅ | — | ✅ | ✅ [PR #2](https://github.com/credito-gov/app/pull/2) | ✅ | Landing Page 2 |
 | [008](008-landing-hero.md) | **Landing Page — Hero Section**: tag, H1, CTAs, mockup de dashboard | `feat/008-landing-hero` | 007 | ✅ | — | ✅ | ✅ [PR #3](https://github.com/credito-gov/app/pull/3) | ✅ | Landing Page 3 |
-| [009](009-landing-social-proof.md) | **Landing Page — Prova Social**: logos placeholder + 3 depoimentos | `feat/009-landing-social-proof` | 008 | ✅ | — | — | — | — | Landing Page 4 |
+| [009](009-landing-social-proof.md) | **Landing Page — Prova Social**: logos placeholder + 3 depoimentos | `feat/009-landing-social-proof` | 008 | ✅ | — | ✅ | ✅ [PR #4](https://github.com/credito-gov/app/pull/4) | — | Landing Page 4 |
 | [010](010-landing-problem-features.md) | **Landing Page — Dor vs Solução + Features**: 3 cards problema/solução + 3 cards de benefício | `feat/010-landing-problem-features` | 009 | ✅ | — | — | — | — | Landing Page 5 |
 | [011](011-landing-pricing.md) | **Landing Page — Preço**: card de plano único + garantia/bônus | `feat/011-landing-pricing` | 010 | ✅ | — | — | — | — | Landing Page 6 |
 | [012](012-landing-faq-cta.md) | **Landing Page — FAQ + CTA Final**: 4 perguntas + bloco de CTA | `feat/012-landing-faq-cta` | 011 | ✅ | — | — | — | — | Landing Page 7 |
@@ -33,7 +33,6 @@
 ### 🟢 Disponíveis para iniciar
 
 - [ ] **[001](001-backend-infra.md)** — Setup Backend _(4-6h; sem pré-req; primeira task)_
-- [ ] **[009](009-landing-social-proof.md)** — Landing Page: Prova Social _(3-4h; 008 merged)_
 
 ### 🔴 Bloqueadas por dependência
 
