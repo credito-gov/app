@@ -38,20 +38,20 @@ export default function ProblemSolution() {
           </h2>
         </div>
 
-        <div className="flex w-full flex-col items-start gap-5 md:flex-row">
+        <div className="flex w-full flex-col items-stretch gap-5 md:flex-row">
           {ITEMS.map((item, index) => (
             <div
               key={item.problemTitle}
-              className="w-full flex-1 overflow-hidden rounded-[8px] border border-[#e5e7eb]"
+              className="flex w-full flex-1 flex-col overflow-hidden rounded-[8px] border border-[#e5e7eb]"
             >
-              <div className="flex flex-col items-start gap-[6px] border-b border-[#fee2e2] bg-[#fef2f2] p-5">
+              <div className="flex shrink-0 flex-col items-start gap-[6px] border-b border-[#fee2e2] bg-[#fef2f2] p-5">
                 <p className="text-[11px] font-bold tracking-[0.44px] text-[#b91c1c]">
                   PROBLEMA {String(index + 1).padStart(2, '0')}
                 </p>
                 <p className="text-[16px] font-semibold text-[#111827]">{item.problemTitle}</p>
                 <p className="text-[13.5px] leading-[1.45] text-[#7f1d1d]">{item.problemText}</p>
               </div>
-              <div className="flex flex-col items-start gap-[6px] bg-white p-5">
+              <div className="flex flex-1 flex-col items-start gap-[6px] bg-white p-5">
                 <p className="text-[11px] font-bold tracking-[0.44px] text-[#047857]">
                   COM O CREDITOGOV
                 </p>

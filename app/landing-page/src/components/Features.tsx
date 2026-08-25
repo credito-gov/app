@@ -48,7 +48,7 @@ export default function Features() {
           </h2>
         </div>
 
-        <div className="flex w-full flex-col items-start gap-5 md:flex-row">
+        <div className="flex w-full flex-col items-stretch gap-5 md:flex-row">
           {FEATURES.map((feature) => (
             <div
               key={feature.title}
