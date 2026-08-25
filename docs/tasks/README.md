@@ -15,7 +15,7 @@
 | [004](004-frontend-setup.md) | **Setup Frontend**: React + Vite + Tailwind + shadcn/ui + Redux + Router | `feat/004-frontend-setup` | 003 | ✅ | — | — | — | — | Sprint 2 |
 | [005](005-layout-base.md) | **Layout Base**: Header + Sidebar + MainWrapper + tema + LoginPage | `feat/005-layout-base` | 004 | ✅ | — | — | — | — | Sprint 2 |
 | [006](006-landing-page-architecture.md) | **Landing Page — Arquitetura**: stack, scaffold, Dockerfile, deploy Render.com | `feat/006-landing-page-arch` | — | ✅ | — | ✅ | ✅ [PR #1](https://github.com/credito-gov/app/pull/1) | ✅ | Landing Page 1 |
-| [007](007-landing-header.md) | **Landing Page — Header (Navbar)**: logo, links, CTA, responsivo | `feat/007-landing-header` | 006 | ✅ | — | ✅ | ✅ [PR #2](https://github.com/credito-gov/app/pull/2) | — | Landing Page 2 |
+| [007](007-landing-header.md) | **Landing Page — Header (Navbar)**: logo, links, CTA, responsivo | `feat/007-landing-header` | 006 | ✅ | — | ✅ | ✅ [PR #2](https://github.com/credito-gov/app/pull/2) | ✅ | Landing Page 2 |
 | [008](008-landing-hero.md) | **Landing Page — Hero Section**: tag, H1, CTAs, mockup de dashboard | `feat/008-landing-hero` | 007 | ✅ | — | — | — | — | Landing Page 3 |
 | [009](009-landing-social-proof.md) | **Landing Page — Prova Social**: logos placeholder + 3 depoimentos | `feat/009-landing-social-proof` | 008 | ✅ | — | — | — | — | Landing Page 4 |
 | [010](010-landing-problem-features.md) | **Landing Page — Dor vs Solução + Features**: 3 cards problema/solução + 3 cards de benefício | `feat/010-landing-problem-features` | 009 | ✅ | — | — | — | — | Landing Page 5 |
@@ -33,6 +33,7 @@
 ### 🟢 Disponíveis para iniciar
 
 - [ ] **[001](001-backend-infra.md)** — Setup Backend _(4-6h; sem pré-req; primeira task)_
+- [ ] **[008](008-landing-hero.md)** — Landing Page: Hero Section _(4-5h; 007 merged)_
 
 ### 🔴 Bloqueadas por dependência
 
@@ -40,7 +41,6 @@
 - [ ] **[003](003-auth-jwt-omie.md)** — aguarda 002 merged
 - [ ] **[004](004-frontend-setup.md)** — aguarda 003 merged
 - [ ] **[005](005-layout-base.md)** — aguarda 004 merged
-- [ ] **[008](008-landing-hero.md)** — aguarda 007 merged
 - [ ] **[009](009-landing-social-proof.md)** — aguarda 008 merged
 - [ ] **[010](010-landing-problem-features.md)** — aguarda 009 merged
 - [ ] **[011](011-landing-pricing.md)** — aguarda 010 merged
