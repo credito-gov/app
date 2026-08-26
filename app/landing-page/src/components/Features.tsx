@@ -1,71 +1,69 @@
-import iconActions from '../assets/icon-feature-actions.svg'
-import iconProjection from '../assets/icon-feature-projection.svg'
-import iconSync from '../assets/icon-feature-sync.svg'
+import checkCircle from '../assets/icon-check-circle.svg'
+import { useScrollReveal } from '../hooks/useScrollReveal'
 
 const FEATURES = [
   {
-    icon: iconSync,
-    badgeBg: '#ecfdf5',
-    badgeBorder: '#a7f3d0',
-    title: 'Sincronização automática com o governo',
+    title: 'Sincronização diária',
     description:
-      'Todo dia às 00:05, buscamos suas notas fiscais e cruzamos débitos direto com a Receita Federal via certificado digital.',
-    tag: 'Você ganha: zero planilha manual',
-    tagColor: '#047857',
+      'Varremos notas fiscais emitidas contra o seu CNPJ na virada do dia para garantir que nenhum centavo de crédito seja esquecido.',
+    tag: 'Previsão sem esforço',
   },
   {
-    icon: iconProjection,
-    badgeBg: '#ecfdf5',
-    badgeBorder: '#a7f3d0',
     title: 'Projeção de 90 dias',
     description:
-      'Veja não só o que já está validado, mas o que ainda vai entrar de crédito nos próximos três meses.',
-    tag: 'Você ganha: previsibilidade de caixa',
-    tagColor: '#047857',
+      'Antecipe o que está programado para entrar no seu caixa e otimize o planejamento orçamentário da empresa de forma visual.',
+    tag: 'Fluxo sob controle',
   },
   {
-    icon: iconActions,
-    badgeBg: '#eff6ff',
-    badgeBorder: '#bfdbfe',
-    title: 'Compensar e antecipar em dois cliques',
+    title: 'Dois cliques para liquidar',
     description:
-      'Abata um débito de CBS/IBS com o crédito disponível, ou antecipe com uma fintech parceira, sem sair do painel.',
-    tag: 'Você ganha: crédito virando caixa rápido',
-    tagColor: '#1d4ed8',
+      'Abata débitos tributários diretamente com os saldos validados ou solicite a antecipação imediata com taxas reduzidas.',
+    tag: 'Crédito vira dinheiro',
   },
 ]
 
-export default function Features() {
+function FeatureCard({ feature, index }: { feature: (typeof FEATURES)[number]; index: number }) {
+  const { ref, isVisible } = useScrollReveal<HTMLDivElement>()
   return (
-    <section className="w-full bg-[#f9fafb] px-6 py-16 md:px-[48px]">
-      <div className="mx-auto flex max-w-7xl flex-col items-center gap-8">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <p className="text-[12px] font-semibold tracking-[0.96px] text-[#9ca3af] uppercase">
-            O que você ganha
-          </p>
-          <h2 className="text-[32px] font-semibold tracking-[-0.8px] text-[#111827]">
-            Três coisas que resolvem o mês inteiro
+    <div
+      ref={ref}
+      className={`reveal-up flex w-full flex-1 flex-col items-start gap-5 rounded-[16px] border border-[#e2e8f0] bg-[#f8fafc] p-8 ${isVisible ? 'is-visible' : ''}`}
+      style={{ transitionDelay: `${index * 100}ms` }}
+    >
+      <div className="flex size-10 items-center justify-center rounded-[8px] bg-[#10b981]">
+        <img src={checkCircle} alt="" className="size-5" />
+      </div>
+      <div className="flex flex-col items-start gap-3">
+        <p className="text-[20px] font-extrabold text-[#060a13]">{feature.title}</p>
+        <p className="text-[14px] leading-[1.6] text-[#64748b]">{feature.description}</p>
+      </div>
+      <hr className="w-full border-t border-[#e2e8f0]" />
+      <p className="text-[13px] font-bold text-[#059669]">{feature.tag}</p>
+    </div>
+  )
+}
+
+export default function Features() {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal<HTMLDivElement>()
+
+  return (
+    <section className="w-full bg-white px-6 py-16 md:px-[64px] md:py-[96px]">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-14">
+        <div
+          ref={headerRef}
+          className={`reveal-up flex flex-col items-center gap-4 text-center ${headerVisible ? 'is-visible' : ''}`}
+        >
+          <div className="rounded-full border border-[#a7f3d0] bg-[#ecfdf5] px-3 py-[6px]">
+            <p className="text-[11px] font-bold text-[#047857] uppercase">Vantagens Exclusivas</p>
+          </div>
+          <h2 className="text-[36px] font-extrabold text-[#060a13]">
+            Três pilares de previsibilidade de caixa
           </h2>
         </div>
 
-        <div className="flex w-full flex-col items-stretch gap-5 md:flex-row">
-          {FEATURES.map((feature) => (
-            <div
-              key={feature.title}
-              className="flex w-full flex-1 flex-col items-start gap-3 rounded-[8px] border border-[#e5e7eb] bg-white p-6 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.06)]"
-            >
-              <div
-                className="flex h-[38px] items-center justify-center rounded-[9px] border px-2"
-                style={{ backgroundColor: feature.badgeBg, borderColor: feature.badgeBorder }}
-              >
-                <img src={feature.icon} alt="" className="size-5" />
-              </div>
-              <p className="text-[17px] font-semibold text-[#111827]">{feature.title}</p>
-              <p className="text-[14px] leading-[1.45] text-[#4b5563]">{feature.description}</p>
-              <p className="text-[13px] font-semibold" style={{ color: feature.tagColor }}>
-                {feature.tag}
-              </p>
-            </div>
+        <div className="flex w-full flex-col items-stretch gap-6 md:flex-row">
+          {FEATURES.map((feature, index) => (
+            <FeatureCard key={feature.title} feature={feature} index={index} />
           ))}
         </div>
       </div>
