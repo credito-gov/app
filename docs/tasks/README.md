@@ -30,7 +30,7 @@
 | [019](019-landing-redesign-how-it-works.md) | **Redesign — Como Funciona** (seção nova): 3 passos numerados | `feat/019-landing-redesign-how-it-works` | 018 | ✅ | — | ✅ | ✅ [PR #15](https://github.com/credito-gov/app/pull/15) | ✅ (em `feat/landing-redesign`) | Redesign 5/13 |
 | [020](020-landing-redesign-dashboard-showcase.md) | **Redesign — Dashboard Showcase** (seção nova): tabela de transações | `feat/020-landing-redesign-dashboard-showcase` | 019 | ✅ | — | ✅ | ✅ [PR #16](https://github.com/credito-gov/app/pull/16) | ✅ (em `feat/landing-redesign`) | Redesign 6/13 |
 | [021](021-landing-redesign-features.md) | **Redesign — Features**: 3 ícones verdes uniformes, copy novo | `feat/021-landing-redesign-features` | 020 | ✅ | — | ✅ | ✅ [PR #17](https://github.com/credito-gov/app/pull/17) | ✅ (em `feat/landing-redesign`) | Redesign 7/13 |
-| [022](022-landing-redesign-metrics.md) | **Redesign — Métricas** (seção nova): R$4.2B / 1.840+ / 14 dias, animação bounce | `feat/022-landing-redesign-metrics` | 021 | ✅ | — | — | — | — | Redesign 8/13 |
+| [022](022-landing-redesign-metrics.md) | **Redesign — Métricas** (seção nova): R$4.2B / 1.840+ / 14 dias, animação bounce | `feat/022-landing-redesign-metrics` | 021 | ✅ | — | ✅ | ✅ [PR #18](https://github.com/credito-gov/app/pull/18) | ✅ (em `feat/landing-redesign`) | Redesign 8/13 |
 | [023](023-landing-redesign-testimonials.md) | **Redesign — Depoimentos**: seção própria, cards dark, bios atualizadas | `feat/023-landing-redesign-testimonials` | 022 | ✅ | — | — | — | — | Redesign 9/13 |
 | [024](024-landing-redesign-pricing.md) | **Redesign — Preço**: sem coluna lateral, "Sob Consulta" | `feat/024-landing-redesign-pricing` | 023 | ✅ | — | — | — | — | Redesign 10/13 |
 | [025](025-landing-redesign-faq.md) | **Redesign — FAQ**: seção própria, dark, perguntas novas | `feat/025-landing-redesign-faq` | 024 | ✅ | — | — | — | — | Redesign 11/13 |
@@ -46,7 +46,7 @@
 ### 🟢 Disponíveis para iniciar
 
 - [ ] **[001](001-backend-infra.md)** — Setup Backend _(4-6h; sem pré-req; primeira task)_
-- [ ] **[022](022-landing-redesign-metrics.md)** — Redesign: Métricas _(2-3h; 021 merged em `feat/landing-redesign`; 8/13 do redesign)_
+- [ ] **[023](023-landing-redesign-testimonials.md)** — Redesign: Depoimentos _(3-4h; 022 merged em `feat/landing-redesign`; 9/13 do redesign)_
 
 ### 🔴 Bloqueadas por dependência
 
@@ -54,7 +54,6 @@
 - [ ] **[003](003-auth-jwt-omie.md)** — aguarda 002 merged
 - [ ] **[004](004-frontend-setup.md)** — aguarda 003 merged
 - [ ] **[005](005-layout-base.md)** — aguarda 004 merged
-- [ ] **[023](023-landing-redesign-testimonials.md)** — aguarda 022 merged em `feat/landing-redesign`
 - [ ] **[024](024-landing-redesign-pricing.md)** — aguarda 023 merged em `feat/landing-redesign`
 - [ ] **[025](025-landing-redesign-faq.md)** — aguarda 024 merged em `feat/landing-redesign`
 - [ ] **[026](026-landing-redesign-final-cta.md)** — aguarda 025 merged em `feat/landing-redesign`
