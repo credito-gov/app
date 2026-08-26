@@ -26,7 +26,7 @@
 | [015](015-landing-redesign-motion-foundation.md) | **Redesign — Fundação de Motion**: hook `useScrollReveal` + design tokens dark mode | `feat/015-landing-redesign-motion` | 014 | ✅ | — | ✅ | ✅ [PR #11](https://github.com/credito-gov/app/pull/11) | ✅ (em `feat/landing-redesign`, não em `main`) | Redesign 1/13 |
 | [016](016-landing-redesign-header.md) | **Redesign — Header/Nav**: dark, sticky com blur, novo item "Soluções" | `feat/016-landing-redesign-header` | 015 | ✅ | — | ✅ | ✅ [PR #12](https://github.com/credito-gov/app/pull/12) | ✅ (em `feat/landing-redesign`) | Redesign 2/13 |
 | [017](017-landing-redesign-hero.md) | **Redesign — Hero**: dark, copy novo, mockup "Painel Executivo" | `feat/017-landing-redesign-hero` | 016 | ✅ | — | ✅ | ✅ [PR #13](https://github.com/credito-gov/app/pull/13) | ✅ (em `feat/landing-redesign`) | Redesign 3/13 |
-| [018](018-landing-redesign-social-proof.md) | **Redesign — Prova Social**: dark, badges de empresa, sem depoimentos | `feat/018-landing-redesign-social-proof` | 017 | ✅ | — | — | — | — | Redesign 4/13 |
+| [018](018-landing-redesign-social-proof.md) | **Redesign — Prova Social**: dark, badges de empresa, sem depoimentos | `feat/018-landing-redesign-social-proof` | 017 | ✅ | — | ✅ | ✅ [PR #14](https://github.com/credito-gov/app/pull/14) | ✅ (em `feat/landing-redesign`) | Redesign 4/13 |
 | [019](019-landing-redesign-how-it-works.md) | **Redesign — Como Funciona** (seção nova): 3 passos numerados | `feat/019-landing-redesign-how-it-works` | 018 | ✅ | — | — | — | — | Redesign 5/13 |
 | [020](020-landing-redesign-dashboard-showcase.md) | **Redesign — Dashboard Showcase** (seção nova): tabela de transações | `feat/020-landing-redesign-dashboard-showcase` | 019 | ✅ | — | — | — | — | Redesign 6/13 |
 | [021](021-landing-redesign-features.md) | **Redesign — Features**: 3 ícones verdes uniformes, copy novo | `feat/021-landing-redesign-features` | 020 | ✅ | — | — | — | — | Redesign 7/13 |
@@ -46,7 +46,7 @@
 ### 🟢 Disponíveis para iniciar
 
 - [ ] **[001](001-backend-infra.md)** — Setup Backend _(4-6h; sem pré-req; primeira task)_
-- [ ] **[018](018-landing-redesign-social-proof.md)** — Redesign: Prova Social _(3-4h; 017 merged em `feat/landing-redesign`; 4/13 do redesign)_
+- [ ] **[019](019-landing-redesign-how-it-works.md)** — Redesign: Como Funciona _(3-4h; 018 merged em `feat/landing-redesign`; 5/13 do redesign)_
 
 ### 🔴 Bloqueadas por dependência
 
@@ -54,7 +54,6 @@
 - [ ] **[003](003-auth-jwt-omie.md)** — aguarda 002 merged
 - [ ] **[004](004-frontend-setup.md)** — aguarda 003 merged
 - [ ] **[005](005-layout-base.md)** — aguarda 004 merged
-- [ ] **[019](019-landing-redesign-how-it-works.md)** — aguarda 018 merged em `feat/landing-redesign`
 - [ ] **[020](020-landing-redesign-dashboard-showcase.md)** — aguarda 019 merged em `feat/landing-redesign`
 - [ ] **[021](021-landing-redesign-features.md)** — aguarda 020 merged em `feat/landing-redesign`
 - [ ] **[022](022-landing-redesign-metrics.md)** — aguarda 021 merged em `feat/landing-redesign`
