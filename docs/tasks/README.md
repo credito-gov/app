@@ -24,7 +24,7 @@
 | [013](013-landing-footer.md) | **Landing Page — Footer**: 4 colunas + barra de copyright | `feat/013-landing-footer` | 012 | ✅ | — | ✅ | ✅ [PR #8](https://github.com/credito-gov/app/pull/8) | ✅ | Landing Page 8 |
 | [014](014-landing-seo.md) | **Landing Page — SEO/Meta Tags + robots.txt**: OG/Twitter Card, sitemap, headings semânticos, bloqueio de bots de IA, logo real da marca | `feat/014-landing-seo` | 013 | ✅ | — | ✅ | ✅ [PR #9](https://github.com/credito-gov/app/pull/9) | ✅ | Landing Page 9 — última. Série completa! |
 | [015](015-landing-redesign-motion-foundation.md) | **Redesign — Fundação de Motion**: hook `useScrollReveal` + design tokens dark mode | `feat/015-landing-redesign-motion` | 014 | ✅ | — | ✅ | ✅ [PR #11](https://github.com/credito-gov/app/pull/11) | ✅ (em `feat/landing-redesign`, não em `main`) | Redesign 1/13 |
-| [016](016-landing-redesign-header.md) | **Redesign — Header/Nav**: dark, sticky com blur, novo item "Soluções" | `feat/016-landing-redesign-header` | 015 | ✅ | — | — | — | — | Redesign 2/13 |
+| [016](016-landing-redesign-header.md) | **Redesign — Header/Nav**: dark, sticky com blur, novo item "Soluções" | `feat/016-landing-redesign-header` | 015 | ✅ | — | ✅ | ✅ [PR #12](https://github.com/credito-gov/app/pull/12) | ✅ (em `feat/landing-redesign`) | Redesign 2/13 |
 | [017](017-landing-redesign-hero.md) | **Redesign — Hero**: dark, copy novo, mockup "Painel Executivo" | `feat/017-landing-redesign-hero` | 016 | ✅ | — | — | — | — | Redesign 3/13 |
 | [018](018-landing-redesign-social-proof.md) | **Redesign — Prova Social**: dark, badges de empresa, sem depoimentos | `feat/018-landing-redesign-social-proof` | 017 | ✅ | — | — | — | — | Redesign 4/13 |
 | [019](019-landing-redesign-how-it-works.md) | **Redesign — Como Funciona** (seção nova): 3 passos numerados | `feat/019-landing-redesign-how-it-works` | 018 | ✅ | — | — | — | — | Redesign 5/13 |
@@ -46,7 +46,7 @@
 ### 🟢 Disponíveis para iniciar
 
 - [ ] **[001](001-backend-infra.md)** — Setup Backend _(4-6h; sem pré-req; primeira task)_
-- [ ] **[016](016-landing-redesign-header.md)** — Redesign: Header/Nav _(3-4h; 015 merged em `feat/landing-redesign`; 2/13 do redesign)_
+- [ ] **[017](017-landing-redesign-hero.md)** — Redesign: Hero _(5-6h; 016 merged em `feat/landing-redesign`; 3/13 do redesign)_
 
 ### 🔴 Bloqueadas por dependência
 
@@ -54,7 +54,6 @@
 - [ ] **[003](003-auth-jwt-omie.md)** — aguarda 002 merged
 - [ ] **[004](004-frontend-setup.md)** — aguarda 003 merged
 - [ ] **[005](005-layout-base.md)** — aguarda 004 merged
-- [ ] **[017](017-landing-redesign-hero.md)** — aguarda 016 merged em `feat/landing-redesign`
 - [ ] **[018](018-landing-redesign-social-proof.md)** — aguarda 017 merged em `feat/landing-redesign`
 - [ ] **[019](019-landing-redesign-how-it-works.md)** — aguarda 018 merged em `feat/landing-redesign`
 - [ ] **[020](020-landing-redesign-dashboard-showcase.md)** — aguarda 019 merged em `feat/landing-redesign`
