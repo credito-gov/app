@@ -21,7 +21,7 @@
 | [010](010-landing-problem-features.md) | **Landing Page — Dor vs Solução + Features**: 3 cards problema/solução + 3 cards de benefício | `feat/010-landing-problem-features` | 009 | ✅ | — | ✅ | ✅ [PR #5](https://github.com/credito-gov/app/pull/5) | ✅ | Landing Page 5 — inclui fix de altura igual entre cards |
 | [011](011-landing-pricing.md) | **Landing Page — Preço**: card de plano único + garantia/bônus | `feat/011-landing-pricing` | 010 | ✅ | — | ✅ | ✅ [PR #6](https://github.com/credito-gov/app/pull/6) | ✅ | Landing Page 6 |
 | [012](012-landing-faq-cta.md) | **Landing Page — FAQ + CTA Final**: 4 perguntas + bloco de CTA | `feat/012-landing-faq-cta` | 011 | ✅ | — | ✅ | ✅ [PR #7](https://github.com/credito-gov/app/pull/7) | ✅ | Landing Page 7 |
-| [013](013-landing-footer.md) | **Landing Page — Footer**: 4 colunas + barra de copyright | `feat/013-landing-footer` | 012 | ✅ | — | — | — | — | Landing Page 8 |
+| [013](013-landing-footer.md) | **Landing Page — Footer**: 4 colunas + barra de copyright | `feat/013-landing-footer` | 012 | ✅ | — | ✅ | ✅ [PR #8](https://github.com/credito-gov/app/pull/8) | — | Landing Page 8 |
 | [014](014-landing-seo.md) | **Landing Page — SEO/Meta Tags + robots.txt**: OG/Twitter Card, sitemap, headings semânticos, bloqueio de bots de IA | `feat/014-landing-seo` | 013 | ✅ | — | — | — | — | Landing Page 9 — última |
 
 ---
@@ -33,7 +33,6 @@
 ### 🟢 Disponíveis para iniciar
 
 - [ ] **[001](001-backend-infra.md)** — Setup Backend _(4-6h; sem pré-req; primeira task)_
-- [ ] **[013](013-landing-footer.md)** — Landing Page: Footer _(2-3h; 012 merged)_
 
 ### 🔴 Bloqueadas por dependência
 
