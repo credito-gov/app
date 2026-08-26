@@ -11,6 +11,7 @@ function App() {
   return (
     <div className="min-h-screen">
       <Header />
+      <div className="h-[80px] w-full" aria-hidden="true" />
       <Hero />
       <SocialProof />
       <ProblemSolution />
