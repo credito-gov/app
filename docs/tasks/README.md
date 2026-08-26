@@ -23,7 +23,7 @@
 | [012](012-landing-faq-cta.md) | **Landing Page — FAQ + CTA Final**: 4 perguntas + bloco de CTA | `feat/012-landing-faq-cta` | 011 | ✅ | — | ✅ | ✅ [PR #7](https://github.com/credito-gov/app/pull/7) | ✅ | Landing Page 7 |
 | [013](013-landing-footer.md) | **Landing Page — Footer**: 4 colunas + barra de copyright | `feat/013-landing-footer` | 012 | ✅ | — | ✅ | ✅ [PR #8](https://github.com/credito-gov/app/pull/8) | ✅ | Landing Page 8 |
 | [014](014-landing-seo.md) | **Landing Page — SEO/Meta Tags + robots.txt**: OG/Twitter Card, sitemap, headings semânticos, bloqueio de bots de IA, logo real da marca | `feat/014-landing-seo` | 013 | ✅ | — | ✅ | ✅ [PR #9](https://github.com/credito-gov/app/pull/9) | ✅ | Landing Page 9 — última. Série completa! |
-| [015](015-landing-redesign-motion-foundation.md) | **Redesign — Fundação de Motion**: hook `useScrollReveal` + design tokens dark mode | `feat/015-landing-redesign-motion` | 014 | ✅ | — | — | — | — | Redesign 1/13 — PR contra `feat/landing-redesign`, não `main` |
+| [015](015-landing-redesign-motion-foundation.md) | **Redesign — Fundação de Motion**: hook `useScrollReveal` + design tokens dark mode | `feat/015-landing-redesign-motion` | 014 | ✅ | — | ✅ | ✅ [PR #11](https://github.com/credito-gov/app/pull/11) | — | Redesign 1/13 — PR contra `feat/landing-redesign`, não `main` |
 | [016](016-landing-redesign-header.md) | **Redesign — Header/Nav**: dark, sticky com blur, novo item "Soluções" | `feat/016-landing-redesign-header` | 015 | ✅ | — | — | — | — | Redesign 2/13 |
 | [017](017-landing-redesign-hero.md) | **Redesign — Hero**: dark, copy novo, mockup "Painel Executivo" | `feat/017-landing-redesign-hero` | 016 | ✅ | — | — | — | — | Redesign 3/13 |
 | [018](018-landing-redesign-social-proof.md) | **Redesign — Prova Social**: dark, badges de empresa, sem depoimentos | `feat/018-landing-redesign-social-proof` | 017 | ✅ | — | — | — | — | Redesign 4/13 |
@@ -46,7 +46,6 @@
 ### 🟢 Disponíveis para iniciar
 
 - [ ] **[001](001-backend-infra.md)** — Setup Backend _(4-6h; sem pré-req; primeira task)_
-- [ ] **[015](015-landing-redesign-motion-foundation.md)** — Redesign: Fundação de Motion _(3-4h; 014 merged; 1/13 do redesign)_
 
 ### 🔴 Bloqueadas por dependência
 
