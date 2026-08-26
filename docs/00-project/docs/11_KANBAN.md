@@ -9,11 +9,11 @@
 
 ### 🔄 Em Progresso
 - [ ] Entrevistas com 10 PMEs (target: 5 até 31/ago)
-- [ ] Contato com Omie para partnership
+- [ ] Primeiras conversas com contadores/escritórios contábeis (mapear formato de parceria e incentivo)
 - [ ] Confirmação com Receita Federal
 
 ### ⏳ Pendente
-- [ ] Resposta Omie (SLA: até 15/set)
+- [ ] Formato de parceria contábil definido (comissão, onboarding, contrato)
 - [ ] API Receita confirmada (esperado jan/2027)
 - [ ] Decisão Go/No-Go (até 20/set)
 
@@ -198,9 +198,9 @@
 - [ ] On-call rotation
 
 ### Launch
-- [ ] Omie native integration
+- [ ] Fechamento das 10 primeiras parcerias contábeis (meta: 1.000 PMEs em 6 meses)
 - [ ] Customer communications
-- [ ] Marketing push
+- [ ] Material de divulgação para contadores parceiros
 
 ### Post-Launch
 - [ ] Monitor health
