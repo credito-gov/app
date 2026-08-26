@@ -19,7 +19,7 @@
 | [008](008-landing-hero.md) | **Landing Page — Hero Section**: tag, H1, CTAs, mockup de dashboard | `feat/008-landing-hero` | 007 | ✅ | — | ✅ | ✅ [PR #3](https://github.com/credito-gov/app/pull/3) | ✅ | Landing Page 3 |
 | [009](009-landing-social-proof.md) | **Landing Page — Prova Social**: logos placeholder + 3 depoimentos | `feat/009-landing-social-proof` | 008 | ✅ | — | ✅ | ✅ [PR #4](https://github.com/credito-gov/app/pull/4) | ✅ | Landing Page 4 — inclui fix-forward de centralização + card Hero |
 | [010](010-landing-problem-features.md) | **Landing Page — Dor vs Solução + Features**: 3 cards problema/solução + 3 cards de benefício | `feat/010-landing-problem-features` | 009 | ✅ | — | ✅ | ✅ [PR #5](https://github.com/credito-gov/app/pull/5) | ✅ | Landing Page 5 — inclui fix de altura igual entre cards |
-| [011](011-landing-pricing.md) | **Landing Page — Preço**: card de plano único + garantia/bônus | `feat/011-landing-pricing` | 010 | ✅ | — | ✅ | ✅ [PR #6](https://github.com/credito-gov/app/pull/6) | — | Landing Page 6 |
+| [011](011-landing-pricing.md) | **Landing Page — Preço**: card de plano único + garantia/bônus | `feat/011-landing-pricing` | 010 | ✅ | — | ✅ | ✅ [PR #6](https://github.com/credito-gov/app/pull/6) | ✅ | Landing Page 6 |
 | [012](012-landing-faq-cta.md) | **Landing Page — FAQ + CTA Final**: 4 perguntas + bloco de CTA | `feat/012-landing-faq-cta` | 011 | ✅ | — | — | — | — | Landing Page 7 |
 | [013](013-landing-footer.md) | **Landing Page — Footer**: 4 colunas + barra de copyright | `feat/013-landing-footer` | 012 | ✅ | — | — | — | — | Landing Page 8 |
 | [014](014-landing-seo.md) | **Landing Page — SEO/Meta Tags + robots.txt**: OG/Twitter Card, sitemap, headings semânticos, bloqueio de bots de IA | `feat/014-landing-seo` | 013 | ✅ | — | — | — | — | Landing Page 9 — última |
@@ -33,6 +33,7 @@
 ### 🟢 Disponíveis para iniciar
 
 - [ ] **[001](001-backend-infra.md)** — Setup Backend _(4-6h; sem pré-req; primeira task)_
+- [ ] **[012](012-landing-faq-cta.md)** — Landing Page: FAQ + CTA Final _(3-4h; 011 merged)_
 
 ### 🔴 Bloqueadas por dependência
 
@@ -40,7 +41,6 @@
 - [ ] **[003](003-auth-jwt-omie.md)** — aguarda 002 merged
 - [ ] **[004](004-frontend-setup.md)** — aguarda 003 merged
 - [ ] **[005](005-layout-base.md)** — aguarda 004 merged
-- [ ] **[012](012-landing-faq-cta.md)** — aguarda 011 merged
 - [ ] **[013](013-landing-footer.md)** — aguarda 012 merged
 - [ ] **[014](014-landing-seo.md)** — aguarda 013 merged
 
