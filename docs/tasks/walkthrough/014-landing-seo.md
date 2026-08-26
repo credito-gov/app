@@ -81,6 +81,13 @@ Durante a revisão desta task, o time de design entregou os arquivos reais do lo
 - **Nota de conteúdo relevante:** esse commit também **resolve** a decisão de monetização que estava em aberto no `PROJECT_CONTEXT.md` §12 (referenciada na task 011/Pricing) — o item "Modelo de monetização — SaaS direto, freemium, outra abordagem?" foi substituído por "Go-to-market definido: SaaS direto, com parcerias contábeis como canal comercial primário". O **valor exato** do plano continua indefinido, então os placeholders `R$ [valor]` e `[x]%` em `Pricing.tsx` (task 011) permanecem corretos como estão — nenhuma mudança de código necessária por causa disso.
 - **Impacto:** o PR #9 passa a conter, além do trabalho desta task, um commit de conteúdo de negócio não relacionado a código. Aceito explicitamente pelo responsável do projeto.
 
+### Decisão 4: uso do lockup completo (ícone + wordmark) em vez de ícone + texto HTML
+
+- **Contexto:** a primeira integração dos assets reais (item 6, acima) usava o ícone de marca sozinho (`icon-mark.png`) ao lado de um `<p>CreditoGov</p>` estilizado em Tailwind, reproduzindo a fonte à mão. Daniel apontou que o design já entrega o lockup completo pronto (`logo.png`, ícone + wordmark "CréditoGov" já desenhados juntos), e pediu para usar o arquivo real em vez de recriar o texto.
+- **Alternativa escolhida:** reprocessei `docs/00-project/assets/logo.png` (mesma técnica: remoção do fundo branco por threshold, recorte, redimensionamento) e gerei `logo-lockup.png` (colorido, para o Header) e `logo-lockup-white.png` (monocromático branco, para o Footer). O `<img>` agora carrega o lockup inteiro com `alt="CreditoGov"`, sem nenhum texto HTML adicional ao lado.
+- **Sinalizado antes da execução:** N/A — correção direta pedida explicitamente pelo Daniel, sem ambiguidade de abordagem.
+- **Impacto:** `icon-mark.png`/`icon-mark-white.png` removidos (substituídos); nenhuma mudança de layout além da largura do logo (o lockup completo é mais largo que ícone+texto separados, mas ainda cabe dentro do `max-w-7xl` do Header/Footer).
+
 ---
 
 ## Validação executada
@@ -175,6 +182,8 @@ Durante a revisão desta task, o time de design entregou os arquivos reais do lo
 2. `4c5f4f9` — `docs(tasks): add walkthrough and mark task 014 as developed`
 3. `6a060a3` — `Changing business plan and add assets` (commit externo, autoria de Daniel Buona — ver "Decisão 3" acima)
 4. `4905d62` — `feat(landing): replace placeholder logo with real brand assets`
+5. `e2b3e58` — `docs(tasks): update walkthrough 014 with real brand assets and out-of-scope commit`
+6. `bc8128c` — `fix(landing): use full brand logo lockup instead of icon + HTML text`
 
 > **Atenção:** `git log origin/main..HEAD` mostra o commit `6a060a3`, que **não** foi feito nesta execução — é um commit externo que entrou na branch fora do controle desta sessão. Sinalizado ao responsável do projeto e mantido por decisão explícita dele (ver "Decisão 3" em "Decisões técnicas fora do prompt"). Os demais commits são desta task.
 
