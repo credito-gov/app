@@ -9,6 +9,7 @@ import Metrics from './components/Metrics'
 import Pricing from './components/Pricing'
 import ProblemSolution from './components/ProblemSolution'
 import SocialProof from './components/SocialProof'
+import Testimonials from './components/Testimonials'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <ProblemSolution />
       <Features />
       <Metrics />
+      <Testimonials />
       <Pricing />
       <FaqAndFinalCta />
       <Footer />
