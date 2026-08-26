@@ -58,11 +58,10 @@ A partir de janeiro/2027, entra em vigor o CBS (Contribuição sobre Bens e Serv
 - ✅ Ações facilitadas (compensar/adiantar com 2 cliques)
 - ✅ Contexto operacional (qual compra gerou qual crédito)
 
-**Para Omie:**
-- ✅ Diferencial competitivo (único que oferece)
-- ✅ Integração nativa na plataforma
-- ✅ Mais sticky (PME usa mais Omie por isso)
-- ✅ Comissões adicionais (de adiantamentos)
+**Para o Contador/Escritório Contábil:**
+- ✅ Ferramenta que agrega valor à carteira de clientes (diferencial na oferta do escritório)
+- ✅ Reduz o trabalho manual de validação de crédito para o próprio contador
+- ✅ Incentivo/comissão por indicação
 
 **Para Governo:**
 - ✅ Melhora arrecadação (split payment funciona melhor)
@@ -93,27 +92,26 @@ A partir de janeiro/2027, entra em vigor o CBS (Contribuição sobre Bens e Serv
 - Potencial: 500k - 1M PMEs que geram crédito CBS/IBS relevante
 
 **Mercado Abordável (SAM)**
-- Clientes Omie: ~400k
+- PMEs atendidas por escritórios de contabilidade na faixa-alvo: ~400k
 - PMEs com crédito tributário relevante (>R$ 5k/mês): ~100k
 - Potencial SAM: R$ 15-30M/ano em receita
 
 **Mercado Atingível (SOM) - Ano 1**
-- Target: 5-10k PMEs
-- Receita Year 1: R$ 1-3M
+- Target: 3-4k PMEs (via 10 parcerias contábeis no 1º semestre pós-lançamento, expandindo ao longo do ano)
+- Receita Year 1: R$ 1.2-1.8M
 
 ### Segmentação de Clientes
 
 **Prioridade 1: Comércio/Varejo** (60% do TAM)
 - Alto volume de compras → mais crédito gerado
 - Caixa apertado → precisa visibilidade
-- Usa Omie massivamente
+- Forte presença nas carteiras dos escritórios de contabilidade
 - Ticket médio: R$ 1-5M/mês faturamento
 
 **Prioridade 2: Indústria Pequena** (25% do TAM)
 - Crédito mais complexo (IPI + CBS)
 - Volume maior de crédito
 - Melhor ticket médio: R$ 2-10M/mês
-- Menos clientes Omie (usa ERP maior)
 
 **Prioridade 3: Serviços** (15% do TAM)
 - Crédito limitado (CBS só em consumo)
@@ -126,19 +124,18 @@ A partir de janeiro/2027, entra em vigor o CBS (Contribuição sobre Bens e Serv
 
 ### Revenue Streams
 
-**1. SaaS Subscription (via Omie)**
-- PME paga Omie R$ 100-150/mês
-- Omie repassa 20-30% de comissão para CreditoGov
-- Assume 7.5k PMEs = R$ 225k/mês = R$ 2.7M/ano
+**1. SaaS Subscription (Direto)**
+- PME (ou o escritório contábil em nome dela) paga R$ 100/mês diretamente ao CreditoGov
+- Sem repasse a terceiros — receita 100% capturada
+- Assume 3.5k PMEs (fim Ano 1) = R$ 350k/mês de MRR
 
-**2. Comissão de Adiantamento (Split Revenue)**
-- PME usa app pra adiantar crédito com fintech
-- Fintech paga 1-2% de comissão por originação
-- CreditoGov fica com 50% dessa comissão
-- Assume 20% das PMEs adiantam = R$ 45k/mês
+**2. Comissão Fintech/FIDC (a negociar pós-volume)**
+- PME usa app pra adiantar crédito com fintech/FIDC/instituição financeira parceira
+- Modelo de comissão a ser negociado quando houver massa crítica de PMEs ativas — o volume é o principal ativo de negociação
+- Não contabilizada no cenário base (upside)
 
 **3. APIs Adicionais (Futuro 2028+)**
-- Integração com outros ERPs (Bluesoft, SAP, etc)
+- Integração com outros ERPs (Omie, Bluesoft, SAP, etc)
 - Venda de dados agregados (anonimizados, com consentimento)
 
 ### Estrutura de Custos
@@ -146,58 +143,64 @@ A partir de janeiro/2027, entra em vigor o CBS (Contribuição sobre Bens e Serv
 **Custos Fixos (Mensais)**
 - Infra (servidor, BD, CDN): R$ 5-10k
 - Pessoas (2 devs, 1 tributarista PT): R$ 30-50k
-- Omie partnership: R$ 5k
 - Outros (legal, contabilidade, marketing): R$ 5-10k
-- **Total**: R$ 45-75k/mês
+- **Total**: R$ 40-70k/mês
+
+**Custo de Canal (Comissão ao Contador)**
+- 15-20% da mensalidade por PME trazida via parceria contábil
 
 **Custos Variáveis (Por transação)**
 - API Receita Federal: R$ 0.01-0.05/consulta [TBD]
-- API Fintechs: Incluído na comissão
 - Suporte: ~2% da receita
 
 ### Breakeven Analysis
 
 ```
-Receita Monthly = R$ 225k (SaaS) + R$ 45k (comissão) = R$ 270k
+Receita Monthly (fim Ano 1) = R$ 350k (3.5k PMEs × R$ 100)
 
-Custos Fixed = R$ 40k
-Custos Variáveis = R$ 27k (10% receita)
+Custos Fixed = R$ 40-50k
+Comissão Canal (18%) = R$ 63k
+Custos Variáveis = R$ 35k (10% receita)
 
-Contribuição = R$ 270k - R$ 67k = R$ 203k
+Contribuição = R$ 350k - R$ 143k = R$ 207k
 
-Status: LUCRATIVO DESDE O INÍCIO ✅
+Status: LUCRATIVO ANTES DO FIM DO ANO 1 ✅ (breakeven em ~2.5k PMEs / 25 parcerias)
 ```
 
 ---
 
 ## 6. Go-to-Market Strategy
 
-### Fase 1: Partnership com Omie (Jan-Abr/2027)
+### Fase 1: Parcerias com Contadores/Escritórios Contábeis (primeiros 6 meses pós-lançamento)
 
 **Estratégia**
 1. MVP pronto em dez/2026
-2. Pitch pra Omie em janeiro
-3. Integração nativa na plataforma
-4. Beta com 100-200 clientes Omie (fev-mar)
-5. Go-live massivo (abr, com split payment)
+2. Fechar 10 parcerias com escritórios de contabilidade no 1º semestre pós Go-Live
+3. Cada parceria ativa a carteira do escritório (média pessimista: 100 empresas/parceria) → meta de 1.000 PMEs no semestre
+4. Onboarding assistido pelo próprio contador (que já tem a confiança do cliente)
+5. Comissão/incentivo ao contador de 15-20% da mensalidade por PME ativa
 
 **Vantagens**
-- Zero customer acquisition cost
-- Built-in trust (marca Omie)
-- Distribuição imediata para 400k PMEs
+- CAC próximo de zero: 1 parceria fechada ≈ 100 clientes, sem necessidade de vender empresa a empresa
+- Contador já tem a confiança da PME — reduz fricção de adoção
+- Distribuição em lote, não um a um
 
-### Fase 2: Direct to PME (Abr-Ago/2027)
+**Por que esse canal primeiro (vs. venda direta à PME)**
+- Penetração direta em PME é lenta e cara (ciclo de vendas longo, baixa confiança em ferramenta nova)
+- Contador já decide/influencia ferramentas usadas pela empresa
+- Volume construído aqui é o que viabiliza a negociação com fintechs/FIDCs depois
+
+### Fase 2: Escala do Canal Contábil + Monetização Fintech/FIDC (Ano 2+)
 
 **Estratégia**
-1. Landing page (google ads, facebook)
-2. Integração direta com Omie (sem necessidade de partnership)
-3. Freemium (versão básica free)
-4. Programas de referência
+1. Expandir de 10 para 30-50+ parcerias contábeis ativas
+2. Com massa crítica de PMEs na plataforma, iniciar negociação com fintechs/FIDCs (ou uma instituição financeira) para o produto de adiantamento de crédito
+3. Complementar com direct to PME / freemium onde fizer sentido
 
 **Vantagens**
-- Diversifica receita
-- Não depende 100% de Omie
-- Maior margem (sem split com Omie)
+- Volume de PMEs ativas = poder de negociação com parceiros financeiros
+- Diversifica receita (SaaS + comissão fintech/FIDC)
+- Escala sem depender de um único parceiro de distribuição
 
 ---
 
@@ -218,7 +221,7 @@ Status: LUCRATIVO DESDE O INÍCIO ✅
 ### Vantagem Competitiva
 
 1. **Primeiro mover** (primeira solução integrada)
-2. **Integração nativa** (dentro de Omie, não ferramenta separada)
+2. **Canal de distribuição em lote** (parcerias contábeis, não venda um a um)
 3. **Validação automática** (API do governo)
 4. **Contexto operacional** (conecta compra → crédito → ação)
 5. **Partnership com governo** (dados estruturados)
@@ -228,28 +231,31 @@ Status: LUCRATIVO DESDE O INÍCIO ✅
 
 ## 8. Projeção Financeira (3 Anos)
 
-### Cenário Base
+### Cenário Base (10 parcerias contábeis no H1, ~100 PMEs/parceria)
 
 | Métrica | Ano 1 | Ano 2 | Ano 3 |
 |---------|-------|-------|-------|
-| **Clientes** | 5-10k | 30-50k | 100-150k |
-| **SaaS MRR** | R$ 250-500k | R$ 1.5-2.5M | R$ 4-6M |
-| **Comissão Split** | R$ 200-400k | R$ 1-1.5M | R$ 2-3M |
-| **Receita Total** | R$ 450-900k | R$ 2.5-4M | R$ 6-9M |
-| **Custos Variáveis** | R$ 100k | R$ 500k | R$ 1.2M |
+| **Clientes** | 3-4k | 12-20k | 35-55k |
+| **SaaS MRR (fim período)** | R$ 300-400k | R$ 1.2-2M | R$ 3.5-5.5M |
+| **Comissão Fintech/FIDC** | A negociar (não contabilizada) | A negociar | A negociar |
+| **Receita Total** | R$ 1.2-1.8M | R$ 4.5-7M | R$ 10-15M |
+| **Custos Variáveis** | R$ 120-180k | R$ 500k-1M | R$ 1-1.5M |
+| **Comissão Canal (contadores)** | R$ 220-320k | R$ 700k-1.2M | R$ 1.5-2.5M |
 | **Custos Fixos** | R$ 600k | R$ 1.2M | R$ 1.8M |
-| **Total Custos** | R$ 700k | R$ 1.7M | R$ 3M |
-| **EBITDA** | -R$ 250k a R$ 200k | R$ 800k-2.3M | R$ 3-6M |
-| **Margem EBITDA** | -28% a 22% | 32%-58% | 50%-67% |
+| **Total Custos** | R$ 940k-1.1M | R$ 2.4-3.2M | R$ 4.3-5.8M |
+| **EBITDA** | R$ 100k-700k | R$ 1.5-3.5M | R$ 4-8M |
+| **Margem EBITDA** | 8%-40% | 35%-50% | 45%-55% |
 
-### Cenário Otimista (20% mais clientes)
+### Cenário Otimista (mais parcerias fechadas / carteiras acima da média)
 
 | Métrica | Ano 1 | Ano 2 | Ano 3 |
 |---------|-------|-------|-------|
-| **Clientes** | 12k | 60k | 180k |
-| **Receita Total** | R$ 1.08M | R$ 5M | R$ 11M |
-| **EBITDA** | R$ 300k | R$ 3M | R$ 7.5M |
-| **Margem** | 28% | 60% | 68% |
+| **Clientes** | 5-6k | 25-35k | 65-90k |
+| **Receita Total** | R$ 1.8-2.7M | R$ 9-12M | R$ 18-25M |
+| **EBITDA** | R$ 400k-1M | R$ 3.5-5.5M | R$ 8-13M |
+| **Margem** | 22%-37% | 39%-46% | 44%-52% |
+
+*Comissão fintech/FIDC não entra nas tabelas acima — é upside a negociar após a base de PMEs atingir massa crítica.*
 
 ---
 
@@ -258,11 +264,11 @@ Status: LUCRATIVO DESDE O INÍCIO ✅
 | Risco | Probabilidade | Impacto | Mitigação |
 |-------|--------------|--------|-----------|
 | API Receita atrasa | Média | Alto | Começar com validação manual; fallback pra tributarista |
-| Omie rejeita partnership | Baixa | Alto | Direct to PME; integração via Omie API pública |
+| Contadores não aderem no ritmo esperado | Média | Alto | Ajustar comissão/incentivo; testar formatos de parceria alternativos; complementar com direct to PME |
 | Split payment não funciona em jan/2027 | Média | Médio | Usar ECF do governo; validação com lag de 30 dias |
-| PME não paga SaaS | Baixa | Médio | Freemium; venda via comissão de adiantamento |
+| PME não paga SaaS | Baixa | Médio | Ajustar preço/tiering; reforçar onboarding via contador |
 | Regulação muda | Baixa | Alto | Time tributarista atualiza; documentação versionada |
-| Fintechs não querem parceria | Baixa | Médio | Integração com mais parceiros; ajustar modelo |
+| Fintech/FIDC não fecha condições favoráveis | Baixa | Médio | Negociar com múltiplos parceiros (fintech, FIDC, FI); só negociar após volume relevante |
 
 ---
 
@@ -270,11 +276,12 @@ Status: LUCRATIVO DESDE O INÍCIO ✅
 
 ### Métricas de Negócio
 
-- **CAC** (Customer Acquisition Cost): <R$ 100
+- **CAC** (Customer Acquisition Cost): próximo de zero via canal contábil (custo = comissão recorrente, não aquisição pontual)
 - **LTV** (Lifetime Value): >R$ 2.000
 - **Churn**: <5% ao mês
 - **NPS**: >50
-- **Monthly Recurring Revenue**: R$ 250k+ (ano 1)
+- **Monthly Recurring Revenue**: R$ 300-400k (fim ano 1)
+- **Parcerias contábeis ativas**: 10 (fim H1) → 30-50 (fim ano 1)
 
 ### Métricas de Produto
 
@@ -294,13 +301,13 @@ Status: LUCRATIVO DESDE O INÍCIO ✅
 ## 11. Roadmap Executivo
 
 **Sprint 0 (Ago-Set/2026)**: Validação de Mercado
-- Entrevistas com 10-15 PMEs
+- Entrevistas com 10-15 PMEs e contadores
 - Confirmação com Receita Federal (API)
-- Confirmação com Omie (partnership)
+- Primeiras conversas com escritórios de contabilidade (mapear formato de parceria)
 - Decisão: Go/No-Go
 
 **MVP (Out-Dez/2026)**: Backend + Frontend Básico
-- Integração Omie API
+- Integração Omie API (sincronização de dados, técnica)
 - Cron de sincronização
 - Dashboard simples
 - Testes
@@ -308,27 +315,26 @@ Status: LUCRATIVO DESDE O INÍCIO ✅
 **Beta (Jan-Mar/2027)**: Validação com Clientes
 - Integração API Receita (quando disponível)
 - Split Payment (integração)
-- Beta com Omie (100-200 clientes)
+- Beta com as primeiras 2-3 parcerias contábeis fechadas
 - Feedback e iteração
 
 **Go-Live (Abr/2027+)**: Escalas Comerciais
-- Integração fintech (adiantamento)
-- Omie inclui no produto (native)
-- Marketing (direct to PME)
-- Suporte e onboarding
+- Fechar as 10 primeiras parcerias contábeis (meta: 1.000 PMEs em 6 meses)
+- Iniciar conversas de negociação com fintechs/FIDCs (com base no volume construído)
+- Suporte e onboarding assistido pelos contadores parceiros
 
 ---
 
 ## 12. Conclusão
 
-CreditoGov resolve um problema real e urgente para PMEs na era pós-reforma tributária. Com timing perfeito (split payment começando abr/2027), partnership com Omie, e diferencial tecnológico claro, o projeto tem:
+CreditoGov resolve um problema real e urgente para PMEs na era pós-reforma tributária. Com timing perfeito (split payment começando abr/2027), canal de distribuição via parcerias contábeis, e diferencial tecnológico claro, o projeto tem:
 
 ✅ Mercado grande (1.5M PMEs)  
 ✅ Problema real (crédito invisível)  
 ✅ Solução clara (dashboard + API)  
-✅ Go-to-market definido (Omie)  
+✅ Go-to-market definido (parcerias contábeis, CAC próximo de zero)  
 ✅ Timeline apertada mas viável (6 meses MVP)  
-✅ Modelo de negócio sustentável (lucro desde Y1)  
+✅ Modelo de negócio sustentável (lucro já no Ano 1)  
 
 **Recomendação**: Proceed com Sprint 0 agora (agosto/2026).
 

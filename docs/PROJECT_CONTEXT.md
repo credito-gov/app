@@ -171,7 +171,8 @@ Nunca trabalhe direto em `main`. Nunca "empilhe" branches.
 | **PME** | Pequena e Média Empresa — cliente final do CreditoGov |
 | **NF-e** | Nota Fiscal Eletrônica — documento que origina o crédito tributário |
 | **Cron** | Job agendado (00:05 diariamente) que sincroniza créditos da Receita Federal para cada PME ativa |
-| **Fintech** | Parceiros de adiantamento de crédito (ex.: Facile, Liber) |
+| **Fintech/FIDC** | Parceiros de adiantamento de crédito. Monetização a negociar após massa crítica de PMEs ativas — não é o foco comercial dos 6 primeiros meses |
+| **Contador/Escritório Contábil** | Canal comercial primário do CreditoGov. Cada parceria fechada ativa, em lote, a carteira de PMEs do escritório (média pessimista: ~100 empresas/parceria). Recebe comissão de 15-20% da mensalidade por PME ativa |
 
 ---
 
@@ -294,8 +295,8 @@ Boas perguntas começam com o que você já checou e qual ambiguidade ficou.
 Não codifique baseado em "achismo" sobre estes pontos:
 
 - [ ] **API Receita Federal** — endpoint exato e schema de resposta confirmados. Enquanto não disponível, usar mock baseado na documentação `docs/split-payment/`
-- [ ] **Fintechs parceiras** — Facile e/ou Liber? Contrato e webhooks a definir
-- [ ] **Modelo de monetização** — SaaS direto, freemium, outra abordagem?
+- [ ] **Fintech/FIDC parceiro(a)** — quem? Comissão a negociar somente após massa crítica de PMEs ativas; contrato e webhooks a definir
+- [ ] **Formato exato da parceria contábil** — % de comissão final (faixa 15-20%), contrato, onboarding assistido — a validar no Sprint 0
 - [ ] **Multi-CNPJ** — uma PME pode ter múltiplos CNPJs? Tratar como cadastros separados ou agrupados?
 - [ ] **Retenção de dados de sync_logs** — quanto tempo manter histórico?
 
@@ -307,3 +308,4 @@ Não codifique baseado em "achismo" sobre estes pontos:
 |---|---|
 | 2026-08-25 | Versão inicial — adaptada do modelo Liane/data-intelligence para o CreditoGov |
 | 2026-08-25 | Removida proposta de parceria Omie como canal de distribuição — go-to-market a redefinir |
+| 2026-08-26 | Go-to-market definido: SaaS direto (sem repasse a terceiros), com parcerias contábeis (contadores/escritórios de contabilidade) como canal comercial primário nos primeiros 6 meses pós-lançamento — meta de 10 parcerias / 1.000 PMEs (média de 100 empresas por parceria). Omie segue como fonte de dados técnica (sincronização de NF-e), não como canal de distribuição ou monetização. Comissão fintech/FIDC/instituição financeira passa a ser negociada apenas após a plataforma reunir massa crítica de PMEs ativas |

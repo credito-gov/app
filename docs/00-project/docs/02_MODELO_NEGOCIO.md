@@ -4,27 +4,27 @@
 
 ### 1. SEGMENTOS DE CLIENTES (Customer Segments)
 
-#### Primário: PMEs via Omie (Partnership)
+#### Primário: PMEs via Parceria Contábil
 - **Tipo**: B2B SaaS
-- **Perfil**: PMEs comércio/varejo/indústria pequena
-- **Tamanho**: 5-10k clientes (ano 1)
+- **Perfil**: PMEs comércio/varejo/indústria pequena, dentro da carteira de escritórios de contabilidade parceiros
+- **Tamanho**: 3-4k clientes (fim ano 1), via 10 parcerias no 1º semestre (~100 PMEs/parceria)
 - **Faturamento**: R$ 500k - R$ 5M/mês
-- **Comprador**: Proprietário ou CFO
-- **Ticket**: Incluído em Omie (fee split)
-- **Volume**: Massa (integração nativa)
+- **Comprador**: Proprietário ou CFO (decisão influenciada/indicada pelo contador)
+- **Ticket**: R$ 100/mês, pago direto ao CreditoGov
+- **Volume**: Em lote, por parceria fechada
 
 #### Secundário: PMEs Diretas (Direct)
 - **Tipo**: B2B SaaS independente
-- **Perfil**: Mesma segmentação, mas acesso direto
-- **Tamanho**: 1-5k clientes (ano 1+)
+- **Perfil**: Mesma segmentação, mas acesso direto (sem intermediação de contador)
+- **Tamanho**: Canal complementar, a partir do Ano 2
 - **Ticket**: R$ 50-150/mês
 - **Modelo**: Freemium + premium
 
-#### Terciário: Fintechs (B2B Revenue Share)
+#### Terciário: Fintechs/FIDCs (B2B Revenue Share — a negociar)
 - **Tipo**: B2B2C
-- **Parceiros**: Facile, Liber, etc
-- **Modelo**: Comissão por origination
-- **Volume**: 2-5 parceiros
+- **Parceiros**: Fintechs, FIDCs ou uma instituição financeira (a definir)
+- **Modelo**: Comissão por originação de adiantamento — sem taxa fixada; negociada quando a base de PMEs ativas atingir massa crítica
+- **Volume**: 1-3 parceiros, entrada planejada a partir do Ano 2
 
 ---
 
@@ -41,10 +41,11 @@
 | ❌ "Qual compra gerou qual crédito?" | ✅ "Vejo crédito por operação" |
 
 #### Diferencial Chave
-- **Única solução integrada** (Omie + governo + ação)
+- **Única solução integrada** (dados operacionais + governo + ação)
 - **Validação automática** (via Split Payment)
 - **Contexto operacional** (compra → crédito → ação)
 - **Sem fricção** (2 cliques, não consultoria manual)
+- **Distribuição via contador** (adoção com confiança já estabelecida)
 - **Timing perfeito** (Reforma tributária jan/2027)
 
 ---
@@ -53,26 +54,23 @@
 
 | Canal | Estratégia | Timeline | CAC |
 |-------|-----------|----------|-----|
-| **Omie Nativo** | Integração direta na plataforma | Jan-Abr/2027 | R$ 0 |
-| **Direct SaaS** | Landing page + google ads | Abr-Ago/2027 | R$ 50-150 |
-| **Freemium** | Versão básica grátis → upsell | Ago/2027+ | R$ 20-50 |
-| **Parceiros Contábeis** | Revenda via contadores | Jan/2028+ | R$ 100-200 |
-| **Fintechs** | Embedded no fluxo de adiantamento | Jan/2027+ | R$ 0 (comissão) |
+| **Parcerias Contábeis** | Onboarding em lote via carteira do contador (~100 PMEs/parceria); comissão 15-20% da mensalidade | Abr-Out/2027 (primeiros 6 meses pós-lançamento) | Próximo de R$ 0 (custo = comissão recorrente) |
+| **Direct SaaS** | Landing page + google ads (complementar) | Ano 2+ | R$ 50-150 |
+| **Freemium** | Versão básica grátis → upsell | Ano 2+ | R$ 20-50 |
+| **Fintech/FIDC** | Embedded no fluxo de adiantamento — a negociar pós-volume | Ano 2+ | R$ 0 (comissão) |
 
 ### Customer Journey
 
 ```
-PME usa Omie
+Contador parceiro indica o CreditoGov para sua carteira de PMEs
     ↓
-"Vejo opção de CreditoGov"
-    ↓
-Conecta com certificado digital (1 clique)
+PME conecta com certificado digital (1 clique, onboarding assistido pelo contador)
     ↓
 Dashboard mostra créditos
     ↓
-Clica "Adiantar" → vai pra Fintech
+Clica "Adiantar" → vai pra Fintech/FIDC parceiro
     ↓
-Fintech aprova e repassa R$
+Fintech/FIDC aprova e repassa R$
 ```
 
 ---
@@ -86,15 +84,15 @@ Fintech aprova e repassa R$
 - **Suporte**: Email/chat (tier free)
 - **Modelo**: Low-touch SaaS
 
-#### Para Omie
-- **Contato**: Account manager dedicado
-- **Relatórios**: Mensais (clientes, uso, receita)
-- **Roadmap**: Compartilhado (feedback loop)
-- **SLA**: 99.5% uptime
+#### Para Contadores/Escritórios Contábeis
+- **Contato**: Ponto focal dedicado durante onboarding da carteira
+- **Relatórios**: Mensais (PMEs ativas, uso, comissão gerada)
+- **Incentivo**: Comissão recorrente por PME ativa (15-20% da mensalidade)
+- **Suporte**: Canal direto para dúvidas sobre a carteira
 
-#### Para Fintechs
+#### Para Fintechs/FIDCs
 - **API**: Integration support
-- **Relatórios**: Revenue share mensal
+- **Relatórios**: Revenue share mensal (uma vez negociado)
 - **Performance**: Feedback loop
 - **Co-marketing**: Quando relevante
 
@@ -102,55 +100,43 @@ Fintech aprova e repassa R$
 
 ### 5. REVENUE STREAMS (Fontes de Receita)
 
-#### 5A. SaaS Subscription (Via Omie)
+#### 5A. SaaS Subscription (Direto)
 
 **Modelo**
 ```
-PME paga Omie R$ 100-150/mês
-  ├── Omie retém R$ 70-100
-  └── CreditoGov recebe R$ 30-50
-
-Ou: Omie cobra Omie + CreditoGov R$ 150/mês
-  ├── CreditoGov recebe R$ 30-50
-  └── Omie retém R$ 100
+PME (ou escritório contábil em nome dela) paga CreditoGov R$ 100/mês
+  └── CreditoGov recebe R$ 100 (100% capturado)
+      └── Repassa comissão de 15-20% ao contador que trouxe a PME
 ```
 
 **Volume**
-- 5-10k PMEs em ano 1
-- R$ 30-50/mês × 7.5k = R$ 225-375k/mês
-- ARR: R$ 2.7-4.5M (conservador)
+- 3-4k PMEs no fim do ano 1 (via 10 parcerias contábeis no 1º semestre, expandindo no 2º)
+- R$ 100/mês × 3.5k = R$ 350k/mês (MRR fim de ano)
+- ARR run-rate: R$ 3.6-4.8M (fim de ano, conservador)
 
 **Modelo de Precificação**
 - Tier 1 (Básico): R$ 50/mês - Dashboard + sincronização
 - Tier 2 (Pro): R$ 100/mês - Tudo + projeções avançadas
 - Tier 3 (Enterprise): R$ 200/mês + custom - Integração direta
 
-#### 5B. Comissão de Adiantamento de Crédito
+#### 5B. Comissão Fintech/FIDC (a negociar pós-volume)
 
 **Modelo**
 ```
 PME tem R$ 100k de crédito
 PME clica "Adiantar R$ 80k" no CreditoGov
   ↓
-Redireciona para Fintech (Facile, Liber, etc)
+Redireciona para Fintech/FIDC parceiro (a definir)
   ↓
-Fintech aprova e retém comissão de 1.8% am
-  ├── Fintech retém R$ 1.440 (1,8% × 80k)
-  ├── CreditoGov recebe 20-30% = R$ 288-432
-  └── PME recebe R$ 78.560 (80k - 1.44k)
+Fintech/FIDC aprova e retém sua taxa de adiantamento
+  └── CreditoGov negocia uma comissão sobre essa taxa
+      — condições a definir quando houver massa crítica de PMEs ativas
 ```
 
-**Volume**
-- 20% de PMEs adiantam crédito = 2k PMEs
-- Ticket médio R$ 50k
-- Frequência: 1-2x/ano por PME
-- Comissão: 1-2% da taxa
-
-**Matemática**
-```
-2.000 PMEs × R$ 50k × 1.5x/ano × 1.8% × 25% = R$ 540k/ano
-Ou: R$ 45k/mês (conservador)
-```
+**Racional**
+- Não há taxa comprometida no cenário base
+- O volume de PMEs ativas construído pelo canal contábil é o ativo de barganha nessa negociação
+- Sequenciamento: primeiro escala (canal contábil), depois monetização adicional (fintech/FIDC/FI)
 
 #### 5C. APIs Adicionais (Futuro 2028+)
 
@@ -168,7 +154,7 @@ Ou: R$ 45k/mês (conservador)
 - Expertise tributária (CBS/IBS)
 - Arquitetura de API
 - Integração Split Payment
-- Relacionamento com Omie e Receita Federal
+- Relacionamento com Receita Federal e rede de contadores parceiros
 
 #### Tecnologia
 - Plataforma SaaS (backend Node, frontend React/Vue)
@@ -180,12 +166,12 @@ Ou: R$ 45k/mês (conservador)
 - Desenvolvedor(es) fullstack (2x)
 - Tributarista part-time
 - Product manager
-- Sales/business development
+- Responsável pelo canal contábil (desenvolvimento e gestão das parcerias)
 
 #### Parceria
-- Omie (distribuição)
+- Contadores/escritórios contábeis (distribuição)
 - Receita Federal (dados)
-- Fintechs (monetização)
+- Fintechs/FIDCs/instituição financeira (monetização, a negociar)
 
 ---
 
@@ -204,10 +190,10 @@ Ou: R$ 45k/mês (conservador)
 - Segurança e compliance
 
 #### Parceria
-- Manutenção de integração com Omie
+- Prospecção e onboarding de novos escritórios contábeis
 - Comunicação com Receita Federal
-- Partnership com Fintechs
-- Co-marketing
+- Negociação com fintechs/FIDCs (a partir de massa crítica de PMEs)
+- Co-marketing com contadores parceiros
 
 ---
 
@@ -215,9 +201,9 @@ Ou: R$ 45k/mês (conservador)
 
 | Parceiro | Tipo | Benefício | Timeline | Crítico |
 |----------|------|-----------|----------|---------|
-| **Omie** | Distribuidor | Acesso a 400k PMEs | Jan/2027 | 🔴 SIM |
+| **Contadores/Escritórios Contábeis** | Distribuidor | Acesso em lote a carteiras de PMEs (~100/parceria) | Abr/2027+ (6 primeiros meses pós-lançamento) | 🔴 SIM |
 | **Receita Federal** | Data provider | API de Créditos | Jan/2027+ | 🔴 SIM |
-| **Facile/Liber** | Revenue share | Adiantamento de crédito | Jan/2027 | 🟡 NÃO |
+| **Fintech/FIDC/FI** (a definir) | Revenue share | Adiantamento de crédito | Ano 2+ (pós-volume) | 🟡 NÃO |
 | **Tributarista** | Consultor | Validação de regras | Ago/2026+ | 🟡 NÃO |
 | **AWS/Google Cloud** | Infraestrutura | Hosting | Sempre | 🟢 SUPORTE |
 
@@ -241,22 +227,29 @@ Ou: R$ 45k/mês (conservador)
 | **Salário Dev Backend** | R$ 8-15k | Mensal |
 | **Salário Dev Frontend** | R$ 8-15k | Mensal |
 | **Tributarista PT** | R$ 5-8k | Mensal |
-| **Omie Infrastructure** | R$ 2-5k | Mensal |
+| **Infraestrutura (AWS)** | R$ 2-5k | Mensal |
 | **Outros (legal, contabilidade, etc)** | R$ 5-10k | Mensal |
 
-**Total Fixed**: R$ 30-50k/mês
+**Total Fixed**: R$ 28-53k/mês
+
+#### Custo de Canal (Variável, atrelado ao volume)
+
+| Item | Custo | Base |
+|------|-------|------|
+| **Comissão contador** | 15-20% da mensalidade | Por PME ativa trazida via parceria |
 
 #### Breakeven Analysis
 
 ```
-Receita Monthly = R$ 225k (SaaS) + R$ 45k (comissão) = R$ 270k
+Receita Monthly (fim ano 1) = R$ 350k (3.5k PMEs × R$ 100)
 
-Custos Fixed = R$ 40k
-Custos Variáveis = R$ 27k (10% receita)
+Custos Fixed = R$ 40-50k
+Comissão Canal (18%) = R$ 63k
+Custos Variáveis = R$ 35k (10% receita)
 
-Contribuição = R$ 270k - R$ 67k = R$ 203k
+Contribuição = R$ 350k - R$ 143k = R$ 207k
 
-Breakeven = Nunca! Operação é lucrativa desde início ✅
+Breakeven ≈ 2.5k PMEs (25 parcerias contábeis) — atingível dentro do Ano 1 ✅
 ```
 
 ---
@@ -272,18 +265,18 @@ CreditoGov é a **única plataforma integrada** que conecta:
 
 ### Vantagem Competitiva Sustentável
 - Timing (reforma tributária)
-- Partnership (Omie = zero CAC)
+- Canal (parcerias contábeis = CAC próximo de zero, distribuição em lote)
 - Dados (integração com governo)
 - Contexto (integração com operação)
 
-### Modelo de Receita Diversificado
-- 75% SaaS (previsível, recurring)
-- 25% Comissão (escalável, high-margin)
+### Modelo de Receita
+- 100% SaaS direto no cenário base (previsível, recurring, capturado integralmente)
+- Comissão Fintech/FIDC como upside a negociar pós-volume (não contabilizada no cenário base)
 
 ### Escalabilidade
 - Zero marginal cost (software)
-- Integração nativa (não precisa sales)
-- Plataforma (2-3 devs escalam para 1M+ PMEs)
+- Distribuição em lote via parcerias, não venda um a um
+- Plataforma (2-3 devs escalam para centenas de milhares de PMEs)
 
 ---
 

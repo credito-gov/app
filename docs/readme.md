@@ -2,7 +2,7 @@
 
 **Visibilidade e Gestão Inteligente de Créditos Tributários CBS/IBS**
 
-Plataforma SaaS que integra-se ao Omie para oferecer visibilidade em tempo real sobre créditos tributários CBS/IBS gerados em operações de compra, com validação automática via Split Payment e facilitação de ações de compensação ou adiantamento.
+Plataforma SaaS direta, distribuída via parcerias com contadores/escritórios de contabilidade, que oferece visibilidade em tempo real sobre créditos tributários CBS/IBS gerados em operações de compra (sincronizando dados do ERP, incluindo Omie), com validação automática via Split Payment e facilitação de ações de compensação ou adiantamento.
 
 ---
 
@@ -105,7 +105,7 @@ cd frontend && npm install && npm run dev
 
 ## 🎮 Como Usar (Versão Final)
 
-1. **Login** com credenciais Omie
+1. **Login** (indicado pelo contador parceiro, ou acesso direto)
 2. **Conectar** certificado digital ou credenciais do governo
 3. **Sistema sincroniza** créditos automaticamente
 4. **Ver dashboard** com créditos validados
@@ -115,12 +115,12 @@ cd frontend && npm install && npm run dev
 
 ## 💰 Modelo de Negócio
 
-**SaaS + Partnership + Revenue Share**
+**SaaS Direto + Canal Contábil**
 
-- **Omie**: Integração nativa (zero CAC)
-- **PME**: Fee via Omie + opções de adiantamento
+- **PME**: Paga R$ 100/mês direto ao CreditoGov (100% capturado, sem repasse a terceiros)
+- **Canal**: Parcerias com contadores/escritórios de contabilidade — cada parceria ativa ~100 empresas em lote; comissão de 15-20% ao contador
 - **Receita Federal**: APIs de validação de crédito
-- **Fintechs**: Comissão em adiantamentos
+- **Fintech/FIDC**: Comissão em adiantamentos, a negociar após a plataforma atingir massa crítica de PMEs ativas (não é o foco dos 6 primeiros meses)
 
 ---
 
@@ -149,9 +149,10 @@ cd frontend && npm install && npm run dev
 
 | KPI | Target | Ano 1 |
 |-----|--------|-------|
-| Clientes | 5-10k | ----- |
-| Receita SaaS | R$ 1-2M | ----- |
-| Comissão Split | R$ 300-500k | ----- |
+| Parcerias contábeis | 10 (H1) → 30-50 (fim ano) | ----- |
+| Clientes | 3-4k | ----- |
+| Receita SaaS | R$ 1.2-1.8M | ----- |
+| Comissão Fintech/FIDC | A negociar (upside) | ----- |
 | Churn | <5% mês | ----- |
 | NPS | >50 | ----- |
 
@@ -182,7 +183,7 @@ Proprietary © 2026 CreditoGov
 ## 🙏 Agradecimentos
 
 - Receita Federal (documentação Split Payment)
-- Omie (partnership)
+- Contadores e escritórios de contabilidade parceiros
 - Comunidade de tributaristas consultados
 
 ---
