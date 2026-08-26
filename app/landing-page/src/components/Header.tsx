@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import iconMark from '../assets/brand/icon-mark.png'
+
 const NAV_LINKS = [
   { label: 'Como funciona', href: '#como-funciona' },
   { label: 'Preço', href: '#preco' },
@@ -9,7 +11,7 @@ const NAV_LINKS = [
 function Logo() {
   return (
     <div className="flex items-center gap-[8px]">
-      <span className="size-[24px] rounded-[6px] bg-[#10b981]" />
+      <img src={iconMark} alt="" className="h-[24px] w-auto" />
       <p className="whitespace-nowrap text-[16px] font-bold tracking-[-0.16px] text-[#111827]">
         CreditoGov
       </p>

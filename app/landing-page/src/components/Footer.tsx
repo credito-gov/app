@@ -1,3 +1,5 @@
+import iconMarkWhite from '../assets/brand/icon-mark-white.png'
+
 const COLUMNS = [
   {
     title: 'PRODUTO',
@@ -20,7 +22,7 @@ export default function Footer() {
         <div className="flex w-full flex-col items-start gap-8 md:flex-row">
           <div className="flex flex-1 flex-col items-start gap-[10px]">
             <div className="flex items-center gap-2">
-              <span className="size-6 rounded-[6px] bg-[#10b981]" />
+              <img src={iconMarkWhite} alt="" className="h-6 w-auto" />
               <p className="text-[16px] font-bold whitespace-nowrap text-white">CreditoGov</p>
             </div>
             <p className="w-[240px] text-[13.5px] leading-[1.55] text-[#9ca3af]">
