@@ -22,7 +22,7 @@
 | [011](011-landing-pricing.md) | **Landing Page — Preço**: card de plano único + garantia/bônus | `feat/011-landing-pricing` | 010 | ✅ | — | ✅ | ✅ [PR #6](https://github.com/credito-gov/app/pull/6) | ✅ | Landing Page 6 |
 | [012](012-landing-faq-cta.md) | **Landing Page — FAQ + CTA Final**: 4 perguntas + bloco de CTA | `feat/012-landing-faq-cta` | 011 | ✅ | — | ✅ | ✅ [PR #7](https://github.com/credito-gov/app/pull/7) | ✅ | Landing Page 7 |
 | [013](013-landing-footer.md) | **Landing Page — Footer**: 4 colunas + barra de copyright | `feat/013-landing-footer` | 012 | ✅ | — | ✅ | ✅ [PR #8](https://github.com/credito-gov/app/pull/8) | ✅ | Landing Page 8 |
-| [014](014-landing-seo.md) | **Landing Page — SEO/Meta Tags + robots.txt**: OG/Twitter Card, sitemap, headings semânticos, bloqueio de bots de IA | `feat/014-landing-seo` | 013 | ✅ | — | ✅ | ✅ [PR #9](https://github.com/credito-gov/app/pull/9) | — | Landing Page 9 — última |
+| [014](014-landing-seo.md) | **Landing Page — SEO/Meta Tags + robots.txt**: OG/Twitter Card, sitemap, headings semânticos, bloqueio de bots de IA, logo real da marca | `feat/014-landing-seo` | 013 | ✅ | — | ✅ | ✅ [PR #9](https://github.com/credito-gov/app/pull/9) | ✅ | Landing Page 9 — última. Série completa! |
 
 ---
 
@@ -64,4 +64,4 @@ _(a ser preenchido após refinamento)_
 
 ---
 
-Última atualização: **2026-08-25** (Tasks 006-014 criadas — série completa da Landing Page, do scaffold ao SEO)
+Última atualização: **2026-08-26** (Tasks 006-014 mergeadas — série completa da Landing Page, do scaffold ao SEO, entregue)
