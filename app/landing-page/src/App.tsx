@@ -5,6 +5,7 @@ import Footer from './components/Footer'
 import Header from './components/Header'
 import Hero from './components/Hero'
 import HowItWorks from './components/HowItWorks'
+import Metrics from './components/Metrics'
 import Pricing from './components/Pricing'
 import ProblemSolution from './components/ProblemSolution'
 import SocialProof from './components/SocialProof'
@@ -20,6 +21,7 @@ function App() {
       <DashboardShowcase />
       <ProblemSolution />
       <Features />
+      <Metrics />
       <Pricing />
       <FaqAndFinalCta />
       <Footer />
