@@ -1,3 +1,4 @@
+import DashboardShowcase from './components/DashboardShowcase'
 import FaqAndFinalCta from './components/FaqAndFinalCta'
 import Features from './components/Features'
 import Footer from './components/Footer'
@@ -16,6 +17,7 @@ function App() {
       <Hero />
       <SocialProof />
       <HowItWorks />
+      <DashboardShowcase />
       <ProblemSolution />
       <Features />
       <Pricing />
