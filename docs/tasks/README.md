@@ -34,7 +34,7 @@
 | [023](023-landing-redesign-testimonials.md) | **Redesign — Depoimentos**: seção própria, cards dark, bios atualizadas | `feat/023-landing-redesign-testimonials` | 022 | ✅ | — | ✅ | ✅ [PR #19](https://github.com/credito-gov/app/pull/19) | — | Redesign 9/13 |
 | [024](024-landing-redesign-pricing.md) | **Redesign — Preço**: sem coluna lateral, "Sob Consulta" | `feat/024-landing-redesign-pricing` | 023 | ✅ | — | ✅ | ✅ [PR #20](https://github.com/credito-gov/app/pull/20) | — | Redesign 10/13 |
 | [025](025-landing-redesign-faq.md) | **Redesign — FAQ**: seção própria, dark, perguntas novas | `feat/025-landing-redesign-faq` | 024 | ✅ | — | ✅ | ✅ [PR #21](https://github.com/credito-gov/app/pull/21) | — | Redesign 11/13 |
-| [026](026-landing-redesign-final-cta.md) | **Redesign — CTA Final**: seção própria, gradiente verde, novo subtítulo | `feat/026-landing-redesign-final-cta` | 025 | ✅ | — | — | — | — | Redesign 12/13 |
+| [026](026-landing-redesign-final-cta.md) | **Redesign — CTA Final**: seção própria, gradiente verde, novo subtítulo | `feat/026-landing-redesign-final-cta` | 025 | ✅ | — | ✅ | ✅ [PR #22](https://github.com/credito-gov/app/pull/22) | — | Redesign 12/13 |
 | [027](027-landing-redesign-footer.md) | **Redesign — Footer**: colunas Produto/Soluções/Suporte, sem links legais | `feat/027-landing-redesign-footer` | 026 | ✅ | — | — | — | — | Redesign 13/13 — última; fecha com merge da PR centralizadora em `main` |
 
 ---
@@ -63,7 +63,6 @@
 - [ ] **[023](023-landing-redesign-testimonials.md)** — aguarda 022 merged em `feat/landing-redesign`
 - [ ] **[024](024-landing-redesign-pricing.md)** — aguarda 023 merged em `feat/landing-redesign`
 - [ ] **[025](025-landing-redesign-faq.md)** — aguarda 024 merged em `feat/landing-redesign`
-- [ ] **[026](026-landing-redesign-final-cta.md)** — aguarda 025 merged em `feat/landing-redesign`
 - [ ] **[027](027-landing-redesign-footer.md)** — aguarda 026 merged em `feat/landing-redesign`
 
 ### ⚠️ Nota — série do Redesign (015-027)
