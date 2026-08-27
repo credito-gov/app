@@ -33,7 +33,7 @@
 | [022](022-landing-redesign-metrics.md) | **Redesign — Métricas** (seção nova): R$4.2B / 1.840+ / 14 dias, animação bounce | `feat/022-landing-redesign-metrics` | 021 | ✅ | — | ✅ | ✅ [PR #18](https://github.com/credito-gov/app/pull/18) | ✅ (em `feat/landing-redesign`) | Redesign 8/13 |
 | [023](023-landing-redesign-testimonials.md) | **Redesign — Depoimentos**: seção própria, cards dark, bios atualizadas | `feat/023-landing-redesign-testimonials` | 022 | ✅ | — | ✅ | ✅ [PR #19](https://github.com/credito-gov/app/pull/19) | ✅ (em `feat/landing-redesign`) | Redesign 9/13 |
 | [024](024-landing-redesign-pricing.md) | **Redesign — Preço**: sem coluna lateral, "Sob Consulta" | `feat/024-landing-redesign-pricing` | 023 | ✅ | — | ✅ | ✅ [PR #20](https://github.com/credito-gov/app/pull/20) | ✅ (em `feat/landing-redesign`) | Redesign 10/13 |
-| [025](025-landing-redesign-faq.md) | **Redesign — FAQ**: seção própria, dark, perguntas novas | `feat/025-landing-redesign-faq` | 024 | ✅ | — | — | — | — | Redesign 11/13 |
+| [025](025-landing-redesign-faq.md) | **Redesign — FAQ**: seção própria, dark, perguntas novas | `feat/025-landing-redesign-faq` | 024 | ✅ | — | ✅ | ✅ [PR #21](https://github.com/credito-gov/app/pull/21) | ✅ (em `feat/landing-redesign`) | Redesign 11/13 |
 | [026](026-landing-redesign-final-cta.md) | **Redesign — CTA Final**: seção própria, gradiente verde, novo subtítulo | `feat/026-landing-redesign-final-cta` | 025 | ✅ | — | — | — | — | Redesign 12/13 |
 | [027](027-landing-redesign-footer.md) | **Redesign — Footer**: colunas Produto/Soluções/Suporte, sem links legais | `feat/027-landing-redesign-footer` | 026 | ✅ | — | — | — | — | Redesign 13/13 — última; fecha com merge da PR centralizadora em `main` |
 
@@ -46,7 +46,7 @@
 ### 🟢 Disponíveis para iniciar
 
 - [ ] **[001](001-backend-infra.md)** — Setup Backend _(4-6h; sem pré-req; primeira task)_
-- [ ] **[025](025-landing-redesign-faq.md)** — Redesign: FAQ _(3-4h; 024 merged em `feat/landing-redesign`; 11/13 do redesign)_
+- [ ] **[026](026-landing-redesign-final-cta.md)** — Redesign: CTA Final _(2-3h; 025 merged em `feat/landing-redesign`; 12/13 do redesign)_
 
 ### 🔴 Bloqueadas por dependência
 
@@ -54,7 +54,6 @@
 - [ ] **[003](003-auth-jwt-omie.md)** — aguarda 002 merged
 - [ ] **[004](004-frontend-setup.md)** — aguarda 003 merged
 - [ ] **[005](005-layout-base.md)** — aguarda 004 merged
-- [ ] **[026](026-landing-redesign-final-cta.md)** — aguarda 025 merged em `feat/landing-redesign`
 - [ ] **[027](027-landing-redesign-footer.md)** — aguarda 026 merged em `feat/landing-redesign`
 
 ### ⚠️ Nota — série do Redesign (015-027)
