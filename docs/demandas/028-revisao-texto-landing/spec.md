@@ -2,7 +2,7 @@
 
 ## Critérios de aceite atendidos
 
-CA-1 a CA-23 do [`us.md`](us.md). CA-20 só fica verde quando o e-mail de contato for informado (P-1); até lá, a busca acusa o marcador `PREENCHER`.
+CA-1 a CA-25 do [`us.md`](us.md). CA-24 e CA-25 entraram com a decisão 4 (a primeira versão começa pela CBS); ver "Ajuste: a primeira versão começa pela CBS". CA-20 só fica verde quando o e-mail de contato for informado (P-1); até lá, a busca acusa o marcador `PREENCHER`.
 
 ## Abordagem
 
@@ -117,10 +117,10 @@ Esta seção é o texto que o usuário aprova. A implementação copia o texto c
 
 ### `index.html` (CA-18, CA-19)
 
-- `<title>`: CreditoGov — Crédito de CBS/IBS como caixa (em desenvolvimento)
-- `description`, `og:description`: O CreditoGov está em desenvolvimento para mostrar o crédito de CBS/IBS das compras da sua empresa: quanto já está confirmado, quanto depende do fornecedor e de onde vem. Entre na lista de espera.
+- `<title>`: CreditoGov — Crédito de CBS como caixa (em desenvolvimento)
+- `description`, `og:description`: O CreditoGov está em desenvolvimento para mostrar o crédito de CBS das compras da sua empresa: quanto já está confirmado, quanto depende do fornecedor e de onde vem. O IBS vem depois. Entre na lista de espera.
 - `og:title`, `twitter:title`: CreditoGov — Pare de deixar crédito tributário parado na planilha *(fica igual: é o texto do `og-image.png`)*
-- `twitter:description`: Em desenvolvimento: o crédito de CBS/IBS das suas compras, separado em confirmado e pendente. Entre na lista de espera.
+- `twitter:description`: Em desenvolvimento: o crédito de CBS das suas compras, separado em confirmado e pendente. Entre na lista de espera.
 - `og:url`: `https://credito-gov.vercel.app/`
 - `og:image` e `twitter:image`: `https://credito-gov.vercel.app/og-image.png` (redes sociais exigem URL absoluta)
 - `robots.txt`: `Sitemap: https://credito-gov.vercel.app/sitemap.xml`
@@ -132,16 +132,16 @@ Itens do menu conforme a tabela de navegação. "Entrar" sai.
 
 ### Hero (CA-1, CA-2, CA-4 a CA-6, CA-12 a CA-15)
 
-- Selo: **Em desenvolvimento · CBS/IBS**
+- Selo: **Em desenvolvimento · Começa pela CBS**
 - Título: **Pare de deixar crédito tributário parado na planilha.** *(fica igual)*
-- Parágrafo: Com a CBS e o IBS, as compras da sua empresa geram crédito, mas ele só pode ser usado quando o imposto do fornecedor é quitado. O CreditoGov está em desenvolvimento para mostrar quanto do seu crédito já está confirmado, quanto ainda depende do fornecedor e de quais compras ele vem.
+- Parágrafo: Com a CBS e o IBS, as compras da sua empresa geram crédito, mas ele só pode ser usado quando o imposto do fornecedor é quitado. O CreditoGov está em desenvolvimento e começa pela CBS: vai mostrar quanto do seu crédito já está confirmado, quanto ainda depende do fornecedor e de quais compras ele vem.
 - Botões: **Entrar na lista de espera** · **Conversar com a equipe**
 - Linha abaixo dos botões: Lista de espera sem custo e sem compromisso. Avisaremos quando a primeira versão estiver pronta.
 
 Mockup (todos os números são ilustrativos):
 
 - Barra superior: o texto "PAINEL EXECUTIVO" vira **EXEMPLO ILUSTRATIVO** (CA-12)
-- Rótulo do valor principal: **Crédito confirmado (CBS + IBS)**; valor **R$ 152.430,18**
+- Rótulo do valor principal: **Crédito de CBS confirmado**; valor **R$ 152.430,18**
 - Cartão verde: **Fornecedores com pendência** · **7**
 - Cartão âmbar: **Pendente** · **R$ 121.905,40**
 - Gráfico decorativo (`hero-chart.svg`) fica
@@ -153,9 +153,9 @@ O pendente não entra no valor principal e nada é rotulado como "disponível" (
 
 - Selo: **Como vai funcionar**
 - Título: **Do imposto na nota ao crédito no caixa**
-- Subtítulo: Este é o plano da primeira versão. A forma de conectar os dados da sua empresa ainda está em definição.
-- 01 **Suas compras viram crédito**: O CreditoGov vai reunir o CBS e o IBS destacados nas notas de compra da sua empresa, com a nota e o fornecedor de cada valor.
-- 02 **Cada crédito ganha um status**: Confirmado quando o imposto do fornecedor foi quitado; pendente enquanto não foi. É o que a regra da CBS e do IBS exige para o crédito valer.
+- Subtítulo: Este é o plano da primeira versão, que começa pela CBS. A forma de conectar os dados da sua empresa ainda está em definição.
+- 01 **Suas compras viram crédito**: O CreditoGov vai reunir a CBS destacada nas notas de compra da sua empresa, com a nota e o fornecedor de cada valor.
+- 02 **Cada crédito ganha um status**: Confirmado quando o imposto do fornecedor foi quitado; pendente enquanto não foi. É o que a regra da CBS exige para o crédito valer.
 - 03 **Você enxerga o caixa**: Saldo, origem, pendências por fornecedor e projeção das próximas semanas, em um só painel.
 
 Fonte da regra do passo 02 e do parágrafo do Hero: Manual de Operações do Split Payment, Apêndice A ("Crédito Tributário": destaque de CBS/IBS no documento fiscal e efetiva extinção do débito do fornecedor) e §3 (CA-7). "Quitado" resume "extinção do débito", sem citar modalidade nem prazo.
@@ -164,16 +164,16 @@ Fonte da regra do passo 02 e do parágrafo do Hero: Manual de Operações do Spl
 
 - Selo: **Prévia do painel**
 - Título: **Cada crédito com a compra, a nota e o fornecedor**
-- Subtítulo: O painel em desenvolvimento vai mostrar de onde vem cada crédito de CBS e IBS e o que ainda depende do fornecedor.
+- Subtítulo: O painel em desenvolvimento vai mostrar de onde vem cada crédito de CBS e o que ainda depende do fornecedor.
 - Cabeçalho do cartão: à esquerda **Créditos por compra**; à direita, selo **Exemplo ilustrativo** (mesmo estilo do selo âmbar existente, em tom neutro `#94a3b8` sobre `#1e293b`)
 - Colunas: **FORNECEDOR** · **NOTA** · **TRIBUTO** · **CRÉDITO** · **STATUS**
 
 | Fornecedor | Nota | Tributo | Crédito | Status |
 |---|---|---|---|---|
 | Fornecedor A | NF-e 10.482 | CBS | R$ 4.910,22 | Confirmado |
-| Fornecedor B | NF-e 3.117 | IBS | R$ 1.312,18 | Pendente |
+| Fornecedor B | NF-e 3.117 | CBS | R$ 1.312,18 | Pendente |
 | Fornecedor C | NF-e 88.205 | CBS | R$ 2.435,00 | Pendente |
-| Fornecedor A | NF-e 10.517 | IBS | R$ 677,78 | Confirmado |
+| Fornecedor A | NF-e 10.517 | CBS | R$ 677,78 | Confirmado |
 
 O selo "Confirmado" é verde, com o mesmo padrão do selo "Pendente": borda `rgba(16,185,129,0.2)`, fundo `rgba(16,185,129,0.1)` e texto `#10b981`. A chave da lista passa a ser a nota, porque o fornecedor se repete. Não há período nem data (CA-14).
 
@@ -185,7 +185,7 @@ O selo "Confirmado" é verde, com o mesmo padrão do selo "Pendente": borda `rgb
 
 | Problema | Texto do problema | Solução | Texto da solução |
 |---|---|---|---|
-| Crédito que depende do fornecedor | O crédito da compra só pode ser usado quando o imposto do fornecedor é quitado. Hoje ninguém acompanha isso nota a nota. | Confirmado e pendente, separados | Separar o crédito já confirmado do que ainda depende do fornecedor, de CBS e de IBS. |
+| Crédito que depende do fornecedor | O crédito da compra só pode ser usado quando o imposto do fornecedor é quitado. Hoje ninguém acompanha isso nota a nota. | Confirmado e pendente, separados | Separar o crédito de CBS já confirmado do que ainda depende do fornecedor. |
 | Planilha manual | Saber de qual compra veio cada crédito exige cruzar notas e pagamentos à mão, todo mês. | A origem de cada crédito | Mostrar a compra, a nota e o fornecedor de cada valor. |
 | Caixa sem previsão | O imposto destacado na nota não aparece como dinheiro a receber, e o caixa das próximas semanas fica no escuro. | Projeção do que deve ser confirmado | Projetar quanto crédito deve ser confirmado nas próximas semanas, com base nas compras já feitas. |
 
@@ -199,7 +199,7 @@ O selo "Confirmado" é verde, com o mesmo padrão do selo "Pendente": borda `rgb
 | Título | Texto | Rodapé do cartão |
 |---|---|---|
 | Pendências por fornecedor | Quem ainda não quitou o imposto da venda e quanto isso segura do seu crédito. | Fornecedor a fornecedor |
-| Saldo de CBS e de IBS | O crédito de cada tributo, separado em confirmado e pendente, sem misturar o que ainda não pode ser usado. | Confirmado × pendente |
+| Saldo de CBS | O crédito de CBS separado em confirmado e pendente, sem misturar o que ainda não pode ser usado. O IBS vem numa etapa seguinte. | Confirmado × pendente |
 | Complemento ao ERP e ao contador | O CreditoGov não calcula imposto nem emite nota: isso continua no seu ERP. Também não substitui o contador. | Sem trocar de sistema |
 
 ### Faq — `#faq` (CA-2 a CA-6, CA-11, P-5)
@@ -217,7 +217,8 @@ Coluna 2:
 
 5. **Quanto vai custar?** O preço será definido antes do lançamento e informado a quem estiver na lista de espera.
 6. **O CreditoGov substitui o contador?** Não. Ele não calcula imposto nem faz a apuração. Seu contador continua responsável por isso.
-7. **Sou contador. Posso participar?** Sim. Se você atende empresas no regime regular de CBS/IBS, entre na mesma lista de espera e conte um pouco sobre a sua carteira.
+7. **E o IBS?** Vem depois. A primeira versão começa pela CBS; o IBS entra numa etapa seguinte, ainda sem data.
+8. **Sou contador. Posso participar?** Sim. Se você atende empresas no regime regular de CBS/IBS, entre na mesma lista de espera e conte um pouco sobre a sua carteira.
 
 ### FinalCta — `#lista-de-espera` (CA-6, CA-15, P-5)
 
@@ -227,13 +228,45 @@ Coluna 2:
 
 ### Footer (CA-16, CA-17)
 
-- Apresentação: Crédito de CBS/IBS como caixa para pequenas e médias empresas. Em desenvolvimento.
+- Apresentação: Crédito de CBS como caixa para pequenas e médias empresas. Em desenvolvimento.
 - Coluna **Navegação**: Como vai funcionar (`#como-funciona`), Prévia do painel (`#painel`), O que vai fazer (`#produto`), Perguntas (`#faq`)
 - Coluna **Contato**: Lista de espera (`linkEmail(MENSAGEM_LISTA)`), E-mail (`linkEmail(MENSAGEM_CONVERSA)`), WhatsApp (só com número)
 - Os itens viram `<a>`, mantendo as classes atuais do `<p>`.
 - Linha final: à esquerda **© 2026 CreditoGov. Todos os direitos reservados.** *(fica igual)*; à direita **Produto em desenvolvimento.**
 
 As colunas "Produto", "Soluções" e "Suporte" saem.
+
+### Ajuste: a primeira versão começa pela CBS (decisão 4, CA-24, CA-25)
+
+A decisão é de 2026-11-23, depois do PR #26. As seções acima já trazem o texto ajustado, e a tabela abaixo registra o antes e o depois. O resto do texto aprovado não muda. A frase "A forma de conectar os dados da sua empresa ainda está em definição" continua, e a página não fala da Receita nem da fonte de dados (CA-4, CA-20).
+
+| Onde | Antes | Depois |
+|---|---|---|
+| `<title>` | Crédito de CBS/IBS como caixa (em desenvolvimento) | Crédito de CBS como caixa (em desenvolvimento) |
+| `description`, `og:description` | …o crédito de CBS/IBS das compras… e de onde vem. Entre na lista de espera. | …o crédito de CBS das compras… e de onde vem. O IBS vem depois. Entre na lista de espera. |
+| `twitter:description` | o crédito de CBS/IBS das suas compras | o crédito de CBS das suas compras |
+| `og:title`, `twitter:title` | (sem mudança, por causa do `og-image.png`) | (sem mudança) |
+| Hero, selo | Em desenvolvimento · CBS/IBS | Em desenvolvimento · Começa pela CBS |
+| Hero, parágrafo (2ª frase) | O CreditoGov está em desenvolvimento para mostrar quanto… | O CreditoGov está em desenvolvimento e começa pela CBS: vai mostrar quanto… |
+| Hero, mockup | Crédito confirmado (CBS + IBS) | Crédito de CBS confirmado |
+| HowItWorks, subtítulo | Este é o plano da primeira versão. | Este é o plano da primeira versão, que começa pela CBS. |
+| HowItWorks, passo 01 | reunir o CBS e o IBS destacados | reunir a CBS destacada (corrige também "o CBS") |
+| HowItWorks, passo 02 | a regra da CBS e do IBS | a regra da CBS |
+| Painel, subtítulo | cada crédito de CBS e IBS | cada crédito de CBS |
+| Painel, tabela | NF-e 3.117 e NF-e 10.517 com IBS | as quatro linhas com CBS (valores iguais) |
+| ProblemSolution, solução 1 | Separar o crédito já confirmado do que ainda depende do fornecedor, de CBS e de IBS. | Separar o crédito de CBS já confirmado do que ainda depende do fornecedor. |
+| Features, cartão 2 | Saldo de CBS e de IBS · O crédito de cada tributo, separado em confirmado e pendente… | Saldo de CBS · O crédito de CBS separado em confirmado e pendente… O IBS vem numa etapa seguinte. |
+| FAQ | (sete perguntas) | nova pergunta 7, "E o IBS?"; a do contador passa a ser a 8 |
+| Rodapé | Crédito de CBS/IBS como caixa… | Crédito de CBS como caixa… |
+
+**FAQ em duas colunas.** Com oito perguntas, cada coluna fica com quatro. A coluna 1 mantém as perguntas 1 a 4 sem mudança, e a coluna 2 recebe as perguntas 5 a 8.
+
+**O que não muda, e por quê:**
+- A frase do Hero "Com a CBS e o IBS, as compras da sua empresa geram crédito…" fica, porque descreve a reforma e não o produto.
+- "regime regular de CBS/IBS", na resposta da FAQ ao contador, fica, porque é o nome do regime.
+- A coluna TRIBUTO da tabela fica, mesmo com todas as linhas em CBS, para não mexer no layout.
+
+**Fonte.** A regra do passo 02 continua apoiada no Manual de Operações do Split Payment (Apêndice A), que trata de CBS/IBS. Falar só da CBS restringe o texto, mas não muda a regra. A página não cita as APIs de apuração da CBS nem a Receita.
 
 ## Riscos e decisões
 
@@ -286,6 +319,21 @@ Busca complementar do CA-10, que também deve voltar vazia:
 grep -rnE 'SocialProof|Metrics|Testimonials|Pricing|avatar-placeholder' app/landing-page/src
 ```
 
+### Escopo CBS (CA-24, CA-25)
+
+```bash
+grep -rnE 'IBS' app/landing-page/src app/landing-page/index.html
+```
+
+A verificação passa quando a saída tem **exatamente** estas ocorrências, e nenhuma outra:
+
+- `index.html`: "O IBS vem depois" nas duas descrições (`description` e `og:description`);
+- `Hero.tsx`: o parágrafo "Com a CBS e o IBS…";
+- `Features.tsx`: "O IBS vem numa etapa seguinte.";
+- `Faq.tsx`: a pergunta "E o IBS?" com a resposta, e "regime regular de CBS/IBS" na resposta do contador.
+
+O JSX pode quebrar uma frase em duas linhas, e o que conta é o conteúdo. A verificação reprova se aparecer IBS em `DashboardShowcase.tsx`, `HowItWorks.tsx`, `ProblemSolution.tsx`, `Footer.tsx`, `<title>` ou `twitter:description`.
+
 ### Lint e build (CA-21)
 
 ```bash
@@ -294,7 +342,7 @@ cd app/landing-page && npm run lint && npm run build
 
 Os dois sem erro. O build também prova que não sobrou import dos arquivos apagados (CA-10, CA-11).
 
-### Conferência visual (CA-1 a CA-3, CA-12 a CA-17, CA-22)
+### Conferência visual (CA-1 a CA-3, CA-12 a CA-17, CA-22, CA-24, CA-25)
 
 Rodar `npm run dev` e abrir no navegador, com as ferramentas de desenvolvedor em 1280 px e em 375 px de largura.
 
@@ -305,6 +353,8 @@ Rodar `npm run dev` e abrir no navegador, com as ferramentas de desenvolvedor em
 - **CA-16:** clicar em cada item do menu (desktop e menu do celular) e do rodapé. Cada um rola até a seção certa, com o título visível abaixo do cabeçalho.
 - **CA-17:** o rodapé tem só Navegação e Contato e a apresentação nova.
 - **CA-22:** nenhuma seção com texto cortado ou sobreposto. Em 375 px, sem rolagem horizontal da página; a tabela do painel continua rolando dentro do próprio cartão, como hoje. O menu do celular abre e fecha.
+
+- **CA-24, CA-25:** o selo do Hero diz "Começa pela CBS". O mockup do Hero e a tabela do painel só mostram CBS. A FAQ tem a pergunta "E o IBS?", e as duas colunas ficam com quatro perguntas cada, sem desalinhamento em 1280 px nem em 375 px.
 
 ### Documentação (CA-23)
 

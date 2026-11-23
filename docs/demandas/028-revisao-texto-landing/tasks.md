@@ -35,8 +35,18 @@ Pequenas, ordenadas, um commit por task. Cada task cita a seção da [Spec](spec
 | 14 | Documentação: `PROJECT_CONTEXT.md` §2 (linha "Landing page") e §11 (changelog) e `hipoteses.md` H4, com o texto da Spec. Commit `docs(028): ...` (CA-23) | Mudanças por camada › Documentação | Leitura dos três trechos | ☑ |
 | 15 | **Verificação final.** (a) Busca CA-20: a **única** linha é o marcador em `src/config/contato.ts`, que só some na task 16; qualquer outra linha reprova. (b) Busca complementar vazia. (c) Lint e build. (d) Conferência visual em 1280 px e 375 px com a checklist da Spec, incluindo o caso com número de WhatsApp de teste preenchido localmente e **não commitado**. Registrar o resultado de cada item na seção "Registro de verificação". Commit `docs(028): registra a verificação final` (CA-1 a CA-22) | Estratégia de verificação (todas as subseções) | Registro preenchido; (a) a (d) conforme descrito | ☑ |
 | 16 | **Depende da resposta do usuário (P-1).** Gravar o e-mail real em `EMAIL_CONTATO` e, se houver, o número em `WHATSAPP_NUMERO` (só dígitos, com DDI e DDD), em `src/config/contato.ts`. Não fazer antes de a sessão principal trazer os valores. Commit `feat(landing): grava o contato da lista de espera` (CA-15, CA-20) | Contratos › Configuração de contato; Implantação | Busca CA-20 sem nenhuma linha e com código de saída `1`. Lint e build passam. Na conferência visual, os botões abrem o e-mail certo e, com número, o WhatsApp aparece | ☑ |
+| | **Ajuste da decisão 4 (a primeira versão começa pela CBS).** Antes da task 17, rodar a busca de IBS (Spec › Estratégia de verificação › Escopo CBS) e anotar o número de linhas em "Registro de verificação › Tasks 17 a 25 — antes". Esse número faz o papel de verificação que falha: hoje a busca acha IBS em arquivos onde ele não pode aparecer. Em cada task de 17 a 24, a busca CA-20 deve continuar vazia (código de saída `1`), e lint e build devem passar. | | | |
+| 17 | `index.html`: `<title>`, `description`, `og:description` e `twitter:description` com o texto novo. `og:title` e `twitter:title` não mudam. Commit `feat(landing): metadados começam pela CBS` (CA-18, CA-24) | Texto novo › `index.html`; Ajuste: a primeira versão começa pela CBS | A busca de IBS só acha "O IBS vem depois" no `index.html`, nas duas descrições | ☐ |
+| 18 | Hero: selo "Em desenvolvimento · Começa pela CBS", 2ª frase do parágrafo e rótulo do mockup "Crédito de CBS confirmado". Commit `feat(landing): Hero começa pela CBS` (CA-1, CA-24, CA-25) | Texto novo › Hero | A busca de IBS só acha o parágrafo "Com a CBS e o IBS…" no `Hero.tsx` | ☐ |
+| 19 | HowItWorks: subtítulo e passos 01 ("a CBS destacada") e 02 ("a regra da CBS"). Commit `feat(landing): Como vai funcionar começa pela CBS` (CA-24) | Texto novo › HowItWorks | A busca de IBS não lista `HowItWorks.tsx` | ☐ |
+| 20 | DashboardShowcase: subtítulo e as linhas NF-e 3.117 e NF-e 10.517 com tributo CBS. Commit `feat(landing): prévia do painel só com CBS` (CA-24, CA-25) | Texto novo › DashboardShowcase | A busca de IBS não lista `DashboardShowcase.tsx` | ☐ |
+| 21 | ProblemSolution: texto da solução 1. Commit `feat(landing): Problema e Solução começam pela CBS` (CA-24) | Texto novo › ProblemSolution | A busca de IBS não lista `ProblemSolution.tsx` | ☐ |
+| 22 | Features: cartão 2, com o título "Saldo de CBS" e o texto novo. Commit `feat(landing): cartão de saldo só de CBS` (CA-24) | Texto novo › Features | A busca de IBS só acha "O IBS vem numa etapa seguinte." no `Features.tsx` | ☐ |
+| 23 | Faq: nova pergunta 7 "E o IBS?". A do contador passa a ser a 8. As colunas ficam com 4 e 4: a coluna 1 com as perguntas 1 a 4, sem mudança, e a coluna 2 com as perguntas 5 a 8. Commit `feat(landing): FAQ responde sobre o IBS` (CA-24) | Texto novo › Faq; Ajuste › FAQ em duas colunas | A busca de IBS só acha "E o IBS?" com a resposta e "regime regular de CBS/IBS" no `Faq.tsx` | ☐ |
+| 24 | Footer: apresentação "Crédito de CBS como caixa…". Commit `feat(landing): rodapé começa pela CBS` (CA-24) | Texto novo › Footer | A busca de IBS não lista `Footer.tsx` | ☐ |
+| 25 | **Verificação final do ajuste.** Quatro checagens: (a) busca CA-20 vazia, com código de saída `1`; (b) busca de IBS com exatamente as ocorrências da Spec; (c) lint e build; (d) conferência visual em 1280 px e 375 px, com a checklist da Spec (itens CA-24 e CA-25, mais CA-22 sem rolagem horizontal). Registrar cada item em "Registro de verificação › Tasks 17 a 25 — depois". Commit `docs(028): registra a verificação do ajuste CBS` (CA-20 a CA-22, CA-24, CA-25) | Estratégia de verificação › Busca de termos, Escopo CBS, Lint e build, Conferência visual | Registro preenchido; (a) a (d) conforme descrito | ☐ |
 
-Cobertura: CA-1 (6, 15) · CA-2 (6 a 11, 15) · CA-3 (10, 11, 15) · CA-4 a CA-9 (4 a 13, 15) · CA-10 (3, 15) · CA-11 (3, 11, 15) · CA-12 a CA-14 (6, 8, 15) · CA-15 (2, 5, 6, 12, 13, 15, 16) · CA-16 (5, 7, 8, 10, 11, 13, 15) · CA-17 (13, 15) · CA-18, CA-19 (4, 15) · CA-20 (1, 15, 16) · CA-21 (todas as tasks de código, 15) · CA-22 (15) · CA-23 (14).
+Cobertura: CA-1 (6, 15) · CA-2 (6 a 11, 15) · CA-3 (10, 11, 15) · CA-4 a CA-9 (4 a 13, 15) · CA-10 (3, 15) · CA-11 (3, 11, 15) · CA-12 a CA-14 (6, 8, 15) · CA-15 (2, 5, 6, 12, 13, 15, 16) · CA-16 (5, 7, 8, 10, 11, 13, 15) · CA-17 (13, 15) · CA-18, CA-19 (4, 15) · CA-20 (1, 15, 16) · CA-21 (todas as tasks de código, 15) · CA-22 (15, 25) · CA-23 (14) · CA-24 (17 a 25) · CA-25 (18, 20, 25).
 
 A demanda só fica pronta para revisão final com a task 16 feita. Sem ela, o CA-20 continua reprovado pelo marcador, como a Spec prevê.
 
@@ -150,3 +160,15 @@ app/landing-page/src/config/contato.ts:3:export const EMAIL_CONTATO = 'PREENCHER
 - `EMAIL_CONTATO = 'danielbuona@gmail.com'` e `WHATSAPP_NUMERO = '5511971929226'` (DDI 55 acrescentado ao número informado, `11971929226`, para seguir o formato só dígitos com DDI e DDD). Nada mais mudou em `contato.ts`.
 - Busca CA-20: vazia, código de saída `1`. Busca complementar: vazia, código de saída `1`.
 - Lint e build sem erro. Conferência no navegador (botões de e-mail e WhatsApp) fica com a sessão principal.
+
+### Tasks 17 a 25 — antes (ajuste da decisão 4)
+
+- Busca de IBS: _linhas_ (deve acusar IBS fora dos lugares permitidos)
+
+### Tasks 17 a 25 — depois
+
+- (a) Busca CA-20:
+- (b) Busca de IBS:
+- (c) Lint e build:
+- (d) Conferência visual 1280 px:
+- (d) Conferência visual 375 px:

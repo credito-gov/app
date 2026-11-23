@@ -26,6 +26,7 @@ O texto novo apoia-se em [`visao.md`](../../produto/visao.md): problema, públic
 1. **Postura de pré-lançamento.** A página diz que o produto está em desenvolvimento, explica o problema e o que ele vai fazer, e convida para uma lista de espera. O visual do redesign escuro fica (cores, tipografia, layout e animações das seções que permanecem).
 2. **Remover a prova inventada.** Saem as seções Prova Social (`SocialProof.tsx`), Métricas (`Metrics.tsx`) e Depoimentos (`Testimonials.tsx`), sem deixar código ou asset morto. Voltam quando houver clientes e números reais, em outra demanda.
 3. **Chamadas para WhatsApp ou e-mail.** Os botões levam para WhatsApp ou e-mail, sem formulário, serviço externo nem backend. O e-mail é o canal principal; o WhatsApp entra como segundo botão só se houver número comercial (P-1).
+4. **Primeira versão começa pela CBS** (2026-11-23, depois do PR #26, que confirmou a H1 para a CBS com as APIs de apuração da Receita e registrou em `PROJECT_CONTEXT.md` §3 "Produto começa só com CBS"). A página diz que a primeira versão começa pela CBS e que o IBS vem depois, sem data e sem promessa. O resto da postura não muda: a forma de conectar os dados continua "em definição" (o acesso em nome de vários clientes está em aberto, `PROJECT_CONTEXT.md` §5), e a página não anuncia integração com a Receita nem fala de fonte de dados além disso.
 
 ### Levantamento do texto atual
 
@@ -116,6 +117,11 @@ O que pode ficar sem mudança: `public/og-image.png` (logo e "Pare de deixar cr�
 - **CA-21:** `npm run lint` e `npm run build` passam em `app/landing-page`, sem erro.
 - **CA-22:** Conferência visual no navegador, em desktop (1280 px de largura) e em celular (375 px), mostra todas as seções restantes sem texto cortado, sobreposto ou com rolagem horizontal, mantendo o visual do redesign escuro e o menu do celular funcionando.
 - **CA-23:** `PROJECT_CONTEXT.md` §2 deixa de dizer que a landing tem números, depoimentos e promessas sem base e registra a postura de pré-lançamento; a menção ao "sob consulta" na H4 de `hipoteses.md` é atualizada.
+
+### Escopo da primeira versão (decisão 4)
+
+- **CA-24:** A página diz que a primeira versão começa pela CBS e que o IBS vem numa etapa seguinte, sem data nem promessa (no Hero, em Features e numa pergunta da FAQ). Nenhum texto apresenta crédito de IBS como parte da primeira versão: título, descrições, selo, mockups e rodapé falam de crédito de CBS. A sigla IBS só aparece como etapa futura, no contexto da reforma ("Com a CBS e o IBS…") ou no nome do regime ("regime regular de CBS/IBS").
+- **CA-25:** Nenhum mockup mostra crédito ou valor de IBS: a tabela do painel e o valor principal do Hero são só de CBS.
 
 ## Fora de escopo
 
