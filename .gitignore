@@ -10,7 +10,9 @@ build/
 .env.local
 
 # Editor/tooling (local, machine-specific)
-.claude/
+# De .claude/ so entra a configuracao do fluxo de demandas.
+.claude/*
+!.claude/fluxo.json
 .agent/
 .vscode/
 .idea/

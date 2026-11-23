@@ -31,7 +31,11 @@ O `Dockerfile` usa build multi-stage: `node:20-alpine` para compilar (`npm run b
 
 > **Nota de versão:** o Vite 8 usa `rolldown` internamente, que depende de `node:util.styleText` (disponível a partir do Node 20.12). `node:18-alpine` **não funciona** para o build — use `node:20-alpine` ou mais recente.
 
-## Deploy no Render.com
+## Publicação
+
+A landing está no ar pelo Vercel, em <https://credito-gov.vercel.app/>. A configuração fica no painel do Vercel, não neste repositório.
+
+### Render.com (decisão original, não conferida)
 
 O deploy é feito como **Web Service** no Render.com, a partir do `Dockerfile` deste diretório — o Render builda e roda o container diretamente, sem necessidade de `render.yaml`. Domínio de produção ainda não definido (ver `docs/tasks/014-landing-seo.md`).
 
