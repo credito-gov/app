@@ -41,7 +41,7 @@ Estados: **aberta**, **confirmada**, **derrubada**.
 
 **O que se assumiu:** R$ 100 por empresa por mês; 15 a 20% de comissão ao contador; cerca de 100 empresas por escritório parceiro.
 
-**O que se sabe:** números da concepção, sem teste. A landing antiga chegou a propor outro modelo (mensalidade mais taxa de sucesso) e o redesign usa "sob consulta".
+**O que se sabe:** números da concepção, sem teste. A landing antiga chegou a propor outro modelo (mensalidade mais taxa de sucesso) e a landing, desde a demanda 028, diz que o preço será definido antes do lançamento.
 
 **Como resolver:** definir na conversa com os primeiros escritórios.
 
