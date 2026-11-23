@@ -4,20 +4,24 @@
 
 ## Por quê
 
-<!-- Referência à task (número + link) e motivação de negócio.
-Ex.: Fecha task [001](../docs/tasks/001-backend-setup.md) — cria o setup inicial do backend. -->
+<!-- Referência à demanda (número + link) e motivação.
+Ex.: Demanda [028](../docs/demandas/028-slug/us.md). Liste os CA-N atendidos. -->
 
 ## Como testar
 
 <!-- Passos manuais/automáticos para reproduzir e validar. -->
+
+## Riscos
+
+<!-- O que pode dar errado e o que ficou sem verificar. -->
 
 ---
 
 ## Checklist obrigatório (marcar todos antes de solicitar review)
 
 ### Preparação
-- [ ] Li a task correspondente em `docs/tasks/NNN-*.md` e o [`PROJECT_CONTEXT.md`](../docs/PROJECT_CONTEXT.md)
-- [ ] Estou na branch correta (nome bate com a task)
+- [ ] Li a demanda em `docs/demandas/NNN-slug/` e o [`PROJECT_CONTEXT.md`](../docs/PROJECT_CONTEXT.md)
+- [ ] Estou na branch correta (`feat/`, `fix/` ou `docs/` + `NNN-slug`)
 - [ ] Branch sincronizada com `origin/main` (rodei `git fetch && git merge origin/main` sem conflitos pendentes)
 
 ### Entrega
@@ -26,12 +30,12 @@ Ex.: Fecha task [001](../docs/tasks/001-backend-setup.md) — cria o setup inici
 - [ ] Fiz **push** e este PR está apontando para `main`
 
 ### Documentação
-- [ ] Criei o walkthrough em `docs/tasks/walkthrough/NNN-<slug>.md` seguindo o template
-- [ ] O walkthrough **não** tem trechos `[a preencher]` — todas as seções foram completadas
-- [ ] Atualizei `docs/tasks/README.md` marcando `3.Desenv ✅` na linha da task (dentro deste PR)
+- [ ] O status no `us.md` (ou `bug.md`) e no kanban `docs/demandas/README.md` coincidem
+- [ ] O handoff está em `docs/handoff/`
+- [ ] Se mudou decisão ou regra, atualizei o `PROJECT_CONTEXT.md` e o changelog dele
 
 ### Qualidade
-- [ ] Lint passa sem erros nas pastas tocadas
+- [ ] Lint e build passam nas pastas tocadas
 - [ ] Testes automatizados passam (se houver na área tocada)
 - [ ] Arquivos `.md` estão em UTF-8
 

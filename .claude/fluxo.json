@@ -1,0 +1,10 @@
+{
+  "branchPrincipal": "main",
+  "pastaDemandas": "docs/demandas",
+  "kanban": "docs/demandas/README.md",
+  "templates": "docs/demandas/_template",
+  "pastaHandoff": "docs/handoff",
+  "pastaWorktrees": ".claude/worktrees",
+  "regras": ["AGENTS.md", "docs/PROJECT_CONTEXT.md"],
+  "apps": { "landing-page": "app/landing-page" }
+}
