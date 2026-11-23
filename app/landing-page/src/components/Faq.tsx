@@ -3,26 +3,41 @@ import { useScrollReveal } from '../hooks/useScrollReveal'
 const FAQ_COLUMNS = [
   [
     {
-      question: 'Meus dados fiscais e contábeis estão seguros?',
+      question: 'O CreditoGov já está funcionando?',
       answer:
-        'Sim. A integração é feita via procuração eletrônica específica do e-CAC. Não armazenamos senhas de segurança e todo o tráfego é criptografado.',
+        'Ainda não. O produto está em desenvolvimento. Entre na lista de espera para saber quando a primeira versão estiver pronta.',
     },
     {
-      question: 'Preciso mudar meu software ERP atual?',
+      question: 'De onde virão os dados da minha empresa?',
       answer:
-        'Não. O CreditoGov roda de forma complementar. Não há necessidade de alteração ou troca de fornecedores contábeis existentes.',
+        'Isso ainda está em definição. Antes do lançamento, vamos explicar como os dados chegam ao CreditoGov e o que você precisa autorizar.',
+    },
+    {
+      question: 'Preciso mudar meu ERP?',
+      answer:
+        'Não. O ERP continua calculando o imposto e emitindo as notas. O CreditoGov vai mostrar o crédito que vem delas.',
+    },
+    {
+      question: 'Vai dar para compensar ou antecipar crédito pelo painel?',
+      answer:
+        'Não na primeira versão. São possibilidades que dependem de validação jurídica e ainda não têm data.',
     },
   ],
   [
     {
-      question: 'Como funciona a antecipação de caixa?',
+      question: 'Quanto vai custar?',
       answer:
-        'Seus créditos homologados podem ser antecipados com fintechs parceiras a taxas de deságio extremamente competitivas diretamente no painel.',
+        'O preço será definido antes do lançamento e informado a quem estiver na lista de espera.',
     },
     {
-      question: 'Qual a duração do período de teste gratuito?',
+      question: 'O CreditoGov substitui o contador?',
       answer:
-        'Você usufrui de todas as vantagens da plataforma por 14 dias. Não solicitamos dados de pagamento para início do teste.',
+        'Não. Ele não calcula imposto nem faz a apuração. Seu contador continua responsável por isso.',
+    },
+    {
+      question: 'Sou contador. Posso participar?',
+      answer:
+        'Sim. Se você atende empresas no regime regular de CBS/IBS, entre na mesma lista de espera e conte um pouco sobre a sua carteira.',
     },
   ],
 ]
@@ -32,13 +47,16 @@ export default function Faq() {
   const { ref: gridRef, isVisible: gridVisible } = useScrollReveal<HTMLDivElement>()
 
   return (
-    <section className="w-full px-6 py-16 md:px-[64px] md:py-[96px]">
+    <section
+      id="faq"
+      className="w-full scroll-mt-[80px] px-6 py-16 md:px-[64px] md:py-[96px]"
+    >
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-14">
         <h2
           ref={headerRef}
           className={`reveal-up text-center text-[36px] font-extrabold text-white ${headerVisible ? 'is-visible' : ''}`}
         >
-          Perguntas Frequentes
+          Perguntas frequentes
         </h2>
 
         <div
