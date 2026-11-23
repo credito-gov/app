@@ -131,3 +131,11 @@ app/landing-page/src/config/contato.ts:3:export const EMAIL_CONTATO = 'PREENCHER
 - (d) Conferência visual 1280 px: **pendente, fica para a sessão principal.** O Developer não tem navegador. Subir com `cd app/landing-page && npm run dev` (http://localhost:5173) e seguir a checklist da Spec.
 - (d) Conferência visual 375 px: **pendente, fica para a sessão principal** (mesmo comando, com as ferramentas de desenvolvedor em 375 px).
 - (d) Caso com número de WhatsApp de teste: **pendente, fica para a sessão principal.** Preencher `WHATSAPP_NUMERO` localmente com um número de teste, conferir o botão "Falar pelo WhatsApp" na chamada final e o item "WhatsApp" no rodapé, e **não commitar**.
+
+### Correções da rodada 1 de revisão
+
+- **CA-22, rolagem horizontal em 375 px:** na barra verde do mockup do Hero, saiu `whitespace-nowrap` dos dois `<p>`; entraram `min-w-0` no bloco de texto, `shrink-0` no selo "Ver notas" e `gap-3` na barra. Ajuste de classe necessário para cumprir o CA-22; o texto não mudou.
+- **CA-12, contraste:** selo "EXEMPLO ILUSTRATIVO" do Hero de `text-[#64748b]` para `text-[#94a3b8]`, o mesmo tom do selo do painel.
+- **CA-16/CA-22, menu do celular:** `onClick={() => setIsMenuOpen(false)}` em cada link do menu, inclusive "Lista de espera".
+- **CSS morto:** removida a classe `.reveal-scale-bounce` de `index.css` (só o `Metrics.tsx`, já apagado, a usava). Nenhum `.tsx` a usa.
+- Depois das correções: busca CA-20 só com a linha do marcador em `contato.ts`; busca complementar vazia; lint e build sem erro. Conferência visual refeita pela sessão principal.
