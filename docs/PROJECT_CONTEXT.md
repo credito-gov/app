@@ -78,7 +78,7 @@ Lista completa em [`produto/hipoteses.md`](produto/hipoteses.md). As que travam 
 - **Fonte de dados: resolvida para a CBS.** A Receita publica as APIs de apuração da CBS (créditos, débitos e pagamentos por CNPJ, com OAuth2). Ver [`referencias/apuracao-cbs/`](referencias/apuracao-cbs/README.md). A API **não** é a Plataforma de Split Payment, que liga PSPs ao governo. Os endpoints e tabelas da concepção continuam errados e não devem ser seguidos.
 - **Acesso em nome de vários clientes (bloqueia o cadastro de clientes).** A credencial é gerada pelo titular do CNPJ ou por procurador digital; o modelo para um software consultar por muitos contribuintes não está documentado.
 - **IBS.** A API cobre só CBS.
-- **Compensar e antecipar pelo painel.** Não há base, nos manuais do repositório, para afirmar que um terceiro consegue disparar a compensação. A antecipação depende de parceiro e de entendimento jurídico sobre cessão desse crédito.
+- **Compensar e antecipar pelo painel.** A API permite gerar a guia de recolhimento pelo adquirente (RAD); não há serviço para disparar compensação. A antecipação depende de parceiro e de entendimento jurídico sobre cessão desse crédito.
 - **Preço e comissão do contador** (R$ 100/mês e 15–20% são hipóteses da concepção).
 
 As tasks 001–005 do modelo antigo foram escritas sobre endpoints e tabelas que não correspondem à API real e seguem suspensas; o backend volta como demanda nova.
