@@ -15,7 +15,7 @@ Base: <https://docs.receitafederal.gov.br/apuracao-cbs/>
 | `gerar-darf-ad.html`, `gerar-darf-contrib.html` | 1.0, de 13/11/2026 |
 | `faq.html` | — |
 | `schemas/credito-retorno.schema.json`, `debito-retorno.schema.json`, `pagamento-retorno.schema.json` | 1.0.0 |
-| [Notícia da Receita, novembro de 2026](https://www.gov.br/receitafederal/pt-br/assuntos/noticias/2026/novembro/receita-federal-libera-acesso-as-novas-apis-de-apuracao-da-cbs) | lida como resumo, não literal |
+| [Notícia oficial, 09/11/2026](https://www.gov.br/fazenda/pt-br/assuntos/noticias/2026/novembro/receita-federal-libera-acesso-as-novas-apis-de-apuracao-da-cbs) (também no [site da Receita](https://www.gov.br/receitafederal/pt-br/assuntos/noticias/2026/novembro/receita-federal-libera-acesso-as-novas-apis-de-apuracao-da-cbs)) | texto lido na versão da Fazenda |
 
 **Não lidos:** schemas de recolhimento e de geração de DARF, e o manual de credenciais do "Receita Integra" (a página não abre sem navegador).
 
@@ -47,7 +47,7 @@ A resposta traz chave PIX, código de barras e link do PDF. Pelo texto, o servi�
 
 ## Fluxo de uma consulta
 
-1. **Credencial.** Gerada no portal <https://consumo.tributos.gov.br/>, em "Gerar Credencial de Acesso para API", pelo titular do CNPJ ou por procurador digital. Precisa valer para o estabelecimento matriz.
+1. **Credencial.** Gerada no serviço "Gerar Credencial de Acesso", em <https://consumo.tributos.gov.br/> ou em <https://servicos.receitafederal.gov.br/>, pelo contribuinte ou por seu procurador digital. Precisa valer para o estabelecimento matriz. Chaves geradas antes da versão 2.0 (liberada em 28/10/2026) precisam ser canceladas e geradas de novo.
 2. **Token.** OAuth2 Client Credentials.
 3. **Abertura.** O `POST` devolve `tiqueteSolicitacao` e uma estimativa de tempo.
 4. **Espera.** Duas formas:
@@ -93,6 +93,10 @@ Recolhimentos trazem, por DARF e por item: período, vencimento, `niFornecedor`,
 - **Ação real para destravar crédito:** o adquirente pode gerar a guia e recolher ele mesmo a CBS de uma compra (RAD). É uma ação que a API oferece hoje, diferente da "compensação em dois cliques" imaginada na concepção.
 - **Ritmo:** atualização diária, com resposta em horas.
 - **Sem servidor público para começar:** a consulta de situação dispensa o aviso.
+
+## Ambientes e novidades
+
+Segundo a notícia oficial, as APIs 2.0 estão em **produção restrita (testes)** e em **produção (beta)**, e novos serviços de apuração seriam liberados ainda em novembro de 2026, sem dizer quais. A notícia não fala de terceiros, IBS, split payment nem limites de uso.
 
 ## O que não está documentado
 
