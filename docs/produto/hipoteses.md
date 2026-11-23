@@ -4,22 +4,27 @@ O que o projeto assume e ainda não confirmou. Quando uma hipótese for resolvid
 
 Estados: **aberta**, **confirmada**, **derrubada**.
 
-## H1 — Fonte de dados dos créditos (aberta, bloqueia o backend)
+## H1 — Fonte de dados dos créditos (confirmada para a CBS em 2026-11-23)
 
 **O que se assumiu:** uma API da Receita Federal entrega, por CNPJ, os créditos e débitos apurados.
 
-**O que se sabe:** os manuais do Split Payment não têm essa API. A plataforma descrita é entre PSPs e governo. Ver [`../referencias/split-payment/README.md`](../referencias/split-payment/README.md).
+**Conclusão:** existe. A Receita publica as APIs de apuração da CBS, com consulta de créditos, débitos e pagamentos por CNPJ, usando OAuth2 e credencial gerada pelo contribuinte no portal <https://consumo.tributos.gov.br/>. Cada crédito vem por documento fiscal, separado em "a apropriar" e "apropriado". Detalhes e fontes em [`../referencias/apuracao-cbs/README.md`](../referencias/apuracao-cbs/README.md).
 
-**Alternativas a investigar:**
+A API não está nos manuais do Split Payment, que tratam de outra plataforma (entre PSPs e governo). A premissa da concepção estava certa na ideia; os endpoints e o funcionamento são outros.
 
-| Alternativa | O que entrega | O que falta descobrir |
-|---|---|---|
-| Portal ou serviço do governo para o contribuinte (apuração de CBS/IBS) | Crédito confirmado e pendente, na visão oficial | Se existe acesso automatizado e por terceiro autorizado; como se autentica |
-| Notas fiscais de compra (XML de NF-e/NFS-e) | Crédito destacado em cada compra, com fornecedor e data | Não diz se o fornecedor recolheu. Só cobre o lado "pendente" |
-| ERP da empresa (API ou exportação) | Compras, pagamentos e apuração que o ERP já fez | Varia por ERP; depende do que cada um expõe |
-| Extrato do banco/PSP da empresa | Pagamentos feitos com split | Só cobre o que passou por split |
+**O que continua em aberto:**
 
-**Como resolver:** tributarista (perguntas em [`reforma-tributaria.md`](reforma-tributaria.md)) e leitura da regulamentação da apuração de CBS/IBS.
+| Ponto | Por que importa |
+|---|---|
+| Acesso em nome de vários clientes | A credencial é do titular do CNPJ ou de procurador digital. Não está documentado como um software consulta por muitos contribuintes. Define o cadastro de cada cliente |
+| IBS | A API cobre só CBS. Não sabemos se e quando o Comitê Gestor oferecerá o equivalente |
+| Motivo da pendência | Nenhum campo explica por que um crédito está "a apropriar". O fornecedor sai da chave da nota e da API de recolhimentos; a relação com o pagamento dele precisa ser observada na prática |
+| Histórico | Cada consulta devolve só o que mudou nos últimos 8 dias. Não há como pedir dados antigos: o que não for coletado a tempo se perde |
+| Limite de quatro chamadas por API e por credencial (por dia, segundo a FAQ), resposta em até 4 horas | O produto é de atualização diária, não em tempo real |
+| Ambiente de teste | A URL de produção restrita não está na documentação lida |
+| Serviço em beta | A documentação teve quatro versões em três meses |
+
+**Como resolver:** prova de conceito com credencial própria, lendo as páginas que faltam; pergunta à Receita ou a quem já integra sobre o modelo de procuração.
 
 ## H2 — A empresa não enxerga o próprio crédito (aberta)
 
@@ -29,13 +34,17 @@ Estados: **aberta**, **confirmada**, **derrubada**.
 
 **Como resolver:** conversas com 5 a 10 empresas e 3 escritórios de contabilidade.
 
-## H3 — Compensar e antecipar pelo painel (aberta)
+## H3 — Compensar e antecipar pelo painel (aberta, com uma ação confirmada)
 
 **O que se assumiu:** com dois cliques a empresa compensa um débito ou antecipa o crédito com uma fintech, a 1,8% ao mês.
 
-**O que se sabe:** compensação de créditos está fora do escopo dos manuais disponíveis. Não há parceiro, taxa, nem confirmação de que esse crédito pode ser cedido. Facile e Liber, citadas na concepção, não foram contatadas.
+**O que se sabe:**
 
-**Como resolver:** tributarista e advogado para a cessão; depois, conversa com parceiros financeiros.
+- A API de apuração da CBS permite **gerar a guia para o adquirente recolher a CBS de uma compra** (RAD) e a guia do próprio contribuinte. É uma ação real que o painel pode oferecer. Pelo texto, o serviço gera a guia e não efetiva o pagamento.
+- Compensação de crédito contra débito aparece nos dados (`utilizado`, `extinto`), mas não há serviço para dispará-la.
+- Antecipação com fintech: sem parceiro, sem taxa e sem confirmação de que esse crédito pode ser cedido. Facile e Liber, citadas na concepção, não foram contatadas.
+
+**Como resolver:** tributarista para entender quando o recolhimento pelo adquirente compensa para a empresa; tributarista e advogado para a cessão; depois, parceiros financeiros.
 
 ## H4 — Preço e comissão (aberta)
 
