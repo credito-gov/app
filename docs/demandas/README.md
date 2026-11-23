@@ -4,7 +4,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 
 ## Nomeação
 
-- Demanda: `NNN-slug`, três dígitos em sequência, nunca reutilizados, slug em minúsculas com hífen e sem acento. A próxima é a **028**.
+- Demanda: `NNN-slug`, três dígitos em sequência, nunca reutilizados, slug em minúsculas com hífen e sem acento. A próxima é a **029**.
 - Pasta: `docs/demandas/NNN-slug/` com `us.md`, `spec.md` e `tasks.md` (ou só `bug.md`, numa correção).
 - Branch: `feat/NNN-slug` (código), `docs/NNN-slug` (só documentação) ou `fix/NNN-slug` (correção).
 - Modelos em [`_template/`](_template/).
@@ -18,7 +18,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 
 | NNN | Slug | Título | Status | Branch / PR |
 |---|---|---|---|---|
-| — | — | Nenhuma demanda aberta ainda | — | — |
+| 028 | [revisao-texto-landing](028-revisao-texto-landing/us.md) | Revisar o texto da landing para o pré-lançamento | us-em-revisão | `feat/028-revisao-texto-landing` |
 
 ## Backlog
 
@@ -27,7 +27,6 @@ Sem número: o número é reservado quando a demanda começa. Em ordem sugerida.
 | Item | Tipo | Depende de |
 |---|---|---|
 | Terminar o redesign da landing (tasks 026 e 027) | Modelo antigo, ver [`../tasks/README.md`](../tasks/README.md) | — |
-| Revisar o texto da landing: tirar placeholders e promessas sem base (`PROJECT_CONTEXT.md` §6) | Funcionalidade | Redesign concluído |
 | CI da landing: lint e build em cada PR | Funcionalidade | — |
 | Atualizar o design system para o tema escuro do redesign | Documentação | Redesign concluído |
 | Primeira versão do painel: saldo, origem e pendências | Funcionalidade | Hipótese H1 resolvida |
