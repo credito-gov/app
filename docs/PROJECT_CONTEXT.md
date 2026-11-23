@@ -1,311 +1,186 @@
 ﻿# PROJECT_CONTEXT — CreditoGov
 
-> **Leia este arquivo integralmente antes de tocar em qualquer código.**
-> Convenções, decisões de arquitetura, regras inegociáveis e o "não faça" estão aqui.
-> Em caso de divergência entre este arquivo e qualquer task, **este arquivo é a fonte canônica** — pare e pergunte.
+> Fonte canônica do projeto. Leia inteiro antes de mexer em qualquer coisa.
+> Se uma demanda, task ou documento antigo divergir daqui, **este arquivo vale** — pare e pergunte.
+> Tudo que está em `docs/historico/` e `docs/tasks/` é registro do passado, não regra.
 
 ---
 
-## 1. O que é o CreditoGov
+## 1. O que é
 
-**CreditoGov** é uma plataforma SaaS B2B que oferece visibilidade e gestão inteligente de créditos tributários CBS/IBS para PMEs brasileiras, integrada diretamente às APIs da **Receita Federal** (via Split Payment).
+O **CreditoGov** é um SaaS B2B para pequenas e médias empresas no regime regular de CBS/IBS. Ele mostra ao empresário o crédito tributário gerado pelas compras como parte do caixa: quanto existe, de qual compra veio, o que já pode ser usado e o que ainda depende do fornecedor.
 
-### Problema resolvido
+Três ideias sustentam o produto. Elas vieram da concepção (ago/2026) e continuam valendo:
 
-Com a Reforma Tributária (vigência jan/2027), PMEs passam a acumular créditos de CBS/IBS nas compras. Esses créditos ficam invisíveis: a PME não sabe quanto tem, quando vira dinheiro, nem como usar. O CreditoGov resolve isso com um dashboard integrado que:
+1. **O ERP já calcula CBS/IBS.** O CreditoGov não calcula imposto. O valor está em tratar o crédito como ativo de caixa.
+2. **Crédito vem das compras; venda gera débito.** O saldo é crédito menos débito.
+3. **O crédito depende do recolhimento.** O adquirente só aproveita o crédito quando o débito do fornecedor foi extinto (por split payment, recolhimento pelo adquirente ou outra modalidade). Mostrar o que está confirmado e o que está pendente, por fornecedor, é o centro do produto.
 
-1. **Valida** créditos automaticamente via API da Receita Federal
-2. **Contextualiza** cada crédito com a compra/NF-e que o gerou
-3. **Facilita ações**: compensar débito fiscal ou adiantar crédito com fintech (2 cliques)
+Só CBS e IBS. Tributos antigos (PIS, Cofins, ICMS, ISS, IPI) ficam fora do escopo.
 
-### Posicionamento
-
-| Aspecto | Painel Gov | CreditoGov |
-|---|---|---|
-| Gerencia crédito | ❌ | ✅ |
-| Validação automática | ❌ | ✅ |
-| Projeção de caixa | ❌ | ✅ |
-| Ações (compensar/adiantar) | ❌ | ✅ |
-| Contexto operacional | ❌ | ✅ |
+Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 
 ---
 
-## 2. Stack tecnológico
+## 2. Estado real do projeto
 
-### Backend
-
-| Camada | Tecnologia |
+| Parte | Situação |
 |---|---|
-| Runtime | Node.js 18+ |
-| Framework | Express.js 4.x |
-| Linguagem | TypeScript |
-| ORM | TypeORM |
-| Banco | PostgreSQL 13+ |
-| Auth | JWT + OAuth2 |
-| Validação | Zod |
-| Logging | Winston |
-| Scheduler | node-cron |
-| Testes | Jest |
-
-### Frontend
-
-| Camada | Tecnologia |
-|---|---|
-| Framework | React 18+ |
-| Linguagem | TypeScript |
-| State | Redux Toolkit |
-| HTTP | Axios |
-| Styling | Tailwind CSS |
-| UI Components | shadcn/ui |
-| Gráficos | Recharts |
-| Forms | React Hook Form |
-| Testes | Vitest + RTL |
-
-### Infraestrutura
-
-| Item | Tecnologia |
-|---|---|
-| Hosting | AWS EC2 + RDS |
-| CDN | CloudFront |
-| CI/CD | GitHub Actions |
-| Monitoramento | Datadog / New Relic |
+| Landing page (`app/landing-page`) | No ar em <https://credito-gov.vercel.app/>, na versão clara da `main`. Ainda com placeholders (depoimentos, preço) e promessas não validadas — ver §6 |
+| Redesign escuro da landing | Tasks 015–025 integradas na branch `feat/landing-redesign`. Falta a 026 (PR #22 aberto) e a 027. PR centralizador #10 em rascunho |
+| Backend, banco, autenticação, painel | **Não iniciados.** As tasks 001–005 foram escritas e estão suspensas (ver §5) |
+| Validação de mercado (entrevistas, contadores, tributarista) | Sem registro no repositório |
 
 ---
 
-## 3. Estrutura de repositório
+## 3. Decisões tomadas
+
+| Data | Decisão |
+|---|---|
+| 2026-08-12 | Escopo só CBS/IBS; tributos antigos fora |
+| 2026-08-12 | O produto é gestão do crédito como caixa, não cálculo de imposto |
+| 2026-08-25 | Omie descartado como canal de distribuição e como forma de login |
+| 2026-08-25 | Autenticação própria da plataforma (email + senha), sem credencial de ERP |
+| 2026-08-26 | Venda direta (SaaS), com escritórios de contabilidade como canal comercial principal |
+| 2026-08-26 | Antecipação com fintech/FIDC fica para depois de haver base de clientes |
+| 2026-11-23 | Fonte de dados dos créditos rebaixada de premissa para **hipótese em aberto** (ver §5) |
+| 2026-11-23 | Fluxo de trabalho passa a ser por demandas (US → Spec → Tasks) com subagentes; o modelo de tasks + walkthrough fica congelado |
+
+---
+
+## 4. Stack
+
+### Landing page — o que existe
+
+Vite 8, React 19, TypeScript 6, Tailwind CSS v4 (plugin do Vite), lint com `oxlint`. Publicada no Vercel. Precisa de Node 20.12 ou mais novo.
+
+```bash
+cd app/landing-page
+npm install
+npm run dev     # http://localhost:5173
+npm run lint
+npm run build   # tsc -b && vite build
+```
+
+Não há testes automatizados nem CI configurado.
+
+### Aplicação (backend e painel) — proposta, não confirmada
+
+A concepção propôs Node.js + Express + TypeORM + PostgreSQL no backend e React + Redux Toolkit + shadcn/ui no painel. Nada disso foi construído. A stack será confirmada na Spec da primeira demanda de backend, depois de resolvida a fonte de dados. O desenho antigo está em [`historico/2026-08-concepcao/05_ARQUITETURA_TECNICA.md`](historico/2026-08-concepcao/05_ARQUITETURA_TECNICA.md) e **não deve ser seguido como especificação**.
+
+---
+
+## 5. Hipóteses e decisões em aberto
+
+Lista completa em [`produto/hipoteses.md`](produto/hipoteses.md). As que travam desenvolvimento:
+
+- **Fonte de dados dos créditos (bloqueia todo o backend).** A concepção assumiu uma API da Receita Federal com OAuth2 e endpoints como `/apuracao-creditos/{cnpj}`. Os manuais oficiais em [`referencias/split-payment/`](referencias/split-payment/README.md) não descrevem nada disso: a Plataforma Pública de Split Payment liga bancos e PSPs ao governo, usa mTLS e não oferece consulta de crédito por contribuinte. Enquanto a fonte não for decidida, não se desenha modelo de dados, sincronização nem integração.
+- **Como a empresa autoriza o acesso aos dados dela** (certificado digital, procuração eletrônica, exportação do ERP) — depende da fonte.
+- **Compensar e antecipar pelo painel.** Não há base, nos manuais do repositório, para afirmar que um terceiro consegue disparar a compensação. A antecipação depende de parceiro e de entendimento jurídico sobre cessão desse crédito.
+- **Preço e comissão do contador** (R$ 100/mês e 15–20% são hipóteses da concepção).
+
+As tasks 001–005 do modelo antigo foram escritas sobre a premissa da API e estão suspensas.
+
+---
+
+## 6. Regras que valem sempre
+
+### Domínio
+
+- Não afirmar regra tributária sem fonte. O que estiver nos manuais de `referencias/` pode ser citado com o trecho; o resto entra como "a validar com tributarista".
+- Não tratar as alíquotas de teste (CBS 0,9% e IBS 0,1%) como definitivas, nem dizer que o IBS substitui ICMS/ISS em 2027. Ver [`produto/reforma-tributaria.md`](produto/reforma-tributaria.md).
+- Crédito não confirmado nunca é apresentado como disponível.
+
+### Texto público (landing, materiais)
+
+- Não prometer integração, sincronização, garantia ou funcionalidade que não exista.
+- Não publicar depoimento, logo de cliente ou número de resultado inventado.
+
+### Código
+
+- Valores monetários em decimal de precisão fixa, nunca ponto flutuante.
+- Nunca commitar `.env`, credenciais, tokens ou certificados. Nunca registrar esses dados em log.
+- Nunca commitar `node_modules/`, `dist/` nem arquivos temporários.
+- Sem PR com lint ou build falhando.
+- Não criar funcionalidade que não foi pedida. Decisão técnica relevante vai para a Spec da demanda, não fica implícita no código.
+
+---
+
+## 7. Estrutura do repositório
 
 ```
 credito-gov/
-├── app/backend/
-│   └── src/
-│       ├── api/            # routes, controllers, middleware
-│       ├── cron/           # jobs de sincronização
-│       ├── services/       # lógica de negócio
-│       ├── models/         # entidades TypeORM
-│       ├── db/             # migrations, connection
-│       └── utils/
-├── app/frontend/
-│   └── src/
-│       ├── pages/          # LoginPage, DashboardPage, etc.
-│       ├── components/     # common, dashboard, creditos, acoes
-│       ├── hooks/
-│       ├── store/          # Redux slices
-│       └── api/
-├── docs/
-│   ├── PROJECT_CONTEXT.md  # este arquivo
-│   ├── tasks/              # tasks de desenvolvimento
-│   │   ├── README.md       # Kanban das tasks
-│   │   ├── _template.md    # template de task
-│   │   └── walkthrough/    # walkthroughs por task
-│   └── 00-project/         # documentação de negócio e design
-│       ├── docs/
-│       └── design/
-├── .github/
-│   └── pull_request_template.md
-└── AGENTS.md
+├── AGENTS.md                  # regras para agentes (o CLAUDE.md só importa este)
+├── README.md
+├── .claude/fluxo.json         # configuração do fluxo de demandas
+├── app/
+│   └── landing-page/          # única aplicação existente
+└── docs/
+    ├── PROJECT_CONTEXT.md     # este arquivo
+    ├── README.md              # índice da documentação
+    ├── produto/               # visão, hipóteses, reforma tributária
+    ├── design/                # design system, wireframes, marca
+    ├── referencias/           # material oficial de terceiros (Split Payment)
+    ├── demandas/              # kanban, templates e uma pasta por demanda
+    ├── handoff/               # registros de passagem entre sessões
+    ├── tasks/                 # modelo antigo (001–027), congelado
+    └── historico/             # documentos da concepção, só para consulta
 ```
+
+Aplicações novas entram em `app/<nome>`.
 
 ---
 
-## 4. Convenções
+## 8. Convenções
 
-### 4.1 Nomenclatura
+- **Idioma:** documentação, commits e PRs em português.
+- **Commits:** Conventional Commits (`feat(landing): ...`, `fix(...)`, `docs(...)`, `chore(...)`, `test(...)`, `refactor(...)`).
+- **Branches:** `feat/NNN-slug`, `fix/NNN-slug` ou `docs/NNN-slug`, sempre a partir de `main`. Nunca trabalhar direto na `main`.
+- **Demandas:** `NNN-slug`, numeração contínua a partir de 028 (001–027 são do modelo antigo).
+- **Arquivos TypeScript:** `camelCase.ts` para utilitários, `PascalCase.tsx` para componentes React.
+- **Markdown:** UTF-8, nomes de arquivo em minúsculas com hífen.
 
-- **Arquivos TypeScript**: `camelCase.ts` para utilitários/services, `PascalCase.tsx` para componentes React
-- **Tabelas do banco**: `snake_case` no plural (`pmes`, `creditos`, `acoes`, `sync_logs`)
-- **Colunas do banco**: `snake_case`
-- **Variáveis de ambiente**: `UPPER_SNAKE_CASE` prefixadas por contexto (`RECEITA_`, `DB_`, `JWT_`, `FINTECH_`)
-- **Branches**: `tipo/descricao-curta` (ex: `feat/dashboard-creditos`, `fix/cron-sync-error`)
-
-### 4.2 Commits (Conventional Commits)
-
-```
-feat(creditos): add validation status to credito model
-fix(cron): handle timeout on Receita Federal API call
-docs(tasks): mark task 001 as developed
-chore(deps): update axios to 1.7.0
-test(services): add unit tests for creditoService
-refactor(auth): extract token refresh logic
-```
-
-### 4.3 Git — Sequência obrigatória por task
-
-Para toda task de desenvolvimento, nesta ordem, sem atalhos:
-
-1. Criar branch a partir de `main` atualizado
-2. Executar o desenvolvimento da task
-3. Abrir PR da branch para `main`
-4. Criar walkthrough em `docs/tasks/walkthrough/NNN-slug.md`
-5. Atualizar kanban em `docs/tasks/README.md` (coluna **3.Desenv ✅**)
-
-```bash
-# Antes de começar qualquer task:
-git checkout main
-git pull --ff-only origin main
-git checkout -b tipo/descricao-curta
-```
-
-Nunca trabalhe direto em `main`. Nunca "empilhe" branches.
-
-### 4.4 Pull Requests
-
-- PR sempre para `main`
-- Descrição responde: **o quê**, **por quê**, **como testar**, **riscos**
-- Link para o walkthrough no corpo do PR
-- Branch sincronizada com `origin/main` antes do merge
+O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 
 ---
 
-## 5. Glossário de domínio
+## 9. Glossário
 
 | Termo | Significado |
 |---|---|
-| **CBS** | Contribuição sobre Bens e Serviços — substitui PIS e Cofins a partir de jan/2027 |
-| **IBS** | Imposto sobre Bens e Serviços — substitui ICMS e ISS a partir de jan/2027 |
-| **Split Payment** | Mecanismo onde o imposto é recolhido automaticamente no momento do pagamento, sem passar pelo caixa do vendedor |
-| **Crédito tributário** | Crédito de CBS/IBS gerado quando a PME compra de um fornecedor. Pode ser usado para compensar débitos ou ser antecipado |
-| **Validado** | Status de crédito confirmado pela Receita Federal (imposto efetivamente recolhido via Split Payment) |
-| **Pendente** | Status de crédito ainda aguardando confirmação da Receita Federal |
-| **Compensar** | Usar crédito disponível para abater um débito fiscal (sem movimentação financeira) |
-| **Adiantar** | Antecipar o recebimento do crédito via fintech (recebe dinheiro agora, com desconto da taxa) |
-| **PME** | Pequena e Média Empresa — cliente final do CreditoGov |
-| **NF-e** | Nota Fiscal Eletrônica — documento que origina o crédito tributário |
-| **Cron** | Job agendado (00:05 diariamente) que sincroniza créditos da Receita Federal para cada PME ativa |
-| **Fintech/FIDC** | Parceiros de adiantamento de crédito. Monetização a negociar após massa crítica de PMEs ativas — não é o foco comercial dos 6 primeiros meses |
-| **Contador/Escritório Contábil** | Canal comercial primário do CreditoGov. Cada parceria fechada ativa, em lote, a carteira de PMEs do escritório (média pessimista: ~100 empresas/parceria). Recebe comissão de 15-20% da mensalidade por PME ativa |
+| **CBS** | Contribuição sobre Bens e Serviços, federal. Substitui PIS e Cofins |
+| **IBS** | Imposto sobre Bens e Serviços, de estados e municípios. Substitui ICMS e ISS de forma gradual |
+| **CGIBS** | Comitê Gestor do IBS |
+| **Regime regular** | Regime em que a empresa apura débito e crédito de CBS/IBS. É o público do produto |
+| **Fornecedor / Adquirente** | Quem vende e quem compra. O crédito é do adquirente |
+| **Crédito tributário** | Direito do adquirente sobre o CBS/IBS das compras. Exige destaque no documento fiscal e extinção do débito do fornecedor |
+| **Split payment** | Segregação e recolhimento do CBS/IBS no momento da liquidação financeira do pagamento. De adoção facultativa por quem origina a transação |
+| **PSP** | Prestador de serviço de pagamento (banco, instituição de pagamento). É quem fala com a Plataforma Pública de Split Payment |
+| **Documento fiscal (DF)** | Nota que origina débito e crédito e que vincula o pagamento à operação |
+| **Confirmado / Pendente** | Estados de um crédito para o produto: débito do fornecedor extinto ou ainda não |
+| **Canal contábil** | Escritórios de contabilidade que levam o produto à carteira de clientes |
 
 ---
 
-## 6. Regras de negócio inegociáveis
-
-### 6.1 Status de crédito
-
-| Status | Regra |
-|---|---|
-| `pendente` | Crédito registrado mas sem confirmação da Receita Federal |
-| `validado` | Receita Federal confirmou que o imposto foi recolhido via Split Payment |
-| `compensado` | Crédito foi usado para abater um débito fiscal |
-| `adiantado` | Crédito foi antecipado via fintech |
-
-### 6.2 Tipos de crédito
-
-```
-CBS — Contribuição sobre Bens e Serviços
-IBS — Imposto sobre Bens e Serviços
-OUTRO — demais casos (retrocompatibilidade futura)
-```
-
-### 6.3 Cron de sincronização
-
-- Executa às **00:05** diariamente
-- Processa cada PME com `ativo = true`
-- Credenciais da Receita Federal ficam **encriptadas** no banco (AES-256-CBC)
-- Erro em uma PME não interrompe o processamento das demais
-- Todo ciclo gera registro em `sync_logs`
-
-### 6.4 Segurança
-
-- `receita_client_id` e `receita_client_secret` são **sempre** armazenados encriptados (AES-256-CBC)
-- Nunca logar credenciais, tokens ou dados sensíveis de PME
-- Rate limiting: 100 requisições por 15 minutos por IP/usuário
-
-### 6.5 Integridade financeira
-
-- Valores monetários sempre em `DECIMAL(18, 2)` — nunca `FLOAT`
-- Nunca assumir que um crédito "pendente" pode ser usado — apenas `validado` é acionável
-- Compensação e adiantamento são registros em `acoes` — nunca atualizar `creditos.status` sem uma `acao` correspondente
-
----
-
-## 7. APIs externas
-
-### 7.1 Receita Federal (Split Payment)
-
-- Autenticação: OAuth2 Client Credentials
-- Endpoints: `/apuracao-creditos/{cnpj}`, `/apuracao-debitos/{cnpj}`, `/consulta-retorno`
-- **Status**: API em desenvolvimento pela Receita — disponibilidade confirmada para jan/2027. Usar mock nos ambientes de dev/staging
-- Documentação: `docs/split-payment/`
-
-### 7.2 Fintechs (Facile, Liber)
-
-- Modelo: redirect + webhook callback
-- Callback endpoint: `POST /webhooks/fintech-callback`
-- Status possíveis no callback: `aprovado`, `rejeitado`, `pendente`
-
----
-
-## 8. Banco de dados — tabelas principais
-
-```sql
-pmes            -- empresas cadastradas (1 por CNPJ)
-creditos        -- créditos tributários CBS/IBS por PME
-acoes           -- compensações e adiantamentos solicitados
-sync_logs       -- histórico de execuções do cron
-```
-
-Migrations sempre via TypeORM CLI. Nunca DDL manual no banco.
-
----
-
-## 9. "NÃO faça" — armadilhas conhecidas
-
-- ❌ **NUNCA** executar DDL direto no banco. Sempre via migration TypeORM em `app/app/backend/src/db/migrations/`
-- ❌ **NUNCA** commitar `.env`, credenciais, tokens ou certificados digitais
-- ❌ **NUNCA** usar `FLOAT` para valores monetários — sempre `DECIMAL(18, 2)`
-- ❌ **NUNCA** assumir que a API da Receita Federal está disponível em dev — usar mock
-- ❌ **NUNCA** atualizar `creditos.status` sem criar um registro correspondente em `acoes`
-- ❌ **NUNCA** logar `receita_client_id`, `receita_client_secret` ou qualquer credencial
-- ❌ **NUNCA** commitar `node_modules/`, `dist/`, arquivos gerados pelo build
-- ❌ **NUNCA** abrir PR com lint/teste falhando
-- ❌ **NÃO** criar feature que não foi pedida — se em dúvida, perguntar
-- ❌ **NÃO** tomar decisões técnicas silenciosas — documentar no walkthrough e sinalizar antes de executar
-
----
-
-## 10. Como pedir ajuda quando algo não estiver claro
-
-Antes de codificar baseado em suposição:
-
-1. **Releia este `PROJECT_CONTEXT.md`** procurando o termo ou regra
-2. **Confira o documento de arquitetura** em `docs/00-project/docs/05_ARQUITETURA_TECNICA.md`
-3. **Confira o doc da feature** em `docs/tasks/NNN-*.md`
-4. **Se ainda ambíguo, PARE e pergunte.** Suposição vira retrabalho.
-
-Boas perguntas começam com o que você já checou e qual ambiguidade ficou.
-
----
-
-## 11. Referências
+## 10. Referências
 
 | Tema | Arquivo |
 |---|---|
-| Plano de negócio | `docs/00-project/docs/01_PLANO_DE_NEGOCIO.md` |
-| Modelo de negócio | `docs/00-project/docs/02_MODELO_NEGOCIO.md` |
-| Arquitetura técnica | `docs/00-project/docs/05_ARQUITETURA_TECNICA.md` |
-| Design System | `docs/00-project/docs/12_DESIGN_SYSTEM.md` |
-| Wireframe Dashboard | `docs/00-project/design/wireframes/01_DASHBOARD_PRINCIPAL.md` |
-| Documentação Split Payment | `docs/split-payment/` |
-| **Kanban / status das tasks** | `docs/tasks/README.md` — **manter atualizado a cada mudança de estado** |
-| Template para novas tasks | `docs/tasks/_template.md` |
+| Visão de produto e negócio | [`produto/visao.md`](produto/visao.md) |
+| Hipóteses a validar | [`produto/hipoteses.md`](produto/hipoteses.md) |
+| Reforma tributária: o que sabemos | [`produto/reforma-tributaria.md`](produto/reforma-tributaria.md) |
+| Manuais do Split Payment | [`referencias/split-payment/`](referencias/split-payment/README.md) |
+| Design system e wireframes | [`design/`](design/README.md) |
+| Kanban de demandas | [`demandas/README.md`](demandas/README.md) |
+| Tasks do modelo antigo | [`tasks/README.md`](tasks/README.md) |
+| Documentos da concepção | [`historico/`](historico/README.md) |
 
 ---
 
-## 12. Decisões em aberto
-
-Não codifique baseado em "achismo" sobre estes pontos:
-
-- [ ] **API Receita Federal** — endpoint exato e schema de resposta confirmados. Enquanto não disponível, usar mock baseado na documentação `docs/split-payment/`
-- [ ] **Fintech/FIDC parceiro(a)** — quem? Comissão a negociar somente após massa crítica de PMEs ativas; contrato e webhooks a definir
-- [ ] **Formato exato da parceria contábil** — % de comissão final (faixa 15-20%), contrato, onboarding assistido — a validar no Sprint 0
-- [ ] **Multi-CNPJ** — uma PME pode ter múltiplos CNPJs? Tratar como cadastros separados ou agrupados?
-- [ ] **Retenção de dados de sync_logs** — quanto tempo manter histórico?
-
----
-
-## 13. Changelog deste documento
+## 11. Changelog
 
 | Data | Mudança |
 |---|---|
-| 2026-08-25 | Versão inicial — adaptada do modelo Liane/data-intelligence para o CreditoGov |
-| 2026-08-25 | Removida proposta de parceria Omie como canal de distribuição — go-to-market a redefinir |
-| 2026-08-26 | Go-to-market definido: SaaS direto (sem repasse a terceiros), com parcerias contábeis (contadores/escritórios de contabilidade) como canal comercial primário nos primeiros 6 meses pós-lançamento — meta de 10 parcerias / 1.000 PMEs (média de 100 empresas por parceria). Omie segue como fonte de dados técnica (sincronização de NF-e), não como canal de distribuição ou monetização. Comissão fintech/FIDC/instituição financeira passa a ser negociada apenas após a plataforma reunir massa crítica de PMEs ativas |
+| 2026-08-25 | Versão inicial. Removida a parceria Omie como canal |
+| 2026-08-26 | Go-to-market definido: SaaS direto com canal contábil |
+| 2026-11-23 | Reescrito na reorganização geral: estado real do projeto, API da Receita rebaixada a hipótese, stack do backend marcada como proposta, fluxo por demandas, nova estrutura de pastas |

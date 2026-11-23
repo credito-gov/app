@@ -1,39 +1,68 @@
-﻿# Regras do agente neste repositório
+﻿# Regras para agentes neste repositório
 
-Este arquivo é a fonte persistente de instruções do repositório para agentes de IA. Sempre siga estas regras ao trabalhar aqui.
+Instruções permanentes para agentes de IA. O `CLAUDE.md` apenas importa este arquivo.
 
-## Sequência obrigatória por task
+## Antes de qualquer coisa
 
-Para toda task de desenvolvimento, siga esta ordem sem atalhos:
+1. Leia [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md). É a fonte canônica: estado real do projeto, decisões, regras e o que está em aberto.
+2. Veja o kanban em [`docs/demandas/README.md`](docs/demandas/README.md) e o handoff mais recente em `docs/handoff/`.
+3. Se o pedido divergir do `PROJECT_CONTEXT.md`, pare e pergunte.
 
-1. Criar e trocar para o branch da task a partir de `main`.
-2. Executar o desenvolvimento necessário da task.
-3. Abrir a pull request da branch da task para `main`.
-4. Criar o walkthrough da task em `docs/tasks/walkthrough/NNN-slug.md`.
-5. Atualizar o kanban em `docs/tasks/README.md` apenas quando isso refletir o estado real da entrega.
+`docs/historico/` e `docs/tasks/` são registro do passado. Não use como especificação.
 
-## Regras de execução
+## Fluxo de trabalho
 
-- Não trate a tarefa como concluída antes de cumprir a sequência inteira.
-- Não escreva walkthrough antes da PR existir.
-- Não pule a etapa de PR para "adiantar" documentação ou status.
-- Se o usuário pedir para "finalizar a sequência" ou algo equivalente, isso significa completar a ordem acima, não encurtá-la.
-- Se houver conflito entre um pedido pontual e estas regras, avise antes de assumir qualquer atalho.
+Toda mudança passa por uma **demanda**, conduzida pelo plugin `fluxo`: siga `/fluxo:orquestrar`. A configuração está em [`.claude/fluxo.json`](.claude/fluxo.json).
 
-## Fonte canônica
+Resumo do que o fluxo faz, para quem estiver sem o plugin:
 
-- `docs/PROJECT_CONTEXT.md` é a fonte canônica de regras, convenções e decisões de arquitetura.
-- Em caso de divergência entre um prompt de task e o `PROJECT_CONTEXT.md`, pare e pergunte.
+| Etapa | Quem | Entrega | Aprovação |
+|---|---|---|---|
+| História | Arquiteto | `us.md` com critérios de aceite numerados (CA-N) | Usuário |
+| Solução | Arquiteto | `spec.md` citando os CA que atende | Usuário |
+| Passos | Arquiteto | `tasks.md`, com os testes antes da implementação | Usuário |
+| Implementação | Developer | Testes que falham, depois o código, um commit por task | — |
+| Revisão | Reviewer | Veredito contra os CA-N; no máximo 3 rodadas | — |
+| Entrega | Sessão principal | Handoff, push e PR | Merge é do usuário |
 
-## Rotina de auto-verificação e limpeza
+Correção de bug usa um único `bug.md` no lugar de US, Spec e Tasks.
 
-Para garantir que o fluxo obrigatório não seja esquecido e evitar lixo no repositório:
+A sessão principal só coordena: não escreve código, testes, US, Spec nem Tasks. Subagentes não falam com o usuário; dúvida de requisito volta para ele.
 
-1. **Antes de codificar:** Verbalize e anote os 5 passos do fluxo obrigatório no plano, comprometendo-se a segui-los.
-2. **Antes de commitar (Sanity Check):** Rode `git status` e analise a lista de arquivos alterados/não rastreados.
-3. **Limpeza OBRIGATÓRIA:** Delete ativamente qualquer arquivo temporário, logs, dumps ou artefatos que não foram solicitados pela task. Nenhum arquivo extra deve ser incluído nos commits.
+## Regras do projeto para o fluxo
 
-## Persistência
+Estas regras prevalecem sobre o manual do plugin.
 
-- Estas instruções valem para esta sessão e para sessões futuras que carreguem este repositório.
-- Se precisar alterar este fluxo, edite este arquivo de forma explícita.
+- **Sem etapa de publicação.** Não há nota de implantação, runbook, tag de versão nem GitHub Release. Não use `/fluxo:publicar` nem `/fluxo:nova-aplicacao`. O que a entrega exigir para ir ao ar vai na seção "Implantação" da Spec e na descrição do PR.
+- **Numeração.** Demandas começam em `028`. De 001 a 027 são tasks do modelo antigo.
+- **Worktrees** em `.claude/worktrees/NNN-slug`.
+- **Uma demanda por vez**, salvo pedido explícito.
+- **Testes primeiro.** Onde houver teste automatizado, ele nasce dos CA-N antes do código. A landing hoje não tem testes: a verificação é `npm run lint` e `npm run build` em `app/landing-page`, mais conferência visual no navegador. A primeira demanda de uma aplicação nova define o comando de teste dela e o registra aqui.
+- **Domínio tributário.** O Arquiteto não escreve regra de CBS/IBS sem fonte. O que não estiver em `docs/referencias/` entra como pergunta em aberto, e a resposta é registrada em `docs/produto/hipoteses.md`.
+- **Texto público.** Nada de promessa, número ou depoimento sem base (ver `PROJECT_CONTEXT.md` §6).
+- **PR em português**, com: o quê, por quê, como testar e riscos.
+
+## Exceção em andamento: redesign da landing
+
+As tasks 026 e 027 terminam no modelo antigo, descrito em [`docs/tasks/README.md`](docs/tasks/README.md): branch a partir de `feat/landing-redesign`, PR de volta para ela, e a 027 promove o PR centralizador (#10) para `main`. Depois disso, o modelo antigo não recebe mais nada.
+
+## Comandos
+
+```bash
+# landing
+cd app/landing-page
+npm install
+npm run dev
+npm run lint
+npm run build
+```
+
+## Antes de commitar
+
+- Rode `git status` e confira cada arquivo alterado ou novo.
+- Apague arquivo temporário, log ou dump que não faz parte da entrega.
+- Não commite `.env`, credenciais, `node_modules/` nem `dist/`.
+
+## Em cada máquina
+
+Para usar os subagentes: plugins `fluxo` e `pr-review-toolkit` instalados no Claude Code, e Node disponível. Agentes e hooks são lidos no início da sessão.

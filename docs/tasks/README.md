@@ -1,5 +1,9 @@
 ﻿# Kanban — CreditoGov Tasks
 
+> ⚠️ **Modelo antigo, congelado em 2026-11-23.** Trabalho novo entra como demanda em [`../demandas/`](../demandas/README.md).
+> Aqui só terminam as tasks 026 e 027 do redesign da landing. As tasks 001–005 estão suspensas.
+> Caminhos citados nas tasks (`docs/00-project/...`, `docs/split-payment/`) mudaram: ver [`../README.md`](../README.md).
+
 > Fonte de verdade do status de desenvolvimento. Atualizar a cada mudança de estado.
 > Se algo aqui divergir da realidade, a **task individual é a fonte de verdade** — reporte a divergência.
 
@@ -9,11 +13,11 @@
 
 | # | Título | Branch | Pré-req | 1.Criado | 2.Revisado | 3.Desenv | 4.PR | 5.Merged | Notas |
 |---|--------|--------|---------|----------|------------|----------|------|----------|-------|
-| [001](001-backend-infra.md) | **Setup Backend**: Node.js + TypeScript + ESLint + docker-compose + CI | `feat/001-backend-infra` | — | ✅ | — | — | — | — | Sprint 1 |
-| [002](002-database-migrations.md) | **TypeORM + Migrations + Seeders**: 4 tabelas + dados de teste | `feat/002-database-migrations` | 001 | ✅ | — | — | — | — | Sprint 1 |
-| [003](003-auth-jwt-omie.md) | **Auth JWT**: login, refresh, logout, /auth/me | `feat/003-auth-jwt` | 002 | ✅ | — | — | — | — | Sprint 1 |
-| [004](004-frontend-setup.md) | **Setup Frontend**: React + Vite + Tailwind + shadcn/ui + Redux + Router | `feat/004-frontend-setup` | 003 | ✅ | — | — | — | — | Sprint 2 |
-| [005](005-layout-base.md) | **Layout Base**: Header + Sidebar + MainWrapper + tema + LoginPage | `feat/005-layout-base` | 004 | ✅ | — | — | — | — | Sprint 2 |
+| [001](001-backend-infra.md) | **Setup Backend**: Node.js + TypeScript + ESLint + docker-compose + CI | `feat/001-backend-infra` | — | ✅ | — | — | — | — | Sprint 1 — ⏸️ suspensa: parte da premissa da API da Receita (ver `PROJECT_CONTEXT.md` §5) |
+| [002](002-database-migrations.md) | **TypeORM + Migrations + Seeders**: 4 tabelas + dados de teste | `feat/002-database-migrations` | 001 | ✅ | — | — | — | — | Sprint 1 — ⏸️ suspensa: parte da premissa da API da Receita (ver `PROJECT_CONTEXT.md` §5) |
+| [003](003-auth-jwt.md) | **Auth JWT**: login, refresh, logout, /auth/me | `feat/003-auth-jwt` | 002 | ✅ | — | — | — | — | Sprint 1 — ⏸️ suspensa: parte da premissa da API da Receita (ver `PROJECT_CONTEXT.md` §5) |
+| [004](004-frontend-setup.md) | **Setup Frontend**: React + Vite + Tailwind + shadcn/ui + Redux + Router | `feat/004-frontend-setup` | 003 | ✅ | — | — | — | — | Sprint 2 — ⏸️ suspensa: parte da premissa da API da Receita (ver `PROJECT_CONTEXT.md` §5) |
+| [005](005-layout-base.md) | **Layout Base**: Header + Sidebar + MainWrapper + tema + LoginPage | `feat/005-layout-base` | 004 | ✅ | — | — | — | — | Sprint 2 — ⏸️ suspensa: parte da premissa da API da Receita (ver `PROJECT_CONTEXT.md` §5) |
 | [006](006-landing-page-architecture.md) | **Landing Page — Arquitetura**: stack, scaffold, Dockerfile, deploy Render.com | `feat/006-landing-page-arch` | — | ✅ | — | ✅ | ✅ [PR #1](https://github.com/credito-gov/app/pull/1) | ✅ | Landing Page 1 |
 | [007](007-landing-header.md) | **Landing Page — Header (Navbar)**: logo, links, CTA, responsivo | `feat/007-landing-header` | 006 | ✅ | — | ✅ | ✅ [PR #2](https://github.com/credito-gov/app/pull/2) | ✅ | Landing Page 2 |
 | [008](008-landing-hero.md) | **Landing Page — Hero Section**: tag, H1, CTAs, mockup de dashboard | `feat/008-landing-hero` | 007 | ✅ | — | ✅ | ✅ [PR #3](https://github.com/credito-gov/app/pull/3) | ✅ | Landing Page 3 |
@@ -34,7 +38,7 @@
 | [023](023-landing-redesign-testimonials.md) | **Redesign — Depoimentos**: seção própria, cards dark, bios atualizadas | `feat/023-landing-redesign-testimonials` | 022 | ✅ | — | ✅ | ✅ [PR #19](https://github.com/credito-gov/app/pull/19) | ✅ (em `feat/landing-redesign`) | Redesign 9/13 |
 | [024](024-landing-redesign-pricing.md) | **Redesign — Preço**: sem coluna lateral, "Sob Consulta" | `feat/024-landing-redesign-pricing` | 023 | ✅ | — | ✅ | ✅ [PR #20](https://github.com/credito-gov/app/pull/20) | ✅ (em `feat/landing-redesign`) | Redesign 10/13 |
 | [025](025-landing-redesign-faq.md) | **Redesign — FAQ**: seção própria, dark, perguntas novas | `feat/025-landing-redesign-faq` | 024 | ✅ | — | ✅ | ✅ [PR #21](https://github.com/credito-gov/app/pull/21) | ✅ (em `feat/landing-redesign`) | Redesign 11/13 |
-| [026](026-landing-redesign-final-cta.md) | **Redesign — CTA Final**: seção própria, gradiente verde, novo subtítulo | `feat/026-landing-redesign-final-cta` | 025 | ✅ | — | — | — | — | Redesign 12/13 |
+| [026](026-landing-redesign-final-cta.md) | **Redesign — CTA Final**: seção própria, gradiente verde, novo subtítulo | `feat/026-landing-redesign-final-cta` | 025 | ✅ | — | ✅ | ✅ [PR #22](https://github.com/credito-gov/app/pull/22) (aberto) | — | Redesign 12/13 |
 | [027](027-landing-redesign-footer.md) | **Redesign — Footer**: colunas Produto/Soluções/Suporte, sem links legais | `feat/027-landing-redesign-footer` | 026 | ✅ | — | — | — | — | Redesign 13/13 — última; fecha com merge da PR centralizadora em `main` |
 
 ---
@@ -45,16 +49,15 @@
 
 ### 🟢 Disponíveis para iniciar
 
-- [ ] **[001](001-backend-infra.md)** — Setup Backend _(4-6h; sem pré-req; primeira task)_
-- [ ] **[026](026-landing-redesign-final-cta.md)** — Redesign: CTA Final _(2-3h; 025 merged em `feat/landing-redesign`; 12/13 do redesign)_
+- [ ] **[026](026-landing-redesign-final-cta.md)** — Redesign: CTA Final _(PR #22 aberto contra `feat/landing-redesign`, aguardando revisão e merge; 12/13 do redesign)_
 
 ### 🔴 Bloqueadas por dependência
 
-- [ ] **[002](002-database-migrations.md)** — aguarda 001 merged
-- [ ] **[003](003-auth-jwt-omie.md)** — aguarda 002 merged
-- [ ] **[004](004-frontend-setup.md)** — aguarda 003 merged
-- [ ] **[005](005-layout-base.md)** — aguarda 004 merged
 - [ ] **[027](027-landing-redesign-footer.md)** — aguarda 026 merged em `feat/landing-redesign`
+
+### ⏸️ Suspensas
+
+- **001 a 005** (backend, banco, autenticação, frontend, layout) — não serão desenvolvidas neste modelo. Dependem da decisão sobre a fonte de dados e voltam como demanda nova.
 
 ### ⚠️ Nota — série do Redesign (015-027)
 
