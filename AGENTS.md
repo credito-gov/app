@@ -8,7 +8,7 @@ Instruções permanentes para agentes de IA. O `CLAUDE.md` apenas importa este a
 2. Veja o kanban em [`docs/demandas/README.md`](docs/demandas/README.md) e o handoff mais recente em `docs/handoff/`.
 3. Se o pedido divergir do `PROJECT_CONTEXT.md`, pare e pergunte.
 
-`docs/historico/` e `docs/tasks/` são registro do passado. Não use como especificação.
+`docs/historico/` e `docs/tasks/` são registro do passado. Não use como especificação. O modelo de tasks (001–027) está encerrado.
 
 ## Fluxo de trabalho
 
@@ -41,10 +41,6 @@ Estas regras prevalecem sobre o manual do plugin.
 - **Domínio tributário.** O Arquiteto não escreve regra de CBS/IBS sem fonte. O que não estiver em `docs/referencias/` entra como pergunta em aberto, e a resposta é registrada em `docs/produto/hipoteses.md`.
 - **Texto público.** Nada de promessa, número ou depoimento sem base (ver `PROJECT_CONTEXT.md` §6).
 - **PR em português**, com: o quê, por quê, como testar e riscos.
-
-## Exceção em andamento: redesign da landing
-
-As tasks 026 e 027 terminam no modelo antigo, descrito em [`docs/tasks/README.md`](docs/tasks/README.md): branch a partir de `feat/landing-redesign`, PR de volta para ela, e a 027 promove o PR centralizador (#10) para `main`. Depois disso, o modelo antigo não recebe mais nada.
 
 ## Comandos
 

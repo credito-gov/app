@@ -26,8 +26,8 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 
 | Parte | Situação |
 |---|---|
-| Landing page (`app/landing-page`) | No ar em <https://credito-gov.vercel.app/>, na versão clara da `main`. Ainda com placeholders (depoimentos, preço) e promessas não validadas — ver §6 |
-| Redesign escuro da landing | Tasks 015–025 integradas na branch `feat/landing-redesign`. Falta a 026 (PR #22 aberto) e a 027. PR centralizador #10 em rascunho |
+| Landing page (`app/landing-page`) | Redesign escuro concluído e na `main` (tasks 015–027, PR #10). Ainda com números, depoimentos e promessas sem base — ver §6 |
+| Publicação da landing | <https://credito-gov.vercel.app/> mostra a versão clara antiga. O Vercel recusa publicar a partir do repositório (organização privada no plano gratuito), então o redesign **não está no ar** |
 | Backend, banco, autenticação, painel | **Não iniciados.** As tasks 001–005 foram escritas e estão suspensas (ver §5) |
 | Validação de mercado (entrevistas, contadores, tributarista) | Sem registro no repositório |
 
@@ -183,4 +183,5 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 |---|---|
 | 2026-08-25 | Versão inicial. Removida a parceria Omie como canal |
 | 2026-08-26 | Go-to-market definido: SaaS direto com canal contábil |
+| 2026-11-23 | Redesign da landing concluído e mergeado na `main`; registrado que o Vercel não publica a partir do repositório |
 | 2026-11-23 | Reescrito na reorganização geral: estado real do projeto, API da Receita rebaixada a hipótese, stack do backend marcada como proposta, fluxo por demandas, nova estrutura de pastas |
