@@ -29,4 +29,4 @@ Conferido em 2026-11-23. Entre parênteses, onde está.
 
 A concepção do projeto assumiu uma "API da Receita Federal" com OAuth2 e endpoints `/apuracao-creditos/{cnpj}`, `/apuracao-debitos/{cnpj}` e `/consulta-retorno`. **Isso não existe nestes documentos.** O CreditoGov não é PSP e não tem como consumir esta plataforma.
 
-De onde virão os dados de crédito de cada empresa é uma decisão em aberto. Ver [`../../produto/hipoteses.md`](../../produto/hipoteses.md).
+Os dados de crédito vêm de outro lugar: as APIs de apuração da CBS, descritas em [`../apuracao-cbs/README.md`](../apuracao-cbs/README.md).
