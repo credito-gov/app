@@ -8,7 +8,7 @@ export default function Hero() {
 
   return (
     <section
-      className="w-full px-6 pt-[88px] pb-16 md:px-[64px] md:pb-[96px]"
+      className="w-full overflow-x-clip px-6 pt-[88px] pb-16 md:px-[64px] md:pb-[96px]"
       style={{
         background:
           'radial-gradient(ellipse 900px 500px at 85% 10%, rgba(4,120,87,0.15), transparent 60%), #060a13',

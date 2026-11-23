@@ -139,3 +139,8 @@ app/landing-page/src/config/contato.ts:3:export const EMAIL_CONTATO = 'PREENCHER
 - **CA-16/CA-22, menu do celular:** `onClick={() => setIsMenuOpen(false)}` em cada link do menu, inclusive "Lista de espera".
 - **CSS morto:** removida a classe `.reveal-scale-bounce` de `index.css` (só o `Metrics.tsx`, já apagado, a usava). Nenhum `.tsx` a usa.
 - Depois das correções: busca CA-20 só com a linha do marcador em `contato.ts`; busca complementar vazia; lint e build sem erro. Conferência visual refeita pela sessão principal.
+
+### Correções da rodada 2 de revisão
+
+- **CA-22, rolagem horizontal antes do cartão entrar na tela (375 px):** `.reveal-right` começa com `translateX(32px)` e levava a borda direita a 382 px. Entrou `overflow-x-clip` na `<section>` do Hero, sem mexer na animação. Ajuste de classe necessário para cumprir o CA-22. Só o Hero usa `reveal-left` e `reveal-right`; nenhum outro componente tem o mesmo efeito.
+- Depois da correção: busca CA-20 só com a linha do marcador; lint e build sem erro.
