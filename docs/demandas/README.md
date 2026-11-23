@@ -26,9 +26,9 @@ Sem número: o número é reservado quando a demanda começa. Em ordem sugerida.
 
 | Item | Tipo | Depende de |
 |---|---|---|
-| Terminar o redesign da landing (tasks 026 e 027) | Modelo antigo, ver [`../tasks/README.md`](../tasks/README.md) | — |
+| Publicação da landing: decidir como o site vai ao ar, já que o Vercel recusa o repositório (plano pago, outro provedor ou conta pessoal) | Funcionalidade | Decisão do responsável |
 | CI da landing: lint e build em cada PR | Funcionalidade | — |
-| Atualizar o design system para o tema escuro do redesign | Documentação | Redesign concluído |
+| Atualizar o design system para o tema escuro do redesign | Documentação | — |
 | Primeira versão do painel: saldo, origem e pendências | Funcionalidade | Hipótese H1 resolvida |
 
 ## Fora do repositório, mas travando o backlog
@@ -44,4 +44,4 @@ As tasks 001–027 seguiram outro modelo (task + walkthrough) e estão em [`../t
 
 - 001–005 (backend, banco, autenticação, frontend, layout): escritas, nunca desenvolvidas, **suspensas**. Partem da premissa da API da Receita. Quando o backend for retomado, vira demanda nova.
 - 006–014 (landing, primeira versão): concluídas e na `main`.
-- 015–027 (redesign da landing): 015–025 integradas em `feat/landing-redesign`; 026 com PR aberto; 027 pendente.
+- 015–027 (redesign da landing): concluídas e na `main` desde 2026-11-23.

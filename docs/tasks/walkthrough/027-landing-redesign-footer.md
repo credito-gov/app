@@ -68,12 +68,14 @@ Reescrever o `Footer.tsx` no visual do redesign: fundo mais escuro, colunas Prod
 
 ## Passo final da série
 
-Pendente, e é do responsável pelo projeto:
+Concluído em 2026-11-23 pelo responsável do projeto:
 
-1. Merge do PR #22 (026) e do PR #24 (027) em `feat/landing-redesign`
-2. Tirar o PR #10 (`feat/landing-redesign` → `main`) de rascunho, conferir lint e build com a branch completa e fazer o merge
+1. PR #22 (026) e PR #24 (027) mergeados em `feat/landing-redesign`
+2. PR #10 (`feat/landing-redesign` → `main`) mergeado, commit `8befc48`
 
-Depois disso o modelo de tasks fica encerrado; trabalho novo entra como demanda.
+Conferido depois do merge, na `main`: `npm run lint` e `npm run build` sem erros; os 13 componentes do redesign presentes.
+
+O modelo de tasks fica encerrado; trabalho novo entra como demanda.
 
 ---
 

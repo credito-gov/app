@@ -1,7 +1,7 @@
 ﻿# Kanban — CreditoGov Tasks
 
 > ⚠️ **Modelo antigo, congelado em 2026-11-23.** Trabalho novo entra como demanda em [`../demandas/`](../demandas/README.md).
-> Aqui só terminam as tasks 026 e 027 do redesign da landing. As tasks 001–005 estão suspensas.
+> A série do redesign (015–027) foi concluída e está na `main` desde 2026-11-23 (PR #10). As tasks 001–005 estão suspensas. Nada mais entra aqui.
 > Caminhos citados nas tasks (`docs/00-project/...`, `docs/split-payment/`) mudaram: ver [`../README.md`](../README.md).
 
 > Fonte de verdade do status de desenvolvimento. Atualizar a cada mudança de estado.
@@ -27,19 +27,19 @@
 | [012](012-landing-faq-cta.md) | **Landing Page — FAQ + CTA Final**: 4 perguntas + bloco de CTA | `feat/012-landing-faq-cta` | 011 | ✅ | — | ✅ | ✅ [PR #7](https://github.com/credito-gov/app/pull/7) | ✅ | Landing Page 7 |
 | [013](013-landing-footer.md) | **Landing Page — Footer**: 4 colunas + barra de copyright | `feat/013-landing-footer` | 012 | ✅ | — | ✅ | ✅ [PR #8](https://github.com/credito-gov/app/pull/8) | ✅ | Landing Page 8 |
 | [014](014-landing-seo.md) | **Landing Page — SEO/Meta Tags + robots.txt**: OG/Twitter Card, sitemap, headings semânticos, bloqueio de bots de IA, logo real da marca | `feat/014-landing-seo` | 013 | ✅ | — | ✅ | ✅ [PR #9](https://github.com/credito-gov/app/pull/9) | ✅ | Landing Page 9 — última. Série completa! |
-| [015](015-landing-redesign-motion-foundation.md) | **Redesign — Fundação de Motion**: hook `useScrollReveal` + design tokens dark mode | `feat/015-landing-redesign-motion` | 014 | ✅ | — | ✅ | ✅ [PR #11](https://github.com/credito-gov/app/pull/11) | ✅ (em `feat/landing-redesign`, não em `main`) | Redesign 1/13 |
-| [016](016-landing-redesign-header.md) | **Redesign — Header/Nav**: dark, sticky com blur, novo item "Soluções" | `feat/016-landing-redesign-header` | 015 | ✅ | — | ✅ | ✅ [PR #12](https://github.com/credito-gov/app/pull/12) | ✅ (em `feat/landing-redesign`) | Redesign 2/13 |
-| [017](017-landing-redesign-hero.md) | **Redesign — Hero**: dark, copy novo, mockup "Painel Executivo" | `feat/017-landing-redesign-hero` | 016 | ✅ | — | ✅ | ✅ [PR #13](https://github.com/credito-gov/app/pull/13) | ✅ (em `feat/landing-redesign`) | Redesign 3/13 |
-| [018](018-landing-redesign-social-proof.md) | **Redesign — Prova Social**: dark, badges de empresa, sem depoimentos | `feat/018-landing-redesign-social-proof` | 017 | ✅ | — | ✅ | ✅ [PR #14](https://github.com/credito-gov/app/pull/14) | ✅ (em `feat/landing-redesign`) | Redesign 4/13 |
-| [019](019-landing-redesign-how-it-works.md) | **Redesign — Como Funciona** (seção nova): 3 passos numerados | `feat/019-landing-redesign-how-it-works` | 018 | ✅ | — | ✅ | ✅ [PR #15](https://github.com/credito-gov/app/pull/15) | ✅ (em `feat/landing-redesign`) | Redesign 5/13 |
-| [020](020-landing-redesign-dashboard-showcase.md) | **Redesign — Dashboard Showcase** (seção nova): tabela de transações | `feat/020-landing-redesign-dashboard-showcase` | 019 | ✅ | — | ✅ | ✅ [PR #16](https://github.com/credito-gov/app/pull/16) | ✅ (em `feat/landing-redesign`) | Redesign 6/13 |
-| [021](021-landing-redesign-features.md) | **Redesign — Features**: 3 ícones verdes uniformes, copy novo | `feat/021-landing-redesign-features` | 020 | ✅ | — | ✅ | ✅ [PR #17](https://github.com/credito-gov/app/pull/17) | ✅ (em `feat/landing-redesign`) | Redesign 7/13 |
-| [022](022-landing-redesign-metrics.md) | **Redesign — Métricas** (seção nova): R$4.2B / 1.840+ / 14 dias, animação bounce | `feat/022-landing-redesign-metrics` | 021 | ✅ | — | ✅ | ✅ [PR #18](https://github.com/credito-gov/app/pull/18) | ✅ (em `feat/landing-redesign`) | Redesign 8/13 |
-| [023](023-landing-redesign-testimonials.md) | **Redesign — Depoimentos**: seção própria, cards dark, bios atualizadas | `feat/023-landing-redesign-testimonials` | 022 | ✅ | — | ✅ | ✅ [PR #19](https://github.com/credito-gov/app/pull/19) | ✅ (em `feat/landing-redesign`) | Redesign 9/13 |
-| [024](024-landing-redesign-pricing.md) | **Redesign — Preço**: sem coluna lateral, "Sob Consulta" | `feat/024-landing-redesign-pricing` | 023 | ✅ | — | ✅ | ✅ [PR #20](https://github.com/credito-gov/app/pull/20) | ✅ (em `feat/landing-redesign`) | Redesign 10/13 |
-| [025](025-landing-redesign-faq.md) | **Redesign — FAQ**: seção própria, dark, perguntas novas | `feat/025-landing-redesign-faq` | 024 | ✅ | — | ✅ | ✅ [PR #21](https://github.com/credito-gov/app/pull/21) | ✅ (em `feat/landing-redesign`) | Redesign 11/13 |
-| [026](026-landing-redesign-final-cta.md) | **Redesign — CTA Final**: seção própria, gradiente verde, novo subtítulo | `feat/026-landing-redesign-final-cta` | 025 | ✅ | — | ✅ | ✅ [PR #22](https://github.com/credito-gov/app/pull/22) (aberto) | — | Redesign 12/13 |
-| [027](027-landing-redesign-footer.md) | **Redesign — Footer**: colunas Produto/Soluções/Suporte, sem links legais | `feat/027-landing-redesign-footer` | 026 | ✅ | — | ✅ | ✅ [PR #24](https://github.com/credito-gov/app/pull/24) (aberto) | — | Redesign 13/13 — última; fecha com merge da PR centralizadora em `main` |
+| [015](015-landing-redesign-motion-foundation.md) | **Redesign — Fundação de Motion**: hook `useScrollReveal` + design tokens dark mode | `feat/015-landing-redesign-motion` | 014 | ✅ | — | ✅ | ✅ [PR #11](https://github.com/credito-gov/app/pull/11) | ✅ | Redesign 1/13 |
+| [016](016-landing-redesign-header.md) | **Redesign — Header/Nav**: dark, sticky com blur, novo item "Soluções" | `feat/016-landing-redesign-header` | 015 | ✅ | — | ✅ | ✅ [PR #12](https://github.com/credito-gov/app/pull/12) | ✅ | Redesign 2/13 |
+| [017](017-landing-redesign-hero.md) | **Redesign — Hero**: dark, copy novo, mockup "Painel Executivo" | `feat/017-landing-redesign-hero` | 016 | ✅ | — | ✅ | ✅ [PR #13](https://github.com/credito-gov/app/pull/13) | ✅ | Redesign 3/13 |
+| [018](018-landing-redesign-social-proof.md) | **Redesign — Prova Social**: dark, badges de empresa, sem depoimentos | `feat/018-landing-redesign-social-proof` | 017 | ✅ | — | ✅ | ✅ [PR #14](https://github.com/credito-gov/app/pull/14) | ✅ | Redesign 4/13 |
+| [019](019-landing-redesign-how-it-works.md) | **Redesign — Como Funciona** (seção nova): 3 passos numerados | `feat/019-landing-redesign-how-it-works` | 018 | ✅ | — | ✅ | ✅ [PR #15](https://github.com/credito-gov/app/pull/15) | ✅ | Redesign 5/13 |
+| [020](020-landing-redesign-dashboard-showcase.md) | **Redesign — Dashboard Showcase** (seção nova): tabela de transações | `feat/020-landing-redesign-dashboard-showcase` | 019 | ✅ | — | ✅ | ✅ [PR #16](https://github.com/credito-gov/app/pull/16) | ✅ | Redesign 6/13 |
+| [021](021-landing-redesign-features.md) | **Redesign — Features**: 3 ícones verdes uniformes, copy novo | `feat/021-landing-redesign-features` | 020 | ✅ | — | ✅ | ✅ [PR #17](https://github.com/credito-gov/app/pull/17) | ✅ | Redesign 7/13 |
+| [022](022-landing-redesign-metrics.md) | **Redesign — Métricas** (seção nova): R$4.2B / 1.840+ / 14 dias, animação bounce | `feat/022-landing-redesign-metrics` | 021 | ✅ | — | ✅ | ✅ [PR #18](https://github.com/credito-gov/app/pull/18) | ✅ | Redesign 8/13 |
+| [023](023-landing-redesign-testimonials.md) | **Redesign — Depoimentos**: seção própria, cards dark, bios atualizadas | `feat/023-landing-redesign-testimonials` | 022 | ✅ | — | ✅ | ✅ [PR #19](https://github.com/credito-gov/app/pull/19) | ✅ | Redesign 9/13 |
+| [024](024-landing-redesign-pricing.md) | **Redesign — Preço**: sem coluna lateral, "Sob Consulta" | `feat/024-landing-redesign-pricing` | 023 | ✅ | — | ✅ | ✅ [PR #20](https://github.com/credito-gov/app/pull/20) | ✅ | Redesign 10/13 |
+| [025](025-landing-redesign-faq.md) | **Redesign — FAQ**: seção própria, dark, perguntas novas | `feat/025-landing-redesign-faq` | 024 | ✅ | — | ✅ | ✅ [PR #21](https://github.com/credito-gov/app/pull/21) | ✅ | Redesign 11/13 |
+| [026](026-landing-redesign-final-cta.md) | **Redesign — CTA Final**: seção própria, gradiente verde, novo subtítulo | `feat/026-landing-redesign-final-cta` | 025 | ✅ | — | ✅ | ✅ [PR #22](https://github.com/credito-gov/app/pull/22) | ✅ | Redesign 12/13 |
+| [027](027-landing-redesign-footer.md) | **Redesign — Footer**: colunas Produto/Soluções/Suporte, sem links legais | `feat/027-landing-redesign-footer` | 026 | ✅ | — | ✅ | ✅ [PR #24](https://github.com/credito-gov/app/pull/24) | ✅ | Redesign 13/13 — última; fecha com merge da PR centralizadora em `main` |
 
 ---
 
@@ -49,13 +49,7 @@
 
 ### 🟢 Disponíveis para iniciar
 
-- [ ] **[026](026-landing-redesign-final-cta.md)** — Redesign: CTA Final _(PR #22 aberto contra `feat/landing-redesign`, aguardando revisão e merge; 12/13 do redesign)_
-
-- [ ] **[027](027-landing-redesign-footer.md)** — Redesign: Footer _(PR #24 aberto contra `feat/landing-redesign`, empilhado na 026; mergear depois do #22; 13/13 do redesign)_
-- [ ] **Passo final** — depois de #22 e #24: tirar o PR #10 de rascunho e mergear `feat/landing-redesign` em `main`
-
-### 🔴 Bloqueadas por dependência
-
+Nenhuma. O modelo de tasks está encerrado.
 
 ### ⏸️ Suspensas
 
