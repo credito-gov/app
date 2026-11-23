@@ -1,9 +1,9 @@
 // Endereço real antes de publicar; enquanto estiver com o marcador, a busca do CA-20 reprova.
 // (Não repetir o marcador em comentário: a busca acusaria mesmo com o valor preenchido.)
-export const EMAIL_CONTATO = 'PREENCHER-EMAIL'
+export const EMAIL_CONTATO = 'danielbuona@gmail.com'
 
 // Só dígitos, com DDI e DDD (ex.: 55 + DDD + número). Vazio: nenhum botão de WhatsApp aparece.
-export const WHATSAPP_NUMERO = ''
+export const WHATSAPP_NUMERO = '5511971929226'
 
 export const MENSAGEM_LISTA = {
   assunto: 'Lista de espera do CreditoGov',
