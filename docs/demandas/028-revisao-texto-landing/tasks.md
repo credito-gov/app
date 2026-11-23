@@ -34,7 +34,7 @@ Pequenas, ordenadas, um commit por task. Cada task cita a seção da [Spec](spec
 | 13 | Footer: apresentação nova, colunas "Navegação" e "Contato" com `<a>` (mesmas classes), WhatsApp só com número, linha final "Produto em desenvolvimento." (CA-16, CA-17) | Texto novo › Footer | A busca CA-20 não lista `Footer.tsx`. Lint e build passam | ☑ |
 | 14 | Documentação: `PROJECT_CONTEXT.md` §2 (linha "Landing page") e §11 (changelog) e `hipoteses.md` H4, com o texto da Spec. Commit `docs(028): ...` (CA-23) | Mudanças por camada › Documentação | Leitura dos três trechos | ☑ |
 | 15 | **Verificação final.** (a) Busca CA-20: a **única** linha é o marcador em `src/config/contato.ts`, que só some na task 16; qualquer outra linha reprova. (b) Busca complementar vazia. (c) Lint e build. (d) Conferência visual em 1280 px e 375 px com a checklist da Spec, incluindo o caso com número de WhatsApp de teste preenchido localmente e **não commitado**. Registrar o resultado de cada item na seção "Registro de verificação". Commit `docs(028): registra a verificação final` (CA-1 a CA-22) | Estratégia de verificação (todas as subseções) | Registro preenchido; (a) a (d) conforme descrito | ☑ |
-| 16 | **Depende da resposta do usuário (P-1).** Gravar o e-mail real em `EMAIL_CONTATO` e, se houver, o número em `WHATSAPP_NUMERO` (só dígitos, com DDI e DDD), em `src/config/contato.ts`. Não fazer antes de a sessão principal trazer os valores. Commit `feat(landing): grava o contato da lista de espera` (CA-15, CA-20) | Contratos › Configuração de contato; Implantação | Busca CA-20 sem nenhuma linha e com código de saída `1`. Lint e build passam. Na conferência visual, os botões abrem o e-mail certo e, com número, o WhatsApp aparece | ☐ |
+| 16 | **Depende da resposta do usuário (P-1).** Gravar o e-mail real em `EMAIL_CONTATO` e, se houver, o número em `WHATSAPP_NUMERO` (só dígitos, com DDI e DDD), em `src/config/contato.ts`. Não fazer antes de a sessão principal trazer os valores. Commit `feat(landing): grava o contato da lista de espera` (CA-15, CA-20) | Contratos › Configuração de contato; Implantação | Busca CA-20 sem nenhuma linha e com código de saída `1`. Lint e build passam. Na conferência visual, os botões abrem o e-mail certo e, com número, o WhatsApp aparece | ☑ |
 
 Cobertura: CA-1 (6, 15) · CA-2 (6 a 11, 15) · CA-3 (10, 11, 15) · CA-4 a CA-9 (4 a 13, 15) · CA-10 (3, 15) · CA-11 (3, 11, 15) · CA-12 a CA-14 (6, 8, 15) · CA-15 (2, 5, 6, 12, 13, 15, 16) · CA-16 (5, 7, 8, 10, 11, 13, 15) · CA-17 (13, 15) · CA-18, CA-19 (4, 15) · CA-20 (1, 15, 16) · CA-21 (todas as tasks de código, 15) · CA-22 (15) · CA-23 (14).
 
@@ -144,3 +144,9 @@ app/landing-page/src/config/contato.ts:3:export const EMAIL_CONTATO = 'PREENCHER
 
 - **CA-22, rolagem horizontal antes do cartão entrar na tela (375 px):** `.reveal-right` começa com `translateX(32px)` e levava a borda direita a 382 px. Entrou `overflow-x-clip` na `<section>` do Hero, sem mexer na animação. Ajuste de classe necessário para cumprir o CA-22. Só o Hero usa `reveal-left` e `reveal-right`; nenhum outro componente tem o mesmo efeito.
 - Depois da correção: busca CA-20 só com a linha do marcador; lint e build sem erro.
+
+### Task 16 — contato gravado
+
+- `EMAIL_CONTATO = 'danielbuona@gmail.com'` e `WHATSAPP_NUMERO = '5511971929226'` (DDI 55 acrescentado ao número informado, `11971929226`, para seguir o formato só dígitos com DDI e DDD). Nada mais mudou em `contato.ts`.
+- Busca CA-20: vazia, código de saída `1`. Busca complementar: vazia, código de saída `1`.
+- Lint e build sem erro. Conferência no navegador (botões de e-mail e WhatsApp) fica com a sessão principal.
