@@ -1,6 +1,6 @@
 # 028-revisao-texto-landing — Revisar o texto da landing para o pré-lançamento
 
-- **Status:** us-em-revisão
+- **Status:** spec-em-revisão
 - **Branch:** `feat/028-revisao-texto-landing`
 - **Worktree:** `.claude/worktrees/028-revisao-texto-landing`
 - **Solicitante / data:** Daniel Buona, 2026-11-23
@@ -25,7 +25,7 @@ O texto novo apoia-se em [`visao.md`](../../produto/visao.md): problema, públic
 
 1. **Postura de pré-lançamento.** A página diz que o produto está em desenvolvimento, explica o problema e o que ele vai fazer, e convida para uma lista de espera. O visual do redesign escuro fica (cores, tipografia, layout e animações das seções que permanecem).
 2. **Remover a prova inventada.** Saem as seções Prova Social (`SocialProof.tsx`), Métricas (`Metrics.tsx`) e Depoimentos (`Testimonials.tsx`), sem deixar código ou asset morto. Voltam quando houver clientes e números reais, em outra demanda.
-3. **Chamadas para WhatsApp ou e-mail.** Os botões levam para WhatsApp ou e-mail, sem formulário, serviço externo nem backend. O número e o endereço ainda não foram informados (ver P-1).
+3. **Chamadas para WhatsApp ou e-mail.** Os botões levam para WhatsApp ou e-mail, sem formulário, serviço externo nem backend. O e-mail é o canal principal; o WhatsApp entra como segundo botão só se houver número comercial (P-1).
 
 ### Levantamento do texto atual
 
@@ -91,7 +91,7 @@ O que pode ficar sem mudança: `public/og-image.png` (logo e "Pare de deixar cr�
 ### Seções removidas
 
 - **CA-10:** As seções Prova Social, Métricas e Depoimentos não aparecem na página. `SocialProof.tsx`, `Metrics.tsx`, `Testimonials.tsx` e qualquer asset usado só por eles (hoje `avatar-placeholder.png`) são apagados, e nenhum import ou referência a eles sobra.
-- **CA-11:** O destino da seção de preço segue a resposta à P-2. Em qualquer caso, não aparecem valor, "Sob Consulta", "Preço Transparente", nome de plano, taxa de sucesso, lista de benefícios nem teste grátis.
+- **CA-11:** A seção de preço sai da página e o arquivo `Pricing.tsx` é apagado; o item "Preço" sai do menu (P-2). A FAQ responde que o preço será definido antes do lançamento. Não aparecem valor, "Sob Consulta", "Preço Transparente", nome de plano, taxa de sucesso, lista de benefícios nem teste grátis.
 
 ### Mockups
 
@@ -101,21 +101,21 @@ O que pode ficar sem mudança: `public/og-image.png` (logo e "Pare de deixar cr�
 
 ### Chamadas, links e navegação
 
-- **CA-15:** Todo botão de chamada da página leva para o canal definido na P-1 (link `https://wa.me/...` ou `mailto:`), com o rótulo coerente com a ação (entrar na lista de espera ou falar com a equipe, conforme P-3). Nenhum link aponta para âncora inexistente ou para `#` vazio.
+- **CA-15:** Todo botão de chamada leva para o mesmo canal (P-3): `mailto:` para o e-mail de contato e, só quando houver número comercial, `https://wa.me/<número>` (P-1). Os botões de "lista de espera" e de "conversa" usam mensagens pré-preenchidas diferentes. O endereço e o número ficam num único ponto do código. Sem número, nenhum botão ou link de WhatsApp aparece. Nenhum link aponta para âncora inexistente ou para `#` vazio.
 - **CA-16:** Cada link do menu (desktop e menu do celular) leva a uma seção existente da página. Itens de menu e de rodapé que não correspondem a uma seção ou canal real são retirados.
 - **CA-17:** O rodapé não lista páginas ou funções inexistentes e tem um texto de apresentação coerente com a postura de pré-lançamento, sem "auditoria" nem "Receita Federal".
 
 ### Metadados e arquivos públicos
 
 - **CA-18:** `<title>`, `description`, `og:title`, `og:description`, `twitter:title` e `twitter:description` estão de acordo com CA-4 a CA-9 e com a postura de pré-lançamento.
-- **CA-19:** Não sobra `[dominio-a-definir]` em `index.html`, `public/robots.txt` nem `public/sitemap.xml`; a URL usada segue a resposta à P-4.
+- **CA-19:** Não sobra `[dominio-a-definir]` em `index.html`, `public/robots.txt` nem `public/sitemap.xml`; a URL usada é `https://credito-gov.vercel.app` (P-4).
 
 ### Verificação
 
-- **CA-20:** Uma busca sem distinção de maiúsculas e acentos em `app/landing-page/src/` e `app/landing-page/index.html` não encontra nenhum destes termos: "Receita Federal", "e-CAC", "e-CNPJ", "procuração", "certificado digital", "sincroniz", "00:05", "todo santo dia", "tempo real", "14 dias", "grátis", "gratuito", "Começar agora", "#entrar", "demonstração", "especialista", "fintech", "deságio", "taxa", "homologad", "dois cliques", "prescreve", "expirar", "pagos a maior", "retroativ", "Presumido", "Diferimento", "e-Social", "auditoria", "auditável", "1.840", "4.2B", "Sob Consulta", "dominio-a-definir". A Spec define como a busca é rodada (comando ou script) para que a revisão a repita.
+- **CA-20:** Uma busca sem distinção de maiúsculas e acentos em `app/landing-page/src/` e `app/landing-page/index.html` não encontra nenhum destes termos: "Receita Federal", "e-CAC", "e-CNPJ", "procuração", "certificado digital", "sincroniz", "00:05", "todo santo dia", "tempo real", "14 dias", "grátis", "gratuito", "Começar agora", "#entrar", "demonstração", "especialista", "fintech", "deságio", "taxa", "homologad", "dois cliques", "prescreve", "expirar", "pagos a maior", "retroativ", "Presumido", "Diferimento", "e-Social", "auditoria", "auditável", "1.840", "4.2B", "Sob Consulta", "dominio-a-definir". A busca também acusa o marcador de contato não preenchido (`PREENCHER`), de modo que a página não fica pronta para publicar sem o endereço real. A Spec define o comando, que a revisão repete.
 - **CA-21:** `npm run lint` e `npm run build` passam em `app/landing-page`, sem erro.
 - **CA-22:** Conferência visual no navegador, em desktop (1280 px de largura) e em celular (375 px), mostra todas as seções restantes sem texto cortado, sobreposto ou com rolagem horizontal, mantendo o visual do redesign escuro e o menu do celular funcionando.
-- **CA-23:** `PROJECT_CONTEXT.md` §2 deixa de dizer que a landing tem placeholders e promessas não validadas, e registra a postura de pré-lançamento.
+- **CA-23:** `PROJECT_CONTEXT.md` §2 deixa de dizer que a landing tem números, depoimentos e promessas sem base e registra a postura de pré-lançamento; a menção ao "sob consulta" na H4 de `hipoteses.md` é atualizada.
 
 ## Fora de escopo
 
@@ -123,15 +123,19 @@ O que pode ficar sem mudança: `public/og-image.png` (logo e "Pare de deixar cr�
 - Novo layout, nova seção visual, troca de cores, fontes ou animações. Só texto, remoção das seções da decisão 2 e o mínimo de ajuste de marcação para links, `id` de seção e a marcação de ilustração.
 - Novos testes automatizados ou CI da landing (item próprio no backlog). A busca de termos do CA-20 não vira etapa de CI nesta demanda.
 - `public/og-image.png`, favicon e marca.
-- Domínio próprio e publicação no Vercel (deploy acontece fora desta demanda).
+- Domínio próprio e publicação do site (item próprio no backlog; o Vercel não publica a partir do repositório).
 - `app/landing-page/README.md` e o design system.
 - Política de privacidade e termos de uso (não há coleta de dados na página).
 - Resolver as hipóteses H1 a H5.
 
 ## Perguntas em aberto
 
-- **P-1 (obrigatória):** qual o canal de contato dos botões: número de WhatsApp (com DDI e DDD), endereço de e-mail, ou os dois? Recomendação: um e-mail como canal principal (registro escrito, não expõe número pessoal) e WhatsApp opcional como segundo botão, se houver número comercial.
-- **P-2:** a seção de preço sai, fica como "preço a definir" ou é substituída por uma pergunta na FAQ? Recomendação: tirar a seção e o item "Preço" do menu, e responder na FAQ que o preço será definido antes do lançamento. Preço é a hipótese H4 e um cartão de plano sem valor só ocupa espaço.
-- **P-3:** a lista de espera e o contato são o mesmo canal? Recomendação: sim. Um só destino, com mensagem pré-preenchida diferente para "quero entrar na lista de espera" e "quero conversar", evita dois fluxos para quem só vai ler e-mail ou WhatsApp.
-- **P-4:** qual URL entra em `og:url`, `robots.txt` e `sitemap.xml` enquanto não há domínio próprio? Recomendação: `https://credito-gov.vercel.app`, que é o endereço publicado hoje (`PROJECT_CONTEXT.md` §2), trocando quando o domínio for decidido.
-- **P-5:** a página fala também com escritórios de contabilidade, que são o canal comercial principal (`visao.md`)? Recomendação: sim, mas só com um bloco curto ou uma pergunta na FAQ convidando o contador para a mesma lista de espera, sem programa de parceria nem comissão (H4).
+Respondidas pelo usuário em 2026-11-23 (todas as recomendações aceitas):
+
+- **P-1:** e-mail como canal principal e WhatsApp como segundo botão, se houver número comercial. **O endereço e o número ainda não foram informados**; a implementação usa um marcador que a busca do CA-20 acusa.
+- **P-2:** a seção de preço sai, junto com o item "Preço" do menu; a FAQ diz que o preço será definido antes do lançamento.
+- **P-3:** lista de espera e contato usam o mesmo canal, com mensagem pré-preenchida diferente para cada botão.
+- **P-4:** `https://credito-gov.vercel.app` em `og:url`, `robots.txt` e `sitemap.xml`.
+- **P-5:** sim. Uma pergunta da FAQ e o texto da chamada final convidam o contador para a mesma lista, sem parceria nem comissão.
+
+Ainda em aberto: o endereço de e-mail e, se houver, o número de WhatsApp (P-1).
