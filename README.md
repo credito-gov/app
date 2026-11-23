@@ -6,7 +6,7 @@ SaaS para pequenas e médias empresas acompanharem o crédito tributário de CBS
 
 | Parte | Estado |
 |---|---|
-| Landing page | No ar em <https://credito-gov.vercel.app/>. Redesign em andamento |
+| Landing page | Redesign concluído na `main`. O endereço <https://credito-gov.vercel.app/> ainda mostra a versão antiga |
 | Backend e painel | Não iniciados. Dependem da decisão sobre a fonte de dados |
 
 Detalhes em [`docs/PROJECT_CONTEXT.md`](docs/PROJECT_CONTEXT.md).
