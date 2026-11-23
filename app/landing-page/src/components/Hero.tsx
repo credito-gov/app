@@ -97,16 +97,16 @@ export default function Hero() {
 
             <img src={heroChart} alt="" className="h-[90px] w-full" />
 
-            <div className="flex w-full items-center justify-between rounded-[12px] bg-[#047857] p-4">
-              <div className="flex flex-col items-start gap-[2px]">
-                <p className="text-[13px] font-bold whitespace-nowrap text-white">
+            <div className="flex w-full items-center justify-between gap-3 rounded-[12px] bg-[#047857] p-4">
+              <div className="flex min-w-0 flex-col items-start gap-[2px]">
+                <p className="text-[13px] font-bold text-white">
                   Maior pendência: Fornecedor A
                 </p>
-                <p className="text-[11px] whitespace-nowrap text-white/80">
+                <p className="text-[11px] text-white/80">
                   R$ 48.300,00 aguardando o fornecedor
                 </p>
               </div>
-              <span className="rounded-[6px] bg-white px-4 py-2 text-[12px] font-bold whitespace-nowrap text-[#047857]">
+              <span className="shrink-0 rounded-[6px] bg-white px-4 py-2 text-[12px] font-bold whitespace-nowrap text-[#047857]">
                 Ver notas
               </span>
             </div>
