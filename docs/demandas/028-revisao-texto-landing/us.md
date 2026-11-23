@@ -1,6 +1,6 @@
 # 028-revisao-texto-landing — Revisar o texto da landing para o pré-lançamento
 
-- **Status:** tasks-em-revisão
+- **Status:** em-implementação
 - **Branch:** `feat/028-revisao-texto-landing`
 - **Worktree:** `.claude/worktrees/028-revisao-texto-landing`
 - **Solicitante / data:** Daniel Buona, 2026-11-23
