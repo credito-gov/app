@@ -30,7 +30,8 @@ Sem número: o número é reservado quando a demanda começa. Em ordem sugerida.
 | Publicação da landing: decidir como o site vai ao ar, já que o Vercel recusa o repositório (plano pago, outro provedor ou conta pessoal) | Funcionalidade | Decisão do responsável |
 | CI da landing: lint e build em cada PR | Funcionalidade | — |
 | Atualizar o design system para o tema escuro do redesign | Documentação | — |
-| Primeira versão do painel: saldo, origem e pendências | Funcionalidade | Hipótese H1 resolvida |
+| Prova de conceito da API de apuração da CBS: abrir solicitação de créditos, receber o aviso, baixar e ler o arquivo com credencial própria | Funcionalidade | Credencial gerada pelo responsável; endereço HTTPS público para o aviso |
+| Primeira versão do painel: saldo, origem e pendências | Funcionalidade | Prova de conceito concluída |
 
 ## Fora do repositório, mas travando o backlog
 

@@ -1,4 +1,4 @@
-﻿# PROJECT_CONTEXT — CreditoGov
+# PROJECT_CONTEXT — CreditoGov
 
 > Fonte canônica do projeto. Leia inteiro antes de mexer em qualquer coisa.
 > Se uma demanda, task ou documento antigo divergir daqui, **este arquivo vale** — pare e pergunte.
@@ -44,6 +44,7 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 | 2026-08-26 | Venda direta (SaaS), com escritórios de contabilidade como canal comercial principal |
 | 2026-08-26 | Antecipação com fintech/FIDC fica para depois de haver base de clientes |
 | 2026-11-23 | Fonte de dados dos créditos rebaixada de premissa para **hipótese em aberto** (ver §5) |
+| 2026-11-23 | Fonte de dados **confirmada para a CBS**: APIs de apuração da CBS da Receita Federal. Produto começa só com CBS |
 | 2026-11-23 | Fluxo de trabalho passa a ser por demandas (US → Spec → Tasks) com subagentes; o modelo de tasks + walkthrough fica congelado |
 
 ---
@@ -74,12 +75,13 @@ A concepção propôs Node.js + Express + TypeORM + PostgreSQL no backend e Reac
 
 Lista completa em [`produto/hipoteses.md`](produto/hipoteses.md). As que travam desenvolvimento:
 
-- **Fonte de dados dos créditos (bloqueia todo o backend).** A concepção assumiu uma API da Receita Federal com OAuth2 e endpoints como `/apuracao-creditos/{cnpj}`. Os manuais oficiais em [`referencias/split-payment/`](referencias/split-payment/README.md) não descrevem nada disso: a Plataforma Pública de Split Payment liga bancos e PSPs ao governo, usa mTLS e não oferece consulta de crédito por contribuinte. Enquanto a fonte não for decidida, não se desenha modelo de dados, sincronização nem integração.
-- **Como a empresa autoriza o acesso aos dados dela** (certificado digital, procuração eletrônica, exportação do ERP) — depende da fonte.
+- **Fonte de dados: resolvida para a CBS.** A Receita publica as APIs de apuração da CBS (créditos, débitos e pagamentos por CNPJ, com OAuth2). Ver [`referencias/apuracao-cbs/`](referencias/apuracao-cbs/README.md). A API **não** é a Plataforma de Split Payment, que liga PSPs ao governo. Os endpoints e tabelas da concepção continuam errados e não devem ser seguidos.
+- **Acesso em nome de vários clientes (bloqueia o cadastro de clientes).** A credencial é gerada pelo titular do CNPJ ou por procurador digital; o modelo para um software consultar por muitos contribuintes não está documentado.
+- **IBS.** A API cobre só CBS.
 - **Compensar e antecipar pelo painel.** Não há base, nos manuais do repositório, para afirmar que um terceiro consegue disparar a compensação. A antecipação depende de parceiro e de entendimento jurídico sobre cessão desse crédito.
 - **Preço e comissão do contador** (R$ 100/mês e 15–20% são hipóteses da concepção).
 
-As tasks 001–005 do modelo antigo foram escritas sobre a premissa da API e estão suspensas.
+As tasks 001–005 do modelo antigo foram escritas sobre endpoints e tabelas que não correspondem à API real e seguem suspensas; o backend volta como demanda nova.
 
 ---
 
@@ -169,6 +171,7 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | Visão de produto e negócio | [`produto/visao.md`](produto/visao.md) |
 | Hipóteses a validar | [`produto/hipoteses.md`](produto/hipoteses.md) |
 | Reforma tributária: o que sabemos | [`produto/reforma-tributaria.md`](produto/reforma-tributaria.md) |
+| APIs de apuração da CBS | [`referencias/apuracao-cbs/`](referencias/apuracao-cbs/README.md) |
 | Manuais do Split Payment | [`referencias/split-payment/`](referencias/split-payment/README.md) |
 | Design system e wireframes | [`design/`](design/README.md) |
 | Kanban de demandas | [`demandas/README.md`](demandas/README.md) |
@@ -183,5 +186,6 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 |---|---|
 | 2026-08-25 | Versão inicial. Removida a parceria Omie como canal |
 | 2026-08-26 | Go-to-market definido: SaaS direto com canal contábil |
+| 2026-11-23 | Fonte de dados confirmada para a CBS (APIs de apuração da Receita); novas pendências: acesso multi-cliente e IBS |
 | 2026-11-23 | Redesign da landing concluído e mergeado na `main`; registrado que o Vercel não publica a partir do repositório |
 | 2026-11-23 | Reescrito na reorganização geral: estado real do projeto, API da Receita rebaixada a hipótese, stack do backend marcada como proposta, fluxo por demandas, nova estrutura de pastas |
