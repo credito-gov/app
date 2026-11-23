@@ -53,11 +53,20 @@ export default function Header() {
       {isMenuOpen && (
         <div className="absolute top-full left-0 flex w-full flex-col gap-[20px] border-b border-[#1e293b] bg-[#0e1524] px-6 py-[20px] md:hidden">
           {NAV_LINKS.map((link) => (
-            <a key={link.label} href={link.href} className="text-[14px] text-[#94a3b8]">
+            <a
+              key={link.label}
+              href={link.href}
+              className="text-[14px] text-[#94a3b8]"
+              onClick={() => setIsMenuOpen(false)}
+            >
               {link.label}
             </a>
           ))}
-          <a href={linkEmail(MENSAGEM_LISTA)} className="text-[14px] text-[#94a3b8]">
+          <a
+            href={linkEmail(MENSAGEM_LISTA)}
+            className="text-[14px] text-[#94a3b8]"
+            onClick={() => setIsMenuOpen(false)}
+          >
             Lista de espera
           </a>
         </div>
