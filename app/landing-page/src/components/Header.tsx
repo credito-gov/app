@@ -1,50 +1,36 @@
 import { useState } from 'react'
 
-import logoLockup from '../assets/brand/logo-lockup.png'
+import logoLockupWhite from '../assets/brand/logo-lockup-white.png'
 
 const NAV_LINKS = [
   { label: 'Como funciona', href: '#como-funciona' },
+  { label: 'Soluções', href: '#solucoes' },
   { label: 'Preço', href: '#preco' },
-  { label: 'Perguntas', href: '#perguntas' },
+  { label: 'FAQ', href: '#faq' },
 ]
-
-function Logo() {
-  return <img src={logoLockup} alt="CreditoGov" className="h-[32px] w-auto" />
-}
-
-function CtaButton({ className = '' }: { className?: string }) {
-  return (
-    <a
-      href="#testar-gratis"
-      className={`whitespace-nowrap rounded-[6px] bg-[#10b981] px-[16px] py-[9px] text-[13.5px] font-semibold text-white ${className}`}
-    >
-      Testar grátis
-    </a>
-  )
-}
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
-    <header className="relative h-[64px] w-full border-b border-[#e5e7eb] bg-white">
-      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 md:px-[48px]">
-        <Logo />
+    <header className="nav-enter fixed top-0 right-0 left-0 z-50 h-[80px] border-b border-[#1e293b] bg-[rgba(6,10,19,0.8)] backdrop-blur-[10px]">
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 md:px-[64px]">
+        <img src={logoLockupWhite} alt="CreditoGov" className="h-[32px] w-auto" />
 
-        <nav className="hidden items-center gap-[28px] md:flex">
+        <nav className="hidden items-center gap-[24px] md:flex">
           {NAV_LINKS.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className="whitespace-nowrap text-[13.5px] text-[#4b5563]"
+              className="rounded-[8px] p-[8px] text-[14px] font-medium whitespace-nowrap text-[#94a3b8]"
             >
               {link.label}
             </a>
           ))}
-          <a href="#entrar" className="whitespace-nowrap text-[13.5px] font-medium text-[#111827]">
+          <span className="h-[16px] w-px bg-[#1e293b]" />
+          <a href="#entrar" className="text-[14px] font-medium whitespace-nowrap text-[#94a3b8]">
             Entrar
           </a>
-          <CtaButton />
         </nav>
 
         <button
@@ -54,23 +40,22 @@ export default function Header() {
           aria-expanded={isMenuOpen}
           onClick={() => setIsMenuOpen((open) => !open)}
         >
-          <span className="h-[2px] w-full bg-[#111827]" />
-          <span className="h-[2px] w-full bg-[#111827]" />
-          <span className="h-[2px] w-full bg-[#111827]" />
+          <span className="h-[2px] w-full bg-white" />
+          <span className="h-[2px] w-full bg-white" />
+          <span className="h-[2px] w-full bg-white" />
         </button>
       </div>
 
       {isMenuOpen && (
-        <div className="absolute top-full left-0 flex w-full flex-col gap-[20px] border-b border-[#e5e7eb] bg-white px-6 py-[20px] md:hidden">
+        <div className="absolute top-full left-0 flex w-full flex-col gap-[20px] border-b border-[#1e293b] bg-[#0e1524] px-6 py-[20px] md:hidden">
           {NAV_LINKS.map((link) => (
-            <a key={link.label} href={link.href} className="text-[13.5px] text-[#4b5563]">
+            <a key={link.label} href={link.href} className="text-[14px] text-[#94a3b8]">
               {link.label}
             </a>
           ))}
-          <a href="#entrar" className="text-[13.5px] font-medium text-[#111827]">
+          <a href="#entrar" className="text-[14px] text-[#94a3b8]">
             Entrar
           </a>
-          <CtaButton className="text-center" />
         </div>
       )}
     </header>
