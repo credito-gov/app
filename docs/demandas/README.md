@@ -19,6 +19,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 | NNN | Slug | Título | Status | Branch / PR |
 |---|---|---|---|---|
 | — | — | Nenhuma demanda aberta ainda | — | — |
+| 029 | poc-api-apuracao-cbs | Prova de conceito da API de apuração da CBS | us-em-revisão | `feat/029-poc-api-apuracao-cbs` |
 
 ## Backlog
 
