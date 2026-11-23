@@ -66,7 +66,7 @@ export default function Hero() {
             <span className="size-2 rounded-full bg-[#1e293b]" />
             <span className="size-2 rounded-full bg-[#1e293b]" />
             <span className="flex-1" />
-            <p className="text-[11px] font-semibold whitespace-nowrap text-[#64748b]">
+            <p className="text-[11px] font-semibold whitespace-nowrap text-[#94a3b8]">
               EXEMPLO ILUSTRATIVO
             </p>
           </div>
