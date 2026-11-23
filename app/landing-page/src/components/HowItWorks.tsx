@@ -3,21 +3,21 @@ import { useScrollReveal } from '../hooks/useScrollReveal'
 const STEPS = [
   {
     number: '01',
-    title: 'Conexão e-CNPJ imediata',
+    title: 'Suas compras viram crédito',
     description:
-      'Com apenas uma autorização via e-CAC, nosso software sincroniza diretamente com a base da Receita Federal.',
+      'O CreditoGov vai reunir o CBS e o IBS destacados nas notas de compra da sua empresa, com a nota e o fornecedor de cada valor.',
   },
   {
     number: '02',
-    title: 'Auditoria contínua',
+    title: 'Cada crédito ganha um status',
     description:
-      'Nosso motor de regras tributárias atualiza seus saldos de IBS/CBS diariamente, identificando desvios automaticamente.',
+      'Confirmado quando o imposto do fornecedor foi quitado; pendente enquanto não foi. É o que a regra da CBS e do IBS exige para o crédito valer.',
   },
   {
     number: '03',
-    title: 'Compensação rápida',
+    title: 'Você enxerga o caixa',
     description:
-      'Com os saldos validados, você abate guias de impostos ou solicita antecipação de caixa sem burocracia.',
+      'Saldo, origem, pendências por fornecedor e projeção das próximas semanas, em um só painel.',
   },
 ]
 
@@ -42,21 +42,24 @@ export default function HowItWorks() {
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal<HTMLDivElement>()
 
   return (
-    <section className="w-full bg-[#f8fafc] px-6 py-16 md:px-[64px] md:py-[96px]">
+    <section
+      id="como-funciona"
+      className="w-full scroll-mt-[80px] bg-[#f8fafc] px-6 py-16 md:px-[64px] md:py-[96px]"
+    >
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-16">
         <div
           ref={headerRef}
           className={`reveal-up flex flex-col items-center gap-4 text-center ${headerVisible ? 'is-visible' : ''}`}
         >
           <div className="rounded-full border border-[#a7f3d0] bg-[#ecfdf5] px-3 py-[6px]">
-            <p className="text-[11px] font-bold text-[#047857] uppercase">Fluxo Automático</p>
+            <p className="text-[11px] font-bold text-[#047857] uppercase">Como vai funcionar</p>
           </div>
           <h2 className="text-[36px] font-extrabold text-[#060a13]">
-            Como funciona a auditoria diária
+            Do imposto na nota ao crédito no caixa
           </h2>
           <p className="max-w-[520px] text-[16px] text-[#64748b]">
-            Uma apuração contínua e integrada que substitui processos retroativos demorados por
-            dados em tempo real.
+            Este é o plano da primeira versão. A forma de conectar os dados da sua empresa ainda
+            está em definição.
           </p>
         </div>
 
