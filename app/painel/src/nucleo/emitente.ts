@@ -30,7 +30,7 @@ export const ROTULO_CPF_CHAVE = "CPF do emitente, lido da chave da nota";
 
 export const MOTIVOS = {
   recolhimentosDivergentes: "recolhimentos divergentes",
-  semLeiaute: "leiaute da chave deste tipo de documento não confirmado",
+  semLeiaute: "leiaute da chave deste tipo de documento sem fonte registrada",
   formato: "chave fora do leiaute de 44 posições",
   modelo: "modelo na chave diverge do tipo de documento",
   digito: "dígito verificador da chave inválido",

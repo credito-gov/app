@@ -12,7 +12,7 @@ export const TEXTO_PENDENCIAS =
   "A Receita informa o valor a apropriar de cada nota, mas não informa o motivo. Esta tela não indica que o emitente deixou de recolher.";
 
 function linhaGrupo(g: GrupoPendencia): Cru {
-  return html`<tr><td><a href="/pendencias?grupo=${g.id}">${g.rotulo}</a></td><td>${g.emitente?.rotulo ?? ""}</td><td class="valor">${g.quantidade}</td><td class="valor">${reais(g.total)}</td></tr>`;
+  return html`<tr><td><a href="/pendencias?grupo=${g.id}">${g.rotulo}</a></td><td>${juntar(g.rotulos, "<br>")}</td><td class="valor">${g.quantidade}</td><td class="valor">${reais(g.total)}</td></tr>`;
 }
 
 function resumo(visao: Visao): Cru {

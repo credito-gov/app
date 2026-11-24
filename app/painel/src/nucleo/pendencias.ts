@@ -10,6 +10,8 @@ export interface GrupoPendencia {
   id: string;
   rotulo: string;
   emitente?: Emitente;
+  /** Como o emitente foi identificado, uma vez por fonte: o grupo pode juntar notas do recolhimento e da chave. */
+  rotulos: string[];
   quantidade: number;
   total: Big;
   notas: NotaCredito[];
@@ -35,7 +37,7 @@ const aApropriar = (n: NotaCredito) => n.valores[CAMINHOS_CREDITO.aApropriar];
 
 export function agruparPendencias(todas: NotaCredito[]): Pendencias {
   const grupos = new Map<string, GrupoPendencia>();
-  const novo = (id: string, rotulo: string, emitente?: Emitente): GrupoPendencia => ({ id, rotulo, emitente, quantidade: 0, total: somar([]), notas: [] });
+  const novo = (id: string, rotulo: string, emitente?: Emitente): GrupoPendencia => ({ id, rotulo, emitente, rotulos: [], quantidade: 0, total: somar([]), notas: [] });
   grupos.set("nao-identificado", novo("nao-identificado", ROTULO_NAO_IDENTIFICADO));
   grupos.set("propria-empresa", novo("propria-empresa", ROTULO_PROPRIA_EMPRESA));
   const negativas = novo("negativas", "notas com valor a apropriar negativo");
@@ -47,6 +49,8 @@ export function agruparPendencias(todas: NotaCredito[]): Pendencias {
     alvo.quantidade++;
     alvo.total = alvo.total.plus(valor);
     alvo.notas.push(nota);
+    const rotuloFonte = nota.emitente.emitente.rotulo;
+    if (alvo.emitente !== undefined && rotuloFonte !== undefined && !alvo.rotulos.includes(rotuloFonte)) alvo.rotulos.push(rotuloFonte);
   }
 
   const lista = [...grupos.values()].sort((a, b) => b.total.cmp(a.total) || b.quantidade - a.quantidade || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
