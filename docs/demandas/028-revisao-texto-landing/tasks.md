@@ -163,7 +163,26 @@ app/landing-page/src/config/contato.ts:3:export const EMAIL_CONTATO = 'PREENCHER
 
 ### Tasks 17 a 25 — antes (ajuste da decisão 4)
 
-- Busca de IBS: _linhas_ (deve acusar IBS fora dos lugares permitidos)
+- Busca de IBS: **16 linhas** (reprova, como esperado: acha IBS em arquivos onde não pode aparecer). Saída, com as linhas longas do `index.html` abreviadas:
+
+```text
+app/landing-page/src/components/DashboardShowcase.tsx:14:    tribute: 'IBS',
+app/landing-page/src/components/DashboardShowcase.tsx:28:    tribute: 'IBS',
+app/landing-page/src/components/DashboardShowcase.tsx:55:            O painel em desenvolvimento vai mostrar de onde vem cada crédito de CBS e IBS e o que
+app/landing-page/src/components/Faq.tsx:40:        'Sim. Se você atende empresas no regime regular de CBS/IBS, entre na mesma lista de espera ...',
+app/landing-page/src/components/Features.tsx:11:    title: 'Saldo de CBS e de IBS',
+app/landing-page/src/components/Footer.tsx:41:              Crédito de CBS/IBS como caixa para pequenas e médias empresas. Em desenvolvimento.
+app/landing-page/src/components/Hero.tsx:24:              Em desenvolvimento · CBS/IBS
+app/landing-page/src/components/Hero.tsx:33:            Com a CBS e o IBS, as compras da sua empresa geram crédito, mas ele só pode ser usado
+app/landing-page/src/components/Hero.tsx:77:                Crédito confirmado (CBS + IBS)
+app/landing-page/src/components/HowItWorks.tsx:8:      'O CreditoGov vai reunir o CBS e o IBS destacados nas notas de compra da sua empresa, ...',
+app/landing-page/src/components/HowItWorks.tsx:14:      'Confirmado quando o imposto do fornecedor foi quitado; ... a regra da CBS e do IBS exige para o crédito valer.',
+app/landing-page/src/components/ProblemSolution.tsx:8:      'Separar o crédito já confirmado do que ainda depende do fornecedor, de CBS e de IBS.',
+app/landing-page/index.html:13:    <title>CreditoGov — Crédito de CBS/IBS como caixa (em desenvolvimento)</title>
+app/landing-page/index.html:16:      content="... crédito de CBS/IBS das compras da sua empresa ..."
+app/landing-page/index.html:26:      content="... crédito de CBS/IBS das compras da sua empresa ..."
+app/landing-page/index.html:38:      content="Em desenvolvimento: o crédito de CBS/IBS das suas compras, ..."
+```
 
 ### Tasks 17 a 25 — depois
 
