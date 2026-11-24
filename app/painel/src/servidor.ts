@@ -31,6 +31,14 @@ function responder(req: IncomingMessage, res: ServerResponse, status: number, ti
   res.end(req.method === "HEAD" ? undefined : bytes);
 }
 
+/** Registra o erro interno em stderr com a rota (sem a query, sem conteúdo de arquivo nem valores). */
+function registrarErro(url: string, e: unknown): void {
+  const rota = url.split("?")[0];
+  const pilha = (e instanceof Error ? (e.stack ?? "") : "").split("\n").slice(1, 6).join("\n");
+  const detalhe = e instanceof Error ? `${e.name}: ${e.message}\n${pilha}` : "erro que não é Error";
+  process.stderr.write(`Erro interno em GET ${rota}: ${detalhe}\n`);
+}
+
 export async function iniciarServidor(opcoes: OpcoesServidor): Promise<ServidorPainel> {
   const painel = criarPainel({ pasta: opcoes.pasta, lerArquivo: opcoes.lerArquivo });
   let porta = opcoes.porta;
@@ -53,7 +61,10 @@ export async function iniciarServidor(opcoes: OpcoesServidor): Promise<ServidorP
     painel
       .tratar({ metodo: "GET", url })
       .then((r: Resposta) => responder(req, res, r.status, r.tipo, r.corpo))
-      .catch(() => responder(req, res, 500, "text/plain; charset=utf-8", "Erro interno."));
+      .catch((e: unknown) => {
+        registrarErro(url, e);
+        responder(req, res, 500, "text/plain; charset=utf-8", "Erro interno.");
+      });
   });
 
   await new Promise<void>((resolver, rejeitar) => {
