@@ -21,7 +21,7 @@ export default function Hero() {
         >
           <div className="flex items-center gap-[6px] rounded-full border border-[rgba(4,120,87,0.5)] bg-[rgba(4,120,87,0.15)] px-3 py-[6px]">
             <p className="text-[11px] font-bold text-[#10b981] uppercase">
-              Em desenvolvimento · CBS/IBS
+              Em desenvolvimento · Começa pela CBS
             </p>
           </div>
 
@@ -31,9 +31,9 @@ export default function Hero() {
 
           <p className="max-w-[480px] text-[16px] leading-[1.6] text-[#94a3b8]">
             Com a CBS e o IBS, as compras da sua empresa geram crédito, mas ele só pode ser usado
-            quando o imposto do fornecedor é quitado. O CreditoGov está em desenvolvimento para
-            mostrar quanto do seu crédito já está confirmado, quanto ainda depende do fornecedor e
-            de quais compras ele vem.
+            quando o imposto do fornecedor é quitado. O CreditoGov está em desenvolvimento e começa
+            pela CBS: vai mostrar quanto do seu crédito já está confirmado, quanto ainda depende
+            do fornecedor e de quais compras ele vem.
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -74,7 +74,7 @@ export default function Hero() {
           <div className="flex w-full flex-col items-start gap-5 p-7">
             <div className="flex flex-col items-start gap-1">
               <p className="text-[11px] font-bold text-[#64748b]">
-                Crédito confirmado (CBS + IBS)
+                Crédito de CBS confirmado
               </p>
               <p className="text-[38px] font-extrabold text-white">R$ 152.430,18</p>
             </div>
