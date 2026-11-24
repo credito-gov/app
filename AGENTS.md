@@ -37,7 +37,7 @@ Estas regras prevalecem sobre o manual do plugin.
 - **Numeração.** Demandas começam em `028`. De 001 a 027 são tasks do modelo antigo.
 - **Worktrees** em `.claude/worktrees/NNN-slug`.
 - **Uma demanda por vez**, salvo pedido explícito.
-- **Testes primeiro.** Onde houver teste automatizado, ele nasce dos CA-N antes do código. A landing hoje não tem testes: a verificação é `npm run lint` e `npm run build` em `app/landing-page`, mais conferência visual no navegador. A primeira demanda de uma aplicação nova define o comando de teste dela e o registra aqui.
+- **Testes primeiro.** Onde houver teste automatizado, ele nasce dos CA-N antes do código. A landing hoje não tem testes: a verificação é `npm run lint` e `npm run build` em `app/landing-page`, mais conferência visual no navegador. A primeira demanda de uma aplicação nova define o comando de teste dela e o registra aqui. A `app/apuracao-cbs` (demanda 029) testa com `npm test` (vitest), em `app/apuracao-cbs`; os testes não chamam a API real nem leem o `.env`.
 - **Domínio tributário.** O Arquiteto não escreve regra de CBS/IBS sem fonte. O que não estiver em `docs/referencias/` entra como pergunta em aberto, e a resposta é registrada em `docs/produto/hipoteses.md`.
 - **Texto público.** Nada de promessa, número ou depoimento sem base (ver `PROJECT_CONTEXT.md` §6).
 - **PR em português**, com: o quê, por quê, como testar e riscos.
@@ -51,7 +51,18 @@ npm install
 npm run dev
 npm run lint
 npm run build
+
+# apuracao-cbs (prova de conceito da API de apuração da CBS)
+cd app/apuracao-cbs
+npm install
+npm test
+npm run lint
+npm run build
+npm run consulta -- <creditos|recolhimentos|pagamentos|debitos> [--tiquete <tiquete>]
+npm run ler -- <arquivo>
 ```
+
+`npm run consulta` **chama a API real da Receita** e gasta uma das 4 chamadas por API e por credencial: só roda por pedido explícito do responsável, com o `.env` que ele mesmo preenche. Agentes não rodam `consulta`, não pedem credencial e não criam `.env`. `npm run ler` e `npm test` não usam rede.
 
 ## Antes de commitar
 
