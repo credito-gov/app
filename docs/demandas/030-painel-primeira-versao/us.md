@@ -1,8 +1,9 @@
 # 030-painel-primeira-versao — Primeira versão do painel: saldo, origem e pendências
 
-- **Status:** tasks-em-revisão
+- **Status:** em-implementação
 - **US aprovada:** 2026-11-24, pelo responsável ("Aprovo assim"), sobre a versão do commit `1c558d6`, com as recomendações de todas as perguntas (ver "Decisões na aprovação")
 - **Spec aprovada:** 2026-11-24, pelo responsável ("Aprovo a Spec"), com as decisões técnicas DT-1 a DT-10 e a decisão F-2 (ver [`spec.md`](spec.md))
+- **Tasks aprovadas:** 2026-11-24, pelo responsável ("Aprovo as Tasks"), sobre a versão do commit `5f68994` (ver [`tasks.md`](tasks.md))
 - **Branch:** `feat/030-painel-primeira-versao`
 - **Worktree:** `.claude/worktrees/030-painel-primeira-versao`
 - **Solicitante / data:** responsável pelo produto, 2026-11-24
