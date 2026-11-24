@@ -1,5 +1,6 @@
 import { formatar } from "./dinheiro.js";
 import type { ResumoCreditos } from "./leitores/creditos.js";
+import type { ResumoRecolhimentos } from "./leitores/recolhimentos.js";
 import type { NomeServico } from "./servicos.js";
 import type { Divergencia } from "./validacao.js";
 
@@ -13,7 +14,7 @@ export interface Cabecalho {
   caminho: string;
 }
 
-export type Resumo = ResumoCreditos;
+export type Resumo = ResumoCreditos | ResumoRecolhimentos;
 
 /** Cabeçalho comum dos resumos. O niConsumidor não é mostrado (pode ser CPF). */
 export function cabecalhoDe(servico: NomeServico, dados: unknown, caminho: string): Cabecalho {
@@ -38,6 +39,22 @@ function linhasDeCreditos(resumo: ResumoCreditos): string[] {
   return linhas;
 }
 
+function linhasDeRecolhimentos(resumo: ResumoRecolhimentos): string[] {
+  const linhas: string[] = [];
+  for (const p of resumo.periodos) {
+    linhas.push("", `Período ${p.pa}`);
+    for (const l of p.linhas) {
+      linhas.push(
+        `  DARF ${l.numeroDARF} | arrecadação ${l.dataArrecadacao} | fornecedor ${l.niFornecedor} | ` +
+          `${l.chaveDFE === undefined ? "sem chave" : `chave ${l.chaveDFE}`} | total ${formatar(l.total)}`,
+      );
+    }
+    linhas.push(`  Período ${p.pa}: ${p.quantidade} item(ns) | total do período ${formatar(p.total)}`);
+  }
+  linhas.push("", `Itens sem chaveDFE: ${resumo.itensSemChave} de ${resumo.totalItens}`);
+  return linhas;
+}
+
 export function linhasDoResumo(cabecalho: Cabecalho, resumo: Resumo): string[] {
   const linhas = [
     `Resumo da consulta de ${cabecalho.servico}`,
@@ -49,7 +66,7 @@ export function linhasDoResumo(cabecalho: Cabecalho, resumo: Resumo): string[] {
     linhas.push("", MENSAGEM_SEM_ALTERACOES);
     return linhas;
   }
-  linhas.push(...linhasDeCreditos(resumo));
+  linhas.push(...(resumo.servico === "creditos" ? linhasDeCreditos(resumo) : linhasDeRecolhimentos(resumo)));
   return linhas;
 }
 
