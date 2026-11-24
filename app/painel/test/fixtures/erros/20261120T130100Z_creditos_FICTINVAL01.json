@@ -1,0 +1,32 @@
+{
+  "tiqueteSolicitacao": "FICTINVAL01",
+  "ni": "90817263",
+  "niConsumidor": "90817263000181",
+  "geradoEm": "2026-11-20T13:01:00.000-03:00",
+  "apuracao": [
+    {
+      "pa": "11/2026",
+      "creditos": [
+        {
+          "origem": 0,
+          "documento": 55,
+          "chave": "99261111223344000187550010000010311400000310",
+          "emissao": "2026-11-03T10:00:00-03:00",
+          "registro": "2026-11-03T10:05:00.123-03:00",
+          "atualizacao": "2026-11-17T08:00:00.123456-03:00",
+          "cbs": {
+            "apurado": 5.123,
+            "apropriacao": {
+              "aApropriar": 5.123,
+              "utilizacao": {
+                "naoUtilizado": {
+                  "saldoCredor": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

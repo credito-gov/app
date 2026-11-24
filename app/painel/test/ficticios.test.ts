@@ -83,9 +83,9 @@ describe("como no real (CA-17, O-8 a O-15)", () => {
 
   it("números com 0, 1 e 2 casas decimais", async () => {
     const t = await texto(PASTA_FICTICIOS, NOMES.forma);
-    expect(t).toMatch(/"aApropriar": \d+\r?\n/);
-    expect(t).toMatch(/"aApropriar": \d+\.\d\r?\n/);
-    expect(t).toMatch(/"aApropriar": \d+\.\d\d\r?\n/);
+    expect(t).toMatch(/"aApropriar": \d+,?\r?\n/);
+    expect(t).toMatch(/"aApropriar": \d+\.\d,?\r?\n/);
+    expect(t).toMatch(/"aApropriar": \d+\.\d\d,?\r?\n/);
   });
 
   it("datas com fuso e frações de 0, 3 e 6 casas", async () => {
