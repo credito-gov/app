@@ -48,7 +48,7 @@ app/painel/
 │   │   ├── lista.ts          # filtro, ordenação, busca, paginação (CA-10)
 │   │   ├── debitos.ts        # totais de débitos (CA-D2)
 │   │   └── datas.ts          # exibição textual de datas, sem conversão de fuso
-│   └── paginas/              # layout, saldo, creditos, detalhe, pendencias, arquivos, erro, estilo.css
+│   └── paginas/              # layout, saldo, creditos, detalhe, pendencias, arquivos, erro, vazio, estilo.ts (CSS; alterado na revisão, ajuste 11)
 └── test/
 ```
 
@@ -57,12 +57,12 @@ app/painel/
 - `npm start -- [--pasta <caminho>] [--porta <n>]`. Sem `--pasta`, usa `dados/ficticios/`. Sem `--porta`, usa `5180`. O caminho pode ser absoluto ou relativo à pasta da aplicação.
 - Não há `.env` nem variável de ambiente lida pelo painel. Os agentes não criam `.env` (`AGENTS.md`), e o painel não precisa de segredo.
 - Na partida, o painel escreve no terminal o endereço (`http://127.0.0.1:<porta>/`) e o caminho absoluto da pasta. Não registra conteúdo de arquivo no terminal.
-- Pasta inexistente ou ilegível: o servidor sobe e todas as páginas dizem que a pasta não pôde ser lida, com o caminho. Não cria a pasta.
+- Pasta inexistente ou ilegível: o servidor sobe e todas as páginas dizem que a pasta não pôde ser lida, com o caminho e o código do erro do sistema, e orientam conforme o código. Não cria a pasta. *(Alterado na revisão: ajuste 10.)*
 
 #### Servidor (CA-A1, CA-A3, CA-19)
 
 - `listen` em `127.0.0.1` (nunca `0.0.0.0` nem `::`). Porta ocupada encerra com mensagem e código 2.
-- O cabeçalho `Host` precisa ser `127.0.0.1:<porta>` ou `localhost:<porta>`. Qualquer outro recebe 421, o que protege contra *DNS rebinding*.
+- O cabeçalho `Host` precisa ser `127.0.0.1:<porta>` ou `localhost:<porta>`; com `--porta 80`, também `127.0.0.1` e `localhost` sem porta. Qualquer outro recebe 421, o que protege contra *DNS rebinding*. *(Alterado na revisão: ajuste 9.)*
 - Só `GET` e `HEAD`. Qualquer outro método recebe 405.
 - Cabeçalhos em toda resposta: `Content-Security-Policy: default-src 'none'; style-src 'self'; img-src 'self'; form-action 'self'; frame-ancestors 'none'`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `Cache-Control: no-store`.
 - Todo texto vindo de arquivo passa por uma única função de escape de HTML antes de entrar na página. A lista de arquivos usa só o nome do arquivo, nunca um caminho vindo da URL. Nenhuma rota recebe caminho de arquivo como parâmetro.
@@ -79,11 +79,11 @@ app/painel/
 | `GET /arquivos` | Arquivos lidos, aceitos, aceitos com divergência, recusados ou ignorados, com motivo | CA-2, CA-3, CA-5 |
 | `GET /estilo.css` | Folha de estilo | D-8 |
 
-Todas as páginas têm o mesmo cabeçalho: nome do painel, raiz do CNPJ formatada (`12.345.678`), data dos dados (CA-5) e um aviso com link para `/arquivos` quando há arquivo recusado ou aceito com divergência. Com conflito de empresas (CA-3), todas as rotas, menos `/arquivos` e `/estilo.css`, mostram só o erro e a lista dos arquivos divergentes.
+Todas as páginas têm o mesmo cabeçalho: nome do painel, raiz do CNPJ formatada (`12.345.678`), data dos dados (CA-5) e um aviso único com link para `/arquivos` quando há arquivo recusado, ignorado ou aceito com divergência, com as contagens separadas (recusados, que não entram nos totais; ignorados; aceitos com divergência conhecida). *(Alterado na revisão: ajuste 4.)* Com conflito de empresas (CA-3), todas as rotas, menos `/arquivos` e `/estilo.css`, mostram só o erro e a lista dos arquivos divergentes.
 
 #### Arquivos e serviço (CA-1, CA-2)
 
-- O painel lê os `*.json` da pasta, sem descer em subpastas.
+- O painel lê os `*.json` da pasta, sem descer em subpastas. Entrada `.json` que não é arquivo, ou cujo `stat` ou leitura falha, aparece em `/arquivos` como recusada (com o código do erro do sistema, quando há). `.JSON` em maiúsculas aparece como ignorado (nome fora do padrão). *(Alterado na revisão: ajuste 3.)*
 - O serviço vem do nome, no padrão que a `apuracao-cbs` grava: `AAAAMMDDTHHMMSSZ_<servico>_<tiquete>[_<n>].json`. O conteúdo não basta: recolhimentos e pagamentos têm a mesma raiz (`apuracao[].dataArrecadacao` e `pagamentos`), e arquivo vazio não tem nada que indique o serviço.
 - Serviços usados: `creditos`, `recolhimentos`, `debitos`. Arquivo de `pagamentos` aparece em `/arquivos` como "ignorado: serviço não usado pelo painel". Nome fora do padrão aparece como "ignorado: nome fora do padrão da apuracao-cbs".
 - BOM inicial é aceito, como na `apuracao-cbs`.
@@ -94,7 +94,7 @@ Mesma validação da `apuracao-cbs`: ajv 2020-12 com `ajv-formats` sobre as cóp
 
 - um erro é tolerado só se `instancePath` for exatamente `/ni`, a regra violada for `pattern` e o valor casar com `^\d{14}$`;
 - se todos os erros forem tolerados, o arquivo é **aceito com divergência conhecida do schema 1.0.0**, com o texto "`ni` com 14 dígitos (o schema exige 8)";
-- qualquer outro erro recusa o arquivo, e o motivo lista até 20 divergências, como na `apuracao-cbs`. `niConsumidor` não tem tolerância: o schema já aceita 11 ou 14 dígitos.
+- qualquer outro erro recusa o arquivo, e o motivo lista até 20 divergências, como na `apuracao-cbs`, seguidas de "e mais N divergências" quando há mais *(alterado na revisão: ajuste 3)*. `niConsumidor` não tem tolerância: o schema já aceita 11 ou 14 dígitos.
 
 #### Empresa (CA-3)
 
@@ -119,7 +119,7 @@ Mesma validação da `apuracao-cbs`: ajv 2020-12 com `ajv-formats` sobre as cóp
 
 #### Emitente (CA-12, CA-14, D-4)
 
-Fontes: F-A a F-E, em "Fontes do leiaute da chave", registradas em `docs/referencias/documentos-fiscais/README.md` na implementação. A leitura pela chave vale só para os documentos 55, 57, 62 e 65. O documento 91 e qualquer outro código ficam "emitente não identificado", porque o leiaute da chave da NFS-e nacional (50 posições) não foi confirmado.
+Fontes: F-A a F-E, em "Fontes do leiaute da chave", registradas em `docs/referencias/documentos-fiscais/README.md` na implementação. A leitura pela chave vale só para os documentos 55, 57, 62 e 65. O documento 91 e qualquer outro código ficam "emitente não identificado", com o motivo "leiaute da chave deste tipo de documento sem fonte registrada", porque o leiaute da chave da NFS-e nacional (50 posições) não foi confirmado. *(Alterado na revisão: ajuste 8.)*
 
 Ordem para cada nota de crédito:
 
@@ -179,7 +179,7 @@ Composição da chave de 44 posições (ordem e tamanho das fontes; posições d
 
 #### Lista de créditos (CA-10, CA-13)
 
-- Filtros (parâmetros GET, combináveis): `pa`, `documento`, `emitente` (raiz ou CNPJ, ou os valores `nao-identificado` e `propria-empresa`), `pendente=1` (só `aApropriar` maior que zero), `busca` (trecho da chave, só dígitos e letras, de 4 a 50 caracteres; outro valor é ignorado e avisado).
+- Filtros (parâmetros GET, combináveis): `pa`, `documento`, `emitente` (raiz, CNPJ ou CPF, com ou sem pontuação, ou os valores `nao-identificado` e `propria-empresa`), `pendente=1` (só `aApropriar` maior que zero), `busca` (trecho da chave, só dígitos e letras, de 4 a 50 caracteres). Valor inválido de `pa`, `documento`, `emitente` ou `busca` é ignorado e avisado. *(Alterado na revisão: ajuste 6.)*
 - Ordenação: `ordem=emissao|aApropriar`, `sentido=asc|desc`. Padrão: emissão decrescente. Empate pela chave.
 - Paginação: 100 notas por página, `pagina=N`, com total de notas e de páginas e o total a apropriar do filtro inteiro (não só da página).
 - Colunas do CA-10. Linha com origem diferente de normal tem a marca "origem: <nome>". Linha com emissão fora do mês do `pa` não tem tratamento especial (CA-13).
@@ -187,7 +187,7 @@ Composição da chave de 44 posições (ordem e tamanho das fontes; posições d
 
 #### Pendências (CA-14, CA-15)
 
-- Notas com `aApropriar` maior que zero, agrupadas pelo emitente do CA-12. Grupos fixos "emitente não identificado" e "emitida pela própria empresa" aparecem mesmo vazios. Ordem: total decrescente, empate pela quantidade e depois pelo número.
+- Notas com `aApropriar` maior que zero, agrupadas pelo emitente do CA-12. Grupos fixos "emitente não identificado" e "emitida pela própria empresa" aparecem mesmo vazios. Ordem: total decrescente, empate pela quantidade e depois pelo número. O rótulo do grupo mostra todas as fontes de identificação presentes nele (recolhimento, chave ou as duas). *(Alterado na revisão: ajuste 7.)*
 - Notas com `aApropriar` negativo (possíveis pela D-6, nunca observadas) ficam numa linha própria, "notas com valor a apropriar negativo", para a soma da tela continuar igual ao total do CA-7. A tela mostra a igualdade.
 - Texto fixo da tela: "A Receita informa o valor a apropriar de cada nota, mas não informa o motivo. Esta tela não indica que o emitente deixou de recolher."
 
@@ -199,19 +199,19 @@ Mesma leitura, validação, empresa e consolidação. Totais gerais e por perío
 
 - Exibição textual a partir da string do arquivo (`dd/mm/aaaa hh:mm`, com o fuso do arquivo ao lado). Sem conversão de fuso nem objeto `Date` para exibição.
 - Por serviço: `geradoEm` mais recente, quantidade de arquivos usados, menor e maior `atualizacao`. Texto: "A visão é só a dos arquivos lidos. A Receita não fornece histórico por esta API."
-- Estado vazio (CA-6): "A Receita não devolveu créditos nos arquivos lidos.", no lugar dos totais.
+- Estado vazio (CA-6): "A Receita não devolveu créditos nos arquivos lidos.", no lugar dos totais, quando não há arquivo de créditos ou todos vêm vazios. Havendo arquivo de créditos recusado ou ignorado, a tela diz quantos arquivos não entraram nos totais, com link para `/arquivos`, em vez de atribuir o vazio à Receita. O mesmo vale para os débitos. *(Alterado na revisão: ajuste 5.)*
 
 #### Aparência (D-8)
 
-Uma folha `estilo.css` com variáveis tiradas das cores usadas na landing (`app/landing-page/src`): fundo `#060a13`, superfícies `#0e1524` e `#111827`, borda `#1e293b`, texto `#e2e8f0`, texto secundário `#94a3b8` e `#64748b`, destaque `#10b981` e `#047857`, alerta `#fbbf24`; fonte Inter com *fallback* `system-ui`, sem carregar fonte externa. Layout para tela de computador, a partir de 1280 px, com tabelas largas e rolagem horizontal abaixo disso. Sem Tailwind, sem Vite: CSS escrito à mão, servido pelo próprio servidor.
+Uma folha servida em `/estilo.css`, escrita em `src/paginas/estilo.ts` *(alterado na revisão: ajuste 11)*, com variáveis tiradas das cores usadas na landing (`app/landing-page/src`): fundo `#060a13`, superfícies `#0e1524` e `#111827`, borda `#1e293b`, texto `#e2e8f0`, texto secundário `#94a3b8` e `#64748b`, destaque `#10b981` e `#047857`, alerta `#fbbf24`; fonte Inter com *fallback* `system-ui`, sem carregar fonte externa. Layout para tela de computador, a partir de 1280 px, com tabelas largas e rolagem horizontal abaixo disso. Sem Tailwind, sem Vite: CSS escrito à mão, servido pelo próprio servidor.
 
 #### Fictícios (CA-17, CA-D3)
 
 - `dados/ficticios/` com arquivos no padrão de nome da `apuracao-cbs`, em duas partes:
   - **escritos à mão**, pequenos, um por caso: as origens diferentes de normal; o mesmo crédito em dois arquivos com valores diferentes; recolhimentos com e sem `chaveDFE`; apropriado não utilizado; `ni` de 8 dígitos; arquivo vazio; débitos com `extinto` e a nota presente nos dois lados;
   - **gerados** por `npm run gerar-ficticios` (script determinístico, sem aleatoriedade não semeada, saída versionada): o arquivo de volume com cerca de 900 créditos, um período concentrando quase tudo, a mistura de documentos da O-6, a forma da O-9 a O-15; e um arquivo de débitos com cerca de 2.800 notas em 3 períodos, com a mistura de estabelecimentos da O-23.
-- Os casos de erro ficam em `test/fixtures/` (fora da pasta padrão), para a demonstração não abrir com aviso: arquivo de outra empresa, arquivo inválido por outro motivo, JSON ilegível, nome fora do padrão, arquivo de pagamentos.
-- Identificadores fictícios: NIs e emitentes com dígito verificador de CNPJ propositalmente errado; chaves de 44 posições com DV correto (para o emitente ser lido) e UF que não seja código da tabela de UFs do MOC (por exemplo, `99`), mais casos com DV errado, modelo divergente, série 890–899, série de CPF, CT-e começando com `000`, chave com letras nas posições 7–18 e chave de 50 posições; CPFs fictícios com dígito verificador errado; tíquetes e DARFs com o prefixo `FICT`. Um teste recalcula o dígito verificador do CNPJ e do CPF (módulo 11) de todo NI e de todo emitente só com dígitos dos fictícios e falha se algum for válido; CNPJ fictício com letras usa um prefixo como `FICT`. Esse cálculo serve só para garantir que o dado de teste não é real, não é regra do produto.
+- Os casos de erro ficam em `test/fixtures/` (fora da pasta padrão) *(alterado na revisão: ajuste 11; a pasta padrão abre com o aviso de divergência conhecida, pelos fictícios com `ni` de 14 dígitos)*: arquivo de outra empresa, arquivo inválido por outro motivo, JSON ilegível, nome fora do padrão, arquivo de pagamentos.
+- Identificadores fictícios: NIs e emitentes com dígito verificador de CNPJ propositalmente errado; chaves de 44 posições com DV correto (para o emitente ser lido) e UF que não seja código da tabela de UFs do MOC (por exemplo, `99`), mais casos com DV errado, modelo divergente, série 890–899, série de CPF, CT-e começando com `000`, chave com letras nas posições 7–18 e chave de 50 posições; CPFs fictícios com dígito verificador errado; tíquetes e DARFs com o prefixo `FICT` (o DARF fictício tem 17 dígitos começando por `99999`; alterado na revisão, ajuste 11). Um teste recalcula o dígito verificador do CNPJ e do CPF (módulo 11) de todo NI e de todo emitente só com dígitos dos fictícios e falha se algum for válido; CNPJ fictício com letras usa um prefixo como `FICT`. Esse cálculo serve só para garantir que o dado de teste não é real, não é regra do produto.
 
 #### README (CA-20)
 
@@ -331,6 +331,24 @@ Comandos, em `app/painel`: `npm test` (vitest), `npm run lint` (oxlint), `npm ru
 | Desempenho | Com os fictícios de volume (cerca de 900 créditos e 2.800 débitos): primeira carga e `/creditos?pa=11/2026` abaixo de 2 s; recarga sem mudança na pasta não relê arquivo (contagem de leituras). Limite largo para não depender da máquina |
 
 Conferência manual, no navegador, antes do PR: as cinco páginas com os fictícios; um arquivo inválido na pasta; e, se o responsável quiser, com a pasta real dele, só na máquina dele, sem print nem cópia de valor para o PR.
+
+## Ajustes da revisão (2026-11-24)
+
+> Estes ajustes foram decididos pela sessão durante a revisão (duas rodadas de correção, commits `01e025e..5e43e96`), a partir de achados dos revisores. A aprovação da Spec pelo responsável (commit `dab51b5`) é anterior a eles; serão apresentados ao usuário no PR. Os trechos da Spec que ficaram contraditórios foram corrigidos e marcados com "alterado na revisão"; o resto da Spec não mudou.
+
+| # | Ajuste | CA | Onde |
+|---|---|---|---|
+| 1 | Arquivo válido pelo schema, mas com `geradoEm`, `atualizacao`, `emissao` ou `registro` num formato de data-hora que o painel não lê (o schema aceita, por exemplo, fuso sem dois-pontos, `t`/`z` minúsculos ou espaço no lugar do `T`), é recusado com motivo próprio, que diz o caminho do campo e o formato esperado (`aaaa-mm-ddThh:mm:ss`, fração opcional de até 9 dígitos, `Z` ou `±hh:mm`). É recusa a mais, não tolerância: o "nenhuma outra" do CA-2 continua valendo. | CA-2, CA-5 | `src/nucleo/validacao.ts` (`checarDatas`) |
+| 2 | JSON com mais de 64 níveis de aninhamento é recusado com o motivo fixo "o conteúdo não pôde ser verificado: estrutura aninhada demais", antes das checagens recursivas (que estourariam a pilha e derrubariam as rotas). | CA-2 | `src/nucleo/validacao.ts` (`PROFUNDIDADE_MAXIMA`, `profundidadeDe`, `MOTIVO_ANINHADO`) |
+| 3 | Entrada `.json` que não é arquivo entra em `/arquivos` como recusada ("a entrada não é um arquivo"); falha de `stat` ou de leitura entra como recusada com o código do erro do sistema (por exemplo, `EBUSY`). Falha de E/S é transitória: não vai para o cache nem para a memória da visão, e o arquivo é relido no pedido seguinte. Erro que não é de E/S é defeito do painel: propaga, a resposta é 500 e o servidor registra em stderr o nome do erro, a rota sem a query, a pilha e a mensagem truncada em 200 caracteres. `.JSON` em maiúsculas aparece como ignorado (nome fora do padrão). Recusa com mais de 20 divergências mostra "e mais N divergências". | CA-1, CA-2, CA-A2 | `src/nucleo/arquivos.ts` (`lerPasta`, `lerUm`, `codigoDeSistema`); `src/rotas.ts` (memória da visão); `src/servidor.ts` (`registrarErro`) |
+| 4 | O aviso do cabeçalho continua único, com contagens separadas: recusados (que não entram nos totais), ignorados e aceitos com divergência conhecida do schema 1.0.0. Arquivo ignorado também acende o aviso. | CA-2, CA-5 | `src/paginas/layout.ts` (`aviso`) |
+| 5 | Estado vazio: o texto do CA-6 vale quando não há arquivo do serviço ou todos vêm vazios. Havendo arquivo do serviço recusado ou ignorado, a tela diz quantos arquivos não entraram nos totais, com link para `/arquivos`, sem atribuir o vazio à Receita. Vale para créditos e débitos. | CA-6, CA-D2 | `src/paginas/vazio.ts`; `src/nucleo/visao.ts` (`naoEntraram`) |
+| 6 | Lista: valor inválido de `pa`, `documento` ou `emitente` gera aviso (antes, só a `busca`). `emitente` aceita CNPJ ou CPF com pontuação (`.`, `/`, `-` são retirados antes da conferência). | CA-10 | `src/nucleo/lista.ts` (`lerConsulta`) |
+| 7 | Pendências: o grupo mostra todas as fontes de identificação presentes nele (um mesmo emitente pode vir do recolhimento numa nota e da chave em outra). | CA-12, CA-14 | `src/nucleo/pendencias.ts` |
+| 8 | Motivo do documento 91 e de qualquer documento sem leiaute: "leiaute da chave deste tipo de documento sem fonte registrada" (o texto anterior usava "confirmado", vedado pelo CA-8). | CA-8, CA-12 | `src/nucleo/emitente.ts` (`MOTIVOS.semLeiaute`) |
+| 9 | Servidor: com `--porta 80`, o `Host` sem porta (`127.0.0.1` ou `localhost`) é aceito, porque o navegador omite a porta 80. | CA-A1 | `src/servidor.ts` (`hostAceito`) |
+| 10 | Erro de leitura da pasta mostra o código do erro do sistema e orienta conforme ele: `EACCES`/`EPERM`, conferir permissões; `ENOENT`/`ENOTDIR`, conferir o caminho; outro código, conferir se a pasta está acessível e não está em uso. | CA-A1, CA-A2 | `src/nucleo/arquivos.ts` (`lerPasta`); `src/paginas/erro.ts` (`orientacaoPasta`) |
+| 11 | Divergências dos fictícios e da estrutura, aceitas pelo Reviewer: o DARF fictício tem 17 dígitos começando por `99999` (não o prefixo `FICT`); o CSS fica em `src/paginas/estilo.ts`, servido em `/estilo.css`; a pasta padrão abre com o aviso de divergência conhecida (fictícios com `ni` de 14 dígitos); `app/painel` tem `.gitignore` próprio (`.local/`, `node_modules/`, `dist/`); `npm run gerar-ficticios` roda `node scripts/gerarFicticios.ts`. | CA-17, CA-18, D-8 | `dados/ficticios/`; `src/paginas/estilo.ts`; `app/painel/.gitignore`; `package.json` |
 
 ## Perguntas em aberto
 
