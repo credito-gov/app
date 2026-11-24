@@ -138,9 +138,18 @@ describe("como no real (CA-17, O-8 a O-15)", () => {
     expect(visao.notas.some((n) => n.emitente.emitente.tipo === "propria-empresa")).toBe(true);
   });
 
-  it("emissões fora do mês do período", () => {
-    const fora = (n: { pa: string; emissao: string }) => n.emissao.slice(5, 7) !== n.pa.slice(0, 2) || n.emissao.slice(0, 4) !== n.pa.slice(3);
-    expect(visao.notas.filter(fora).length).toBeGreaterThanOrEqual(2);
+  it("emissões fora do mês do período, nos dois sentidos (O-14)", () => {
+    const ordem = (n: { pa: string; emissao: string }) => `${n.emissao.slice(0, 4)}-${n.emissao.slice(5, 7)}`.localeCompare(`${n.pa.slice(3)}-${n.pa.slice(0, 2)}`);
+    expect(visao.notas.filter((n) => ordem(n) < 0).length, "antes do período").toBeGreaterThanOrEqual(1);
+    expect(visao.notas.filter((n) => ordem(n) > 0).length, "depois do período").toBeGreaterThanOrEqual(1);
+  });
+
+  it("emissão depois do período existe no volume e no FICTCRED01", async () => {
+    for (const nome of [NOMES.forma, NOMES.volumeCreditos]) {
+      const itens = (await bruto(nome)) as { apuracao: Array<{ pa: string; creditos: Array<{ emissao: string }> }> };
+      const depois = itens.apuracao.flatMap((b) => b.creditos.filter((c) => `${c.emissao.slice(0, 4)}-${c.emissao.slice(5, 7)}` > `${b.pa.slice(3)}-${b.pa.slice(0, 2)}`));
+      expect(depois.length, nome).toBeGreaterThanOrEqual(1);
+    }
   });
 });
 
