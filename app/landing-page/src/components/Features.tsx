@@ -8,9 +8,9 @@ const FEATURES = [
     tag: 'Fornecedor a fornecedor',
   },
   {
-    title: 'Saldo de CBS e de IBS',
+    title: 'Saldo de CBS',
     description:
-      'O crédito de cada tributo, separado em confirmado e pendente, sem misturar o que ainda não pode ser usado.',
+      'O crédito de CBS separado em confirmado e pendente, sem misturar o que ainda não pode ser usado. O IBS vem numa etapa seguinte.',
     tag: 'Confirmado × pendente',
   },
   {
