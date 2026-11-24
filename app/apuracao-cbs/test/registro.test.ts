@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { criarRegistro } from "../src/registro.js";
@@ -148,5 +148,74 @@ describe("primeiraAbertura", () => {
     expect(t.registro.primeiraAbertura("T-1")?.getTime()).toBe(new Date(2026, 10, 23, 9, 0, 0).getTime());
     expect(t.registro.primeiraAbertura("T-2")?.getTime()).toBe(new Date(2026, 10, 23, 9, 5, 0).getTime());
     expect(t.registro.primeiraAbertura("T-3")).toBeUndefined();
+  });
+});
+
+describe("registro ilegível e gravação que falha", () => {
+  const valida = (extra: string) =>
+    `{"quando":"2026-11-23T09:00:00.000-03:00","servico":"creditos","tipo":"abertura","http":201,"tiquete":"T-1"}
+${extra}`;
+
+  function com(conteudo: string) {
+    const pastaLocal = pastaTemporaria();
+    writeFileSync(join(pastaLocal, "chamadas.jsonl"), conteudo);
+    const avisos: string[] = [];
+    const registro = criarRegistro({
+      pastaLocal,
+      relogio: { agora: () => new Date(2026, 10, 23, 10, 0, 0) },
+      avisar: (t) => avisos.push(t),
+    });
+    return { pastaLocal, registro, avisos };
+  }
+
+  it("linha malformada: não lança, avisa com o número da linha e conta como abertura feita", () => {
+    const t = com(valida("{isto nao e json\n"));
+    const dia = new Date(2026, 10, 23, 12, 0, 0);
+    expect(t.registro.contarAberturas("creditos", dia)).toEqual({ total: 2, aceitas: 1 });
+    expect(t.avisos).toHaveLength(1);
+    expect(t.avisos[0]).toContain("linha 2");
+    expect(t.registro.contarAberturas("debitos", dia)).toEqual({ total: 1, aceitas: 0 });
+    expect(t.avisos).toHaveLength(1); // cada linha avisa uma só vez
+  });
+
+  it("quando inválido: avisa, conta como chamada feita e a primeiraAbertura ignora a linha", () => {
+    const t = com('{"quando":"ontem","servico":"creditos","tipo":"abertura","http":201,"tiquete":"T-7"}\n');
+    expect(t.registro.contarAberturas("creditos", new Date(2026, 10, 23, 12, 0, 0))).toEqual({ total: 1, aceitas: 1 });
+    expect(t.registro.primeiraAbertura("T-7")).toBeUndefined();
+    expect(t.avisos[0]).toContain("linha 1");
+  });
+
+  it("linha ilegível conta como pedido de token no instante atual (modo conservador)", () => {
+    const t = com("{lixo\n");
+    const desde = t.registro.pedidosDeTokenDesde(new Date(2026, 10, 23, 9, 0, 0));
+    expect(desde.map((d) => d.getTime())).toEqual([new Date(2026, 10, 23, 10, 0, 0).getTime()]);
+  });
+
+  it("primeiraAbertura nunca lança com linha ilegível no meio", () => {
+    const t = com(valida("{lixo\n"));
+    expect(t.registro.primeiraAbertura("T-1")?.getTime()).toBe(new Date("2026-11-23T09:00:00.000-03:00").getTime());
+  });
+
+  it("registrar não lança se a gravação falhar: avisa uma só vez com o código", () => {
+    const t = com("");
+    rmSync(join(t.pastaLocal, "chamadas.jsonl"));
+    mkdirSync(join(t.pastaLocal, "chamadas.jsonl"));
+    expect(() => t.registro.registrar({ servico: "creditos", tipo: "abertura", http: 201, tiquete: "T-1" })).not.toThrow();
+    expect(() => t.registro.registrar({ servico: "creditos", tipo: "situacao", http: 200, tiquete: "T-1" })).not.toThrow();
+    expect(t.avisos).toHaveLength(1);
+    expect(t.avisos[0]).toMatch(/E[A-Z]+/);
+    expect(t.avisos[0]).toContain("não foi possível gravar o registro");
+  });
+
+  it("verificarEscrita cria a pasta e o arquivo, e falha com mensagem clara se não der", () => {
+    const pastaLocal = join(pastaTemporaria(), "nova");
+    const registro = criarRegistro({ pastaLocal, relogio: { agora: () => new Date() } });
+    expect(() => registro.verificarEscrita()).not.toThrow();
+    expect(existsSync(join(pastaLocal, "chamadas.jsonl"))).toBe(true);
+
+    const ruim = pastaTemporaria();
+    mkdirSync(join(ruim, "chamadas.jsonl"));
+    const r2 = criarRegistro({ pastaLocal: ruim, relogio: { agora: () => new Date() } });
+    expect(() => r2.verificarEscrita()).toThrow(/chamadas\.jsonl.*Nenhuma chamada foi feita/s);
   });
 });

@@ -9,6 +9,8 @@ export interface RespostaSimulada {
   bytes?: Uint8Array;
   /** Faz o fetch rejeitar (rede, tempo esgotado). */
   erro?: Error;
+  /** A resposta chega com o status, mas a leitura do corpo rejeita com este erro. */
+  corpoRejeita?: Error;
 }
 
 export interface PedidoRegistrado {
@@ -27,8 +29,10 @@ interface Rota {
   fila: RespostaSimulada[];
 }
 
-export function erroDeRede(mensagem = "falha de rede simulada"): Error {
-  return new TypeError(mensagem);
+/** Como o fetch do Node falha: TypeError("fetch failed") com a causa trazendo o código (ex.: ENOTFOUND). */
+export function erroDeRede(mensagem = "falha de rede simulada", codigo?: string): Error {
+  if (codigo === undefined) return new TypeError(mensagem);
+  return new TypeError(mensagem, { cause: Object.assign(new Error(`causa de ${codigo} com detalhe interno`), { code: codigo }) });
 }
 
 export function erroDeTempo(): Error {
@@ -66,6 +70,10 @@ export function criarApiSimulada() {
     if (resposta.erro) throw resposta.erro;
 
     const status = resposta.status ?? 200;
+    if (resposta.corpoRejeita) {
+      const falha = resposta.corpoRejeita;
+      return new Response(new ReadableStream({ pull: (c) => c.error(falha) }), { status });
+    }
     if (resposta.bytes) return new Response(resposta.bytes as BodyInit, { status });
     if (resposta.corpo === undefined) return new Response(null, { status: status === 204 ? 204 : status });
     const texto = typeof resposta.corpo === "string" ? resposta.corpo : JSON.stringify(resposta.corpo);

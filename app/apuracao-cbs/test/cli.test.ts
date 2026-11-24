@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { guardar } from "../src/armazenamento.js";
 import { MENSAGEM_SEM_ALTERACOES } from "../src/saida.js";
 import { RESPOSTA_TOKEN, bytesDaFixture, criarAmbienteCli, roteirizarCiclo, type AmbienteCli } from "./apoio/cli.js";
-import { ID, SEGREDO, TOKEN, URL_ASSINADA, URL_BASE, URL_TOKEN } from "./apoio/ficticios.js";
+import { BASE64_CREDENCIAIS, ID, QUERY_ASSINADA, SEGREDO, TOKEN, URL_ASSINADA, URL_BASE, URL_TOKEN } from "./apoio/ficticios.js";
 
 function trilha(a: AmbienteCli): string[] {
   return a.api.pedidos.map((p) => {
@@ -16,7 +16,7 @@ function trilha(a: AmbienteCli): string[] {
 
 function semSegredos(a: AmbienteCli, extra: string = ""): void {
   const tudo = [a.saida.texto(), extra, ...a.arquivosLocais().map((f) => f.texto)].join("\n");
-  for (const segredo of [ID, SEGREDO, TOKEN, URL_ASSINADA]) expect(tudo).not.toContain(segredo);
+  for (const segredo of [ID, SEGREDO, TOKEN, URL_ASSINADA, QUERY_ASSINADA, BASE64_CREDENCIAIS]) expect(tudo).not.toContain(segredo);
 }
 
 describe("consulta de créditos: ciclo completo (CA-1)", () => {
@@ -220,54 +220,105 @@ describe("ler um arquivo guardado (CA-5)", () => {
   });
 });
 
+const COMANDO_TIQ1 = "Para retomar: npm run consulta -- creditos --tiquete TIQ-1";
+
+function aberturasNoRegistro(a: AmbienteCli): number {
+  const texto = a.arquivosLocais().find((f) => f.caminho.endsWith("chamadas.jsonl"))?.texto ?? "";
+  return texto.split("\n").filter((l) => l.includes('"tipo":"abertura"')).length;
+}
+
+function aposAbertura(a: AmbienteCli, ...resto: Array<() => void>): void {
+  a.api.rota("POST", "/token", RESPOSTA_TOKEN);
+  a.api.rota("POST", "/creditos/12345678", { status: 201, corpo: { tiqueteSolicitacao: "TIQ-1", tEASegundos: -1 } });
+  for (const r of resto) r();
+}
+
 describe("erros encerram sem expor segredos (CA-4, CA-12)", () => {
-  const cenarios: Array<[string, (a: AmbienteCli) => void]> = [
-    ["token recusado (401)", (a) => a.api.rota("POST", "/token", { status: 401, corpo: { error: "invalid_client" } })],
-    [
-      "limite excedido na abertura (429)",
-      (a) => {
+  interface Cenario {
+    rotulo: string;
+    montar: (a: AmbienteCli) => void;
+    trecho: string;
+    aberturas: number;
+    retomada: boolean;
+  }
+  const cenarios: Cenario[] = [
+    {
+      rotulo: "token recusado (401)",
+      montar: (a) => a.api.rota("POST", "/token", { status: 401, corpo: { error: "invalid_client" } }),
+      trecho: "Credencial recusada no pedido de token (HTTP 401)",
+      aberturas: 0,
+      retomada: false,
+    },
+    {
+      rotulo: "limite excedido na abertura (429)",
+      montar: (a) => {
         a.api.rota("POST", "/token", RESPOSTA_TOKEN);
         a.api.rota("POST", "/creditos/12345678", { status: 429, corpo: { codigoErro: "LIMITE", mensagemErro: "limite" } });
       },
-    ],
-    [
-      "situação ERRO",
-      (a) => {
+      trecho: "Limite excedido (HTTP 429). Aberturas de creditos registradas hoje: 1 (0 aceitas).",
+      aberturas: 1,
+      retomada: false,
+    },
+    {
+      rotulo: "abertura recusada (403) com credenciais e token no mensagemErro",
+      montar: (a) => {
         a.api.rota("POST", "/token", RESPOSTA_TOKEN);
-        a.api.rota("POST", "/creditos/12345678", { status: 201, corpo: { tiqueteSolicitacao: "TIQ-1", tEASegundos: -1 } });
-        a.api.rota("GET", "/situacao/", { status: 200, corpo: { situacao: "ERRO", codigoErro: "E1", mensagemErro: "falhou" } });
+        a.api.rota("POST", "/creditos/12345678", {
+          status: 403,
+          corpo: { codigoErro: "NEGADO", mensagemErro: `cliente ${ID} segredo ${SEGREDO} token ${TOKEN} base ${BASE64_CREDENCIAIS}` },
+        });
       },
-    ],
-    [
-      "download 404",
-      (a) => {
-        a.api.rota("POST", "/token", RESPOSTA_TOKEN);
-        a.api.rota("POST", "/creditos/12345678", { status: 201, corpo: { tiqueteSolicitacao: "TIQ-1", tEASegundos: -1 } });
-        a.api.rota("GET", "/situacao/", { status: 200, corpo: { situacao: "CONCLUIDA" } });
-        a.api.rota("GET", "/download/", { status: 404, corpo: { codigoErro: "ARQUIVO_INDISPONIVEL", mensagemErro: "x" } });
-      },
-    ],
-    [
-      "urlAssinada recusada (403)",
-      (a) => {
-        a.api.rota("POST", "/token", RESPOSTA_TOKEN);
-        a.api.rota("POST", "/creditos/12345678", { status: 201, corpo: { tiqueteSolicitacao: "TIQ-1", tEASegundos: -1 } });
-        a.api.rota("GET", "/situacao/", { status: 200, corpo: { situacao: "CONCLUIDA" } });
-        a.api.rota("GET", "/download/", { status: 200, corpo: { urlAssinada: URL_ASSINADA } });
-        a.api.rota("GET", "arquivo?assinatura", { status: 403 });
-      },
-    ],
+      trecho: "Sem permissão ou escopo para este serviço",
+      aberturas: 1,
+      retomada: false,
+    },
+    {
+      rotulo: "situação ERRO",
+      montar: (a) =>
+        aposAbertura(a, () => a.api.rota("GET", "/situacao/", { status: 200, corpo: { situacao: "ERRO", codigoErro: "E1", mensagemErro: "falhou" } })),
+      trecho: "Situação ERRO: a solicitação terminou com erro.",
+      aberturas: 1,
+      retomada: true,
+    },
+    {
+      rotulo: "download 404",
+      montar: (a) =>
+        aposAbertura(
+          a,
+          () => a.api.rota("GET", "/situacao/", { status: 200, corpo: { situacao: "CONCLUIDA" } }),
+          () => a.api.rota("GET", "/download/", { status: 404, corpo: { codigoErro: "ARQUIVO_INDISPONIVEL", mensagemErro: "x" } }),
+        ),
+      trecho: "Arquivo indisponível (ARQUIVO_INDISPONIVEL)",
+      aberturas: 1,
+      retomada: true,
+    },
+    {
+      rotulo: "urlAssinada recusada (403)",
+      montar: (a) =>
+        aposAbertura(
+          a,
+          () => a.api.rota("GET", "/situacao/", { status: 200, corpo: { situacao: "CONCLUIDA" } }),
+          () => a.api.rota("GET", "/download/", { status: 200, corpo: { urlAssinada: URL_ASSINADA } }),
+          () => a.api.rota("GET", "arquivo?assinatura", { status: 403 }),
+        ),
+      trecho: "urlAssinada vencida.",
+      aberturas: 1,
+      retomada: true,
+    },
   ];
 
-  for (const [rotulo, montar] of cenarios) {
-    it(`${rotulo}: código 1, mensagem clara, uma só abertura no máximo e nenhum segredo`, async () => {
+  for (const c of cenarios) {
+    it(`${c.rotulo}: código 1, mensagem esperada, aberturas exatas, comando de retomada e nenhum segredo`, async () => {
       const a = criarAmbienteCli();
-      montar(a);
-      const codigo = await a.rodar(["consulta", "creditos"]);
-      expect(codigo).toBe(1);
-      expect(a.api.contar("POST", "/creditos/")).toBeLessThanOrEqual(1);
+      c.montar(a);
+      expect(await a.rodar(["consulta", "creditos"])).toBe(1);
+      expect(a.api.contar("POST", "/creditos/")).toBe(c.aberturas);
+      expect(aberturasNoRegistro(a)).toBe(c.aberturas);
       expect(a.api.contar("POST", "/token")).toBe(1);
-      expect(a.saida.texto().length).toBeGreaterThan(0);
+      const texto = a.saida.texto();
+      expect(texto).toContain(c.trecho);
+      if (c.retomada) expect(texto.endsWith(COMANDO_TIQ1)).toBe(true);
+      else expect(texto).not.toContain("Para retomar");
       semSegredos(a);
     });
   }

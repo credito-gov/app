@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { ErroApi, comandoRetomada, extrairErroDoCorpo } from "../src/erros.js";
+import { ErroApi, codigoDaCausa, comandoRetomada, extrairErroDoCorpo } from "../src/erros.js";
 import { criarRedator } from "../src/redacao.js";
+import { erroDeRede } from "./apoio/apiSimulada.js";
 import { SEGREDO, TOKEN, URL_ASSINADA } from "./apoio/ficticios.js";
 
 const redator = criarRedator();
@@ -178,5 +179,50 @@ describe("ErroApi", () => {
   it("detalhe livre também passa pelo redator", () => {
     const e = new ErroApi({ tipoChamada: "token", servico: "creditos", motivo: "outro", detalhe: `resposta com ${SEGREDO}` }, redator);
     expect(e.message).toContain("resposta com ***");
+  });
+});
+
+describe("mensagens da rodada de correção (G)", () => {
+  it("rede: mostra só o código da causa", () => {
+    const e = new ErroApi({ tipoChamada: "situacao", servico: "creditos", motivo: "rede", codigoRede: "ENOTFOUND" }, redator);
+    expect(e.message).toContain("erro de rede: ENOTFOUND");
+    const sem = new ErroApi({ tipoChamada: "situacao", servico: "creditos", motivo: "rede" }, redator);
+    expect(sem.message).toContain("erro de rede)");
+  });
+
+  it("codigoDaCausa lê cause.code e nunca a mensagem", () => {
+    expect(codigoDaCausa(erroDeRede("fetch failed https://x/?s=SEGREDO", "CERT_HAS_EXPIRED"))).toBe("CERT_HAS_EXPIRED");
+    expect(codigoDaCausa(erroDeRede("fetch failed https://x/?s=SEGREDO"))).toBeUndefined();
+    expect(codigoDaCausa("texto")).toBeUndefined();
+  });
+
+  it("tempo esgotado na abertura avisa que a solicitação pode ter sido aceita e contada", () => {
+    const e = new ErroApi({ tipoChamada: "abertura", servico: "creditos", motivo: "tempo-esgotado" }, redator);
+    expect(e.message).toContain("pode ter sido aceita");
+    expect(e.message).toContain("tíquete é desconhecido");
+    const outra = new ErroApi({ tipoChamada: "situacao", servico: "creditos", tiquete: "T-1", motivo: "tempo-esgotado" }, redator);
+    expect(outra.message).not.toContain("pode ter sido aceita");
+  });
+
+  it("download pela urlAssinada tem texto próprio, sem falar de APURACAO_URL_BASE nem de cache do token", () => {
+    for (const http of [401, 404, 429, 500]) {
+      const e = new ErroApi({ tipoChamada: "arquivo", servico: "creditos", tiquete: "T-1", http }, redator);
+      expect(e.message, String(http)).not.toContain("APURACAO_URL_BASE");
+      expect(e.message, String(http)).not.toContain("Cache do token");
+      expect(e.message, String(http)).toContain("--tiquete");
+      expect(e.message, String(http)).toContain(`HTTP ${http}`);
+    }
+  });
+
+  it("pedido de token: 403, 429 e 500 dizem o que fazer", () => {
+    const e403 = new ErroApi({ tipoChamada: "token", servico: "creditos", http: 403 }, redator);
+    expect(e403.message).toContain("Credencial sem permissão");
+    expect(e403.message).toContain("APURACAO_TOKEN_SCOPE");
+    const e429 = new ErroApi({ tipoChamada: "token", servico: "creditos", http: 429 }, redator);
+    expect(e429.message).toContain("2 por hora");
+    expect(e429.message).toContain("Espere");
+    const e500 = new ErroApi({ tipoChamada: "token", servico: "creditos", http: 500 }, redator);
+    expect(e500.message).toContain("Tente mais tarde");
+    expect(e500.message).toContain("contou no limite");
   });
 });

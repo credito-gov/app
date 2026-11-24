@@ -318,15 +318,3 @@ describe("erro de rede e tempo esgotado", () => {
     }
   });
 });
-
-describe("segredos (CA-12)", () => {
-  it("a urlAssinada, o token e as credenciais não aparecem em saída, registro nem mensagem de erro", async () => {
-    const t = montar();
-    t.api.rota("GET", "/download/", { status: 200, corpo: { urlAssinada: URL_ASSINADA } });
-    t.api.rota("GET", "arquivo?assinatura", { status: 403, corpo: { codigoErro: "X", mensagemErro: `negado para ${URL_ASSINADA}` } });
-    const { urlAssinada } = await t.cliente.linkDownload("T-1");
-    const e = await falha(t.cliente.baixarArquivo(urlAssinada, "T-1"));
-    const tudo = [t.saida.texto(), e.message, JSON.stringify(t.linhasDoRegistro())].join("\n");
-    for (const proibido of [URL_ASSINADA, TOKEN, ID, SEGREDO]) expect(tudo).not.toContain(proibido);
-  });
-});

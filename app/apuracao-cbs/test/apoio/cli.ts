@@ -72,6 +72,8 @@ export function roteirizarCiclo(
     situacoes?: string[];
     tea?: number;
     expiraEm?: Date;
+    /** Substitui a resposta do arquivo (padrão: 200 com os bytes). */
+    arquivo?: RespostaSimulada;
   },
 ): void {
   const tiquete = opcoes.tiquete ?? "TIQ-1";
@@ -86,5 +88,5 @@ export function roteirizarCiclo(
     status: 200,
     corpo: { urlAssinada: URL_ASSINADA, urlAssinadaExpiraEm: (opcoes.expiraEm ?? new Date(2026, 10, 24, 10, 0, 0)).toISOString() },
   });
-  api.rota("GET", "arquivo?assinatura", { status: 200, bytes: opcoes.bytes });
+  api.rota("GET", "arquivo?assinatura", opcoes.arquivo ?? { status: 200, bytes: opcoes.bytes });
 }

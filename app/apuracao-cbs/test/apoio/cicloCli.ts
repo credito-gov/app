@@ -5,7 +5,7 @@ import { guardar } from "../../src/armazenamento.js";
 import { MENSAGEM_SEM_ALTERACOES } from "../../src/saida.js";
 import type { NomeServico } from "../../src/servicos.js";
 import { bytesDaFixture, criarAmbienteCli, roteirizarCiclo, type AmbienteCli } from "./cli.js";
-import { ID, SEGREDO, TOKEN, URL_ASSINADA, URL_BASE, URL_TOKEN } from "./ficticios.js";
+import { BASE64_CREDENCIAIS, ID, QUERY_ASSINADA, SEGREDO, TOKEN, URL_ASSINADA, URL_BASE, URL_TOKEN } from "./ficticios.js";
 
 export function trilha(a: AmbienteCli): string[] {
   return a.api.pedidos.map((p) => {
@@ -17,7 +17,7 @@ export function trilha(a: AmbienteCli): string[] {
 
 export function semSegredos(a: AmbienteCli): void {
   const tudo = [a.saida.texto(), ...a.arquivosLocais().map((f) => f.texto)].join("\n");
-  for (const segredo of [ID, SEGREDO, TOKEN, URL_ASSINADA]) expect(tudo).not.toContain(segredo);
+  for (const segredo of [ID, SEGREDO, TOKEN, URL_ASSINADA, QUERY_ASSINADA, BASE64_CREDENCIAIS]) expect(tudo).not.toContain(segredo);
 }
 
 /**
