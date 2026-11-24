@@ -164,19 +164,22 @@ function gerarCreditos(): string {
   const plano = planejarCreditos(sorteio);
   const emitentes = Array.from({ length: 125 }, (_, i) => cnpjFicticio(`${20000000 + i * 137}0001`));
   const porPeriodo = new Map<number, Array<Record<string, unknown>>>();
+  let emissoesDepois = 0;
 
   plano.forEach(({ documento, mes }, i) => {
     // Perfil do valor: 9 só apropriados (apropriado = utilizado), 3 com os dois, o resto só a apropriar (O-10, O-12).
     const perfil = i % 100 === 7 ? "so-apropriado" : i === 11 || i === 333 || i === 600 ? "parcial" : "a-apropriar";
     const base = 500 + sorteio.inteiro(500000);
-    // Emissão no mês do período, exceto em seis notas (3 antes e 3 depois, O-14). Nada passa de novembro de 2026:
-    // a emissão depois do mês do período só existe até 10/2026, e o período 12/2026 tem emissão antes dele.
+    // Emissão no mês do período, exceto: 3 notas com emissão no mês anterior (i % 150 === 3, O-14) e as 3 primeiras
+    // notas de período até 10/2026, com emissão no mês seguinte (por exemplo, período 10/2026 emitido em novembro).
+    // Nada passa de novembro de 2026; o período 12/2026 tem emissão em novembro, antes dele.
     let mesEmissao = mes;
     let anoEmissao = 2026;
     if (i % 150 === 3 && i < 450) {
       mesEmissao = mes === 1 ? 12 : mes - 1;
       anoEmissao = mes === 1 ? 2025 : 2026;
-    } else if (i % 150 === 4 && i < 450 && mes <= 10) {
+    } else if (mes <= 10 && emissoesDepois < 3) {
+      emissoesDepois++;
       mesEmissao = mes + 1;
     } else if (mes === 12) {
       mesEmissao = 11;
