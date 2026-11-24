@@ -29,7 +29,8 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 | Landing page (`app/landing-page`) | Redesign escuro concluído e na `main` (tasks 015–027, PR #10). Texto em postura de pré-lançamento desde a demanda 028: diz que o produto está em desenvolvimento e convida para a lista de espera, sem números, depoimentos ou promessas sem base. |
 | Publicação da landing | <https://credito-gov.vercel.app/> mostra a versão clara antiga. O Vercel recusa publicar a partir do repositório (organização privada no plano gratuito), então o redesign **não está no ar** |
 | Prova de conceito da API de apuração da CBS (`app/apuracao-cbs`) | Demanda 029. Aplicação de linha de comando, só leitura, com as quatro consultas; implementada e testada com respostas simuladas. **Chamada real feita em 2026-11-24:** o ciclo funcionou para créditos e débitos, que vieram vazios; recolhimentos e pagamentos responderam HTTP 404. Não é o backend do produto |
-| Backend, banco, autenticação, painel | **Não iniciados.** As tasks 001–005 foram escritas e estão suspensas (ver §5) |
+| Painel local (`app/painel`) | Demanda 030. Web local, sem login, em Node/TypeScript: lê a pasta de arquivos que a `apuracao-cbs` baixa e mostra saldo de crédito (quatro totais separados), débitos à parte, lista de créditos, detalhe da nota, pendências por emitente e a lista de arquivos. Só CBS. Testado com arquivos fictícios; não chama a API. Aceita, com marca, o `ni` de 14 dígitos que os arquivos reais trazem e o schema 1.0.0 não aceita |
+| Backend, banco, autenticação | **Não iniciados.** As tasks 001–005 foram escritas e estão suspensas (ver §5). O painel com login e banco continua em aberto |
 | Validação de mercado (entrevistas, contadores, tributarista) | Sem registro no repositório |
 
 ---
@@ -80,9 +81,23 @@ npm run consulta -- <creditos|recolhimentos|pagamentos|debitos> [--tiquete <tiqu
 npm run ler -- <arquivo>                                                                    # sem rede
 ```
 
-### Aplicação (backend e painel) — proposta, não confirmada
+### Painel (`app/painel`) — o que existe
 
-A concepção propôs Node.js + Express + TypeORM + PostgreSQL no backend e React + Redux Toolkit + shadcn/ui no painel. Nada disso foi construído. A stack será confirmada na Spec da primeira demanda de backend, depois de resolvida a fonte de dados. O desenho antigo está em [`historico/2026-08-concepcao/05_ARQUITETURA_TECNICA.md`](historico/2026-08-concepcao/05_ARQUITETURA_TECNICA.md) e **não deve ser seguido como especificação**.
+Node 24 ou mais novo, TypeScript 6 (ESM), servidor `node:http` que monta o HTML no servidor, sem framework de interface, sem Vite e sem JavaScript no navegador; formulários e links com parâmetros na URL. Mesmas ferramentas da `apuracao-cbs`: `vitest`, `oxlint`, `ajv`, `big.js`, `lossless-json`. Código de leitura, validação e formatação copiado da `apuracao-cbs` (não importado). Escuta só em `127.0.0.1`, sem login, só `GET` e `HEAD`. Os testes não usam rede nem `.env`; só o teste do servidor abre um socket, em `127.0.0.1`.
+
+```bash
+cd app/painel
+npm install
+npm test
+npm run lint
+npm run build
+npm run gerar-ficticios
+npm start -- [--pasta <caminho>] [--porta <n>]   # http://127.0.0.1:5180/, fictícios por padrão
+```
+
+### Backend e painel com login — proposta, não confirmada
+
+A concepção propôs Node.js + Express + TypeORM + PostgreSQL no backend e React + Redux Toolkit + shadcn/ui no painel. Nada disso foi construído; o painel local acima não decide a stack do produto com backend. A stack será confirmada na Spec da primeira demanda de backend, depois de resolvida a fonte de dados. O desenho antigo está em [`historico/2026-08-concepcao/05_ARQUITETURA_TECNICA.md`](historico/2026-08-concepcao/05_ARQUITETURA_TECNICA.md) e **não deve ser seguido como especificação**.
 
 ---
 
@@ -132,13 +147,14 @@ credito-gov/
 ├── .claude/fluxo.json         # configuração do fluxo de demandas
 ├── app/
 │   ├── landing-page/          # landing page
-│   └── apuracao-cbs/          # prova de conceito da API de apuração da CBS (linha de comando)
+│   ├── apuracao-cbs/          # prova de conceito da API de apuração da CBS (linha de comando)
+│   └── painel/                # painel local: lê os arquivos da apuracao-cbs (sem login, só CBS)
 └── docs/
     ├── PROJECT_CONTEXT.md     # este arquivo
     ├── README.md              # índice da documentação
     ├── produto/               # visão, hipóteses, reforma tributária
     ├── design/                # design system, wireframes, marca
-    ├── referencias/           # material oficial de terceiros (Split Payment)
+    ├── referencias/           # material oficial de terceiros (Split Payment, API de apuração da CBS, documentos fiscais)
     ├── demandas/              # kanban, templates e uma pasta por demanda
     ├── handoff/               # registros de passagem entre sessões
     ├── tasks/                 # modelo antigo (001–027), congelado
@@ -189,6 +205,7 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | Reforma tributária: o que sabemos | [`produto/reforma-tributaria.md`](produto/reforma-tributaria.md) |
 | APIs de apuração da CBS | [`referencias/apuracao-cbs/`](referencias/apuracao-cbs/README.md) |
 | Manuais do Split Payment | [`referencias/split-payment/`](referencias/split-payment/README.md) |
+| Leiaute da chave dos documentos fiscais | [`referencias/documentos-fiscais/`](referencias/documentos-fiscais/README.md) |
 | Design system e wireframes | [`design/`](design/README.md) |
 | Kanban de demandas | [`demandas/README.md`](demandas/README.md) |
 | Tasks do modelo antigo | [`tasks/README.md`](tasks/README.md) |
@@ -208,3 +225,4 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | 2026-11-23 | Landing em postura de pré-lançamento (demanda 028) |
 | 2026-11-24 | Demanda 029: criada `app/apuracao-cbs`, prova de conceito de linha de comando da API de apuração da CBS (quatro consultas, só leitura). Chamada real pendente. A stack do painel continua não decidida |
 | 2026-11-24 | Chamada real da prova de conceito (demanda 029): ciclo comprovado para créditos e débitos, sem dados no retorno; recolhimentos e pagamentos indisponíveis (HTTP 404); não há URL separada de produção restrita |
+| 2026-11-24 | Demanda 030: criado `app/painel`, painel local sem login que lê os arquivos da `apuracao-cbs` (saldo em quatro totais separados, débitos à parte, lista de créditos, detalhe, pendências por emitente, arquivos). Segunda chamada real (outra credencial) trouxe dados: o `ni` vem com 14 dígitos e o schema 1.0.0 exige 8, tratado no painel como divergência conhecida. Leiaute da chave dos documentos fiscais registrado em `referencias/documentos-fiscais/`. Stack do painel local: Node/TypeScript com HTML no servidor |
