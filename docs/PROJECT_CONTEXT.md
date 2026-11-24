@@ -28,6 +28,7 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 |---|---|
 | Landing page (`app/landing-page`) | Redesign escuro concluído e na `main` (tasks 015–027, PR #10). Texto em postura de pré-lançamento desde a demanda 028: diz que o produto está em desenvolvimento e convida para a lista de espera, sem números, depoimentos ou promessas sem base. |
 | Publicação da landing | <https://credito-gov.vercel.app/> mostra a versão clara antiga. O Vercel recusa publicar a partir do repositório (organização privada no plano gratuito), então o redesign **não está no ar** |
+| Prova de conceito da API de apuração da CBS (`app/apuracao-cbs`) | Demanda 029. Aplicação de linha de comando, só leitura, com as quatro consultas; implementada e testada com respostas simuladas. **Chamada real pendente**: depende da credencial do responsável e de pedido explícito. Não é o backend do produto |
 | Backend, banco, autenticação, painel | **Não iniciados.** As tasks 001–005 foram escritas e estão suspensas (ver §5) |
 | Validação de mercado (entrevistas, contadores, tributarista) | Sem registro no repositório |
 
@@ -64,6 +65,20 @@ npm run build   # tsc -b && vite build
 ```
 
 Não há testes automatizados nem CI configurado.
+
+### Prova de conceito da API de apuração da CBS (`app/apuracao-cbs`) — o que existe
+
+Node 24 ou mais novo, TypeScript 6 (ESM), `vitest` nos testes, `oxlint` no lint, `ajv` (JSON Schema 2020-12), `big.js` (decimal exato) e `lossless-json` (números sem perda). Linha de comando, sem servidor nem banco; o estado local fica em `.local/`, ignorado pelo git. Os testes usam respostas simuladas e dados fictícios: não chamam a API real nem leem o `.env`. Esta PoC não decide a stack do painel.
+
+```bash
+cd app/apuracao-cbs
+npm install
+npm test
+npm run lint
+npm run build
+npm run consulta -- <creditos|recolhimentos|pagamentos|debitos> [--tiquete <tiquete>]   # chama a API real
+npm run ler -- <arquivo>                                                                    # sem rede
+```
 
 ### Aplicação (backend e painel) — proposta, não confirmada
 
@@ -116,7 +131,8 @@ credito-gov/
 ├── README.md
 ├── .claude/fluxo.json         # configuração do fluxo de demandas
 ├── app/
-│   └── landing-page/          # única aplicação existente
+│   ├── landing-page/          # landing page
+│   └── apuracao-cbs/          # prova de conceito da API de apuração da CBS (linha de comando)
 └── docs/
     ├── PROJECT_CONTEXT.md     # este arquivo
     ├── README.md              # índice da documentação
@@ -190,3 +206,4 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | 2026-11-23 | Redesign da landing concluído e mergeado na `main`; registrado que o Vercel não publica a partir do repositório |
 | 2026-11-23 | Reescrito na reorganização geral: estado real do projeto, API da Receita rebaixada a hipótese, stack do backend marcada como proposta, fluxo por demandas, nova estrutura de pastas |
 | 2026-11-23 | Landing em postura de pré-lançamento (demanda 028) |
+| 2026-11-24 | Demanda 029: criada `app/apuracao-cbs`, prova de conceito de linha de comando da API de apuração da CBS (quatro consultas, só leitura). Chamada real pendente. A stack do painel continua não decidida |

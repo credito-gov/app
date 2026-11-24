@@ -4,7 +4,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 
 ## Nomeação
 
-- Demanda: `NNN-slug`, três dígitos em sequência, nunca reutilizados, slug em minúsculas com hífen e sem acento. A próxima é a **029**.
+- Demanda: `NNN-slug`, três dígitos em sequência, nunca reutilizados, slug em minúsculas com hífen e sem acento. A próxima é a **030**.
 - Pasta: `docs/demandas/NNN-slug/` com `us.md`, `spec.md` e `tasks.md` (ou só `bug.md`, numa correção).
 - Branch: `feat/NNN-slug` (código), `docs/NNN-slug` (só documentação) ou `fix/NNN-slug` (correção).
 - Modelos em [`_template/`](_template/).
@@ -19,6 +19,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 | NNN | Slug | Título | Status | Branch / PR |
 |---|---|---|---|---|
 | 028 | [revisao-texto-landing](028-revisao-texto-landing/us.md) | Revisar o texto da landing para o pré-lançamento | concluída | [credito-gov/app#27](https://github.com/credito-gov/app/pull/27) |
+| 029 | poc-api-apuracao-cbs | Prova de conceito da API de apuração da CBS | em-review | [credito-gov/app#29](https://github.com/credito-gov/app/pull/29) |
 
 ## Backlog
 
@@ -29,7 +30,6 @@ Sem número: o número é reservado quando a demanda começa. Em ordem sugerida.
 | Publicação da landing: decidir como o site vai ao ar, já que o Vercel recusa o repositório (plano pago, outro provedor ou conta pessoal) | Funcionalidade | Decisão do responsável |
 | CI da landing: lint e build em cada PR | Funcionalidade | — |
 | Atualizar o design system para o tema escuro do redesign | Documentação | — |
-| Prova de conceito da API de apuração da CBS: abrir solicitação de créditos, receber o aviso, baixar e ler o arquivo com credencial própria | Funcionalidade | Credencial gerada pelo responsável |
 | Primeira versão do painel: saldo, origem e pendências | Funcionalidade | Prova de conceito concluída |
 
 ## Fora do repositório, mas travando o backlog

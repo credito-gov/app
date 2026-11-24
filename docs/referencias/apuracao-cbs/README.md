@@ -1,6 +1,6 @@
 # APIs de apuração da CBS — Receita Federal
 
-Resumo da documentação oficial, lida em 2026-11-23. A fonte é sempre a página original; este arquivo só registra o que foi conferido e o que ficou em aberto. A documentação muda com frequência (quatro versões entre setembro e novembro de 2026): confira a versão antes de implementar.
+Resumo da documentação oficial, lida em 2026-11-23 e conferida de novo em 2026-11-24 (demanda 029). A fonte é sempre a página original; este arquivo só registra o que foi conferido e o que ficou em aberto. A documentação muda com frequência (quatro versões entre setembro e novembro de 2026): confira a versão antes de implementar.
 
 ## Fontes
 
@@ -10,14 +10,18 @@ Base: <https://docs.receitafederal.gov.br/apuracao-cbs/>
 |---|---|
 | `guiaapiassincrona.html` (regras comuns) | 1.1, de 14/10/2026 |
 | `credito.html`, `debito.html`, `pagamentos.html`, `recolhimentos.html` | 1.3, de 13/11/2026 |
-| `situacao-solicitacao.html` | — |
+| `situacao-solicitacao.html` | 1.2, de 14/10/2026 |
 | `download.html` | 1.0, de 13/10/2026 |
 | `gerar-darf-ad.html`, `gerar-darf-contrib.html` | 1.0, de 13/11/2026 |
 | `faq.html` | — |
-| `schemas/credito-retorno.schema.json`, `debito-retorno.schema.json`, `pagamento-retorno.schema.json` | 1.0.0 |
+| `schemas/credito-retorno.schema.json`, `recolhimento-retorno.schema.json`, `debito-retorno.schema.json`, `pagamento-retorno.schema.json` | 1.0.0, declarada nas páginas (os arquivos não trazem versão); Draft 2020-12; só o de créditos tem `$id`. Cópias byte a byte baixadas em 2026-11-24 em `app/apuracao-cbs/schemas/oficiais/`, com o `sha256` de cada uma em `versoes.json` |
+| Manual "Receita Integra - Documentação Técnica - Prod - v1.4" (compartilhamento citado no guia, seção 3) | 1.4, de 17/07/2026 |
+| "Manual Plataforma da CBS — Versão Maio/2026" (RTC – Projeto Piloto), trazido pelo responsável | maio/2026. **Anterior à v2**: descreve a API v1 e não é seguido onde diverge |
 | [Notícia oficial, 09/11/2026](https://www.gov.br/fazenda/pt-br/assuntos/noticias/2026/novembro/receita-federal-libera-acesso-as-novas-apis-de-apuracao-da-cbs) (também no [site da Receita](https://www.gov.br/receitafederal/pt-br/assuntos/noticias/2026/novembro/receita-federal-libera-acesso-as-novas-apis-de-apuracao-da-cbs)) | texto lido na versão da Fazenda |
 
-**Não lidos:** schemas de recolhimento e de geração de DARF, e o manual de credenciais do "Receita Integra" (a página não abre sem navegador).
+**Não lidos:** schemas de geração de DARF.
+
+Atualizar um schema é baixar de novo, atualizar o `versoes.json` da aplicação e esta tabela, no mesmo commit.
 
 ## Serviços
 
@@ -96,6 +100,8 @@ Recolhimentos trazem, por DARF e por item: período, vencimento, `niFornecedor`,
 
 ## Ambientes e novidades
 
+Segundo o manual da Plataforma da CBS (maio/2026), há um **Ambiente Beta** de 13/01/2026 a dezembro/2026, com DF-e reais e pagamentos simulados. A URL da produção restrita continua sem fonte. O assistente do portal disse ao responsável que a "URL da API de testes" para token é o endereço de token acima e citou os caminhos v1: **é indício, não fonte**.
+
 Segundo a notícia oficial, as APIs 2.0 estão em **produção restrita (testes)** e em **produção (beta)**, e novos serviços de apuração seriam liberados ainda em novembro de 2026, sem dizer quais. A notícia não fala de terceiros, IBS, split payment nem limites de uso.
 
 ## O que não está documentado
@@ -103,16 +109,24 @@ Segundo a notícia oficial, as APIs 2.0 estão em **produção restrita (testes)
 - **Acesso por software em nome de vários contribuintes.** As respostas trazem `niConsumidor` e há erro "consumidor não autorizado para este NI", mas o modelo de procuração para um terceiro não está descrito.
 - **Por que um crédito está `aApropriar`.** Nenhum campo explica. A relação com o pagamento do fornecedor precisa ser observada na prática.
 - **IBS.** Tudo trata só de CBS.
-- **Token.** Endereço do serviço de token, validade e escopos.
-- **Produção restrita.** O portal lista serviços de "Produção Restrita", mas a URL desse ambiente não aparece.
+- **Token.** O endereço (`POST https://api.receitafederal.gov.br/token`), a validade (1 hora) e o limite (2 tokens por hora) têm fonte: manual Receita Integra v1.4. **Sem fonte:** se há scope e a forma de enviar as credenciais (no corpo ou em Basic); o manual mostra só um diagrama.
+- **Produção restrita.** O portal lista serviços de "Produção Restrita", mas a URL desse ambiente não aparece. A tabela "Ambientes" do manual Receita Integra v1.4 tem só a linha Produção.
 - Se `chaveDFE` vem sempre preenchida nos recolhimentos; total da apuração por período; períodos disponíveis; horários de operação.
 
 ## Divergências dentro da própria documentação
 
-- Limite de chamadas: com "por dia" na FAQ, sem período no guia.
-- `POST /rad/{cnpj}`: o texto pede CNPJ de 14 dígitos, o exemplo usa 8.
-- Vencimento nos pagamentos por RAD: a página diz data, o schema diz data e hora.
-- A página do DARF do contribuinte lista o erro `CNPJ_NAO_ADQUIRENTE`, que parece copiado da página do adquirente.
+Situação de cada uma: **não testada** até a chamada real (demanda 029, task 35). Depois dela, cada linha passa a **confirmada**, **resolvida** ou segue **não testada**.
+
+| # | Divergência | Situação |
+|---|---|---|
+| 1 | **Limite de chamadas.** Guia: "4 chamadas por credencial e por api", sem período, no endpoint de solicitação. FAQ: "por API, por dia e por credencial", só nas APIs de solicitação, com reinício à meia-noite. Manual da Plataforma da CBS (v1): "2 chamadas por dia" na solicitação e "8 chamadas por dia" no download | não testada |
+| 2 | `POST /rad/{cnpj}`: o texto pede CNPJ de 14 dígitos, o exemplo usa 8 | não testada (fora do escopo da demanda 029: a aplicação não chama `/rad`) |
+| 3 | **Vencimento nos pagamentos por RAD.** A página e o exemplo oficial usam data (`"2026-09-20"`); o schema 1.0.0 (`composicaoRAD.vencimento`) exige data e hora (`date-time`). **O próprio exemplo oficial não passa no schema 1.0.0.** A aplicação mantém a validação estrita: se a API real seguir o exemplo, o arquivo é guardado e recusado (código 3), sem resumo | não testada |
+| 4 | A página do DARF do contribuinte lista o erro `CNPJ_NAO_ADQUIRENTE`, que parece copiado da página do adquirente | não testada (fora do escopo) |
+| 5 | **Fim do prazo de processamento.** Guia (seção 5) e FAQ (pergunta 11): a solicitação passa para "status de erro". A página de situação mostra `EXPIRADA` com `codigoErro: "EXPIRADA"`. A aplicação trata os dois como fim | não testada |
+| 6 | **`urlRetorno` ausente ou vazia.** Guia e FAQ mandam enviar `""`; as páginas das consultas (4.4) dizem "sem esse campo, consulte a situação". A aplicação envia `{"urlRetorno":""}`, como no exemplo "sem webhook" das páginas | não testada |
+| 7 | **Validade do arquivo.** 48 h na v2; 24 h no manual da Plataforma da CBS (v1) | não testada |
+| 8 | **Endereços.** O manual da Plataforma da CBS traz `/rtc/apuracao-cbs/v1/{cnpj}` e `/rtc/download/v1/{tiquete}`, com webhook no corpo; a v2 usa `/apuracao-cbs/v2/{servico}/{cnpj}`, com situação e download separados. Vale a v2; os caminhos v1 não estão implementados | não testada |
 
 ## Outros serviços da credencial de chaves secretas
 

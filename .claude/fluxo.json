@@ -6,5 +6,5 @@
   "pastaHandoff": "docs/handoff",
   "pastaWorktrees": ".claude/worktrees",
   "regras": ["AGENTS.md", "docs/PROJECT_CONTEXT.md"],
-  "apps": { "landing-page": "app/landing-page" }
+  "apps": { "landing-page": "app/landing-page", "apuracao-cbs": "app/apuracao-cbs" }
 }

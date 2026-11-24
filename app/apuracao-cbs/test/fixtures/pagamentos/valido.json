@@ -1,0 +1,57 @@
+{
+  "tiqueteSolicitacao": "TIQUETE-FICTICIO-PAGA-0001",
+  "ni": "12345678",
+  "niConsumidor": "12345678000100",
+  "geradoEm": "2026-11-20T10:15:30.000-03:00",
+  "apuracao": [
+    {
+      "dataArrecadacao": "2026-11-10",
+      "pagamentos": [
+        {
+          "numeroDARF": "12345678901234569",
+          "tipo": 1,
+          "niAdquirente": "12345678000100",
+          "composicao": [
+            {
+              "sequencial": 1,
+              "pa": "10/2026",
+              "vencimento": "2026-11-20T00:00:00.000-03:00",
+              "niContribuinte": "12345678000200",
+              "chaveDFE": "FICT-NFE-0001",
+              "principal": 100.00,
+              "multa": 0.00,
+              "juros": 0.00,
+              "total": 100.00
+            },
+            {
+              "sequencial": 2,
+              "pa": "09/2026",
+              "vencimento": "2026-10-20T00:00:00.000-03:00",
+              "chaveDFE": "FICT-NFE-0002",
+              "principal": 40.00,
+              "multa": 2.00,
+              "juros": 0.50,
+              "total": 42.50
+            }
+          ]
+        },
+        {
+          "numeroDARF": "12345678901234570",
+          "tipo": 2,
+          "niContribuinte": "12345678000100",
+          "composicao": [
+            {
+              "sequencial": 1,
+              "pa": "10/2026",
+              "vencimento": "2026-11-20",
+              "principal": 200.10,
+              "multa": 0.00,
+              "juros": 0.00,
+              "total": 200.10
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
