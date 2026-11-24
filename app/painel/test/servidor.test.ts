@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { request } from "node:http";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { iniciarServidor, type ServidorPainel } from "../src/servidor.js";
+import { hostAceito, iniciarServidor, type ServidorPainel } from "../src/servidor.js";
 import { arquivoCreditos, bytes, credito, RAIZ } from "./apoio/construtores.js";
 import { PASTA_FICTICIOS } from "./apoio/painel.js";
 import { nomeArquivo, pastaTemporaria, type PastaTemporaria } from "./apoio/pasta.js";
@@ -73,6 +73,24 @@ describe("escuta e Host (CA-A1, DT-10)", () => {
       expect(r.status, host).toBe(421);
       expect(r.corpo, host).not.toContain("R$");
     }
+  });
+});
+
+describe("Host na porta 80 (rodada 1, D1)", () => {
+  it("na porta 80 o navegador manda o Host sem a porta, e isso é aceito", () => {
+    for (const host of ["127.0.0.1", "localhost", "127.0.0.1:80", "localhost:80"]) expect(hostAceito(host, 80), host).toBe(true);
+  });
+
+  it("em outra porta o Host sem porta continua recusado", () => {
+    expect(hostAceito("127.0.0.1", 5180)).toBe(false);
+    expect(hostAceito("localhost", 5180)).toBe(false);
+    expect(hostAceito("127.0.0.1:5180", 5180)).toBe(true);
+    expect(hostAceito("localhost:5180", 5180)).toBe(true);
+    expect(hostAceito("127.0.0.1:80", 5180)).toBe(false);
+  });
+
+  it("outros nomes seguem recusados, inclusive na porta 80", () => {
+    for (const host of [undefined, "", "evil.example", "evil.example:80", "0.0.0.0", "localhost.evil.example"]) expect(hostAceito(host, 80), String(host)).toBe(false);
   });
 });
 
