@@ -134,12 +134,13 @@ describe("log do erro interno limita a mensagem (rodada 2)", () => {
     }) as typeof process.stderr.write);
     const pasta = await copiaDosFicticios();
     const s = await subir(pasta.caminho, async () => {
-      throw new TypeError(`${"a".repeat(150)}SEGREDO${"b".repeat(500)}`);
+      throw new TypeError(`${"a".repeat(250)}SEGREDO${"b".repeat(500)}`);
     });
     await pedir(s.porta, "/creditos");
     const registro = saida.join("");
     expect(registro).toContain("TypeError");
-    expect(registro).toContain("a".repeat(150));
+    expect(registro).toContain("a".repeat(200));
+    expect(registro).not.toContain("a".repeat(201));
     expect(registro).not.toContain("SEGREDO");
     expect(registro).not.toContain("b".repeat(10));
   });
