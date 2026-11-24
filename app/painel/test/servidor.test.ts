@@ -3,7 +3,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { request } from "node:http";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { iniciarServidor, type ServidorPainel } from "../src/servidor.js";
 import { arquivoCreditos, bytes, credito, RAIZ } from "./apoio/construtores.js";
 import { PASTA_FICTICIOS } from "./apoio/painel.js";
@@ -73,6 +73,35 @@ describe("escuta e Host (CA-A1, DT-10)", () => {
       expect(r.status, host).toBe(421);
       expect(r.corpo, host).not.toContain("R$");
     }
+  });
+});
+
+describe("erro interno (rodada 1, grupo B)", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("devolve 500 com os cabeçalhos de segurança e registra o erro e a rota em stderr, sem valores", async () => {
+    const saida: string[] = [];
+    vi.spyOn(process.stderr, "write").mockImplementation(((texto: string | Uint8Array) => {
+      saida.push(String(texto));
+      return true;
+    }) as typeof process.stderr.write);
+    const pasta = await copiaDosFicticios();
+    const s = await subir(pasta.caminho, async () => {
+      throw new TypeError("defeito simulado do painel");
+    });
+    const r = await pedir(s.porta, "/creditos?busca=ABCDE");
+    expect(r.status).toBe(500);
+    expect(r.corpo).toBe("Erro interno.");
+    expect(r.cabecalhos["content-security-policy"]).toBe(CSP);
+    expect(r.cabecalhos["x-content-type-options"]).toBe("nosniff");
+    expect(r.cabecalhos["referrer-policy"]).toBe("no-referrer");
+    expect(r.cabecalhos["cache-control"]).toBe("no-store");
+    const registro = saida.join("");
+    expect(registro).toContain("/creditos");
+    expect(registro).toContain("TypeError");
+    expect(registro).toContain("defeito simulado do painel");
+    expect(registro).not.toContain("ABCDE");
+    expect(registro).not.toContain("R$");
   });
 });
 
