@@ -104,7 +104,7 @@ describe("filtros (CA-10)", () => {
   });
 
   it("busca por trecho da chave", () => {
-    const trecho = X1.slice(10, 30);
+    const trecho = X1.slice(35, 43);
     expect(chaves(listarCreditos(base, consulta(`busca=${trecho}`)))).toEqual([X1]);
     expect(chaves(listarCreditos(base, consulta("busca=emitente")))).toEqual([SEM]);
     expect(chaves(listarCreditos(base, consulta("busca=SEMEMIT")))).toEqual([]);
