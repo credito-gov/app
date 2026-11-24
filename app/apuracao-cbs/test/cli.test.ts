@@ -7,7 +7,7 @@ import { RESPOSTA_TOKEN, bytesDaFixture, criarAmbienteCli, roteirizarCiclo, type
 import { ID, SEGREDO, TOKEN, URL_ASSINADA, URL_BASE, URL_TOKEN } from "./apoio/ficticios.js";
 
 /** Serviços que ainda não têm leitor nesta etapa (o estado intermediário some na task 28). */
-const SEM_LEITOR = ["pagamentos", "debitos"];
+const SEM_LEITOR = ["debitos"];
 
 function trilha(a: AmbienteCli): string[] {
   return a.api.pedidos.map((p) => {

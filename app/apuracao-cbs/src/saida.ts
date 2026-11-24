@@ -1,5 +1,6 @@
 import { formatar } from "./dinheiro.js";
 import type { ResumoCreditos } from "./leitores/creditos.js";
+import type { ResumoPagamentos } from "./leitores/pagamentos.js";
 import type { ResumoRecolhimentos } from "./leitores/recolhimentos.js";
 import type { NomeServico } from "./servicos.js";
 import type { Divergencia } from "./validacao.js";
@@ -14,7 +15,7 @@ export interface Cabecalho {
   caminho: string;
 }
 
-export type Resumo = ResumoCreditos | ResumoRecolhimentos;
+export type Resumo = ResumoCreditos | ResumoRecolhimentos | ResumoPagamentos;
 
 /** Cabeçalho comum dos resumos. O niConsumidor não é mostrado (pode ser CPF). */
 export function cabecalhoDe(servico: NomeServico, dados: unknown, caminho: string): Cabecalho {
@@ -55,6 +56,20 @@ function linhasDeRecolhimentos(resumo: ResumoRecolhimentos): string[] {
   return linhas;
 }
 
+function linhasDePagamentos(resumo: ResumoPagamentos): string[] {
+  const linhas: string[] = [];
+  for (const p of resumo.periodos) {
+    linhas.push("", `Período ${p.pa}`);
+    for (const l of p.linhas) {
+      linhas.push(`  ${l.origem.nome} | DARF ${l.numeroDARF} | arrecadação ${l.dataArrecadacao} | total ${formatar(l.total)}`);
+    }
+    linhas.push(
+      `  Período ${p.pa}: ${p.quantidade} item(ns) | total RAD ${formatar(p.totalRAD)} | total PCONT ${formatar(p.totalPCONT)} | total geral ${formatar(p.totalGeral)}`,
+    );
+  }
+  return linhas;
+}
+
 export function linhasDoResumo(cabecalho: Cabecalho, resumo: Resumo): string[] {
   const linhas = [
     `Resumo da consulta de ${cabecalho.servico}`,
@@ -66,7 +81,9 @@ export function linhasDoResumo(cabecalho: Cabecalho, resumo: Resumo): string[] {
     linhas.push("", MENSAGEM_SEM_ALTERACOES);
     return linhas;
   }
-  linhas.push(...(resumo.servico === "creditos" ? linhasDeCreditos(resumo) : linhasDeRecolhimentos(resumo)));
+  if (resumo.servico === "creditos") linhas.push(...linhasDeCreditos(resumo));
+  else if (resumo.servico === "recolhimentos") linhas.push(...linhasDeRecolhimentos(resumo));
+  else linhas.push(...linhasDePagamentos(resumo));
   return linhas;
 }
 

@@ -5,6 +5,7 @@ import { abrirGuardado, guardar } from "./armazenamento.js";
 import { ErroConfig, lerConfig } from "./config.js";
 import { ErroApi, ErroUso } from "./erros.js";
 import { resumirCreditos } from "./leitores/creditos.js";
+import { resumirPagamentos } from "./leitores/pagamentos.js";
 import { resumirRecolhimentos } from "./leitores/recolhimentos.js";
 import { criarRedator } from "./redacao.js";
 import { criarRegistro } from "./registro.js";
@@ -32,6 +33,7 @@ type Leitor = (dados: unknown) => Resumo;
 const LEITORES: Partial<Record<NomeServico, Leitor>> = {
   creditos: resumirCreditos,
   recolhimentos: resumirRecolhimentos,
+  pagamentos: resumirPagamentos,
 };
 
 const USO = [
