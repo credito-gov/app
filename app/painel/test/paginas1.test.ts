@@ -92,7 +92,8 @@ describe("saldo na página inicial (CA-7, CA-9, CA-D2)", () => {
     expect(corpo).toContain("R$ 50,00"); // apropriado
     expect(corpo).toContain("R$ 20,00"); // utilizado
     expect(corpo).toContain("R$ 30,00"); // saldo credor
-    expect(corpo.indexOf("10/2026")).toBeLessThan(corpo.indexOf("11/2026"));
+    expect(corpo.indexOf(">10/2026<")).toBeGreaterThan(0);
+    expect(corpo.indexOf(">10/2026<")).toBeLessThan(corpo.indexOf(">11/2026<"));
   });
 
   it("diz que mostra só CBS e que o IBS não está na fonte", async () => {
