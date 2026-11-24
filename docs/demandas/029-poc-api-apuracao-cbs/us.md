@@ -1,7 +1,8 @@
 # 029-poc-api-apuracao-cbs — Prova de conceito da API de apuração da CBS
 
-- **Status:** spec-em-revisão
+- **Status:** tasks-em-revisão
 - **US aprovada:** 2026-11-23, versão do commit `9dbb422`
+- **Spec aprovada:** 2026-11-24, versão do commit `d0f405d` (spec-aprovada; decisões D-1 e D-2 registradas na Spec)
 - **Branch:** `feat/029-poc-api-apuracao-cbs`
 - **Worktree:** `.claude/worktrees/029-poc-api-apuracao-cbs`
 - **Solicitante / data:** responsável pelo produto, 2026-11-23
