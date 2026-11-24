@@ -414,6 +414,27 @@ describe("falha passageira de leitura não vira recusa permanente (rodada 1, A2)
   });
 });
 
+describe("tabelas largas rolam na horizontal (D-8, rodada 1, G1)", () => {
+  it("o contêiner da tabela tem overflow-x: auto e toda tabela está dentro de um contêiner assim", async () => {
+    const { get } = await painelCom(P1);
+    const css = (await get("/estilo.css")).corpo;
+    expect(css).toMatch(/\.bloco\s*\{[^}]*overflow-x:\s*auto/);
+    for (const url of ["/", "/creditos", "/pendencias", "/pendencias?grupo=nao-identificado", "/arquivos"]) {
+      const corpo = (await get(url)).corpo;
+      // Cada <table> tem de abrir depois de um <section class="bloco"> ainda não fechado.
+      const abertas = (corpo.match(/<section class="bloco">/g) ?? []).length;
+      const fechadas = (corpo.match(/<\/section>/g) ?? []).length;
+      expect(abertas, url).toBe(fechadas);
+      for (const m of corpo.matchAll(/<table/g)) {
+        const antes = corpo.slice(0, m.index);
+        const abertasAntes = (antes.match(/<section class="bloco">/g) ?? []).length;
+        const fechadasAntes = (antes.match(/<\/section>/g) ?? []).length;
+        expect(abertasAntes - fechadasAntes, url).toBeGreaterThan(0);
+      }
+    }
+  });
+});
+
 describe("rotas e estilo (D-8)", () => {
   it("rota inexistente é 404", async () => {
     const { get } = await painelCom(P1);

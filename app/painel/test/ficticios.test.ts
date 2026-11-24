@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { criarCache, identificarArquivo, lerPasta, type ArquivoLido } from "../src/nucleo/arquivos.js";
+import { compararInstantes } from "../src/nucleo/datas.js";
 import { lerSemPerda } from "../src/nucleo/json.js";
 import { MOTIVOS } from "../src/nucleo/emitente.js";
 import { montarVisao, type Visao } from "../src/nucleo/visao.js";
@@ -175,6 +176,26 @@ describe("o que o real não trouxe (CA-17)", () => {
   it("um arquivo vazio", async () => {
     expect((await bruto(NOMES.vazio)).apuracao).toEqual([]);
   });
+});
+
+describe("datas coerentes nos arquivos de volume (rodada 1, G2)", () => {
+  for (const nome of GERADOS) {
+    it(`${nome}: emissão, registro, atualização e geradoEm em ordem`, async () => {
+      const dados = await bruto(nome);
+      const geradoEm = dados.geradoEm as string;
+      const itens = ["creditos", "debitos"].flatMap((campo) => itensDe(dados, campo));
+      expect(itens.length).toBeGreaterThan(800);
+      let fora = 0;
+      for (const i of itens) {
+        const ordem =
+          compararInstantes(i.emissao as string, i.registro as string) <= 0 &&
+          compararInstantes(i.registro as string, i.atualizacao as string) <= 0 &&
+          compararInstantes(i.atualizacao as string, geradoEm) <= 0;
+        if (!ordem) fora++;
+      }
+      expect(fora).toBe(0);
+    });
+  }
 });
 
 describe("débitos (CA-D3, O-18 a O-25)", () => {
