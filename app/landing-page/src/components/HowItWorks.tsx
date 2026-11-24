@@ -5,13 +5,13 @@ const STEPS = [
     number: '01',
     title: 'Suas compras viram crédito',
     description:
-      'O CreditoGov vai reunir o CBS e o IBS destacados nas notas de compra da sua empresa, com a nota e o fornecedor de cada valor.',
+      'O CreditoGov vai reunir a CBS destacada nas notas de compra da sua empresa, com a nota e o fornecedor de cada valor.',
   },
   {
     number: '02',
     title: 'Cada crédito ganha um status',
     description:
-      'Confirmado quando o imposto do fornecedor foi quitado; pendente enquanto não foi. É o que a regra da CBS e do IBS exige para o crédito valer.',
+      'Confirmado quando o imposto do fornecedor foi quitado; pendente enquanto não foi. É o que a regra da CBS exige para o crédito valer.',
   },
   {
     number: '03',
@@ -58,8 +58,8 @@ export default function HowItWorks() {
             Do imposto na nota ao crédito no caixa
           </h2>
           <p className="max-w-[520px] text-[16px] text-[#64748b]">
-            Este é o plano da primeira versão. A forma de conectar os dados da sua empresa ainda
-            está em definição.
+            Este é o plano da primeira versão, que começa pela CBS. A forma de conectar os dados
+            da sua empresa ainda está em definição.
           </p>
         </div>
 
