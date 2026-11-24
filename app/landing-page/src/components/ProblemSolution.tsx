@@ -1,33 +1,32 @@
 const ITEMS = [
   {
+    problemTitle: 'Crédito que depende do fornecedor',
+    problemText:
+      'O crédito da compra só pode ser usado quando o imposto do fornecedor é quitado. Hoje ninguém acompanha isso nota a nota.',
+    solutionTitle: 'Confirmado e pendente, separados',
+    solutionText:
+      'Separar o crédito de CBS já confirmado do que ainda depende do fornecedor.',
+  },
+  {
     problemTitle: 'Planilha manual',
     problemText:
-      'Toda apuração depende de alguém consolidar notas fiscais e cruzar débitos à mão, todo mês.',
-    solutionTitle: 'O número se atualiza sozinho às 00:05',
-    solutionText:
-      'Sincronizamos com a Receita Federal todo dia de madrugada — o saldo já está pronto quando você abre o painel.',
+      'Saber de qual compra veio cada crédito exige cruzar notas e pagamentos à mão, todo mês.',
+    solutionTitle: 'A origem de cada crédito',
+    solutionText: 'Mostrar a compra, a nota e o fornecedor de cada valor.',
   },
   {
-    problemTitle: 'Crédito prescreve sem ninguém ver',
+    problemTitle: 'Caixa sem previsão',
     problemText:
-      'Créditos com prazo de uso passam despercebidos até vencer, e a empresa simplesmente perde o direito.',
-    solutionTitle: 'Cada crédito mostra os dias restantes',
+      'O imposto destacado na nota não aparece como dinheiro a receber, e o caixa das próximas semanas fica no escuro.',
+    solutionTitle: 'Projeção do que deve ser confirmado',
     solutionText:
-      'O painel avisa quando um crédito está perto de expirar, com o valor exposto para você agir a tempo.',
-  },
-  {
-    problemTitle: 'Falta caixa com crédito parado no papel',
-    problemText:
-      'A empresa tem crédito tributário de sobra, mas o caixa aperta porque esse valor não vira dinheiro rápido.',
-    solutionTitle: 'Compensar ou antecipar em dois cliques',
-    solutionText:
-      'Use o crédito para abater um débito de CBS/IBS ou antecipe com uma fintech parceira, direto no painel.',
+      'Projetar quanto crédito deve ser confirmado nas próximas semanas, com base nas compras já feitas.',
   },
 ]
 
 export default function ProblemSolution() {
   return (
-    <section className="w-full bg-white px-6 py-16 md:px-[48px]">
+    <section id="problema" className="w-full scroll-mt-[80px] bg-white px-6 py-16 md:px-[48px]">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-8">
         <div className="flex flex-col items-center gap-2 text-center">
           <p className="text-[12px] font-semibold tracking-[0.96px] text-[#9ca3af] uppercase">
@@ -53,7 +52,7 @@ export default function ProblemSolution() {
               </div>
               <div className="flex flex-1 flex-col items-start gap-[6px] bg-white p-5">
                 <p className="text-[11px] font-bold tracking-[0.44px] text-[#047857]">
-                  COM O CREDITOGOV
+                  O QUE O CREDITOGOV VAI FAZER
                 </p>
                 <p className="text-[14px] font-semibold text-[#111827]">{item.solutionTitle}</p>
                 <p className="text-[13.5px] leading-[1.45] text-[#4b5563]">{item.solutionText}</p>

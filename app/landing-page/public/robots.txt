@@ -34,4 +34,4 @@ Disallow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://[dominio-a-definir]/sitemap.xml
+Sitemap: https://credito-gov.vercel.app/sitemap.xml
