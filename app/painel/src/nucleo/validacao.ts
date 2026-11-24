@@ -81,6 +81,30 @@ function checarDatas(valor: unknown, caminho: string, chave: string, saida: stri
   }
 }
 
+/** Os schemas oficiais têm poucos níveis; acima disto o conteúdo não é verificado (as checagens recursivas estourariam a pilha). */
+const PROFUNDIDADE_MAXIMA = 64;
+export const MOTIVO_ANINHADO = "o conteúdo não pôde ser verificado: estrutura aninhada demais";
+
+/** Maior profundidade de colchetes e chaves do texto, sem recursão; ignora o que está dentro de strings. */
+function profundidadeDe(texto: string): number {
+  let nivel = 0;
+  let maximo = 0;
+  let emTexto = false;
+  for (let i = 0; i < texto.length; i++) {
+    const c = texto.charCodeAt(i);
+    if (emTexto) {
+      if (c === 0x5c) i++;
+      else if (c === 0x22) emTexto = false;
+    } else if (c === 0x22) emTexto = true;
+    else if (c === 0x5b || c === 0x7b) {
+      if (++nivel > maximo) maximo = nivel;
+    } else if (c === 0x5d || c === 0x7d) nivel--;
+  }
+  return maximo;
+}
+
+const RECUSA_ANINHADO: ResultadoValidacao = { situacao: "recusado", motivos: [MOTIVO_ANINHADO], total: 1 };
+
 export function criarValidador(): Validador {
   const ajv = new Ajv2020({ allErrors: true, multipleOfPrecision: 4 });
   adicionarFormatos(ajv);
@@ -103,9 +127,11 @@ export function criarValidador(): Validador {
       let objeto: unknown;
       try {
         objeto = JSON.parse(texto);
-      } catch {
+      } catch (e) {
+        if (e instanceof RangeError) return RECUSA_ANINHADO;
         return { situacao: "recusado", motivos: ["JSON inválido: o arquivo não pôde ser lido"], total: 1 };
       }
+      if (profundidadeDe(texto) > PROFUNDIDADE_MAXIMA) return RECUSA_ANINHADO;
 
       const validar = doServico(servico);
       const erros = validar(objeto) ? [] : (validar.errors ?? []);
