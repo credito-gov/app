@@ -1,0 +1,56 @@
+{
+  "tiqueteSolicitacao": "TIQUETE-FICTICIO-DEBI-0001",
+  "ni": "12345678",
+  "niConsumidor": "12345678000100",
+  "geradoEm": "2026-11-20T10:15:30.000-03:00",
+  "apuracao": [
+    {
+      "pa": "10/2026",
+      "debitos": [
+        {
+          "origem": 0,
+          "documento": 55,
+          "chave": "FICT-NFE-0101",
+          "emissao": "2026-10-05T09:00:00.000-03:00",
+          "registro": "2026-10-05T09:05:00.000-03:00",
+          "atualizacao": "2026-11-18T08:00:00.000-03:00",
+          "cbs": {
+            "apurado": 800.00,
+            "extinto": 300.00,
+            "saldoDevedor": 500.00
+          }
+        },
+        {
+          "origem": 0,
+          "documento": 65,
+          "chave": "FICT-NFCE-0102",
+          "emissao": "2026-10-09T09:00:00.000-03:00",
+          "registro": "2026-10-09T09:05:00.000-03:00",
+          "atualizacao": "2026-11-18T08:00:00.000-03:00",
+          "cbs": {
+            "apurado": 150.07,
+            "saldoDevedor": 150.07
+          }
+        }
+      ]
+    },
+    {
+      "pa": "11/2026",
+      "debitos": [
+        {
+          "origem": 0,
+          "documento": 55,
+          "chave": "FICT-NFE-0103",
+          "emissao": "2026-11-04T09:00:00.000-03:00",
+          "registro": "2026-11-04T09:05:00.000-03:00",
+          "atualizacao": "2026-11-19T08:00:00.000-03:00",
+          "cbs": {
+            "apurado": 90.10,
+            "extinto": 90.10,
+            "saldoDevedor": 0.00
+          }
+        }
+      ]
+    }
+  ]
+}
