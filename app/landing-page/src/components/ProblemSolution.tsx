@@ -5,7 +5,7 @@ const ITEMS = [
       'O crédito da compra só pode ser usado quando o imposto do fornecedor é quitado. Hoje ninguém acompanha isso nota a nota.',
     solutionTitle: 'Confirmado e pendente, separados',
     solutionText:
-      'Separar o crédito já confirmado do que ainda depende do fornecedor, de CBS e de IBS.',
+      'Separar o crédito de CBS já confirmado do que ainda depende do fornecedor.',
   },
   {
     problemTitle: 'Planilha manual',
