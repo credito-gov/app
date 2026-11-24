@@ -6,7 +6,6 @@ import { Ajv2020 } from "ajv/dist/2020.js";
 import formatosModulo, { type FormatsPlugin } from "ajv-formats";
 import { isLosslessNumber, parse as parseLossless } from "lossless-json";
 import { analisarData } from "./datas.js";
-import { lerSemPerda } from "./json.js";
 
 // ajv-formats é CommonJS: no ESM do Node o plugin útil vem em .default.
 const adicionarFormatos = ((formatosModulo as unknown as { default?: FormatsPlugin }).default ?? formatosModulo) as unknown as FormatsPlugin;
@@ -103,6 +102,20 @@ function profundidadeDe(texto: string): number {
   return maximo;
 }
 
+export const MOTIVO_CHAVE_REPETIDA = "JSON inválido: chave repetida";
+
+/** Troca cada número sem perda pelo texto original; só roda depois do limite de profundidade. */
+function numerosComoTexto(valor: unknown): unknown {
+  if (isLosslessNumber(valor)) return valor.value;
+  if (Array.isArray(valor)) return valor.map(numerosComoTexto);
+  if (valor !== null && typeof valor === "object") {
+    const saida: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(valor)) saida[k] = numerosComoTexto(v);
+    return saida;
+  }
+  return valor;
+}
+
 const RECUSA_ANINHADO: ResultadoValidacao = { situacao: "recusado", motivos: [MOTIVO_ANINHADO], total: 1 };
 
 export function criarValidador(): Validador {
@@ -133,6 +146,15 @@ export function criarValidador(): Validador {
       }
       if (profundidadeDe(texto) > PROFUNDIDADE_MAXIMA) return RECUSA_ANINHADO;
 
+      // JSON.parse aceita chave repetida; o parse sem perda não. Uma só leitura serve às duas checagens.
+      let sem: unknown;
+      try {
+        sem = parseLossless(texto);
+      } catch (e) {
+        const repetida = e instanceof SyntaxError && e.message.startsWith("Duplicate key");
+        return { situacao: "recusado", motivos: [repetida ? MOTIVO_CHAVE_REPETIDA : "JSON inválido: o arquivo não pôde ser lido"], total: 1 };
+      }
+
       const validar = doServico(servico);
       const erros = validar(objeto) ? [] : (validar.errors ?? []);
       const ni = (objeto as { ni?: unknown } | null)?.ni;
@@ -141,13 +163,13 @@ export function criarValidador(): Validador {
         e.instancePath === "/ni" && e.keyword === "pattern" && typeof ni === "string" && /^\d{14}$/.test(ni);
       const naoTolerados = erros.filter((e) => !tolerado(e));
       const divergencias: string[] = naoTolerados.map((e) => `${e.instancePath || "/"}: ${e.message ?? "divergência do schema"}`);
-      checarNumeros(parseLossless(texto), "", "", divergencias);
+      checarNumeros(sem, "", "", divergencias);
       checarDatas(objeto, "", "", divergencias);
 
       if (divergencias.length > 0) {
         return { situacao: "recusado", motivos: divergencias.slice(0, MAXIMO_LISTADO), total: divergencias.length };
       }
-      const dados = lerSemPerda(texto);
+      const dados = numerosComoTexto(sem);
       return erros.length > 0 ? { situacao: "aceito-com-divergencia", motivos: [MOTIVO_NI], dados } : { situacao: "aceito", motivos: [], dados };
     },
   };

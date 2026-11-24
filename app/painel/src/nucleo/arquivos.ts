@@ -1,6 +1,7 @@
 // Lista a pasta, identifica o serviço pelo nome e valida cada arquivo. Só usa readdir, stat e readFile (CA-A3).
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { descreverErro, nomeDoErro } from "./registro.js";
 import { criarValidador, type ServicoValidavel, type SituacaoValidacao, type Validador } from "./validacao.js";
 
 export type Servico = ServicoValidavel | "pagamentos";
@@ -62,6 +63,9 @@ function codigoDeSistema(e: unknown): string | null {
   return typeof codigo === "string" && CODIGO_DE_SISTEMA.test(codigo) ? codigo : null;
 }
 
+/** Acima disto o arquivo não é lido (o maior arquivo real observado tem menos de 1 MB). */
+const LIMITE_BYTES = 200 * 1024 * 1024;
+
 const PADRAO_NOME = /^\d{8}T\d{6}Z_(creditos|recolhimentos|pagamentos|debitos)_(.+?)(?:_(\d+))?\.json$/;
 
 /** Serviço e tíquete a partir do nome no padrão da apuracao-cbs; null se o nome não segue o padrão. */
@@ -105,25 +109,34 @@ async function lerUm(nome: string, caminho: string, tamanho: number, mtimeMs: nu
     if (codigo === null) throw e;
     return { ...base, servico: id.servico, situacao: "recusado", motivos: [`o arquivo não pôde ser lido (${codigo})`], transitorio: true };
   }
-  // Só a leitura é de E/S: um erro daqui para baixo é defeito do painel e propaga.
-  const r = validador.validar(id.servico, conteudo);
+  // Daqui para baixo, qualquer exceção é deste arquivo: recusa só ele, registra e não guarda (defeito do painel ou do arquivo).
+  try {
+    return interpretar(base, id.servico, validador, conteudo);
+  } catch (e) {
+    process.stderr.write(`Erro interno ao verificar ${nome}: ${descreverErro(e)}\n`);
+    return { ...base, servico: id.servico, situacao: "recusado", motivos: [`erro interno ao verificar o arquivo (${nomeDoErro(e)})`], transitorio: true };
+  }
+}
+
+function interpretar(base: { nome: string; tamanho: number; mtimeMs: number }, servico: ServicoValidavel, validador: Validador, conteudo: Uint8Array): ArquivoLido {
+  const r = validador.validar(servico, conteudo);
   if (r.situacao === "recusado") {
     const motivos = [...r.motivos];
     const restantes = (r.total ?? motivos.length) - motivos.length;
     if (restantes > 0) motivos.push(`e mais ${restantes} ${restantes === 1 ? "divergência" : "divergências"}`);
-    return { ...base, servico: id.servico, situacao: "recusado", motivos };
+    return { ...base, servico, situacao: "recusado", motivos };
   }
 
   const dados = r.dados as Objeto;
   const ni = typeof dados.ni === "string" ? dados.ni : "";
   return {
     ...base,
-    servico: id.servico,
+    servico,
     situacao: r.situacao,
     motivos: r.motivos,
     geradoEm: typeof dados.geradoEm === "string" ? dados.geradoEm : undefined,
     raiz: ni.slice(0, 8),
-    quantidade: contarItens(id.servico, dados),
+    quantidade: contarItens(servico, dados),
     dados,
   };
 }
@@ -172,6 +185,10 @@ export async function lerPasta(pasta: string, opcoes: OpcoesLeitura = {}): Promi
     const guardado = cache?.get(nome);
     if (guardado && guardado.tamanho === info.size && guardado.mtimeMs === info.mtimeMs) {
       arquivos.push(guardado.arquivo);
+      continue;
+    }
+    if (info.size > LIMITE_BYTES) {
+      arquivos.push(recusa(`arquivo grande demais para o painel: ${Math.round(info.size / (1024 * 1024))} MB`, info.size, info.mtimeMs, false));
       continue;
     }
     const arquivo = await lerUm(nome, caminho, info.size, info.mtimeMs, opcoes);

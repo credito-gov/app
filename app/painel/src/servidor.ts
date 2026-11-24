@@ -1,6 +1,7 @@
 // Servidor HTTP local (CA-A1, DT-10): escuta só em 127.0.0.1, confere o Host, aceita só GET e HEAD
 // e põe os cabeçalhos de segurança em toda resposta. Não tem login: só aceita conexão da própria máquina.
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { descreverErro } from "./nucleo/registro.js";
 import { criarPainel, type Resposta } from "./rotas.js";
 
 export interface OpcoesServidor {
@@ -39,15 +40,10 @@ export function hostAceito(host: string | undefined, porta: number): boolean {
   return aceitos.includes(host);
 }
 
-const MAXIMO_MENSAGEM = 200;
-
 /** Registra o erro interno em stderr com a rota (sem a query; a mensagem entra truncada, pois pode citar conteúdo de arquivo). */
 function registrarErro(url: string, e: unknown): void {
   const rota = url.split("?")[0];
-  const pilha = (e instanceof Error ? (e.stack ?? "") : "").split("\n").slice(1, 6).join("\n");
-  const mensagem = e instanceof Error ? (e.message.length > MAXIMO_MENSAGEM ? `${e.message.slice(0, MAXIMO_MENSAGEM)}...` : e.message) : "";
-  const detalhe = e instanceof Error ? `${e.name}: ${mensagem}\n${pilha}` : "erro que não é Error";
-  process.stderr.write(`Erro interno em GET ${rota}: ${detalhe}\n`);
+  process.stderr.write(`Erro interno em GET ${rota}: ${descreverErro(e)}\n`);
 }
 
 export async function iniciarServidor(opcoes: OpcoesServidor): Promise<ServidorPainel> {
