@@ -130,3 +130,12 @@ export class ErroApi extends Error {
     this.motivo = dados.motivo;
   }
 }
+
+/** Uso incorreto ou configuração inválida (código de saída 2). */
+export class ErroUso extends Error {
+  readonly codigoSaida = 2;
+  constructor(mensagem: string) {
+    super(mensagem);
+    Object.defineProperty(this, "name", { value: "ErroUso", enumerable: false });
+  }
+}
