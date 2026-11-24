@@ -28,7 +28,7 @@ describe("cache e corpo do token (F, C)", () => {
     t.api.rota("POST", "/token", { status: 200, corpoRejeita: erroDeTempo() });
     const e = await falha(t.token.obter());
     expect(e.message).toContain("corpo da resposta não pôde ser lido (tempo esgotado)");
-    expect(e.message).toContain("contou no limite de 2 tokens por hora");
+    expect(e.message).toContain("contado no controle local do limite de 2 tokens por hora");
     expect(t.registro.pedidosDeTokenDesde(new Date(0))).toHaveLength(1);
   });
 
@@ -37,13 +37,13 @@ describe("cache e corpo do token (F, C)", () => {
     a.api.rota("POST", "/token", { status: 200, corpo: "<html>x</html>" });
     const naoJson = await falha(a.token.obter());
     expect(naoJson.message).toContain("não é um objeto JSON");
-    expect(naoJson.message).toContain("contou no limite");
+    expect(naoJson.message).toContain("controle local do limite");
 
     const b = montarClientes("creditos", { semTokenPadrao: true });
     b.api.rota("POST", "/token", { status: 200, corpo: { token_type: "Bearer" } });
     const semCampo = await falha(b.token.obter());
     expect(semCampo.message).toContain("não trouxe access_token");
     expect(semCampo.message).not.toContain("não é um objeto JSON");
-    expect(semCampo.message).toContain("contou no limite");
+    expect(semCampo.message).toContain("controle local do limite");
   });
 });

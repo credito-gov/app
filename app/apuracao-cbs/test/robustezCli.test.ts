@@ -45,7 +45,7 @@ describe("depois do tíquete conhecido, toda falha termina com o comando de reto
     const a = criarAmbienteCli();
     a.api.rota("POST", "/token", { status: 200, corpoRejeita: erroDeTempo() });
     expect(await a.rodar(["consulta", "creditos"])).toBe(1);
-    expect(a.saida.texto()).toContain("contou no limite de 2 tokens por hora");
+    expect(a.saida.texto()).toContain("contado no controle local do limite de 2 tokens por hora");
     expect(a.api.contar("POST", "/creditos/")).toBe(0);
   });
 

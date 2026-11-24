@@ -266,7 +266,7 @@ describe("erros no pedido de token", () => {
       const e = await falha(t.cliente.obter());
       expect(e.http).toBe(http);
       expect(e.message).toContain("Credencial recusada");
-      expect(e.message).toContain("Restam 1 pedido(s) de token");
+      expect(e.message).toContain("Restam 1 pedido(s) de token nesta hora pelo controle local");
       expect(t.api.pedidos).toHaveLength(1);
       expect(existsSync(join(t.pastaLocal, "token.json"))).toBe(false);
       expect(JSON.parse(readFileSync(join(t.pastaLocal, "chamadas.jsonl"), "utf8"))).toMatchObject({ tipo: "token", http });

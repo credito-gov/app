@@ -88,7 +88,7 @@ describe("ErroApi", () => {
       expect(e.message).toContain("Credencial recusada");
       expect(e.message).toContain("APURACAO_TOKEN_CREDENCIAIS");
       expect(e.message).toContain("nova tentativa");
-      expect(e.message).toContain("Restam 1 pedido(s) de token");
+      expect(e.message).toContain("Restam 1 pedido(s) de token nesta hora pelo controle local");
     }
   });
 
@@ -223,6 +223,7 @@ describe("mensagens da rodada de correção (G)", () => {
     expect(e429.message).toContain("Espere");
     const e500 = new ErroApi({ tipoChamada: "token", servico: "creditos", http: 500 }, redator);
     expect(e500.message).toContain("Tente mais tarde");
-    expect(e500.message).toContain("contou no limite");
+    expect(e500.message).toContain("controle local");
+    expect(e500.message).not.toContain("contou no limite");
   });
 });

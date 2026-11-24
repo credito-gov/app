@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { criarRegistro } from "../src/registro.js";
@@ -159,6 +159,8 @@ ${extra}`;
   function com(conteudo: string) {
     const pastaLocal = pastaTemporaria();
     writeFileSync(join(pastaLocal, "chamadas.jsonl"), conteudo);
+    // A linha sem data válida recebe a data de modificação do arquivo: aqui, o mesmo instante do relógio do teste.
+    utimesSync(join(pastaLocal, "chamadas.jsonl"), new Date(2026, 10, 23, 10, 0, 0), new Date(2026, 10, 23, 10, 0, 0));
     const avisos: string[] = [];
     const registro = criarRegistro({
       pastaLocal,
@@ -185,7 +187,7 @@ ${extra}`;
     expect(t.avisos[0]).toContain("linha 1");
   });
 
-  it("linha ilegível conta como pedido de token no instante atual (modo conservador)", () => {
+  it("linha ilegível conta como pedido de token na data de modificação do arquivo (modo conservador, mas finito)", () => {
     const t = com("{lixo\n");
     const desde = t.registro.pedidosDeTokenDesde(new Date(2026, 10, 23, 9, 0, 0));
     expect(desde.map((d) => d.getTime())).toEqual([new Date(2026, 10, 23, 10, 0, 0).getTime()]);
