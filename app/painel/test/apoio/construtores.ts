@@ -121,7 +121,7 @@ function cabecalho(o: CabecalhoOpts, padraoTiquete: string): Obj {
   return {
     tiqueteSolicitacao: o.tiquete ?? padraoTiquete,
     ni,
-    niConsumidor: o.niConsumidor ?? ni,
+    niConsumidor: o.niConsumidor ?? NI14,
     geradoEm: o.geradoEm ?? GERADO,
   };
 }

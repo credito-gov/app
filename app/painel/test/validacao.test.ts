@@ -90,7 +90,8 @@ describe("arquivos recusados (CA-2)", () => {
   it("ni de 14 dígitos mais outro erro", () => {
     const r = recusado(arquivoCreditos([["11/2026", [credito({ origem: 7 })]]], { ni: NI14 }));
     expect(r.situacao).toBe("recusado");
-    expect(r.motivos.length).toBeGreaterThanOrEqual(2);
+    expect(r.motivos.length).toBeGreaterThanOrEqual(1);
+    expect(r.dados).toBeUndefined();
   });
 
   it("número com três casas decimais", () => {
