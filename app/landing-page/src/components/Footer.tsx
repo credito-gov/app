@@ -38,7 +38,7 @@ export default function Footer() {
           <div className="flex flex-col items-start gap-4">
             <img src={logoLockupWhite} alt="CreditoGov" className="h-[32px] w-auto" />
             <p className="max-w-[280px] text-[13px] leading-[1.55] text-[#94a3b8]">
-              Crédito de CBS/IBS como caixa para pequenas e médias empresas. Em desenvolvimento.
+              Crédito de CBS como caixa para pequenas e médias empresas. Em desenvolvimento.
             </p>
           </div>
 
