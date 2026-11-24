@@ -1,4 +1,4 @@
-import { existsSync, linkSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { constants, copyFileSync, existsSync, linkSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { ErroGravacao, ErroUso, codigoDoErro } from "./erros.js";
 import { buscarServico, type NomeServico } from "./servicos.js";
@@ -10,9 +10,34 @@ function carimboUtc(d: Date): string {
 }
 
 /**
+ * Publica o nome final sem nunca sobrescrever. Devolve false se o nome já existe.
+ * Tenta hard link; se o volume não suporta, copia com COPYFILE_EXCL e remove o destino incompleto que ela criou.
+ */
+function publicar(parcial: string, caminho: string): boolean {
+  try {
+    linkSync(parcial, caminho);
+    return true;
+  } catch (e) {
+    if (codigoDoErro(e) === "EEXIST") return false;
+  }
+  try {
+    copyFileSync(parcial, caminho, constants.COPYFILE_EXCL);
+    return true;
+  } catch (e) {
+    if (codigoDoErro(e) === "EEXIST") return false;
+    try {
+      rmSync(caminho, { force: true });
+    } catch {
+      // o erro principal é o da cópia
+    }
+    throw e;
+  }
+}
+
+/**
  * Grava os bytes exatamente como chegaram, em .local/arquivos, sem sobrescrever.
- * Escreve num nome temporário (.parcial) e só renomeia ao concluir: o nome canônico nunca aponta
- * para um arquivo truncado. Devolve o caminho do arquivo; em falha lança ErroGravacao.
+ * Escreve num nome temporário (.parcial) e só publica o nome final (hard link ou, sem suporte, cópia
+ * exclusiva) depois de completo: o nome canônico nunca aponta para um arquivo truncado. Devolve o caminho do arquivo; em falha lança ErroGravacao.
  */
 export function guardar(opcoes: {
   pastaLocal: string;
@@ -38,19 +63,18 @@ export function guardar(opcoes: {
   try {
     for (let n = 2; ; n += 1) {
       writeFileSync(parcial, opcoes.bytes);
-      try {
-        // linkSync falha com EEXIST se o nome final já existe: nunca sobrescreve, e o nome final nasce completo.
-        linkSync(parcial, caminho);
-        break;
-      } catch (e) {
-        if (codigoDoErro(e) !== "EEXIST") throw e;
-        // Outro arquivo ocupou o nome entre a checagem e a publicação: tenta o próximo sufixo.
-        rmSync(parcial, { force: true });
-        caminho = join(pasta, `${base}_${n}.json`);
-        parcial = `${caminho}.parcial`;
-      }
+      if (publicar(parcial, caminho)) break;
+      // Outro arquivo ocupou o nome entre a checagem e a publicação: tenta o próximo sufixo.
+      rmSync(parcial, { force: true });
+      caminho = join(pasta, `${base}_${n}.json`);
+      parcial = `${caminho}.parcial`;
     }
-    rmSync(parcial, { force: true });
+    // Já publicado: remover o .parcial é melhor esforço (antivírus pode segurar o arquivo no Windows).
+    try {
+      rmSync(parcial, { force: true });
+    } catch {
+      // sobra do .parcial não invalida o arquivo publicado
+    }
     return caminho;
   } catch (e) {
     try {
