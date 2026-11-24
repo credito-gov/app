@@ -21,6 +21,7 @@ export interface Visao {
   pasta: string;
   legivel: boolean;
   erro?: string;
+  codigoErro?: string;
   arquivos: ArquivoLido[];
   empresa: ResultadoEmpresa;
   /** Sem nenhum crédito nos arquivos lidos (CA-6). */
@@ -68,6 +69,7 @@ export function montarVisao(pasta: ResultadoPasta): Visao {
     pasta: pasta.pasta,
     legivel: pasta.legivel,
     erro: pasta.erro,
+    codigoErro: pasta.codigoErro,
     arquivos: pasta.arquivos,
     empresa,
     vazio,

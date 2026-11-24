@@ -20,6 +20,8 @@ export interface ArquivoLido {
   dados?: unknown;
   tamanho: number;
   mtimeMs: number;
+  /** Falha de leitura (E/S) que pode passar: o resultado não vai para o cache nem para a memória da visão. */
+  transitorio?: boolean;
 }
 
 export interface ResultadoPasta {
@@ -27,6 +29,8 @@ export interface ResultadoPasta {
   pasta: string;
   legivel: boolean;
   erro?: string;
+  /** Código do erro do sistema ao listar a pasta (ENOENT, EACCES...). */
+  codigoErro?: string;
   arquivos: ArquivoLido[];
 }
 
@@ -46,6 +50,16 @@ export interface OpcoesLeitura {
   cache?: CachePasta;
   validador?: Validador;
   lerArquivo?: (caminho: string) => Promise<Uint8Array>;
+  estatistica?: (caminho: string) => Promise<{ isFile(): boolean; size: number; mtimeMs: number }>;
+}
+
+const CODIGO_DE_SISTEMA = /^E[A-Z0-9]+$/;
+
+/** Código do erro de E/S (EBUSY, EPERM...); null para qualquer outro erro, que não é do arquivo. */
+function codigoDeSistema(e: unknown): string | null {
+  if (!(e instanceof Error)) return null;
+  const codigo = (e as { code?: unknown }).code;
+  return typeof codigo === "string" && CODIGO_DE_SISTEMA.test(codigo) ? codigo : null;
 }
 
 const PADRAO_NOME = /^\d{8}T\d{6}Z_(creditos|recolhimentos|pagamentos|debitos)_(.+?)(?:_(\d+))?\.json$/;
@@ -83,8 +97,22 @@ async function lerUm(nome: string, caminho: string, tamanho: number, mtimeMs: nu
 
   const validador = opcoes.validador ?? (validadorPadrao ??= criarValidador());
   const ler = opcoes.lerArquivo ?? (async (c: string) => new Uint8Array(await readFile(c)));
-  const r = validador.validar(id.servico, await ler(caminho));
-  if (r.situacao === "recusado") return { ...base, servico: id.servico, situacao: "recusado", motivos: r.motivos };
+  let conteudo: Uint8Array;
+  try {
+    conteudo = await ler(caminho);
+  } catch (e) {
+    const codigo = codigoDeSistema(e);
+    if (codigo === null) throw e;
+    return { ...base, servico: id.servico, situacao: "recusado", motivos: [`o arquivo não pôde ser lido (${codigo})`], transitorio: true };
+  }
+  // Só a leitura é de E/S: um erro daqui para baixo é defeito do painel e propaga.
+  const r = validador.validar(id.servico, conteudo);
+  if (r.situacao === "recusado") {
+    const motivos = [...r.motivos];
+    const restantes = (r.total ?? motivos.length) - motivos.length;
+    if (restantes > 0) motivos.push(`e mais ${restantes} ${restantes === 1 ? "divergência" : "divergências"}`);
+    return { ...base, servico: id.servico, situacao: "recusado", motivos };
+  }
 
   const dados = r.dados as Objeto;
   const ni = typeof dados.ni === "string" ? dados.ni : "";
@@ -105,43 +133,49 @@ export async function lerPasta(pasta: string, opcoes: OpcoesLeitura = {}): Promi
   const absoluta = resolve(pasta);
   let nomes: string[];
   try {
-    nomes = (await readdir(absoluta)).filter((n) => n.endsWith(".json")).sort();
-  } catch {
-    return { pasta: absoluta, legivel: false, erro: `A pasta não pôde ser lida: ${absoluta}`, arquivos: [] };
+    nomes = (await readdir(absoluta)).filter((n) => /\.json$/i.test(n)).sort();
+  } catch (e) {
+    const codigo = codigoDeSistema(e);
+    if (codigo === null) throw e;
+    return { pasta: absoluta, legivel: false, erro: `A pasta não pôde ser lida (${codigo}): ${absoluta}`, codigoErro: codigo, arquivos: [] };
   }
 
   const cache = opcoes.cache;
+  const estatistica = opcoes.estatistica ?? stat;
   const vistos = new Set<string>();
   const arquivos: ArquivoLido[] = [];
   for (const nome of nomes) {
     const caminho = join(absoluta, nome);
+    const recusa = (motivo: string, tamanho: number, mtimeMs: number, transitorio: boolean): ArquivoLido => ({
+      nome,
+      servico: identificarArquivo(nome)?.servico ?? null,
+      situacao: "recusado",
+      motivos: [motivo],
+      tamanho,
+      mtimeMs,
+      ...(transitorio ? { transitorio } : {}),
+    });
     let info;
     try {
-      info = await stat(caminho);
-    } catch {
+      info = await estatistica(caminho);
+    } catch (e) {
+      const codigo = codigoDeSistema(e);
+      if (codigo === null) throw e;
+      arquivos.push(recusa(`não foi possível obter as informações do arquivo (${codigo})`, 0, 0, true));
       continue;
     }
-    if (!info.isFile()) continue;
+    if (!info.isFile()) {
+      arquivos.push(recusa("a entrada não é um arquivo", info.size, info.mtimeMs, false));
+      continue;
+    }
     vistos.add(nome);
     const guardado = cache?.get(nome);
     if (guardado && guardado.tamanho === info.size && guardado.mtimeMs === info.mtimeMs) {
       arquivos.push(guardado.arquivo);
       continue;
     }
-    let arquivo: ArquivoLido;
-    try {
-      arquivo = await lerUm(nome, caminho, info.size, info.mtimeMs, opcoes);
-    } catch {
-      arquivo = {
-        nome,
-        servico: identificarArquivo(nome)?.servico ?? null,
-        situacao: "recusado",
-        motivos: ["o arquivo não pôde ser lido"],
-        tamanho: info.size,
-        mtimeMs: info.mtimeMs,
-      };
-    }
-    cache?.set(nome, { tamanho: info.size, mtimeMs: info.mtimeMs, arquivo });
+    const arquivo = await lerUm(nome, caminho, info.size, info.mtimeMs, opcoes);
+    if (!arquivo.transitorio) cache?.set(nome, { tamanho: info.size, mtimeMs: info.mtimeMs, arquivo });
     arquivos.push(arquivo);
   }
   if (cache) for (const nome of [...cache.keys()]) if (!vistos.has(nome)) cache.delete(nome);

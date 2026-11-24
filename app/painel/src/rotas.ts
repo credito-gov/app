@@ -52,7 +52,8 @@ export function criarPainel(opcoes: OpcoesPainel): Painel {
     const assinatura = `${lida.legivel}|${lida.arquivos.map((a) => `${a.nome}:${a.tamanho}:${a.mtimeMs}`).join(";")}`;
     if (memo?.assinatura === assinatura) return memo.visao;
     const visao = montarVisao(lida);
-    memo = { assinatura, visao };
+    // Falha passageira de leitura: a próxima requisição tem de tentar de novo.
+    memo = lida.arquivos.some((a) => a.transitorio) ? undefined : { assinatura, visao };
     return visao;
   }
 

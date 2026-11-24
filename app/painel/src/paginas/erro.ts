@@ -15,8 +15,19 @@ ${juntar(grupos)}
 </div>`;
 }
 
+/** Orientação conforme o código do erro: caminho errado e permissão pedem coisas diferentes. */
+function orientacaoPasta(codigo: string | undefined): Cru {
+  if (codigo === "EACCES" || codigo === "EPERM") {
+    return html`<p>O sistema negou o acesso (${codigo}). Confira as permissões da pasta para o usuário que roda o painel.</p>`;
+  }
+  if (codigo === undefined || codigo === "ENOENT" || codigo === "ENOTDIR") {
+    return html`<p>Confira o caminho passado em <code>--pasta</code>. O painel não cria a pasta.</p>`;
+  }
+  return html`<p>Confira se a pasta está acessível e não está em uso por outro programa (${codigo}).</p>`;
+}
+
 function blocoPasta(visao: Visao): Cru {
-  return html`<div class="erro"><h2>Pasta ilegível</h2><p>${visao.erro ?? "A pasta não pôde ser lida."}</p><p>Confira o caminho passado em <code>--pasta</code>. O painel não cria a pasta.</p></div>`;
+  return html`<div class="erro"><h2>Pasta ilegível</h2><p>${visao.erro ?? "A pasta não pôde ser lida."}</p>${orientacaoPasta(visao.codigoErro)}</div>`;
 }
 
 /** Página de erro para as rotas de valores: pasta ilegível ou conflito de empresas. Devolve null se não há erro. */
