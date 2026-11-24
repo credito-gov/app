@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { erroDeTempo } from "./apoio/apiSimulada.js";
-import { RESPOSTA_TOKEN_OK, falha, montarClientes } from "./apoio/clientes.js";
+import { falha, montarClientes } from "./apoio/clientes.js";
 import { TOKEN } from "./apoio/ficticios.js";
 
 describe("cache e corpo do token (F, C)", () => {

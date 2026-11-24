@@ -9,7 +9,7 @@ import { criarRegistro } from "../src/registro.js";
 import { buscarServico, NOMES_SERVICOS, type NomeServico } from "../src/servicos.js";
 import { criarClienteToken } from "../src/token.js";
 import { criarApiSimulada, erroDeRede, erroDeTempo } from "./apoio/apiSimulada.js";
-import { ID, SEGREDO, TOKEN, URL_ASSINADA, URL_BASE, envFicticio } from "./apoio/ficticios.js";
+import { TOKEN, URL_ASSINADA, URL_BASE, envFicticio } from "./apoio/ficticios.js";
 import { pastaTemporaria } from "./apoio/pasta.js";
 import { criarRelogioFalso } from "./apoio/relogio.js";
 import { criarSaidaCapturada } from "./apoio/saida.js";

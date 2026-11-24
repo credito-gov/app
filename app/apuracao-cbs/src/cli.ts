@@ -3,7 +3,7 @@ import { acompanhar } from "./acompanhamento.js";
 import { criarClienteApi } from "./api.js";
 import { abrirGuardado, guardar } from "./armazenamento.js";
 import { ErroConfig, lerConfig } from "./config.js";
-import { ErroApi, ErroUso } from "./erros.js";
+import { ErroApi, ErroLocal, ErroUso, comandoRetomada } from "./erros.js";
 import { resumirCreditos } from "./leitores/creditos.js";
 import { resumirDebitos } from "./leitores/debitos.js";
 import { resumirPagamentos } from "./leitores/pagamentos.js";
@@ -89,11 +89,13 @@ async function consulta(args: string[], deps: DepsCli, redator: ReturnType<typeo
   redator.registrar(config.clientSecret);
 
   const { saida, relogio, pastaLocal } = deps;
-  const registro = criarRegistro({ pastaLocal, relogio });
+  const registro = criarRegistro({ pastaLocal, relogio, avisar: (texto) => saida.escrever(redator.redigir(texto)) });
+  // Antes do primeiro pedido de token ou de abertura: falhar aqui não custa nenhuma chamada.
+  registro.verificarEscrita();
   const token = criarClienteToken({ config, fetch: deps.fetch, relogio, registro, pastaLocal, saida, redator, servico });
   const cadastro = buscarServico(servico);
   if (!cadastro) throw new ErroUso(`Consulta desconhecida: ${servico}.`);
-  const api = criarClienteApi({ config, fetch: deps.fetch, token, registro, relogio, redator, servico: cadastro });
+  const api = criarClienteApi({ config, fetch: deps.fetch, token, registro, relogio, redator, servico: cadastro, saida });
 
   let tiquete: string;
   let teaSegundos: number | undefined;
@@ -109,13 +111,44 @@ async function consulta(args: string[], deps: DepsCli, redator: ReturnType<typeo
     tiquete = tiquetePedido;
   }
 
-  await acompanhar({ servico, tiquete, teaSegundos, config, api, registro, relogio, dormir: deps.dormir, saida, redator });
-
-  const link = await api.linkDownload(tiquete);
-  const bytes = await api.baixarArquivo(link.urlAssinada, tiquete, link.expiraEm);
-  const caminho = guardar({ pastaLocal, servico, tiquete, bytes, agora: relogio.agora() });
+  // Daqui em diante o tíquete é conhecido: toda falha termina com o comando de retomada.
+  let etapa = "acompanhamento da situação";
+  let caminho: string;
+  let bytes: Uint8Array;
+  try {
+    await acompanhar({ servico, tiquete, teaSegundos, config, api, registro, relogio, dormir: deps.dormir, saida, redator });
+    etapa = "pedido do link de download";
+    const link = await api.linkDownload(tiquete);
+    etapa = "download do arquivo";
+    bytes = await api.baixarArquivo(link.urlAssinada, tiquete, link.expiraEm);
+    etapa = "gravação do arquivo bruto";
+    caminho = guardar({ pastaLocal, servico, tiquete, bytes, agora: relogio.agora() });
+  } catch (e) {
+    throw comRetomada(e, etapa, servico, tiquete, redator);
+  }
   saida.escrever(`Arquivo guardado: ${caminho}`);
-  return validarEResumir(servico, bytes, caminho, saida);
+  try {
+    return validarEResumir(servico, bytes, caminho, saida);
+  } catch (e) {
+    const motivo = e instanceof Error ? e.message : "falha desconhecida";
+    throw new ErroLocal(
+      redator.redigir(
+        `Erro inesperado ao validar e resumir o arquivo (${motivo}). O arquivo está guardado em ${caminho}; para tentar de novo sem rede: npm run ler -- ${caminho}`,
+      ),
+    );
+  }
+}
+
+/** Monta o erro final de uma falha depois do tíquete conhecido: a etapa e o comando de retomada fecham a mensagem. */
+function comRetomada(e: unknown, etapa: string, servico: string, tiquete: string, redator: ReturnType<typeof criarRedator>): Error {
+  // Erro da API que já carrega o tíquete: a mensagem já termina com o comando de retomada.
+  if (e instanceof ErroApi && e.tiquete) return e;
+  const retomada = `Para retomar: ${comandoRetomada(servico, tiquete)}`;
+  if (e instanceof ErroApi || e instanceof ErroLocal) {
+    return new ErroLocal(redator.redigir(`${e.message}\nEtapa: ${etapa}.\n${retomada}`));
+  }
+  const motivo = e instanceof Error ? e.message : "falha desconhecida";
+  return new ErroLocal(redator.redigir(`Erro inesperado na etapa de ${etapa}: ${motivo}\n${retomada}`));
 }
 
 function ler(args: string[], deps: DepsCli): number {
@@ -150,6 +183,10 @@ export async function executar(argv: string[], deps: DepsCli): Promise<number> {
     }
     if (e instanceof ErroApi) {
       deps.saida.escrever(e.message);
+      return e.codigoSaida;
+    }
+    if (e instanceof ErroLocal) {
+      deps.saida.escrever(redator.redigir(e.message));
       return e.codigoSaida;
     }
     deps.saida.escrever(redator.redigir(`Erro inesperado: ${e instanceof Error ? e.message : "falha desconhecida"}`));

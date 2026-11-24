@@ -102,3 +102,7 @@ Quem executa é o responsável, na máquina dele, por pedido explícito, uma con
 ### O que passar para a sessão depois
 
 Só observações sem dado real: o tipo de credencial marcado no portal, códigos HTTP, `codigoErro`/`mensagemErro`, a forma de envio que funcionou (`basic` ou `corpo`), o `expires_in`, tempos de processamento, contagens por tipo do registro, se houve 429 e depois de quantas chamadas, quantos itens vieram sem `chaveDFE`, se o resultado veio vazio ou com dados de teste, e se o arquivo de pagamentos foi recusado pelo schema. **Nunca** cole chave de nota, NI, valor, token, segredo ou `urlAssinada`.
+
+## Limites conhecidos
+
+- **Valores acima de alguns bilhões.** A validação de `multipleOf: 0.01` usa tolerância de 4 casas (`multipleOfPrecision`); em valor monetário acima de alguns bilhões o erro de ponto flutuante pode passar dessa tolerância, e o programa recusa como inválido (código 3) um arquivo que está certo. O arquivo bruto fica guardado e a divergência é listada, para conferência manual.
