@@ -1,0 +1,29 @@
+{
+  "tiqueteSolicitacao": "TIQUETE-FICTICIO-RECO-0003",
+  "ni": "12345678",
+  "niConsumidor": "12345678000100",
+  "geradoEm": "2026-11-20T10:15:30.000-03:00",
+  "apuracao": [
+    {
+      "dataArrecadacao": "2026-11-10",
+      "pagamentos": [
+        {
+          "numeroDARF": "12345678901234567",
+          "tipo": 1,
+          "composicao": [
+            {
+              "sequencial": 1,
+              "pa": "10/2026",
+              "vencimento": "2026-11-20",
+              "niFornecedor": "12345678000100",
+              "chaveDFE": "FICT-NFE-0001",
+              "principal": 100.00,
+              "multa": 0.00,
+              "juros": 0.00
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

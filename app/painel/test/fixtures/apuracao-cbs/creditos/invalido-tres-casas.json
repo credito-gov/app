@@ -1,0 +1,30 @@
+{
+  "tiqueteSolicitacao": "TIQUETE-FICTICIO-CRED-0004",
+  "ni": "12345678",
+  "niConsumidor": "12345678000100",
+  "geradoEm": "2026-11-20T10:15:30.000-03:00",
+  "apuracao": [
+    {
+      "pa": "10/2026",
+      "creditos": [
+        {
+          "origem": 0,
+          "documento": 55,
+          "chave": "FICT-NFE-0005",
+          "emissao": "2026-10-05T09:00:00.000-03:00",
+          "registro": "2026-10-05T09:05:00.000-03:00",
+          "atualizacao": "2026-11-18T08:00:00.000-03:00",
+          "cbs": {
+            "apurado": 10.005,
+            "apropriacao": {
+              "aApropriar": 10.005,
+              "utilizacao": {
+                "naoUtilizado": { "saldoCredor": 0.00 }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
