@@ -188,7 +188,7 @@ export class ErroLocal extends Error {
   readonly codigoSaida = 1;
   constructor(mensagem: string) {
     super(mensagem);
-    Object.defineProperty(this, "name", { value: "ErroLocal", enumerable: false });
+    Object.defineProperty(this, "name", { value: "ErroLocal", enumerable: false, configurable: true });
   }
 }
 

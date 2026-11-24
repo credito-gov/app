@@ -1,6 +1,6 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
-import { ErroUso } from "./erros.js";
+import { ErroGravacao, ErroUso, codigoDoErro } from "./erros.js";
 import { buscarServico, type NomeServico } from "./servicos.js";
 
 const PADRAO_NOME = /^(\d{8}T\d{6}Z)_([a-z]+)_(.+?)(?:_(\d+))?\.json$/;
@@ -11,7 +11,8 @@ function carimboUtc(d: Date): string {
 
 /**
  * Grava os bytes exatamente como chegaram, em .local/arquivos, sem sobrescrever.
- * Devolve o caminho do arquivo.
+ * Escreve num nome temporário (.parcial) e só renomeia ao concluir: o nome canônico nunca aponta
+ * para um arquivo truncado. Devolve o caminho do arquivo; em falha lança ErroGravacao.
  */
 export function guardar(opcoes: {
   pastaLocal: string;
@@ -21,19 +22,30 @@ export function guardar(opcoes: {
   agora: Date;
 }): string {
   const pasta = join(opcoes.pastaLocal, "arquivos");
-  mkdirSync(pasta, { recursive: true });
   const tiquete = opcoes.tiquete.replace(/[^A-Za-z0-9._-]/g, "_");
   const base = `${carimboUtc(opcoes.agora)}_${opcoes.servico}_${tiquete}`;
-  for (let n = 1; ; n += 1) {
-    const caminho = join(pasta, n === 1 ? `${base}.json` : `${base}_${n}.json`);
-    if (existsSync(caminho)) continue;
-    try {
-      writeFileSync(caminho, opcoes.bytes, { flag: "wx" });
-      return caminho;
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException).code === "EEXIST") continue;
-      throw e;
+  let caminho = join(pasta, `${base}.json`);
+  try {
+    mkdirSync(pasta, { recursive: true });
+    for (let n = 1; ; n += 1) {
+      caminho = join(pasta, n === 1 ? `${base}.json` : `${base}_${n}.json`);
+      if (!existsSync(caminho)) break;
     }
+  } catch (e) {
+    throw new ErroGravacao(caminho, codigoDoErro(e));
+  }
+  const parcial = `${caminho}.parcial`;
+  try {
+    writeFileSync(parcial, opcoes.bytes);
+    renameSync(parcial, caminho);
+    return caminho;
+  } catch (e) {
+    try {
+      rmSync(parcial, { force: true });
+    } catch {
+      // sobra do .parcial não muda o erro principal
+    }
+    throw new ErroGravacao(caminho, codigoDoErro(e));
   }
 }
 

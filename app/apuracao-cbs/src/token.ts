@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Config } from "./config.js";
-import { ErroApi, extrairErroDoCorpo, type DadosErroApi } from "./erros.js";
+import { ErroApi, codigoDaCausa, codigoDoErro, descreverFalhaDeLeitura, extrairErroDoCorpo, type DadosErroApi } from "./erros.js";
 import type { Redator } from "./redacao.js";
 import type { Registro } from "./registro.js";
 import type { Relogio } from "./relogio.js";
@@ -48,16 +48,27 @@ export function criarClienteToken(opcoes: {
   const chave = createHash("sha256").update(`${config.urlToken}\n${config.clientId}`).digest("hex");
   let emMemoria: { accessToken: string; expiraEm: number } | undefined;
 
+  let avisouCacheIlegivel = false;
   const lerCache = (): CacheToken | undefined => {
     if (!existsSync(arquivoCache)) return undefined;
-    try {
-      const c = JSON.parse(readFileSync(arquivoCache, "utf8")) as CacheToken;
-      if (c.chaveCredencial !== chave || typeof c.accessToken !== "string" || !c.accessToken) return undefined;
-      if (Number.isNaN(new Date(c.expiraEm).getTime())) return undefined;
-      return c;
-    } catch {
+    const ilegivel = (motivo: string): undefined => {
+      if (!avisouCacheIlegivel) {
+        avisouCacheIlegivel = true;
+        saida.escrever(`Aviso: cache do token (.local/token.json) ilegível (${motivo}); será ignorado e um novo token será pedido.`);
+      }
       return undefined;
+    };
+    let c: CacheToken;
+    try {
+      c = JSON.parse(readFileSync(arquivoCache, "utf8")) as CacheToken;
+    } catch (e) {
+      return ilegivel(e instanceof SyntaxError ? "JSON inválido" : codigoDoErro(e));
     }
+    if (c === null || typeof c !== "object") return ilegivel("formato inesperado");
+    if (c.chaveCredencial !== chave) return undefined; // cache de outra credencial: ignorado sem aviso
+    if (typeof c.accessToken !== "string" || !c.accessToken) return ilegivel("sem token");
+    if (typeof c.expiraEm !== "string" || Number.isNaN(new Date(c.expiraEm).getTime())) return ilegivel("validade inválida");
+    return c;
   };
 
   const erro = (dados: Omit<DadosErroApi, "tipoChamada" | "servico">): ErroApi =>
@@ -82,11 +93,15 @@ export function criarClienteToken(opcoes: {
     corpo.set("grant_type", "client_credentials");
     if (config.tokenCredenciais === "basic") {
       const par = `${formEncode(config.clientId)}:${formEncode(config.clientSecret)}`;
-      cabecalhos.Authorization = `Basic ${Buffer.from(par).toString("base64")}`;
+      const base64 = Buffer.from(par).toString("base64");
+      redator.registrar(base64);
+      cabecalhos.Authorization = `Basic ${base64}`;
     } else {
       corpo.set("client_id", config.clientId);
       corpo.set("client_secret", config.clientSecret);
     }
+    redator.registrar(formEncode(config.clientId));
+    redator.registrar(formEncode(config.clientSecret));
     if (config.tokenScope) corpo.set("scope", config.tokenScope);
 
     let resposta: Response;
@@ -100,12 +115,12 @@ export function criarClienteToken(opcoes: {
     } catch (e) {
       registro.registrar({ servico, tipo: "token", http: null, tiquete: null });
       const tempo = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");
-      throw erro({ http: null, motivo: tempo ? "tempo-esgotado" : "rede" });
+      throw erro({ http: null, motivo: tempo ? "tempo-esgotado" : "rede", codigoRede: codigoDaCausa(e) });
     }
     registro.registrar({ servico, tipo: "token", http: resposta.status, tiquete: null });
 
-    const texto = await resposta.text().catch(() => "");
     if (resposta.status < 200 || resposta.status >= 300) {
+      const texto = await resposta.text().catch(() => "");
       const naHora = registro.pedidosDeTokenDesde(new Date(relogio.agora().getTime() - JANELA_MS)).length;
       throw erro({
         http: resposta.status,
@@ -114,16 +129,31 @@ export function criarClienteToken(opcoes: {
       });
     }
 
-    let dado: Record<string, unknown> = {};
+    // 2xx: o pedido contou no limite de 2 por hora, qualquer que seja o estado do corpo.
+    const contou = "O pedido contou no limite de 2 tokens por hora.";
+    let texto: string;
+    try {
+      texto = await resposta.text();
+    } catch (e) {
+      throw erro({
+        http: resposta.status,
+        motivo: "outro",
+        detalhe: `O pedido de token foi aceito (HTTP ${resposta.status}), mas o corpo da resposta não pôde ser lido (${descreverFalhaDeLeitura(e)}). ${contou}`,
+      });
+    }
+    let dado: Record<string, unknown> | undefined;
     try {
       const lido: unknown = JSON.parse(texto);
       if (lido && typeof lido === "object" && !Array.isArray(lido)) dado = lido as Record<string, unknown>;
     } catch {
-      // resposta sem JSON: tratada como sem access_token
+      // não é JSON: tratado abaixo
+    }
+    if (!dado) {
+      throw erro({ http: resposta.status, motivo: "outro", detalhe: `A resposta do pedido de token (HTTP ${resposta.status}) não é um objeto JSON. ${contou}` });
     }
     const accessToken = dado.access_token;
     if (typeof accessToken !== "string" || accessToken === "") {
-      throw erro({ http: resposta.status, motivo: "outro", detalhe: "A resposta do pedido de token não trouxe access_token." });
+      throw erro({ http: resposta.status, motivo: "outro", detalhe: `A resposta do pedido de token não trouxe access_token. ${contou}` });
     }
     redator.registrar(accessToken);
 
@@ -144,9 +174,16 @@ export function criarClienteToken(opcoes: {
       expiraEm: expiraEm.toISOString(),
       accessToken,
     };
-    mkdirSync(pastaLocal, { recursive: true });
-    writeFileSync(arquivoCache, JSON.stringify(cache));
+    // O token já foi cobrado do limite: fica em memória antes de qualquer gravação.
     emMemoria = { accessToken, expiraEm: expiraEm.getTime() };
+    try {
+      mkdirSync(pastaLocal, { recursive: true });
+      writeFileSync(arquivoCache, JSON.stringify(cache));
+    } catch (e) {
+      saida.escrever(
+        `Aviso: não foi possível gravar o cache do token em .local/token.json (${codigoDoErro(e)}); o token vale só nesta execução e a próxima pedirá outro (limite: 2 por hora).`,
+      );
+    }
     saida.escrever(`token obtido, válido por ${validadeS} s.`);
     return accessToken;
   };
@@ -169,7 +206,11 @@ export function criarClienteToken(opcoes: {
     },
     descartar() {
       emMemoria = undefined;
-      rmSync(arquivoCache, { force: true });
+      try {
+        rmSync(arquivoCache, { force: true });
+      } catch (e) {
+        saida.escrever(`Aviso: não foi possível apagar o cache do token (${codigoDoErro(e)}). Apague .local/token.json manualmente.`);
+      }
     },
   };
 }
