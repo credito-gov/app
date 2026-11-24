@@ -96,7 +96,7 @@ function textoBase(d: DadosErroApi): string {
   const http = d.http ?? undefined;
   if (d.tipoChamada === "token") {
     if (http === 400 || http === 401) {
-      const restam = d.tokensRestantes === undefined ? "" : ` Restam ${d.tokensRestantes} pedido(s) de token nesta hora.`;
+      const restam = d.tokensRestantes === undefined ? "" : ` Restam ${d.tokensRestantes} pedido(s) de token nesta hora pelo controle local.`;
       return (
         `Credencial recusada no pedido de token (HTTP ${http}). Confira client id e segredo no .env e APURACAO_TOKEN_CREDENCIAIS; ` +
         `credencial gerada antes da v2 (28/10/2026) precisa ser gerada de novo. Não foi feita nova tentativa.${restam}`
@@ -109,7 +109,7 @@ function textoBase(d: DadosErroApi): string {
       return "Limite de pedidos de token excedido (HTTP 429): são 2 por hora. Espere cerca de uma hora antes de tentar de novo. Não foi feita nova tentativa.";
     }
     if (http === 500) {
-      return "Erro interno do servidor de token (HTTP 500). Tente mais tarde; o pedido contou no limite de 2 tokens por hora. Não foi feita nova tentativa.";
+      return "Erro interno do servidor de token (HTTP 500). Tente mais tarde; o pedido foi contado no controle local do limite de 2 tokens por hora. Não foi feita nova tentativa.";
     }
     return `Falha no pedido de token (HTTP ${http ?? "sem resposta"}).`;
   }
