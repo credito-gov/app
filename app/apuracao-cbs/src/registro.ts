@@ -1,5 +1,6 @@
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { ErroLocal, codigoDoErro } from "./erros.js";
 import { isoLocal, type Relogio } from "./relogio.js";
 
 export type TipoChamada = "token" | "abertura" | "situacao" | "download" | "arquivo";
@@ -18,27 +19,84 @@ interface Linha extends EntradaRegistro {
 }
 
 export interface Registro {
+  /** Confere que dá para gravar em .local/ (pasta e chamadas.jsonl); lança ErroLocal se não der. Não faz chamada nenhuma. */
+  verificarEscrita(): void;
+  /** Nunca lança: falha de gravação depois de uma chamada já feita vira aviso. */
   registrar(entrada: EntradaRegistro): void;
   contarAberturas(servico: string, dia: Date): { total: number; aceitas: number };
   pedidosDeTokenDesde(instante: Date): Date[];
   primeiraAbertura(tiquete: string): Date | undefined;
 }
 
-export function criarRegistro(opcoes: { pastaLocal: string; relogio: Relogio }): Registro {
-  const arquivo = join(opcoes.pastaLocal, "chamadas.jsonl");
+/** Uma linha do arquivo, lida sem lançar. `quando` e `dados` ficam ausentes se a linha não vale. */
+interface LinhaLida {
+  numero: number;
+  dados?: Linha;
+  quando?: Date;
+}
 
-  const ler = (): Linha[] => {
+export function criarRegistro(opcoes: { pastaLocal: string; relogio: Relogio; avisar?: (texto: string) => void }): Registro {
+  const arquivo = join(opcoes.pastaLocal, "chamadas.jsonl");
+  const avisados = new Set<string>();
+  const avisarUmaVez = (chave: string, texto: string): void => {
+    if (avisados.has(chave)) return;
+    avisados.add(chave);
+    opcoes.avisar?.(texto);
+  };
+
+  const ler = (): LinhaLida[] => {
     if (!existsSync(arquivo)) return [];
-    return readFileSync(arquivo, "utf8")
-      .split("\n")
-      .filter((l) => l.trim() !== "")
-      .map((l) => JSON.parse(l) as Linha);
+    let texto: string;
+    try {
+      texto = readFileSync(arquivo, "utf8");
+    } catch (e) {
+      avisarUmaVez(
+        "leitura",
+        `Aviso: não foi possível ler chamadas.jsonl (${codigoDoErro(e)}); as contagens de aberturas e de pedidos de token podem estar menores que as reais.`,
+      );
+      return [];
+    }
+    const saida: LinhaLida[] = [];
+    texto.split(/\r?\n/).forEach((bruta, indice) => {
+      if (bruta.trim() === "") return;
+      const numero = indice + 1;
+      let dados: Linha | undefined;
+      try {
+        const lido: unknown = JSON.parse(bruta);
+        if (lido && typeof lido === "object" && !Array.isArray(lido)) dados = lido as Linha;
+      } catch {
+        // linha ilegível: tratada abaixo
+      }
+      const quando = dados && typeof dados.quando === "string" ? new Date(dados.quando) : undefined;
+      const valida = quando !== undefined && !Number.isNaN(quando.getTime());
+      if (!dados || !valida) {
+        avisarUmaVez(
+          `linha-${numero}`,
+          `Aviso: linha ${numero} de chamadas.jsonl ilegível ou com data inválida; foi contada como chamada feita nos limites.`,
+        );
+      }
+      saida.push({ numero, dados, quando: valida ? quando : undefined });
+    });
+    return saida;
   };
 
   const mesmoDia = (a: Date, b: Date): boolean =>
     a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 
   return {
+    verificarEscrita() {
+      try {
+        mkdirSync(opcoes.pastaLocal, { recursive: true });
+        appendFileSync(arquivo, "");
+        // Em alguns sistemas abrir uma pasta em acréscimo não falha; chamadas.jsonl tem de ser arquivo.
+        if (!statSync(arquivo).isFile()) throw Object.assign(new Error("não é arquivo"), { code: "EISDIR" });
+      } catch (e) {
+        throw new ErroLocal(
+          `Não foi possível gravar em ${arquivo} (${codigoDoErro(e)}). Nenhuma chamada foi feita: sem o registro, o limite de aberturas e de tokens não poderia ser controlado. Corrija a pasta e rode de novo.`,
+        );
+      }
+    },
+
     registrar(entrada) {
       // Só os cinco campos documentados: nada de token, credencial, urlAssinada ou corpo.
       const linha: Linha = {
@@ -48,33 +106,47 @@ export function criarRegistro(opcoes: { pastaLocal: string; relogio: Relogio }):
         http: entrada.http,
         tiquete: entrada.tiquete ?? null,
       };
-      mkdirSync(opcoes.pastaLocal, { recursive: true });
-      appendFileSync(arquivo, `${JSON.stringify(linha)}\n`);
+      try {
+        mkdirSync(opcoes.pastaLocal, { recursive: true });
+        appendFileSync(arquivo, `${JSON.stringify(linha)}\n`);
+      } catch (e) {
+        avisarUmaVez(
+          "gravacao",
+          `Aviso: não foi possível gravar o registro de chamadas (${codigoDoErro(e)}). A chamada já foi feita e conta no limite, mas ficou fora de chamadas.jsonl; as contagens deste computador ficarão menores que as reais.`,
+        );
+      }
     },
 
     contarAberturas(servico, dia) {
       let total = 0;
       let aceitas = 0;
       for (const l of ler()) {
-        if (l.tipo !== "abertura" || l.servico !== servico) continue;
-        if (!mesmoDia(new Date(l.quando), dia)) continue;
-        total += 1;
-        if (l.http !== null && l.http >= 200 && l.http < 300) aceitas += 1;
+        if (!l.dados) {
+          total += 1; // modo conservador: linha ilegível conta como abertura feita
+          continue;
+        }
+        if (l.dados.tipo !== "abertura" || l.dados.servico !== servico) continue;
+        if (l.quando && !mesmoDia(l.quando, dia)) continue;
+        total += 1; // sem data válida, conta como feita hoje
+        if (l.dados.http !== null && l.dados.http >= 200 && l.dados.http < 300) aceitas += 1;
       }
       return { total, aceitas };
     },
 
     pedidosDeTokenDesde(instante) {
-      return ler()
-        .filter((l) => l.tipo === "token")
-        .map((l) => new Date(l.quando))
-        .filter((d) => d.getTime() >= instante.getTime())
-        .sort((a, b) => a.getTime() - b.getTime());
+      const agora = opcoes.relogio.agora();
+      const instantes: Date[] = [];
+      for (const l of ler()) {
+        if (l.dados && l.dados.tipo !== "token") continue;
+        const quando = l.quando ?? agora; // modo conservador: sem data válida, conta como pedido de agora
+        if (quando.getTime() >= instante.getTime()) instantes.push(quando);
+      }
+      return instantes.sort((a, b) => a.getTime() - b.getTime());
     },
 
     primeiraAbertura(tiquete) {
-      const linha = ler().find((l) => l.tipo === "abertura" && l.tiquete === tiquete);
-      return linha ? new Date(linha.quando) : undefined;
+      const linha = ler().find((l) => l.dados?.tipo === "abertura" && l.dados.tiquete === tiquete && l.quando);
+      return linha?.quando;
     },
   };
 }

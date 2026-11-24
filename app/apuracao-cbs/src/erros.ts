@@ -24,6 +24,31 @@ export interface DadosErroApi {
   aberturasHoje?: { total: number; aceitas: number };
   /** Só para compor a mensagem (token 400/401); não é guardado. */
   tokensRestantes?: number;
+  /** Só para compor a mensagem (rede): código da causa, como ENOTFOUND; nunca a mensagem do erro. */
+  codigoRede?: string;
+}
+
+/** Código da causa de uma falha de rede (ex.: ENOTFOUND, CERT_HAS_EXPIRED); nunca a mensagem, que pode ter URL. */
+export function codigoDaCausa(e: unknown): string | undefined {
+  const candidatos: unknown[] = [e instanceof Error ? e.cause : undefined, e];
+  for (const c of candidatos) {
+    const codigo = typeof c === "object" && c !== null ? (c as { code?: unknown }).code : undefined;
+    if (typeof codigo === "string" && /^[A-Za-z0-9_]{1,64}$/.test(codigo)) return codigo;
+  }
+  return undefined;
+}
+
+/** Código de um erro do sistema de arquivos (EBUSY, ENOSPC...), ou "erro desconhecido". */
+export function codigoDoErro(e: unknown): string {
+  const codigo = typeof e === "object" && e !== null ? (e as { code?: unknown }).code : undefined;
+  return typeof codigo === "string" ? codigo : "erro desconhecido";
+}
+
+/** Causa de uma falha ao ler o corpo da resposta, em texto curto e sem dados da resposta. */
+export function descreverFalhaDeLeitura(e: unknown): string {
+  if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError")) return "tempo esgotado";
+  const codigo = codigoDaCausa(e);
+  return codigo ? `erro de rede: ${codigo}` : "erro de rede";
 }
 
 export function comandoRetomada(servico: string, tiquete: string): string {
@@ -49,9 +74,11 @@ export function extrairErroDoCorpo(texto: string): { codigoErro?: string; mensag
 function textoBase(d: DadosErroApi): string {
   switch (d.motivo) {
     case "rede":
-      return "Sem resposta (erro de rede). Nada foi repetido.";
+      return `Sem resposta (erro de rede${d.codigoRede ? `: ${d.codigoRede}` : ""}). Nada foi repetido.`;
     case "tempo-esgotado":
-      return "Sem resposta (tempo esgotado). Nada foi repetido.";
+      return d.tipoChamada === "abertura"
+        ? "Sem resposta (tempo esgotado). A solicitação pode ter sido aceita e contada no limite de 4 aberturas por dia; o tíquete é desconhecido. Nada foi repetido."
+        : "Sem resposta (tempo esgotado). Nada foi repetido.";
     case "url-vencida":
       return "urlAssinada vencida. Peça outra com --tiquete enquanto o arquivo estiver disponível (48 h).";
     case "situacao-erro":
@@ -75,7 +102,23 @@ function textoBase(d: DadosErroApi): string {
         `credencial gerada antes da v2 (28/10/2026) precisa ser gerada de novo. Não foi feita nova tentativa.${restam}`
       );
     }
+    if (http === 403) {
+      return "Credencial sem permissão para pedir token (HTTP 403). Confira se a credencial está ativa, os serviços marcados nela e APURACAO_TOKEN_SCOPE. Não foi feita nova tentativa.";
+    }
+    if (http === 429) {
+      return "Limite de pedidos de token excedido (HTTP 429): são 2 por hora. Espere cerca de uma hora antes de tentar de novo. Não foi feita nova tentativa.";
+    }
+    if (http === 500) {
+      return "Erro interno do servidor de token (HTTP 500). Tente mais tarde; o pedido contou no limite de 2 tokens por hora. Não foi feita nova tentativa.";
+    }
     return `Falha no pedido de token (HTTP ${http ?? "sem resposta"}).`;
+  }
+  if (d.tipoChamada === "arquivo") {
+    // Download pela urlAssinada: não usa Bearer, não usa APURACAO_URL_BASE e não mexe no cache do token.
+    const sufixo = "Peça outra urlAssinada com --tiquete enquanto o arquivo estiver disponível (48 h).";
+    if (http === 401) return `A urlAssinada foi recusada pelo armazenamento (HTTP 401). ${sufixo}`;
+    if (http === 404) return `O armazenamento não achou o arquivo (HTTP 404). ${sufixo}`;
+    return `O download do arquivo falhou (HTTP ${http ?? "sem resposta"}). Tente de novo mais tarde com --tiquete; ${sufixo.charAt(0).toLowerCase()}${sufixo.slice(1)}`;
   }
   switch (http) {
     case 401:
@@ -137,5 +180,27 @@ export class ErroUso extends Error {
   constructor(mensagem: string) {
     super(mensagem);
     Object.defineProperty(this, "name", { value: "ErroUso", enumerable: false });
+  }
+}
+
+/** Falha local (disco, pasta de trabalho). O que importa para o usuário vai na mensagem. */
+export class ErroLocal extends Error {
+  readonly codigoSaida = 1;
+  constructor(mensagem: string) {
+    super(mensagem);
+    Object.defineProperty(this, "name", { value: "ErroLocal", enumerable: false });
+  }
+}
+
+/** Falha ao gravar o arquivo bruto recebido. */
+export class ErroGravacao extends ErroLocal {
+  constructor(
+    readonly caminho: string,
+    readonly codigo: string,
+  ) {
+    super(
+      `Não foi possível guardar o arquivo bruto em ${caminho} (${codigo}). Nada foi gravado com esse nome. O arquivo continua disponível na Receita por 48 h.`,
+    );
+    Object.defineProperty(this, "name", { value: "ErroGravacao", enumerable: false });
   }
 }
