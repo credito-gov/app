@@ -21,6 +21,7 @@ export interface PedidoRegistrado {
 }
 
 interface Rota {
+  chave: string;
   metodo: string;
   casa: (url: string) => boolean;
   fila: RespostaSimulada[];
@@ -77,9 +78,10 @@ export function criarApiSimulada() {
     /** Acrescenta respostas, em ordem, para as chamadas que casam com método e URL. */
     rota(metodo: string, casa: string | RegExp, ...respostas: RespostaSimulada[]) {
       const funcao = typeof casa === "string" ? (u: string) => u.includes(casa) : (u: string) => casa.test(u);
-      const existente = rotas.find((r) => r.metodo === metodo.toUpperCase() && r.casa.toString() === funcao.toString());
+      const chave = String(casa);
+      const existente = rotas.find((r) => r.metodo === metodo.toUpperCase() && r.chave === chave);
       if (existente) existente.fila.push(...respostas);
-      else rotas.push({ metodo: metodo.toUpperCase(), casa: funcao, fila: [...respostas] });
+      else rotas.push({ chave, metodo: metodo.toUpperCase(), casa: funcao, fila: [...respostas] });
     },
     /** Quantos pedidos foram feitos (opcionalmente só os que casam). */
     contar(metodo?: string, casa?: string | RegExp): number {
