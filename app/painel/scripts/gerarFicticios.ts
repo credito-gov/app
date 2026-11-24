@@ -169,21 +169,24 @@ function gerarCreditos(): string {
     // Perfil do valor: 9 só apropriados (apropriado = utilizado), 3 com os dois, o resto só a apropriar (O-10, O-12).
     const perfil = i % 100 === 7 ? "so-apropriado" : i === 11 || i === 333 || i === 600 ? "parcial" : "a-apropriar";
     const base = 500 + sorteio.inteiro(500000);
-    const dia = 1 + sorteio.inteiro(28);
-    // Emissão no mês do período, exceto em seis notas (3 antes e 3 depois, O-14).
+    // Emissão no mês do período, exceto em seis notas (3 antes e 3 depois, O-14). Nada passa de novembro de 2026:
+    // a emissão depois do mês do período só existe até 10/2026, e o período 12/2026 tem emissão antes dele.
     let mesEmissao = mes;
     let anoEmissao = 2026;
     if (i % 150 === 3 && i < 450) {
       mesEmissao = mes === 1 ? 12 : mes - 1;
       anoEmissao = mes === 1 ? 2025 : 2026;
-    } else if (i % 150 === 4 && i < 450) {
-      mesEmissao = mes === 12 ? 1 : mes + 1;
-      anoEmissao = mes === 12 ? 2027 : 2026;
+    } else if (i % 150 === 4 && i < 450 && mes <= 10) {
+      mesEmissao = mes + 1;
+    } else if (mes === 12) {
+      mesEmissao = 11;
     }
-    // Datas em ordem: emissão de manhã, registro à tarde do mesmo dia, atualização depois de tudo e geradoEm depois da atualização.
+    // Em novembro (mês da geração) os dias vão só até o 3, para o registro caber antes das atualizações.
+    const dia = 1 + sorteio.inteiro(mesEmissao === 11 && anoEmissao === 2026 ? 3 : 28);
+    // Datas em ordem: emissão de manhã, registro à tarde do mesmo dia, atualização nos dias 4 a 17 de novembro e geradoEm no dia 18.
     const emissao = dataHora(anoEmissao, mesEmissao, dia, sorteio.inteiro(12), sorteio.inteiro(60), sorteio.inteiro(60), 0, 0);
     const registro = dataHora(anoEmissao, mesEmissao, dia, 12 + sorteio.inteiro(12), sorteio.inteiro(60), sorteio.inteiro(60), 3 + (i % 4), sorteio.inteiro(1000000));
-    const atualizacao = dataHora(2027, 2, 1 + sorteio.inteiro(9), sorteio.inteiro(24), sorteio.inteiro(60), sorteio.inteiro(60), i % 4, sorteio.inteiro(1000));
+    const atualizacao = dataHora(2026, 11, 4 + sorteio.inteiro(14), sorteio.inteiro(24), sorteio.inteiro(60), sorteio.inteiro(60), i % 4, sorteio.inteiro(1000));
 
     const modelo = String(documento);
     let chave: string;
@@ -239,7 +242,7 @@ function gerarCreditos(): string {
     tiqueteSolicitacao: "FICTVOL01",
     ni: NI14,
     niConsumidor: NI14,
-    geradoEm: "2027-02-10T10:00:00.000-03:00",
+    geradoEm: "2026-11-18T10:00:00.000-03:00",
     apuracao,
   });
 }
