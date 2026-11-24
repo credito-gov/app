@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, linkSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { ErroGravacao, ErroUso, codigoDoErro } from "./erros.js";
 import { buscarServico, type NomeServico } from "./servicos.js";
@@ -34,10 +34,23 @@ export function guardar(opcoes: {
   } catch (e) {
     throw new ErroGravacao(caminho, codigoDoErro(e));
   }
-  const parcial = `${caminho}.parcial`;
+  let parcial = `${caminho}.parcial`;
   try {
-    writeFileSync(parcial, opcoes.bytes);
-    renameSync(parcial, caminho);
+    for (let n = 2; ; n += 1) {
+      writeFileSync(parcial, opcoes.bytes);
+      try {
+        // linkSync falha com EEXIST se o nome final já existe: nunca sobrescreve, e o nome final nasce completo.
+        linkSync(parcial, caminho);
+        break;
+      } catch (e) {
+        if (codigoDoErro(e) !== "EEXIST") throw e;
+        // Outro arquivo ocupou o nome entre a checagem e a publicação: tenta o próximo sufixo.
+        rmSync(parcial, { force: true });
+        caminho = join(pasta, `${base}_${n}.json`);
+        parcial = `${caminho}.parcial`;
+      }
+    }
+    rmSync(parcial, { force: true });
     return caminho;
   } catch (e) {
     try {
