@@ -61,9 +61,21 @@ describe("leitura da pasta (CA-1, CA-A2)", () => {
     await pasta.escrever(nomeArquivo("creditos", "FICT1"), creditos());
     await mkdir(join(pasta.caminho, "sub"));
     await pasta.escrever(join("sub", nomeArquivo("creditos", "DENTRO")), creditos("B"));
-    await mkdir(join(pasta.caminho, "pasta.json"));
     const r = await lerPasta(pasta.caminho, { cache: criarCache() });
     expect(r.arquivos.map((a) => a.nome)).toEqual([nomeArquivo("creditos", "FICT1")]);
+  });
+
+  it("entrada .json que não é arquivo entra na lista como recusada, sem ser lida", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever(nomeArquivo("creditos", "FICT1"), creditos());
+    await mkdir(join(pasta.caminho, "pasta.json"));
+    const { lidos, lerArquivo } = leitorContador();
+    const r = await lerPasta(pasta.caminho, { cache: criarCache(), lerArquivo });
+    const entrada = r.arquivos.find((a) => a.nome === "pasta.json");
+    expect(entrada?.situacao).toBe("recusado");
+    expect(entrada?.motivos.join(" ")).toContain("não é um arquivo");
+    expect(lidos.some((c) => c.endsWith("pasta.json"))).toBe(false);
+    expect(r.arquivos).toHaveLength(2);
   });
 
   it("conta a quantidade de itens por serviço", async () => {
@@ -177,5 +189,109 @@ describe("cache por nome, tamanho e data de modificação (CA-A2)", () => {
     pasta = await pastaTemporaria();
     const r = await lerPasta(pasta.caminho, { cache });
     expect(r.arquivos).toEqual([]);
+  });
+});
+
+const estatisticaDe = (tamanho = 10, mtimeMs = 1) => ({ isFile: () => true, size: tamanho, mtimeMs });
+const erroDeSistema = (codigo: string) => Object.assign(new Error(`${codigo}: falha simulada`), { code: codigo });
+
+describe("arquivo que não pôde ser lido (rodada 1, grupo A)", () => {
+  it("A1: stat que falha põe o arquivo na lista como recusado, com o código do erro", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever(nomeArquivo("creditos", "A"), creditos("A"));
+    await pasta.escrever(nomeArquivo("creditos", "B"), creditos("B"));
+    const estatistica = async (caminho: string) => {
+      if (caminho.includes("_B.json")) throw erroDeSistema("EPERM");
+      return estatisticaDe();
+    };
+    const r = await lerPasta(pasta.caminho, { cache: criarCache(), estatistica });
+    expect(r.arquivos.map((a) => a.nome)).toEqual([nomeArquivo("creditos", "A"), nomeArquivo("creditos", "B")]);
+    const b = r.arquivos[1];
+    expect(b.situacao).toBe("recusado");
+    expect(b.servico).toBe("creditos");
+    expect(b.motivos.join(" ")).toContain("EPERM");
+    expect(r.arquivos[0].situacao).toBe("aceito-com-divergencia");
+  });
+
+  it("A2: falha de leitura passageira não fica no cache; os outros entram e o que falhou é aceito na segunda leitura", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever(nomeArquivo("creditos", "A"), creditos("A"));
+    await pasta.escrever(nomeArquivo("creditos", "B"), creditos("B"));
+    let chamadasDeB = 0;
+    const lerArquivo = async (caminho: string) => {
+      if (caminho.includes("_B.json") && ++chamadasDeB === 1) throw erroDeSistema("EBUSY");
+      return new Uint8Array(await readFile(caminho));
+    };
+    const cache = criarCache();
+    const primeira = await lerPasta(pasta.caminho, { cache, lerArquivo });
+    expect(primeira.arquivos.map((a) => a.situacao)).toEqual(["aceito-com-divergencia", "recusado"]);
+    expect(primeira.arquivos[1].motivos.join(" ")).toContain("EBUSY");
+    const segunda = await lerPasta(pasta.caminho, { cache, lerArquivo });
+    expect(segunda.arquivos.map((a) => a.situacao)).toEqual(["aceito-com-divergencia", "aceito-com-divergencia"]);
+    expect(chamadasDeB).toBe(2);
+  });
+
+  it("A2: recusa por validação continua no cache (não relê)", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever(nomeArquivo("creditos", "RUIM"), "{ nao e json");
+    const { lidos, lerArquivo } = leitorContador();
+    const cache = criarCache();
+    await lerPasta(pasta.caminho, { cache, lerArquivo });
+    await lerPasta(pasta.caminho, { cache, lerArquivo });
+    expect(lidos).toHaveLength(1);
+  });
+
+  it("A3: erro interno (sem código de sistema) propaga, não vira recusa do arquivo", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever(nomeArquivo("creditos", "A"), creditos("A"));
+    const validador = {
+      validar: () => {
+        throw new TypeError("falha interna simulada");
+      },
+    };
+    await expect(lerPasta(pasta.caminho, { cache: criarCache(), validador })).rejects.toThrow("falha interna simulada");
+  });
+
+  it("A3: erro do leitor sem código de sistema também propaga", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever(nomeArquivo("creditos", "A"), creditos("A"));
+    const lerArquivo = async () => {
+      throw new TypeError("leitor com defeito");
+    };
+    await expect(lerPasta(pasta.caminho, { cache: criarCache(), lerArquivo })).rejects.toThrow("leitor com defeito");
+  });
+
+  it("A4: erro ao listar a pasta traz o código do erro", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever("e-um-arquivo.txt", "x");
+    const r = await lerPasta(join(pasta.caminho, "e-um-arquivo.txt"), { cache: criarCache() });
+    expect(r.legivel).toBe(false);
+    expect(r.erro).toMatch(/ENOTDIR|ENOENT/);
+    expect(r.codigoErro).toMatch(/^E[A-Z]+$/);
+    expect(r.erro).toContain(r.codigoErro);
+  });
+
+  it("A5: extensão .JSON em maiúsculas aparece na lista, como ignorada", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever("20261120T101530Z_creditos_FICT1.JSON", creditos());
+    const r = await lerPasta(pasta.caminho, { cache: criarCache() });
+    expect(r.arquivos).toHaveLength(1);
+    expect(r.arquivos[0].situacao).toBe("ignorado");
+  });
+
+  it("A6: motivos cortados em 20 dizem quantos faltam", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever(nomeArquivo("creditos", "A"), creditos("A"));
+    const validador = { validar: () => ({ situacao: "recusado" as const, motivos: Array.from({ length: 20 }, (_, i) => `divergência ${i}`), total: 25 }) };
+    const r = await lerPasta(pasta.caminho, { cache: criarCache(), validador });
+    expect(r.arquivos[0].motivos).toHaveLength(21);
+    expect(r.arquivos[0].motivos[20]).toBe("e mais 5 divergências");
+  });
+
+  it("A6: sem corte, nenhum motivo extra", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever(nomeArquivo("creditos", "A"), "{ nao e json");
+    const r = await lerPasta(pasta.caminho, { cache: criarCache() });
+    expect(r.arquivos[0].motivos).toHaveLength(1);
   });
 });

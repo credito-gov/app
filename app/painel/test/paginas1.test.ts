@@ -1,9 +1,13 @@
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { montarVisao } from "../src/nucleo/visao.js";
+import { paginaDeErro } from "../src/paginas/erro.js";
+import { criarPainel } from "../src/rotas.js";
 import { afterEach, describe, expect, it } from "vitest";
-import { arquivoCreditos, arquivoDebitos, credito, debito, NI14, NI14_OUTRA, RAIZ, montarChave } from "./apoio/construtores.js";
+import { arquivoCreditos, arquivoDebitos, bytes, credito, debito, NI14, NI14_OUTRA, RAIZ, montarChave } from "./apoio/construtores.js";
 import { cnpjInvalidoDe } from "./apoio/dv.js";
 import { limparPaineis, painelCom, painelCopiando, painelSemPasta, PASTA_ERROS, PASTA_FICTICIOS } from "./apoio/painel.js";
-import { nomeArquivo } from "./apoio/pasta.js";
+import { nomeArquivo, pastaTemporaria } from "./apoio/pasta.js";
 
 afterEach(limparPaineis);
 
@@ -252,6 +256,46 @@ describe("pasta ilegível", () => {
       expect(r.corpo, url).toContain("A pasta não pôde ser lida");
       expect(r.corpo, url).toContain("nao-existe-nesta-pasta");
       expect(r.corpo, url).not.toContain("R$");
+    }
+  });
+});
+
+describe("pasta ilegível: o código do erro orienta (rodada 1, A4)", () => {
+  const visaoComErro = (codigoErro: string) =>
+    montarVisao({ pasta: "/x", legivel: false, erro: `A pasta não pôde ser lida (${codigoErro}): /x`, codigoErro, arquivos: [] });
+
+  it("permissão negada não manda conferir o caminho", () => {
+    const corpo = paginaDeErro(visaoComErro("EACCES"), "Saldo", "/")!;
+    expect(corpo).toContain("EACCES");
+    expect(corpo).toContain("permiss");
+    expect(corpo).not.toContain("Confira o caminho");
+  });
+
+  it("pasta inexistente manda conferir o caminho", () => {
+    const corpo = paginaDeErro(visaoComErro("ENOENT"), "Saldo", "/")!;
+    expect(corpo).toContain("ENOENT");
+    expect(corpo).toContain("Confira o caminho");
+  });
+});
+
+describe("falha passageira de leitura não vira recusa permanente (rodada 1, A2)", () => {
+  it("a segunda requisição lê de novo o arquivo que falhou", async () => {
+    const pasta = await pastaTemporaria();
+    try {
+      await pasta.escrever(CRED, bytes(creditosP1));
+      let chamadas = 0;
+      const lerArquivo = async (caminho: string) => {
+        if (++chamadas === 1) throw Object.assign(new Error("EBUSY"), { code: "EBUSY" });
+        return new Uint8Array(await readFile(caminho));
+      };
+      const painel = criarPainel({ pasta: pasta.caminho, lerArquivo });
+      const primeira = await painel.tratar({ metodo: "GET", url: "/arquivos" });
+      expect(primeira.corpo).toContain("EBUSY");
+      const segunda = await painel.tratar({ metodo: "GET", url: "/arquivos" });
+      expect(segunda.corpo).not.toContain("EBUSY");
+      expect(segunda.corpo).toContain("aceito");
+    } finally {
+      await pasta.limpar();
     }
   });
 });
