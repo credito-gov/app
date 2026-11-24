@@ -79,9 +79,14 @@ export function criarClienteToken(opcoes: {
     const recentes = registro.pedidosDeTokenDesde(new Date(agora.getTime() - JANELA_MS));
     if (recentes.length >= LIMITE_POR_HORA) {
       const liberaEm = new Date(recentes[recentes.length - LIMITE_POR_HORA].getTime() + JANELA_MS);
+      const ilegiveis = registro.linhasIlegiveisDesde(new Date(agora.getTime() - JANELA_MS));
+      const sobre =
+        ilegiveis.length > 0
+          ? ` Há registro ilegível contado como pedido de token (${ilegiveis.map((n) => `linha ${n}`).join(", ")} de .local/chamadas.jsonl); se não foi um pedido real, corrija ou apague essa linha.`
+          : "";
       throw erro({
         motivo: "outro",
-        detalhe: `Pedido de token não feito: limite de 2 tokens por hora; pode pedir de novo a partir de ${hhmm(liberaEm)}.`,
+        detalhe: `Pedido de token não feito: limite de 2 tokens por hora (controle local); pode pedir de novo a partir de ${hhmm(liberaEm)}.${sobre}`,
       });
     }
 
@@ -129,8 +134,8 @@ export function criarClienteToken(opcoes: {
       });
     }
 
-    // 2xx: o pedido contou no limite de 2 por hora, qualquer que seja o estado do corpo.
-    const contou = "O pedido contou no limite de 2 tokens por hora.";
+    // 2xx: o pedido entra no controle local do limite de 2 por hora, qualquer que seja o estado do corpo.
+    const contou = "O pedido foi contado no controle local do limite de 2 tokens por hora.";
     let texto: string;
     try {
       texto = await resposta.text();

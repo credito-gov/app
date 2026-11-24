@@ -150,7 +150,7 @@ describe("registro ilegível não impede o download nem mascara o erro (E)", () 
     expect(await a.rodar(["consulta", "creditos", "--tiquete", "T-9"])).toBe(0);
     const texto = a.saida.texto();
     expect(texto).toContain("linha 2");
-    expect(texto.split("linha 2").length - 1).toBe(1);
+    expect(texto.split("Aviso: linha 2").length - 1).toBe(1); // o aviso também diz como corrigir, citando a linha de novo
     expect(texto).not.toContain("Erro inesperado");
     expect(a.guardados()).toHaveLength(1);
   });

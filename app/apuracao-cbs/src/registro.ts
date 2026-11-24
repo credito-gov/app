@@ -25,6 +25,8 @@ export interface Registro {
   registrar(entrada: EntradaRegistro): void;
   contarAberturas(servico: string, dia: Date): { total: number; aceitas: number };
   pedidosDeTokenDesde(instante: Date): Date[];
+  /** Números das linhas ilegíveis (ou com data inválida) que entram na contagem de pedidos de token desde o instante. */
+  linhasIlegiveisDesde(instante: Date): number[];
   primeiraAbertura(tiquete: string): Date | undefined;
 }
 
@@ -33,6 +35,9 @@ interface LinhaLida {
   numero: number;
   dados?: Linha;
   quando?: Date;
+  /** Instante usado nas contagens: `quando`, ou, sem data válida, a data de modificação do arquivo. */
+  contadaEm: Date;
+  ilegivel: boolean;
 }
 
 export function criarRegistro(opcoes: { pastaLocal: string; relogio: Relogio; avisar?: (texto: string) => void }): Registro {
@@ -56,6 +61,13 @@ export function criarRegistro(opcoes: { pastaLocal: string; relogio: Relogio; av
       );
       return [];
     }
+    // Lida uma vez por leitura: a linha sem data válida vale a data de modificação do arquivo (finita; envelhece).
+    let modificadoEm: Date;
+    try {
+      modificadoEm = statSync(arquivo).mtime;
+    } catch {
+      modificadoEm = opcoes.relogio.agora();
+    }
     const saida: LinhaLida[] = [];
     texto.split(/\r?\n/).forEach((bruta, indice) => {
       if (bruta.trim() === "") return;
@@ -72,10 +84,10 @@ export function criarRegistro(opcoes: { pastaLocal: string; relogio: Relogio; av
       if (!dados || !valida) {
         avisarUmaVez(
           `linha-${numero}`,
-          `Aviso: linha ${numero} de chamadas.jsonl ilegível ou com data inválida; foi contada como chamada feita nos limites.`,
+          `Aviso: linha ${numero} de chamadas.jsonl ilegível ou com data inválida; foi contada como chamada feita, na data de modificação do arquivo. Para tirá-la da contagem, corrija ou apague a linha ${numero} de .local/chamadas.jsonl.`,
         );
       }
-      saida.push({ numero, dados, quando: valida ? quando : undefined });
+      saida.push({ numero, dados, quando: valida ? quando : undefined, contadaEm: valida ? quando : modificadoEm, ilegivel: !dados || !valida });
     });
     return saida;
   };
@@ -121,27 +133,28 @@ export function criarRegistro(opcoes: { pastaLocal: string; relogio: Relogio; av
       let total = 0;
       let aceitas = 0;
       for (const l of ler()) {
-        if (!l.dados) {
-          total += 1; // modo conservador: linha ilegível conta como abertura feita
-          continue;
-        }
-        if (l.dados.tipo !== "abertura" || l.dados.servico !== servico) continue;
-        if (l.quando && !mesmoDia(l.quando, dia)) continue;
-        total += 1; // sem data válida, conta como feita hoje
-        if (l.dados.http !== null && l.dados.http >= 200 && l.dados.http < 300) aceitas += 1;
+        // modo conservador: linha ilegível conta como abertura feita, no dia em que o arquivo foi modificado
+        if (l.dados && (l.dados.tipo !== "abertura" || l.dados.servico !== servico)) continue;
+        if (!mesmoDia(l.contadaEm, dia)) continue;
+        total += 1;
+        if (l.dados && l.dados.http !== null && l.dados.http >= 200 && l.dados.http < 300) aceitas += 1;
       }
       return { total, aceitas };
     },
 
     pedidosDeTokenDesde(instante) {
-      const agora = opcoes.relogio.agora();
       const instantes: Date[] = [];
       for (const l of ler()) {
         if (l.dados && l.dados.tipo !== "token") continue;
-        const quando = l.quando ?? agora; // modo conservador: sem data válida, conta como pedido de agora
-        if (quando.getTime() >= instante.getTime()) instantes.push(quando);
+        if (l.contadaEm.getTime() >= instante.getTime()) instantes.push(l.contadaEm);
       }
       return instantes.sort((a, b) => a.getTime() - b.getTime());
+    },
+
+    linhasIlegiveisDesde(instante) {
+      return ler()
+        .filter((l) => l.ilegivel && (!l.dados || l.dados.tipo === "token") && l.contadaEm.getTime() >= instante.getTime())
+        .map((l) => l.numero);
     },
 
     primeiraAbertura(tiquete) {
