@@ -11,7 +11,7 @@ const TRANSACTIONS = [
   {
     supplier: 'Fornecedor B',
     invoice: 'NF-e 3.117',
-    tribute: 'IBS',
+    tribute: 'CBS',
     amount: 'R$ 1.312,18',
     status: 'Pendente',
   },
@@ -25,7 +25,7 @@ const TRANSACTIONS = [
   {
     supplier: 'Fornecedor A',
     invoice: 'NF-e 10.517',
-    tribute: 'IBS',
+    tribute: 'CBS',
     amount: 'R$ 677,78',
     status: 'Confirmado',
   },
@@ -52,7 +52,7 @@ export default function DashboardShowcase() {
             Cada crédito com a compra, a nota e o fornecedor
           </h2>
           <p className="max-w-[540px] text-[16px] text-[#94a3b8]">
-            O painel em desenvolvimento vai mostrar de onde vem cada crédito de CBS e IBS e o que
+            O painel em desenvolvimento vai mostrar de onde vem cada crédito de CBS e o que
             ainda depende do fornecedor.
           </p>
         </div>
