@@ -18,10 +18,23 @@ function dataDosDados(visao: Visao): string | undefined {
   return maisRecente;
 }
 
+/** "1 arquivo recusado" / "2 arquivos recusados". */
+function contagem(n: number, singular: string, plural: string): string {
+  return n === 1 ? `1 arquivo ${singular}` : `${n} arquivos ${plural}`;
+}
+
+/** Aviso único, com as contagens separadas: recusado não entra nos totais; divergência conhecida entra. */
 function aviso(visao: Visao): Cru {
-  const ha = visao.arquivos.some((a) => a.situacao === "recusado" || a.situacao === "aceito-com-divergencia");
-  if (!ha) return new Cru("");
-  return html`<div class="aviso-arquivos">Atenção: há arquivos recusados ou aceitos com divergência conhecida do schema 1.0.0. <a href="/arquivos">Ver os arquivos</a></div>`;
+  const conta = (situacao: string) => visao.arquivos.filter((a) => a.situacao === situacao).length;
+  const recusados = conta("recusado");
+  const ignorados = conta("ignorado");
+  const divergentes = conta("aceito-com-divergencia");
+  const partes: string[] = [];
+  if (recusados > 0) partes.push(`${contagem(recusados, "recusado", "recusados")} (${recusados === 1 ? "não entra" : "não entram"} nos totais)`);
+  if (ignorados > 0) partes.push(contagem(ignorados, "ignorado", "ignorados"));
+  if (divergentes > 0) partes.push(`${contagem(divergentes, "aceito", "aceitos")} com divergência conhecida do schema 1.0.0`);
+  if (partes.length === 0) return new Cru("");
+  return html`<div class="aviso-arquivos">Atenção: ${partes.join("; ")}. <a href="/arquivos">Ver os arquivos</a></div>`;
 }
 
 /** Página completa com o cabeçalho comum a todas as rotas. */

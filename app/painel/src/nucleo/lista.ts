@@ -40,14 +40,21 @@ export function lerConsulta(params: URLSearchParams): { consulta: ConsultaLista;
   const texto = (nome: string) => params.get(nome) ?? "";
 
   const pa = /^(0[1-9]|1[0-2])\/\d{4}$/.test(texto("pa")) ? texto("pa") : undefined;
+  if (texto("pa") !== "" && pa === undefined) avisos.push("O período foi ignorado: use o formato mm/aaaa, por exemplo 11/2026.");
   const documento = /^\d{1,3}$/.test(texto("documento")) ? parseInt(texto("documento"), 10) : undefined;
+  if (texto("documento") !== "" && documento === undefined) avisos.push("O tipo de documento foi ignorado: use o código numérico, de 1 a 3 dígitos.");
   const emitenteBruto = texto("emitente");
+  // CNPJ ou CPF colado com pontuação vale: tiram-se ".", "/" e "-" antes de conferir.
+  const emitenteSemPontuacao = emitenteBruto.replace(/[./-]/g, "");
   const emitente =
     emitenteBruto === "nao-identificado" || emitenteBruto === "propria-empresa"
       ? emitenteBruto
-      : /^[A-Za-z0-9]{8,14}$/.test(emitenteBruto)
-        ? emitenteBruto.toUpperCase()
+      : /^[A-Za-z0-9]{8,14}$/.test(emitenteSemPontuacao)
+        ? emitenteSemPontuacao.toUpperCase()
         : undefined;
+  if (emitenteBruto !== "" && emitente === undefined) {
+    avisos.push("O emitente foi ignorado: use CNPJ ou CPF (com ou sem pontuação), a raiz de 8 caracteres, nao-identificado ou propria-empresa.");
+  }
 
   let busca: string | undefined;
   const buscaBruta = texto("busca");

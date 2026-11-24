@@ -6,6 +6,7 @@ import { reais } from "./formatos.js";
 import { html, juntar, type Cru } from "./html.js";
 import { layout } from "./layout.js";
 import { linkNota } from "./links.js";
+import { textoSemCreditos } from "./vazio.js";
 
 export const TEXTO_PENDENCIAS =
   "A Receita informa o valor a apropriar de cada nota, mas não informa o motivo. Esta tela não indica que o emitente deixou de recolher.";
@@ -27,7 +28,7 @@ function resumo(visao: Visao): Cru {
 }
 
 export function paginaPendencias(visao: Visao, parametros: URLSearchParams): string | undefined {
-  if (visao.vazio) return layout(visao, "Pendências", "/pendencias", html`<p class="vazio">A Receita não devolveu créditos nos arquivos lidos.</p>`);
+  if (visao.vazio) return layout(visao, "Pendências", "/pendencias", textoSemCreditos(visao));
   const p = visao.pendencias!;
   const grupoId = parametros.get("grupo");
 

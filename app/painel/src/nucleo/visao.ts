@@ -34,11 +34,15 @@ export interface Visao {
   pendencias?: Pendencias;
   servicos: { creditos: ResumoServico; recolhimentos: ResumoServico; debitos: ResumoServico };
   substituidas: { creditos: number; debitos: number; recolhimentos: number };
+  /** Arquivos de créditos e de débitos recusados ou ignorados: não entram nos totais. */
+  naoEntraram: { creditos: number; debitos: number };
   /** Chaves presentes nos débitos (O-25). */
   chavesEmDebitos: Set<string>;
 }
 
 const aceito = (a: ArquivoLido) => a.situacao === "aceito" || a.situacao === "aceito-com-divergencia";
+
+const naoEntra = (a: ArquivoLido) => a.situacao === "recusado" || a.situacao === "ignorado";
 
 function resumo(arquivos: ArquivoLido[], servico: string, notas: Nota[]): ResumoServico {
   const usados = arquivos.filter((a) => a.servico === servico && aceito(a));
@@ -85,6 +89,10 @@ export function montarVisao(pasta: ResultadoPasta): Visao {
       debitos: resumo(arquivos, "debitos", debitos.notas),
     },
     substituidas: { creditos: creditos.substituidas, debitos: debitos.substituidas, recolhimentos: recolhimentos.substituidos },
+    naoEntraram: {
+      creditos: pasta.arquivos.filter((a) => a.servico === "creditos" && naoEntra(a)).length,
+      debitos: pasta.arquivos.filter((a) => a.servico === "debitos" && naoEntra(a)).length,
+    },
     chavesEmDebitos: new Set(debitos.notas.map((n) => n.chave)),
   };
 }

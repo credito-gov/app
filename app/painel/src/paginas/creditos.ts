@@ -7,6 +7,7 @@ import type { Visao } from "../nucleo/visao.js";
 import { reais } from "./formatos.js";
 import { html, juntar, type Cru } from "./html.js";
 import { layout } from "./layout.js";
+import { textoSemCreditos } from "./vazio.js";
 import { celulaEmitente, linkNota } from "./links.js";
 
 /** Endereço da lista com os filtros da consulta; só o que difere do padrão entra na URL. */
@@ -59,7 +60,7 @@ function linha(n: LinhaLista): Cru {
 }
 
 export function paginaCreditos(visao: Visao, parametros: URLSearchParams): string {
-  if (visao.vazio) return layout(visao, "Créditos", "/creditos", html`<p class="vazio">A Receita não devolveu créditos nos arquivos lidos.</p>`);
+  if (visao.vazio) return layout(visao, "Créditos", "/creditos", textoSemCreditos(visao));
   const { consulta, avisos } = lerConsulta(parametros);
   const r = listarCreditos(visao.notas, consulta);
   const anterior = r.pagina > 1 ? html`<a href="${urlLista(consulta, r.pagina - 1)}">« Anterior</a>` : "";

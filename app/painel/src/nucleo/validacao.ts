@@ -5,6 +5,7 @@ import { readFileSync } from "node:fs";
 import { Ajv2020 } from "ajv/dist/2020.js";
 import formatosModulo, { type FormatsPlugin } from "ajv-formats";
 import { isLosslessNumber, parse as parseLossless } from "lossless-json";
+import { analisarData } from "./datas.js";
 import { lerSemPerda } from "./json.js";
 
 // ajv-formats é CommonJS: no ESM do Node o plugin útil vem em .default.
@@ -62,6 +63,24 @@ function checarNumeros(valor: unknown, caminho: string, chave: string, saida: st
   }
 }
 
+/** Campos de data e hora que o painel compara e exibe (o schema só confere o formato `date-time`). */
+const CAMPOS_DATA_HORA = new Set(["geradoEm", "atualizacao", "emissao", "registro"]);
+
+/** O schema aceita formas de data-hora que o painel não lê (fuso sem dois-pontos, t e z minúsculos, espaço no lugar do T...). */
+function checarDatas(valor: unknown, caminho: string, chave: string, saida: string[]): void {
+  if (typeof valor === "string") {
+    if (CAMPOS_DATA_HORA.has(chave) && analisarData(valor) === null) {
+      saida.push(`${caminho}: data que o painel não consegue ler (esperado aaaa-mm-ddThh:mm:ss, com fração opcional de até 9 dígitos, e Z ou ±hh:mm)`);
+    }
+    return;
+  }
+  if (Array.isArray(valor)) {
+    valor.forEach((item, i) => checarDatas(item, `${caminho}/${i}`, chave, saida));
+  } else if (valor !== null && typeof valor === "object") {
+    for (const [k, v] of Object.entries(valor)) checarDatas(v, `${caminho}/${k}`, k, saida);
+  }
+}
+
 export function criarValidador(): Validador {
   const ajv = new Ajv2020({ allErrors: true, multipleOfPrecision: 4 });
   adicionarFormatos(ajv);
@@ -97,6 +116,7 @@ export function criarValidador(): Validador {
       const naoTolerados = erros.filter((e) => !tolerado(e));
       const divergencias: string[] = naoTolerados.map((e) => `${e.instancePath || "/"}: ${e.message ?? "divergência do schema"}`);
       checarNumeros(parseLossless(texto), "", "", divergencias);
+      checarDatas(objeto, "", "", divergencias);
 
       if (divergencias.length > 0) {
         return { situacao: "recusado", motivos: divergencias.slice(0, MAXIMO_LISTADO), total: divergencias.length };

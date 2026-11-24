@@ -4,6 +4,7 @@ import type { Visao } from "../nucleo/visao.js";
 import { arquivos, dataHora, reais, TEXTO_SO_DOS_ARQUIVOS } from "./formatos.js";
 import { html, juntar, type Cru } from "./html.js";
 import { layout } from "./layout.js";
+import { textoSemCreditos, textoSemDebitos } from "./vazio.js";
 
 function dadosPorServico(visao: Visao): Cru {
   const linhas: Array<[string, typeof visao.servicos.creditos]> = [
@@ -42,7 +43,7 @@ function tabelaCredito(visao: Visao): Cru {
 function tabelaDebito(visao: Visao): Cru {
   const t = visao.totaisDebitos;
   const intro = html`<p class="nota">Débitos das vendas, mostrados à parte. O painel não calcula saldo líquido entre crédito e débito.</p>`;
-  if (t === undefined) return html`<section class="bloco"><h2>Débitos de CBS (vendas)</h2>${intro}<p class="vazio">Nenhum débito nos arquivos lidos.</p></section>`;
+  if (t === undefined) return html`<section class="bloco"><h2>Débitos de CBS (vendas)</h2>${intro}${textoSemDebitos(visao)}</section>`;
   const linha = (nome: string, v: TotaisDebitos, classe = "") =>
     html`<tr class="${classe}"><th scope="row">${nome}</th><td class="valor">${reais(v.apurado)}</td><td class="valor">${reais(v.extinto)}</td><td class="valor">${reais(v.saldoDevedor)}</td></tr>`;
   return html`<section class="bloco">
@@ -58,7 +59,7 @@ ${intro}
 
 export function paginaSaldo(visao: Visao): string {
   const corpo = visao.vazio
-    ? html`<p class="vazio">A Receita não devolveu créditos nos arquivos lidos.</p>`
+    ? textoSemCreditos(visao)
     : tabelaCredito(visao);
   return layout(
     visao,
