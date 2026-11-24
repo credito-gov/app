@@ -1,11 +1,10 @@
 # 030-painel-primeira-versao — Primeira versão do painel: saldo, origem e pendências
 
-- **Status:** us-em-revisão
+- **Status:** us-aprovada
+- **US aprovada:** 2026-11-24, pelo responsável ("Aprovo assim"), sobre a versão do commit `1c558d6`, com as recomendações de todas as perguntas (ver "Decisões na aprovação")
 - **Branch:** `feat/030-painel-primeira-versao`
 - **Worktree:** `.claude/worktrees/030-painel-primeira-versao`
 - **Solicitante / data:** responsável pelo produto, 2026-11-24
-
-> **Pergunta bloqueante (P-1): forma do painel.** Web local sem login (alternativa A) ou backend com banco e login (alternativa B). As duas estão descritas em "Forma do painel", com custo e recomendação. Os critérios comuns valem para as duas; os critérios A-N e B-N valem só para a alternativa escolhida. Ao aprovar a US, o bloco não escolhido sai do documento. A Spec só começa depois dessa escolha e das respostas a P-2 (validação do `ni`) e P-4 (fornecedor), que mudam CA-2, CA-3, CA-12 e CA-14.
 
 ## História
 
@@ -18,8 +17,8 @@ Como responsável por uma empresa no regime regular, com a credencial que eu mes
 ### Decisões já tomadas pelo responsável
 
 1. **Para quem:** uma empresa, um CNPJ, com a credencial que o próprio titular gera no portal. Cadastro de vários clientes fica fora (o acesso em nome de vários contribuintes não está documentado; ver H1).
-2. **Forma do painel:** decidida ao aprovar esta US (P-1).
-3. **Dados:** fictícios agora, reais depois. O painel é construído e demonstrado com arquivos fictícios no formato oficial; os reais entram por configuração ou importação, nunca no repositório.
+2. **Forma do painel:** web local, sem login (D-1).
+3. **Dados:** fictícios agora, reais depois. O painel é construído e demonstrado com arquivos fictícios no formato oficial; os reais entram por configuração da pasta de arquivos, nunca no repositório.
 
 ### O que a documentação sustenta
 
@@ -70,13 +69,13 @@ Chamada real de créditos feita pelo responsável em 2026-11-24, com a credencia
 
 **Consequências para esta US:**
 
-- Validação estrita pelo schema oficial recusaria **todo** arquivo real observado até agora (P-2).
-- Quase todo o crédito está a apropriar, e o pouco apropriado já foi utilizado: chamar o apropriado de "confirmado" sugere um dinheiro que não existe mais (P-3).
-- Sem recolhimentos, a única fonte possível de emitente é a chave da nota. O padrão das posições 7–20 nos dois arquivos (O-23) reforça a leitura como CNPJ do emitente, mas a fonte oficial do leiaute continua faltando; e 15% das notas de crédito (código 91) têm chave de outro formato (P-4).
+- Validação estrita pelo schema oficial recusaria **todo** arquivo real observado até agora (D-2).
+- Quase todo o crédito está a apropriar, e o pouco apropriado já foi utilizado: chamar o apropriado de "confirmado" sugere um dinheiro que não existe mais (D-3).
+- Sem recolhimentos, a única fonte possível de emitente é a chave da nota. O padrão das posições 7–20 nos dois arquivos (O-23) reforça a leitura como CNPJ do emitente, mas a fonte oficial do leiaute continua faltando; e 15% das notas de crédito (código 91) têm chave de outro formato (D-4).
 - Um arquivo mistura estabelecimentos da mesma raiz (O-24): a comparação de empresa pela raiz está confirmada.
-- O arquivo de débitos tem a mesma forma do de créditos e quase todo débito está com saldo devedor integral (O-22). Isso informa a P-7.
+- O arquivo de débitos tem a mesma forma do de créditos e quase todo débito está com saldo devedor integral (O-22). Isso informa a D-7.
 - Um período pode ter quase mil notas: a lista precisa continuar utilizável com esse volume.
-- Identidade do crédito entre arquivos (P-5) e origens diferentes de normal (P-6) **não puderam ser testadas**.
+- Identidade do crédito entre arquivos (D-5) e origens diferentes de normal (D-6) **não puderam ser testadas**.
 
 ### Outras restrições
 
@@ -87,14 +86,14 @@ Chamada real de créditos feita pelo responsável em 2026-11-24, com a credencia
 - **Primeira demanda de uma aplicação nova:** define o comando de teste e o registra no `AGENTS.md`.
 - A stack não está decidida (`PROJECT_CONTEXT.md` §4) e é assunto da Spec. O wireframe de [`../../design/wireframes/dashboard-principal.md`](../../design/wireframes/dashboard-principal.md) é da concepção (compensação de ICMS, antecipação, projeção) e serve só de ponto de partida.
 
-### Forma do painel (P-1)
+### Forma do painel (alternativas avaliadas; escolhida a A, D-1)
 
 | | **A. Web local, sem login** | **B. Backend, banco e login** |
 |---|---|---|
 | Como funciona | A aplicação roda na máquina do responsável, abre no navegador em endereço local e lê os arquivos de uma pasta. Cada abertura recalcula a visão a partir dos arquivos | Um servidor com banco de dados guarda os arquivos importados e os créditos consolidados. O painel exige entrar com email e senha (decisão de 2026-08-25: autenticação própria) |
 | O que exige construir | Leitura e validação dos arquivos, consolidação, as três telas (saldo, origem, pendências), arquivos fictícios e testes | Tudo de A, mais: modelo do banco e migrações, importação de arquivo com controle de duplicado, autenticação (hash de senha, sessão, expiração, criação do usuário), proteção das rotas, configuração de banco e segredos, testes dessas partes |
-| O que adia | Login, banco, histórico persistido fora dos arquivos, hospedagem, vários usuários | Hospedagem continua adiada (não há decisão; ver P-1b); vários clientes continuam fora |
-| Riscos | Retrabalho ao passar para servidor (a leitura e a consolidação podem ser reaproveitadas; a camada de dados e o acesso, não). Só funciona na máquina de quem tem os arquivos | Modelar banco e consolidação com um único arquivo real visto e sem saber como um crédito muda entre arquivos (P-5): o modelo pode mudar. Mais superfície para erro de segurança, agora com dado fiscal guardado. Sem hospedagem decidida, roda também só localmente, com o custo de B e o alcance de A. Demanda bem maior e mais longa |
+| O que adia | Login, banco, histórico persistido fora dos arquivos, hospedagem, vários usuários | Hospedagem continua adiada (não há decisão; fora desta demanda); vários clientes continuam fora |
+| Riscos | Retrabalho ao passar para servidor (a leitura e a consolidação podem ser reaproveitadas; a camada de dados e o acesso, não). Só funciona na máquina de quem tem os arquivos | Modelar banco e consolidação com um único arquivo real visto e sem saber como um crédito muda entre arquivos (D-5): o modelo pode mudar. Mais superfície para erro de segurança, agora com dado fiscal guardado. Sem hospedagem decidida, roda também só localmente, com o custo de B e o alcance de A. Demanda bem maior e mais longa |
 | O que demonstra | O valor da visão (saldo, origem, pendências) para o próprio titular | O mesmo, mais a base técnica do produto SaaS |
 
 **Recomendação: A.** Já há um arquivo real com dados, mas um só: a identidade do crédito entre arquivos, as origens especiais e a fonte do emitente seguem em aberto, e um banco modelado agora tende a ser refeito. A empresa é uma só, com credencial do próprio titular, e os arquivos já ficam na máquina dele. A cobre a validação de valor (H2) com custo pequeno; B passa a valer quando houver vários arquivos reais observados, decisão de hospedagem e o modelo de acesso em nome de clientes.
@@ -103,25 +102,25 @@ Chamada real de créditos feita pelo responsável em 2026-11-24, com a credencia
 
 ### Leitura dos arquivos (comum)
 
-- **CA-1:** O painel lê arquivos de retorno das consultas de créditos e de recolhimentos no formato oficial (schemas 1.0.0, cópias em `app/apuracao-cbs/schemas/oficiais/`), inclusive os arquivos brutos como a `app/apuracao-cbs` os guarda, sem alteração. Aceita os formatos observados (O-9, O-13, O-15): campos zerados ausentes, números com 0 a 2 casas decimais e datas com fuso e 0 a 6 casas de fração de segundo. A origem dos arquivos é a pasta local (A-2) ou a importação (B-2).
-- **CA-2:** Cada arquivo é validado contra o schema oficial do seu serviço antes de ser usado, com a tolerância decidida em P-2 e nenhuma outra. Arquivo ilegível, de serviço não reconhecido ou com qualquer divergência fora dessa tolerância não entra em nenhum número; o painel lista o arquivo e o motivo, e os demais continuam sendo usados. Arquivo aceito com a divergência tolerada aparece marcado como tal, com o nome da divergência. As cópias dos schemas oficiais não são alteradas.
+- **CA-1:** O painel lê arquivos de retorno das consultas de créditos e de recolhimentos no formato oficial (schemas 1.0.0, cópias em `app/apuracao-cbs/schemas/oficiais/`), inclusive os arquivos brutos como a `app/apuracao-cbs` os guarda, sem alteração. Aceita os formatos observados (O-9, O-13, O-15): campos zerados ausentes, números com 0 a 2 casas decimais e datas com fuso e 0 a 6 casas de fração de segundo. A origem dos arquivos é a pasta local (CA-A2).
+- **CA-2:** Cada arquivo é validado contra o schema oficial do seu serviço antes de ser usado, com uma única tolerância, a de D-2 (`ni` com 8 ou 14 dígitos), e nenhuma outra. Arquivo ilegível, de serviço não reconhecido ou com qualquer divergência fora dessa tolerância não entra em nenhum número; o painel lista o arquivo e o motivo, e os demais continuam sendo usados. Arquivo aceito com a divergência tolerada aparece marcado como "aceito com divergência conhecida do schema 1.0.0", com o nome da divergência. As cópias dos schemas oficiais não são alteradas.
 - **CA-3:** Todos os arquivos usados são da mesma empresa. A comparação é pela raiz do CNPJ: os 8 primeiros dígitos de `ni`, que vem com 8 dígitos no schema e com 14 no arquivo real (O-2), e um mesmo arquivo pode trazer notas de mais de um estabelecimento da raiz (O-24). Se houver arquivos de mais de uma empresa, o painel não mistura: não mostra nenhum valor e diz quais arquivos divergem.
-- **CA-4:** Com vários arquivos de créditos, cada crédito conta uma vez: quando o mesmo crédito aparece em mais de um arquivo, vale a versão mais recente, pela regra decidida em P-5. Os totais não mudam se o mesmo arquivo for lido duas vezes.
+- **CA-4:** Com vários arquivos de créditos, cada crédito conta uma vez: quando o mesmo crédito aparece em mais de um arquivo, vale a versão mais recente, pela regra de D-5. Os totais não mudam se o mesmo arquivo for lido duas vezes.
 - **CA-5:** O painel mostra, por serviço, a data e hora de geração (`geradoEm`) do arquivo mais recente usado, quantos arquivos foram lidos e o intervalo das datas de `atualizacao` dos créditos, e avisa que a visão é só a dos arquivos lidos e que a Receita não fornece histórico por esta API. O painel não afirma o tamanho da janela de cada consulta (ver O-4).
 - **CA-6:** Sem arquivo de créditos, ou só com arquivos com `apuracao` vazia, o painel diz que a Receita não devolveu créditos nos arquivos lidos, em vez de exibir um saldo R$ 0,00 como se fosse apurado.
 
 ### Saldo (comum)
 
-- **CA-7:** A tela de saldo mostra, no geral e por período de apuração (`pa`), com o nome oficial do campo ao lado do rótulo: "A apropriar (pendente)" (`aApropriar`), "Apropriado" (`apropriado`), "Já utilizado" (`utilizado`) e "Saldo credor não utilizado" (`saldoCredor`). Os totais ficam sempre separados, nunca somados num número só, e nenhum é calculado a partir dos outros: cada um é a soma do campo como veio. O rótulo final de cada um segue a decisão de P-3.
-- **CA-8:** Nenhum valor a apropriar, suspenso, inapropriável ou prescrito é somado a outro total. Nenhuma tela usa "disponível", "pode usar" ou equivalente para qualquer valor, salvo o que P-3 decidir.
+- **CA-7:** A tela de saldo mostra, no geral e por período de apuração (`pa`), com o nome oficial do campo ao lado do rótulo: "A apropriar (pendente)" (`aApropriar`), "Apropriado" (`apropriado`), "Já utilizado" (`utilizado`) e "Saldo credor não utilizado" (`saldoCredor`). Os totais ficam sempre separados, nunca somados num número só, e nenhum é calculado a partir dos outros: cada um é a soma do campo como veio. Nenhum rótulo usa "confirmado" (D-3).
+- **CA-8:** Nenhum valor a apropriar, suspenso, inapropriável ou prescrito é somado a outro total. Nenhuma tela usa "disponível", "pode usar" ou equivalente para qualquer valor (D-3).
 - **CA-9:** O painel diz, na tela de saldo, que mostra só CBS e que o IBS não está na fonte de dados.
 
 ### Origem (comum)
 
 - **CA-10:** Uma lista dos créditos mostra, por nota: período (`pa`), tipo de documento (nome da tabela oficial), chave, data de emissão, origem (nome da tabela oficial), emitente (CA-12), apurado, a apropriar, apropriado e utilizado. A lista pode ser filtrada por período, por tipo de documento, por emitente e por "só com valor a apropriar"; pode ser ordenada por data de emissão e por valor a apropriar; e tem busca por trecho da chave. Com um período de 1.000 notas, a lista continua utilizável (a Spec define se pagina ou como limita a exibição).
 - **CA-11:** O detalhe de uma nota mostra todos os campos do crédito com o nome oficial (inclusive `suspenso`, `inapropriavel`, `prescrito`, `excedente`, `restabelecido`, `inutilizavel` e `pedidoRessarcimento`, quando vierem; ausente aparece como não informado ou zero, conforme a Spec, sem distinção inventada), as datas de registro e atualização, e os itens de recolhimento ligados à nota pela chave (`chaveDFE` igual à `chave`): data de arrecadação, número do DARF, período, vencimento, fornecedor, principal, multa, juros e total.
-- **CA-12:** O emitente aparece só quando identificado pela regra decidida em P-4, com a indicação de onde veio (recolhimento ou chave da nota). Nos demais casos, a nota mostra "emitente não identificado", e as notas do código 91 (chave de 50 dígitos) seguem a decisão de P-4 para esse tipo. Quando o emitente identificado tem a mesma raiz de CNPJ da empresa, a nota mostra "emitida pela própria empresa", e não um fornecedor. O painel nunca deduz emitente por semelhança, nome ou valor.
-- **CA-13:** Notas com origem diferente de normal (devolução, cancelamento, perecimento, nota de crédito) aparecem destacadas com o nome da origem e entram nos totais conforme a decisão de P-6. Notas com emissão fora do mês do período (O-14) aparecem como vêm, sem correção.
+- **CA-12:** O emitente aparece só quando identificado pela regra de D-4 (`niFornecedor` do recolhimento ligado à nota, ou a chave de 44 dígitos, conforme a fonte oficial do leiaute registrada em `docs/referencias/`), com a indicação de onde veio (recolhimento ou chave da nota). Nos demais casos, inclusive todas as notas do código 91 (chave de 50 dígitos), a nota mostra "emitente não identificado". Quando o emitente identificado tem a mesma raiz de CNPJ da empresa, a nota mostra "emitida pela própria empresa", e não um fornecedor. O painel nunca deduz emitente por semelhança, nome ou valor.
+- **CA-13:** Notas com origem diferente de normal (devolução, cancelamento, perecimento, nota de crédito) aparecem destacadas com o nome da origem e entram nos totais conforme D-6 (somadas como vêm, sem inverter sinal). Notas com emissão fora do mês do período (O-14) aparecem como vêm, sem correção.
 
 ### Pendências (comum)
 
@@ -131,7 +130,7 @@ Chamada real de créditos feita pelo responsável em 2026-11-24, com a credencia
 ### Valores, dados e segurança (comum)
 
 - **CA-16:** Valores monetários são lidos sem perda (inclusive números JSON com 0 ou 1 casa decimal) e somados em decimal exato, sem ponto flutuante; cada total é igual, centavo a centavo, à soma dos itens que o compõem; a exibição é em reais no padrão brasileiro (R$ 1.234,56, negativos com sinal).
-- **CA-17:** A aplicação traz um conjunto versionado de arquivos fictícios, válidos contra os schemas oficiais salvo a divergência tolerada em P-2, que imita a forma observada e permite demonstrar todos os CA:
+- **CA-17:** A aplicação traz um conjunto versionado de arquivos fictícios, válidos contra os schemas oficiais salvo a divergência tolerada em D-2, que imita a forma observada e permite demonstrar todos os CA:
   - como no real: `ni` e `niConsumidor` iguais, com 14 dígitos; campos zerados ausentes e `saldoCredor` presente; números com 0, 1 e 2 casas; datas com fuso e frações de tamanhos diferentes; documentos 55, 57, 62, 65 com chave de 44 dígitos e 91 com chave de 50; um período concentrando quase todas as notas (centenas, para o CA-10); quase todo o crédito a apropriar, apropriações parciais, apropriado igual ao utilizado; uma nota com emitente igual à própria empresa; emissões fora do mês do período;
   - o que o real não trouxe: origens diferentes de normal; o mesmo crédito em dois arquivos com valores diferentes; recolhimentos com e sem `chaveDFE`; apropriado ainda não utilizado (`saldoCredor` maior que zero); um arquivo com `ni` de 8 dígitos; um arquivo de outra empresa; um arquivo inválido por motivo diferente do `ni`; um arquivo vazio.
   Chaves, NIs e números de DARF são fictícios e não correspondem a documento ou CNPJ válido (dígito verificador inválido, por exemplo); valores são inventados. Arquivos grandes podem ser gerados por script versionado em vez de escritos à mão.
@@ -143,64 +142,48 @@ Chamada real de créditos feita pelo responsável em 2026-11-24, com a credencia
 - **CA-20:** O painel é uma aplicação nova em `app/<nome>` (nome definido na Spec), com README que explica o que faz, o que não faz, como rodar com os fictícios e como apontar para os arquivos reais.
 - **CA-21:** A demanda define os comandos de teste, lint e build da aplicação e os registra no `AGENTS.md` (regra de testes e seção "Comandos"), no `PROJECT_CONTEXT.md` (§2, §4 e §7) e em `.claude/fluxo.json` (`apps`).
 - **CA-22:** Os testes automatizados cobrem os CA-1 a CA-19 a partir dos arquivos fictícios, sem rede e sem `.env`; teste, lint e build passam.
-- **CA-23:** A demanda registra o "Observado no arquivo real de 2026-11-24" (O-1 a O-25, sem dado real) em `docs/referencias/apuracao-cbs/README.md` (seção "Observado na chamada real" e tabela de divergências, com a divergência do `ni` entre schema e arquivo como **confirmada**) e em `docs/produto/hipoteses.md` (H1: motivo da pendência, recolhimentos, dados para observar), junto com as respostas de P-2 a P-6.
+- **CA-23:** A demanda registra o "Observado no arquivo real de 2026-11-24" (O-1 a O-25, sem dado real) em `docs/referencias/apuracao-cbs/README.md` (seção "Observado na chamada real" e tabela de divergências, com a divergência do `ni` entre schema e arquivo como **confirmada**) e em `docs/produto/hipoteses.md` (H1: motivo da pendência, recolhimentos, dados para observar), junto com as decisões D-2 a D-6, as de domínio (D-3 a D-6) como hipóteses a conferir.
 
-### Só se a P-7 incluir os débitos
+### Débitos (D-7)
 
 - **CA-D1:** O painel lê também arquivos de débitos, com as mesmas regras de validação, empresa, consolidação e data dos CA-1 a CA-5.
 - **CA-D2:** Um bloco "Débitos de CBS (vendas)", separado do saldo de crédito, mostra no geral e por período os totais de `apurado`, `extinto` e `saldoDevedor`, com o nome oficial ao lado do rótulo. Nenhum total de débito é subtraído, somado ou comparado a total de crédito, e o bloco diz que o painel não calcula saldo líquido.
 - **CA-D3:** Os fictícios incluem arquivos de débitos que imitam a forma observada (O-18 a O-22: `extinto` ausente quando zero, documentos 55 e 91, notas de mais de um estabelecimento da mesma raiz) e a nota que aparece nos dois arquivos (O-25).
 
-### Só se a escolha for A (web local, sem login)
+### Painel local, sem login (D-1)
 
 - **CA-A1:** Um comando documentado sobe o painel na máquina do responsável e ele abre no navegador num endereço local. O painel só aceita conexão da própria máquina e não tem login.
 - **CA-A2:** A pasta de arquivos é configurável. Sem configuração, o painel usa os fictícios versionados; apontar para os arquivos reais (por exemplo, `app/apuracao-cbs/.local/arquivos/`) é só configuração, sem copiar nem alterar os arquivos. Recarregar a página reflete arquivos novos na pasta.
 - **CA-A3:** O painel só lê: não grava, move nem apaga nada na pasta de arquivos.
-
-### Só se a escolha for B (backend, banco e login)
-
-- **CA-B1:** Sem sessão válida, nenhuma tela nem rota devolve dado. O acesso é por email e senha; a senha é guardada só como hash; a sessão expira; não há cadastro aberto (o usuário é criado por comando documentado). Credenciais de teste são fictícias e nunca versionadas.
-- **CA-B2:** O usuário importa arquivos pelo painel. Cada arquivo passa pela validação do CA-2; o mesmo arquivo importado de novo (mesmo `tiqueteSolicitacao`) não duplica nada; o painel mostra os arquivos importados com data e resultado.
-- **CA-B3:** O banco é criado e atualizado por migrações versionadas; valores monetários ficam em tipo decimal de precisão fixa; os testes usam um banco descartável, sem dado real.
-- **CA-B4:** A aplicação roda localmente com um comando documentado (banco incluído). Hospedagem fica fora desta demanda (P-1b).
 
 ## Fora de escopo
 
 - Vários clientes ou vários CNPJs; acesso de contador à carteira.
 - Chamar a API da Receita a partir do painel, agendar consultas ou rodar `npm run consulta`.
 - IBS; tributos antigos.
-- Pagamentos no painel. Débitos, salvo os CA-D1 a CA-D3 se a P-7 os incluir.
+- Pagamentos no painel. Dos débitos, só os totais do CA-D2: sem lista de notas de venda.
 - Saldo líquido (crédito menos débito), projeção de caixa, compensação, antecipação e geração de guia (RAD, PCONT).
 - Explicar o motivo da pendência ou afirmar que o emitente não recolheu.
 - Nome ou razão social do emitente (só o número que vier do recolhimento ou da chave).
-- **"Resumir mesmo inválido" na `app/apuracao-cbs`:** a prova de conceito continua recusando o arquivo real pelo `ni` de 14 dígitos (decisão D-1 da demanda 029). Ajustar isso é item próprio do backlog, não desta demanda; o painel trata a divergência no seu próprio leitor (P-2).
+- **"Resumir mesmo inválido" na `app/apuracao-cbs`:** a prova de conceito continua recusando o arquivo real pelo `ni` de 14 dígitos (decisão D-1 da demanda 029). Ajustar isso é item próprio do backlog, não desta demanda; o painel trata a divergência no seu próprio leitor (D-2).
 - Alterar as cópias dos schemas oficiais.
-- Hospedagem, domínio, publicação, CI.
+- Backend, banco de dados, login, hospedagem, domínio, publicação, CI (D-1).
 - Atualizar o design system para o tema escuro (item próprio do backlog).
 - Alterar a `app/apuracao-cbs`, salvo o mínimo para reaproveitar código, se a Spec justificar.
 
+## Decisões na aprovação (2026-11-24)
+
+O responsável aprovou a US com as recomendações de todas as perguntas. As de domínio (D-3 a D-6) são hipóteses a conferir e vão para `docs/produto/hipoteses.md` (CA-23).
+
+- **D-1 (era P-1): forma do painel.** Alternativa A: web local, sem login, lendo uma pasta de arquivos. Backend, banco e login ficam fora; valem os CA-A1 a CA-A3.
+- **D-2 (era P-2): validação do `ni`.** Tolerar só essa divergência: `ni` com 8 ou 14 dígitos (só números); todo o resto validado pelo schema oficial sem alteração; arquivo marcado como "aceito com divergência conhecida do schema 1.0.0". Rever quando a Receita publicar schema novo.
+- **D-3 (era P-3): rótulos do saldo.** Quatro totais com o nome oficial: "A apropriar (pendente)", "Apropriado", "Já utilizado" e "Saldo credor não utilizado". Nenhum usa "confirmado" nem "disponível"; nenhum é calculado a partir dos outros. Qual valor é o saldo utilizável fica para tributarista.
+- **D-4 (era P-4): emitente.** `niFornecedor` dos recolhimentos (pela `chaveDFE`) mais a chave de 44 dígitos (códigos 55, 57, 62 e 65), com a fonte oficial do leiaute registrada em `docs/referencias/`. **Sem essa fonte, a demanda volta ao usuário antes de seguir.** O código 91 (chave de 50 dígitos) fica "emitente não identificado". Nota cujo emitente tem a mesma raiz de CNPJ da empresa vai para o grupo "emitida pela própria empresa" e aparece nos dois lados, sem compensar; o significado fica para tributarista.
+- **D-5 (era P-5): identidade do crédito entre arquivos.** Hipótese: período, chave, tipo de documento e origem; vale a versão com `atualizacao` mais recente e, no empate, a do arquivo com `geradoEm` mais recente. Conferir na segunda consulta real da mesma credencial.
+- **D-6 (era P-6): origens diferentes de normal.** Hipótese: valores somados como vêm, sem inverter sinal, com a origem destacada. Conferir com tributarista e com o primeiro arquivo real que trouxer essas origens.
+- **D-7 (era P-7): débitos.** Bloco separado só com totais por período (CA-D1 a CA-D3), sem lista de notas de venda e sem saldo líquido.
+- **D-8 (era P-8): aparência.** Tokens do tema escuro da landing, com foco em tela de computador.
+
 ## Perguntas em aberto
 
-As respostas de domínio (P-3 a P-6) são registradas em `docs/produto/hipoteses.md` (CA-23).
-
-- **P-1 (bloqueante): forma do painel.** A ou B, conforme a tabela "Forma do painel". Recomendação: A.
-  - **P-1b (só se B):** onde roda? Recomendação: só local nesta demanda; hospedagem com dado fiscal é decisão própria (custo, LGPD, segredos).
-- **P-2 (bloqueante): validação do `ni`.** O schema 1.0.0 exige `ni` com 8 dígitos; o arquivo real traz 14 (O-2). Opções:
-  - **(a) estrita:** recusar. Custo: o painel recusa todo arquivo real visto até hoje; só funciona com fictícios.
-  - **(b) tolerar só essa divergência:** aceitar `ni` com 8 ou 14 dígitos (só números), validar todo o resto pelo schema oficial sem alteração e marcar o arquivo como "aceito com divergência conhecida do schema 1.0.0". Custo: uma regra a mais no leitor, coberta por teste; se a Receita mudar outra coisa, o arquivo volta a ser recusado.
-  - **(c) desligar a validação ou usar schema próprio:** custo: o painel passa a aceitar arquivo que mudou de forma sem avisar.
-  Recomendação: (b). Rever quando a Receita publicar um schema novo.
-- **P-3: rótulos do saldo e o que é "disponível".** A referência diz que `apropriado` "já pode ser utilizado", mas no arquivo real todo o apropriado já tinha sido utilizado e `saldoCredor` era 0 (O-12): "Confirmado" ao lado do apropriado sugere um dinheiro que não existe mais. Recomendação: mostrar os quatro totais do CA-7 com os rótulos "A apropriar (pendente)", "Apropriado", "Já utilizado" e "Saldo credor não utilizado", sem usar "confirmado" nem "disponível" em nenhum, e sem calcular `saldoCredor` a partir de `apropriado` e `utilizado` (a relação foi observada, não tem fonte). Levar a um tributarista qual valor é o saldo utilizável.
-- **P-4 (bloqueante): de onde vem o emitente.** Recolhimentos respondeu 404 em todas as tentativas, com credenciais diferentes (O-17), e 99% do crédito está a apropriar (O-10). O padrão das posições 7–20 nos dois arquivos (O-23: nas vendas, quase sempre a própria empresa ou outro estabelecimento dela; nas compras, quase sempre outra raiz) reforça que são o CNPJ do emitente, mas é evidência observada, não fonte. Opções e custo, com as contagens do arquivo real de créditos:
-  - **(a) só recolhimentos (`niFornecedor` pela `chaveDFE`):** sem fonte nova. Hoje, 100% das notas ficam em "emitente não identificado", e a visão por emitente não mostra nada útil até a Receita liberar o serviço; e mesmo depois cobriria só notas com recolhimento pelo adquirente.
-  - **(b) (a) mais a chave de 44 dígitos (posições 7–20):** exige que a Spec registre em `docs/referencias/` a fonte oficial do leiaute da chave de cada modelo (NF-e, NFC-e, CT-e, NFCom). Cobriria os códigos 55, 57, 62 e 65: 764 de 896 notas (85%). Pelo leiaute, na CT-e o emitente é a transportadora, e o rótulo "emitente" evita chamá-la de fornecedor da mercadoria.
-  - **(c) (b) mais a chave de 50 dígitos do código 91 (NFS-e):** exige também a fonte oficial do leiaute da chave da NFS-e nacional. Cobriria os 132 restantes (15%).
-  Recomendação: (b) agora; o código 91 fica em "emitente não identificado" até haver fonte do leiaute de 50 dígitos, o que vira (c). Se a fonte da chave de 44 dígitos não for encontrada na Spec, a demanda cai para (a), e a visão de pendências por emitente perde quase todo o valor: nesse caso a Spec volta ao usuário antes de seguir. Nota cujo emitente tem a mesma raiz de CNPJ da empresa (1 caso em O-16, a mesma nota que aparece também nos débitos, O-25) vai para o grupo "emitida pela própria empresa"; o que isso significa (nota de entrada própria, operação com o próprio estabelecimento ou outro caso) e se o mesmo valor ser crédito e débito se anula fica a validar com tributarista. O painel mostra a nota nos dois lados, sem compensar.
-- **P-5: identidade do crédito entre arquivos.** **Não testada:** só houve um arquivo com dados, sem chave repetida (O-7). Nenhuma fonte diz o que identifica um crédito de um arquivo para o outro, nem se a versão nova substitui a anterior. Importa porque quase tudo está a apropriar e deve mudar nas próximas consultas. Recomendação: o crédito é identificado por período, chave, tipo de documento e origem; vale a versão com `atualizacao` mais recente e, no empate, a do arquivo com `geradoEm` mais recente. Registrar como hipótese a conferir na segunda consulta real da mesma credencial.
-- **P-6: origens diferentes de normal e sinal dos valores.** **Não testada:** todas as 896 notas vieram com origem normal e nenhum valor negativo (O-5, O-13). Não há fonte sobre como devolução, cancelamento ou perecimento afetam os totais, nem se essas linhas vêm negativas (o schema não impõe mínimo). Recomendação: somar os valores como vêm, sem inverter sinal, destacar a origem na lista e registrar como hipótese a validar com tributarista e com o primeiro arquivo real que trouxer essas origens.
-- **P-7: débitos no painel.** O arquivo real de débitos chegou, com a mesma forma do de créditos e a mesma divergência do `ni` (O-18 a O-22); 99,9% dos débitos estavam com saldo devedor integral. "Saldo = crédito menos débito" continua sem fonte: como e quando o crédito extingue o débito é regra de compensação. Opções:
-  - **(a) fora desta versão:** sem custo extra; o painel mostra só o lado do crédito.
-  - **(b) bloco separado de totais (CA-D1 a CA-D3):** custo pequeno, porque o leitor, a validação e a consolidação são os mesmos; mais um conjunto de fictícios e testes. Mostra ao empresário o tamanho do débito ao lado do crédito, sem calcular saldo líquido.
-  - **(c) saldo líquido:** fora de cogitação sem fonte da regra de compensação.
-  Recomendação: (b), só com totais por período (sem lista de notas de venda), e o texto deixando claro que não há saldo líquido calculado.
-- **P-8: aparência.** O design system documentado é o tema claro antigo; a landing usa o tema escuro do redesign. Recomendação: seguir os tokens do tema escuro da landing, com foco em tela de computador; não bloqueia a Spec.
+Nenhuma sobre a US. A condição de D-4 (fonte oficial do leiaute da chave) é tratada na Spec.
