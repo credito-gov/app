@@ -1,8 +1,9 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { criarCache, identificarArquivo, lerPasta } from "../src/nucleo/arquivos.js";
+import { criarValidador, type Validador } from "../src/nucleo/validacao.js";
 import { arquivoCreditos, arquivoDebitos, arquivoRecolhimentos, bytes, credito, debito, itemRecolhimento, NI14 } from "./apoio/construtores.js";
 import { limparPaineis, painelCom } from "./apoio/painel.js";
 import { nomeArquivo, pastaTemporaria, type PastaTemporaria } from "./apoio/pasta.js";
@@ -243,17 +244,6 @@ describe("arquivo que não pôde ser lido (rodada 1, grupo A)", () => {
     expect(lidos).toHaveLength(1);
   });
 
-  it("A3: erro interno (sem código de sistema) propaga, não vira recusa do arquivo", async () => {
-    pasta = await pastaTemporaria();
-    await pasta.escrever(nomeArquivo("creditos", "A"), creditos("A"));
-    const validador = {
-      validar: () => {
-        throw new TypeError("falha interna simulada");
-      },
-    };
-    await expect(lerPasta(pasta.caminho, { cache: criarCache(), validador })).rejects.toThrow("falha interna simulada");
-  });
-
   it("A3: erro do leitor sem código de sistema também propaga", async () => {
     pasta = await pastaTemporaria();
     await pasta.escrever(nomeArquivo("creditos", "A"), creditos("A"));
@@ -320,14 +310,95 @@ describe("JSON aninhado demais (rodada 2)", () => {
     });
   }
 
-  it("erro interno que não é de E/S continua propagando", async () => {
+});
+
+describe("um arquivo ruim não derruba as rotas (rodada 3)", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  const MOTIVO_CHAVE = "JSON inválido: chave repetida";
+  const repetidos: Array<[string, string]> = [
+    ["ni", '{"ni":"12345678","ni":"87654321"}'],
+    ["numero", '{"a":1.5,"a":1.50}'],
+    ["aninhada", '{"ni":"12345678","apuracao":[{"pa":"11/2026","pa":"10/2026"}]}'],
+  ];
+
+  for (const [rotulo, conteudo] of repetidos) {
+    it(`chave repetida (${rotulo}): só esse arquivo é recusado, com motivo próprio e sem citar valor; rotas 200`, async () => {
+      const p = await painelCom([
+        [nomeArquivo("creditos", "OK1"), arquivoCreditos([["11/2026", [credito({ chave: "A1", aApropriar: "10.50" })]]], { ni: NI14 })],
+        [nomeArquivo("creditos", "REPETE"), conteudo],
+      ]);
+      const r = await lerPasta(p.pasta.caminho, { cache: criarCache() });
+      const ruim = r.arquivos.find((a) => a.nome.includes("REPETE"))!;
+      expect(ruim.situacao).toBe("recusado");
+      expect(ruim.motivos).toEqual([MOTIVO_CHAVE]);
+      expect(ruim.transitorio).toBeUndefined();
+      expect(r.arquivos.find((a) => a.nome.includes("OK1"))?.situacao).toBe("aceito-com-divergencia");
+      for (const url of ["/", "/arquivos", "/creditos"]) expect((await p.get(url)).status, url).toBe(200);
+      const arquivos = (await p.get("/arquivos")).corpo;
+      expect(arquivos).toContain(MOTIVO_CHAVE);
+      expect(arquivos).not.toContain("87654321");
+      expect((await p.get("/creditos")).corpo).toContain("A1");
+    });
+  }
+
+  it("erro inesperado do validador: o arquivo é recusado com o nome do erro, registrado em stderr e fora do cache", async () => {
+    const saida: string[] = [];
+    vi.spyOn(process.stderr, "write").mockImplementation(((texto: string | Uint8Array) => {
+      saida.push(String(texto));
+      return true;
+    }) as typeof process.stderr.write);
     pasta = await pastaTemporaria();
-    await pasta.escrever(nomeArquivo("creditos", "X"), creditos());
-    const validador = {
-      validar: () => {
-        throw new TypeError("defeito do painel");
+    await pasta.escrever(nomeArquivo("creditos", "BOM"), creditos("B"));
+    await pasta.escrever(nomeArquivo("creditos", "DEFEITO"), creditos("D"));
+    const bom = criarValidador();
+    const defeituoso: Validador = {
+      validar: (servico, conteudo) => {
+        if (new TextDecoder().decode(conteudo).includes('"D"')) throw new TypeError(`${"a".repeat(250)}SEGREDO${"b".repeat(300)}`);
+        return bom.validar(servico, conteudo);
       },
     };
-    await expect(lerPasta(pasta.caminho, { validador })).rejects.toThrow("defeito do painel");
+    const cache = criarCache();
+    const primeira = await lerPasta(pasta.caminho, { cache, validador: defeituoso });
+    const ruim = primeira.arquivos.find((a) => a.nome.includes("DEFEITO"))!;
+    expect(ruim.situacao).toBe("recusado");
+    expect(ruim.motivos).toEqual(["erro interno ao verificar o arquivo (TypeError)"]);
+    expect(ruim.transitorio).toBe(true);
+    expect(primeira.arquivos.find((a) => a.nome.includes("BOM"))?.situacao).toBe("aceito-com-divergencia");
+    const registro = saida.join("");
+    expect(registro).toContain(nomeArquivo("creditos", "DEFEITO"));
+    expect(registro).toContain("TypeError");
+    expect(registro).toContain("a".repeat(200));
+    expect(registro).not.toContain("a".repeat(201));
+    expect(registro).not.toContain("SEGREDO");
+    expect(cache.has(nomeArquivo("creditos", "DEFEITO"))).toBe(false);
+    expect(cache.has(nomeArquivo("creditos", "BOM"))).toBe(true);
+
+    const segunda = await lerPasta(pasta.caminho, { cache, validador: bom });
+    expect(segunda.arquivos.find((a) => a.nome.includes("DEFEITO"))?.situacao).toBe("aceito-com-divergencia");
+  });
+
+  describe("limite de tamanho", () => {
+    const MB = 1024 * 1024;
+    const comTamanho = (size: number) => async () => ({ isFile: () => true, size, mtimeMs: 1 });
+
+    it("acima de 200 MB o arquivo é recusado com motivo fixo, sem ser lido", async () => {
+      pasta = await pastaTemporaria();
+      await pasta.escrever(nomeArquivo("creditos", "GRANDE"), creditos());
+      const { lidos, lerArquivo } = leitorContador();
+      const r = await lerPasta(pasta.caminho, { cache: criarCache(), lerArquivo, estatistica: comTamanho(300 * MB) });
+      expect(r.arquivos[0].situacao).toBe("recusado");
+      expect(r.arquivos[0].motivos).toEqual(["arquivo grande demais para o painel: 300 MB"]);
+      expect(lidos).toHaveLength(0);
+    });
+
+    it("com exatamente 200 MB o arquivo ainda é lido", async () => {
+      pasta = await pastaTemporaria();
+      await pasta.escrever(nomeArquivo("creditos", "LIMITE"), creditos());
+      const { lidos, lerArquivo } = leitorContador();
+      const r = await lerPasta(pasta.caminho, { cache: criarCache(), lerArquivo, estatistica: comTamanho(200 * MB) });
+      expect(lidos).toHaveLength(1);
+      expect(r.arquivos[0].situacao).toBe("aceito-com-divergencia");
+    });
   });
 });
