@@ -39,11 +39,14 @@ export function hostAceito(host: string | undefined, porta: number): boolean {
   return aceitos.includes(host);
 }
 
-/** Registra o erro interno em stderr com a rota (sem a query, sem conteúdo de arquivo nem valores). */
+const MAXIMO_MENSAGEM = 200;
+
+/** Registra o erro interno em stderr com a rota (sem a query; a mensagem entra truncada, pois pode citar conteúdo de arquivo). */
 function registrarErro(url: string, e: unknown): void {
   const rota = url.split("?")[0];
   const pilha = (e instanceof Error ? (e.stack ?? "") : "").split("\n").slice(1, 6).join("\n");
-  const detalhe = e instanceof Error ? `${e.name}: ${e.message}\n${pilha}` : "erro que não é Error";
+  const mensagem = e instanceof Error ? (e.message.length > MAXIMO_MENSAGEM ? `${e.message.slice(0, MAXIMO_MENSAGEM)}...` : e.message) : "";
+  const detalhe = e instanceof Error ? `${e.name}: ${mensagem}\n${pilha}` : "erro que não é Error";
   process.stderr.write(`Erro interno em GET ${rota}: ${detalhe}\n`);
 }
 
