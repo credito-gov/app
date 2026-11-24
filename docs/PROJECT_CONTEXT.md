@@ -28,7 +28,7 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 |---|---|
 | Landing page (`app/landing-page`) | Redesign escuro concluído e na `main` (tasks 015–027, PR #10). Texto em postura de pré-lançamento desde a demanda 028: diz que o produto está em desenvolvimento e convida para a lista de espera, sem números, depoimentos ou promessas sem base. |
 | Publicação da landing | <https://credito-gov.vercel.app/> mostra a versão clara antiga. O Vercel recusa publicar a partir do repositório (organização privada no plano gratuito), então o redesign **não está no ar** |
-| Prova de conceito da API de apuração da CBS (`app/apuracao-cbs`) | Demanda 029. Aplicação de linha de comando, só leitura, com as quatro consultas; implementada e testada com respostas simuladas. **Chamada real pendente**: depende da credencial do responsável e de pedido explícito. Não é o backend do produto |
+| Prova de conceito da API de apuração da CBS (`app/apuracao-cbs`) | Demanda 029. Aplicação de linha de comando, só leitura, com as quatro consultas; implementada e testada com respostas simuladas. **Chamada real feita em 2026-11-24:** o ciclo funcionou para créditos e débitos, que vieram vazios; recolhimentos e pagamentos responderam HTTP 404. Não é o backend do produto |
 | Backend, banco, autenticação, painel | **Não iniciados.** As tasks 001–005 foram escritas e estão suspensas (ver §5) |
 | Validação de mercado (entrevistas, contadores, tributarista) | Sem registro no repositório |
 
@@ -207,3 +207,4 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | 2026-11-23 | Reescrito na reorganização geral: estado real do projeto, API da Receita rebaixada a hipótese, stack do backend marcada como proposta, fluxo por demandas, nova estrutura de pastas |
 | 2026-11-23 | Landing em postura de pré-lançamento (demanda 028) |
 | 2026-11-24 | Demanda 029: criada `app/apuracao-cbs`, prova de conceito de linha de comando da API de apuração da CBS (quatro consultas, só leitura). Chamada real pendente. A stack do painel continua não decidida |
+| 2026-11-24 | Chamada real da prova de conceito (demanda 029): ciclo comprovado para créditos e débitos, sem dados no retorno; recolhimentos e pagamentos indisponíveis (HTTP 404); não há URL separada de produção restrita |
