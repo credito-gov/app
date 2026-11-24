@@ -4,10 +4,12 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { criarCache, identificarArquivo, lerPasta } from "../src/nucleo/arquivos.js";
 import { arquivoCreditos, arquivoDebitos, arquivoRecolhimentos, bytes, credito, debito, itemRecolhimento, NI14 } from "./apoio/construtores.js";
+import { limparPaineis, painelCom } from "./apoio/painel.js";
 import { nomeArquivo, pastaTemporaria, type PastaTemporaria } from "./apoio/pasta.js";
 
 let pasta: PastaTemporaria | undefined;
 afterEach(async () => {
+  await limparPaineis();
   await pasta?.limpar();
   pasta = undefined;
 });
@@ -293,5 +295,39 @@ describe("arquivo que não pôde ser lido (rodada 1, grupo A)", () => {
     await pasta.escrever(nomeArquivo("creditos", "A"), "{ nao e json");
     const r = await lerPasta(pasta.caminho, { cache: criarCache() });
     expect(r.arquivos[0].motivos).toHaveLength(1);
+  });
+});
+
+describe("JSON aninhado demais (rodada 2)", () => {
+  const aninhado = (n: number) => `{"a":${"[".repeat(n)}${"]".repeat(n)}}`;
+
+  for (const niveis of [2000, 3000, 10000]) {
+    it(`com ${niveis} níveis, o arquivo é recusado com motivo fixo, com cache, e as rotas respondem 200`, async () => {
+      const p = await painelCom([
+        [nomeArquivo("creditos", "OK1"), arquivoCreditos([["11/2026", [credito({ chave: "A1", aApropriar: "10.50" })]]], { ni: NI14 })],
+        [nomeArquivo("creditos", "FUNDO"), aninhado(niveis)],
+      ]);
+      const r = await lerPasta(p.pasta.caminho, { cache: criarCache() });
+      const fundo = r.arquivos.find((a) => a.nome.includes("FUNDO"))!;
+      expect(fundo.situacao).toBe("recusado");
+      expect(fundo.motivos).toEqual(["o conteúdo não pôde ser verificado: estrutura aninhada demais"]);
+      expect(fundo.transitorio).toBeUndefined();
+      expect(r.arquivos.find((a) => a.nome.includes("OK1"))?.situacao).toBe("aceito-com-divergencia");
+      for (const url of ["/", "/arquivos", "/creditos"]) expect((await p.get(url)).status, url).toBe(200);
+      const arquivos = (await p.get("/arquivos")).corpo;
+      expect(arquivos).toContain("estrutura aninhada demais");
+      expect((await p.get("/creditos")).corpo).toContain("A1");
+    });
+  }
+
+  it("erro interno que não é de E/S continua propagando", async () => {
+    pasta = await pastaTemporaria();
+    await pasta.escrever(nomeArquivo("creditos", "X"), creditos());
+    const validador = {
+      validar: () => {
+        throw new TypeError("defeito do painel");
+      },
+    };
+    await expect(lerPasta(pasta.caminho, { validador })).rejects.toThrow("defeito do painel");
   });
 });

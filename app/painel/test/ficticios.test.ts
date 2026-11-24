@@ -198,6 +198,34 @@ describe("datas coerentes nos arquivos de volume (rodada 1, G2)", () => {
   }
 });
 
+describe("nenhuma data dos fictícios está no futuro (rodada 2)", () => {
+  const CAMPOS = new Set(["geradoEm", "atualizacao", "emissao", "registro"]);
+  const datas = (valor: unknown, saida: string[] = []): string[] => {
+    if (Array.isArray(valor)) valor.forEach((v) => datas(v, saida));
+    else if (valor !== null && typeof valor === "object") {
+      for (const [k, v] of Object.entries(valor)) {
+        if (CAMPOS.has(k) && typeof v === "string") saida.push(v);
+        else datas(v, saida);
+      }
+    }
+    return saida;
+  };
+
+  it("o geradoEm de cada arquivo bate com o dia do nome", async () => {
+    for (const nome of Object.values(NOMES)) {
+      const m = /^(\d{4})(\d{2})(\d{2})T/.exec(nome)!;
+      expect(((await bruto(nome)).geradoEm as string).slice(0, 10), nome).toBe(`${m[1]}-${m[2]}-${m[3]}`);
+    }
+  });
+
+  it("nenhuma data passa de novembro de 2026", async () => {
+    for (const nome of Object.values(NOMES)) {
+      const acima = datas(await bruto(nome)).filter((d) => d.slice(0, 7) > "2026-11");
+      expect(acima.slice(0, 3), nome).toEqual([]);
+    }
+  });
+});
+
 describe("débitos (CA-D3, O-18 a O-25)", () => {
   it("extinto ausente quando zero e saldoDevedor presente", async () => {
     const itens = itensDe(await bruto(NOMES.debitos), "debitos");

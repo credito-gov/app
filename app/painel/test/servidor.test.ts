@@ -123,6 +123,28 @@ describe("erro interno (rodada 1, grupo B)", () => {
   });
 });
 
+describe("log do erro interno limita a mensagem (rodada 2)", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("a mensagem entra truncada em 200 caracteres", async () => {
+    const saida: string[] = [];
+    vi.spyOn(process.stderr, "write").mockImplementation(((texto: string | Uint8Array) => {
+      saida.push(String(texto));
+      return true;
+    }) as typeof process.stderr.write);
+    const pasta = await copiaDosFicticios();
+    const s = await subir(pasta.caminho, async () => {
+      throw new TypeError(`${"a".repeat(150)}SEGREDO${"b".repeat(500)}`);
+    });
+    await pedir(s.porta, "/creditos");
+    const registro = saida.join("");
+    expect(registro).toContain("TypeError");
+    expect(registro).toContain("a".repeat(150));
+    expect(registro).not.toContain("SEGREDO");
+    expect(registro).not.toContain("b".repeat(10));
+  });
+});
+
 describe("métodos (DT-10)", () => {
   it("POST, PUT, DELETE e PATCH recebem 405, com Allow", async () => {
     const s = await subir(PASTA_FICTICIOS);

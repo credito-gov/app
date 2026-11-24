@@ -464,7 +464,7 @@ describe("nenhuma tela sugere crédito disponível (CA-8, D-3)", () => {
   it("a varredura visita notas de todos os tipos de documento e de todos os motivos de emitente não identificado dos fictícios", async () => {
     const variadas = await notasVariadas(await painelCopiando(PASTA_FICTICIOS));
     const tipos = new Set([...variadas.keys()].map((k) => k.split("|")[0]));
-    expect([...tipos].sort()).toEqual(["55", "57", "62", "65", "91"].filter((d) => tipos.has(d)));
+    expect([...tipos].sort()).toEqual(["55", "57", "62", "65", "91"]);
     expect(tipos.has("55")).toBe(true);
     expect(tipos.has("91")).toBe(true);
     expect(variadas.has(`91|${MOTIVOS.semLeiaute}`)).toBe(true);
