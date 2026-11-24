@@ -1,9 +1,10 @@
 # 030-painel-primeira-versao — Spec
 
-- **Status:** spec-em-revisão
+- **Status:** spec-aprovada
 - **US:** [`us.md`](us.md), aprovada em 2026-11-24 (decisões D-1 a D-8)
+- **Spec aprovada:** 2026-11-24, pelo responsável ("Aprovo a Spec"), sobre a versão do commit `dab51b5`, com as decisões técnicas DT-1 a DT-10 e a decisão F-2 (ver "Perguntas em aberto")
 
-> **Leiaute da chave (antiga F-1): resolvido.** As fontes oficiais foram localizadas pela sessão em 2026-11-24 e estão em "Fontes do leiaute da chave". Resta a F-2 (nomes das tabelas de documento e origem).
+> **Leiaute da chave (antiga F-1): resolvido.** As fontes oficiais foram localizadas pela sessão em 2026-11-24 e estão em "Fontes do leiaute da chave". **Nomes das tabelas de documento e origem (antiga F-2): decidido** na aprovação da Spec (ver "Perguntas em aberto").
 
 ## Critérios de aceite atendidos
 
@@ -228,7 +229,7 @@ Nenhuma mudança. O painel copia código e schemas (DT-2) em vez de importar.
 - `docs/referencias/apuracao-cbs/README.md`: na seção "Observado na chamada real", O-1 a O-25 sem dado real; na tabela de divergências, a nova divergência "`ni` com 14 dígitos no arquivo × `^\d{8}$` nos quatro schemas", **confirmada**; a linha de recolhimentos (404 com outra credencial e mensagem de endereço não encontrado); conferir a anotação "Válido contra o schema 1.0.0" da primeira chamada, que registra `ni` com 14 dígitos, e corrigi-la se o arquivo foi de fato recusado (CA-23).
 - `docs/produto/hipoteses.md`: H1 com o que os arquivos reais mostraram (motivo da pendência ainda sem campo; 99% a apropriar; apropriado todo utilizado; recolhimentos 404), e as hipóteses D-3 a D-6 e a identidade do item de recolhimento (CA-23).
 - `docs/referencias/documentos-fiscais/README.md` (novo): as fontes F-A a F-E com título, versão, data, URL e seção; a tabela de composição da chave com as posições marcadas como derivadas; as regras de CPF, NFA-e, letras e DV, cada uma com a seção; e a lista do que não foi confirmado (seção "Fontes do leiaute da chave"). Entra no `docs/README.md` e na tabela de referências do `PROJECT_CONTEXT.md` (§10).
-- Tabelas de documento e origem em `docs/referencias/apuracao-cbs/README.md`, se a F-2 for aceita.
+- Tabelas de documento e origem em `docs/referencias/apuracao-cbs/README.md`, com a página e a versão de origem (decisão F-2).
 
 ## Contratos
 
@@ -334,4 +335,6 @@ Conferência manual, no navegador, antes do PR: as cinco páginas com os fictíc
 ## Perguntas em aberto
 
 - **F-1 (resolvida em 2026-11-24):** fontes F-A a F-E, na seção "Fontes do leiaute da chave". O que elas não confirmam está listado lá e cai em "emitente não identificado".
-- **F-2: nomes dos tipos de documento e das origens.** Os schemas trazem só os códigos. Os nomes estão em `app/apuracao-cbs/src/tabelas.ts`, transcritos na demanda 029 das páginas `credito.html` e `debito.html` versão 1.3 (13/11/2026), mas não em `docs/referencias/`. Recomendação: aceitar essa transcrição como fonte, mostrar o nome oficial como está (por exemplo, `DEVOLUCAO_POR_PCONT`) com o código ao lado, e copiar as duas tabelas para `docs/referencias/apuracao-cbs/README.md` nesta demanda, com a página e a versão. Código fora da tabela aparece como "código <n> (sem nome na tabela)".
+- **F-2 (decidida em 2026-11-24, na aprovação da Spec): nomes dos tipos de documento e das origens.** Os schemas trazem só os códigos. Os nomes estão em `app/apuracao-cbs/src/tabelas.ts`, transcritos na demanda 029 das páginas `credito.html` e `debito.html` versão 1.3 (13/11/2026). Decisão: essa transcrição é aceita como fonte; o painel mostra o nome oficial como está (por exemplo, `DEVOLUCAO_POR_PCONT`) com o código ao lado; as duas tabelas são copiadas para `docs/referencias/apuracao-cbs/README.md` nesta demanda, com a página e a versão. Código fora da tabela aparece como "código <n> (sem nome na tabela)".
+
+Nenhuma pergunta em aberto sobre a Spec.
