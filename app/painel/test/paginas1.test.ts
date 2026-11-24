@@ -74,6 +74,101 @@ describe("layout comum (CA-5, CA-2)", () => {
   });
 });
 
+describe("aviso do cabeçalho com as contagens separadas (rodada 1, C2)", () => {
+  const aviso = (corpo: string) => /<div class="aviso-arquivos">([\s\S]*?)<\/div>/.exec(corpo)?.[1] ?? "";
+
+  it("diz quantos recusados, ignorados e aceitos com divergência conhecida", async () => {
+    const { get } = await painelCom([
+      [CRED, arquivoCreditos([["11/2026", [credito({ aApropriar: "1" })]]], { ni: NI14 })],
+      [nomeArquivo("creditos", "FICTRUIM"), "{ ilegível"],
+      ["resposta.json", "{}"],
+    ]);
+    const texto = aviso((await get("/")).corpo);
+    expect(texto).toContain("1 arquivo recusado");
+    expect(texto).toContain("não entra nos totais");
+    expect(texto).toContain("1 arquivo ignorado");
+    expect(texto).toContain("1 arquivo aceito com divergência conhecida");
+    expect(texto).toContain('href="/arquivos"');
+  });
+
+  it("no plural, e sem falar do que não existe", async () => {
+    const { get } = await painelCom([
+      [CRED, arquivoCreditos([["11/2026", [credito({ aApropriar: "1" })]]], { ni: NI14 })],
+      [DEB, arquivoDebitos([["11/2026", [debito({ apurado: "1" })]]], { ni: NI14 })],
+    ]);
+    const texto = aviso((await get("/")).corpo);
+    expect(texto).toContain("2 arquivos aceitos com divergência conhecida");
+    expect(texto).not.toContain("recusado");
+    expect(texto).not.toContain("ignorado");
+  });
+
+  it("só arquivo recusado: o aviso fala em recusa, não em divergência conhecida", async () => {
+    const { get } = await painelCom([...P1, [nomeArquivo("creditos", "FICTRUIM"), "{ ilegível"], [nomeArquivo("debitos", "FICTRUIM2"), "{ ilegível"]]);
+    const texto = aviso((await get("/")).corpo);
+    expect(texto).toContain("2 arquivos recusados");
+    expect(texto).not.toContain("divergência conhecida");
+  });
+
+  it("arquivo ignorado também acende o aviso", async () => {
+    const { get } = await painelCom([...P1, ["resposta.json", "{}"]]);
+    const texto = aviso((await get("/")).corpo);
+    expect(texto).toContain("1 arquivo ignorado");
+  });
+});
+
+describe("estado vazio com arquivo que não entrou (rodada 1, C1)", () => {
+  const RUIM = nomeArquivo("creditos", "FICTRUIM");
+  const naoEntrou = /class="vazio">[^<]*arquivo de créditos que não entrou[\s\S]*?href="\/arquivos"/;
+
+  it("créditos recusados: a tela não atribui o vazio à Receita e liga para /arquivos", async () => {
+    const { get } = await painelCom([[RUIM, "{ ilegível"]]);
+    for (const url of ["/", "/creditos", "/pendencias"]) {
+      const corpo = (await get(url)).corpo;
+      expect(corpo, url).toMatch(naoEntrou);
+      expect(corpo, url).not.toContain("A Receita não devolveu créditos");
+    }
+  });
+
+  it("créditos aceitos mas vazios ao lado de um recusado: também não atribui à Receita", async () => {
+    const { get } = await painelCom([
+      [CRED, { ...arquivoCreditos([], { ni: RAIZ }), apuracao: [] }],
+      [nomeArquivo("creditos", "FICTRUIM", "20261121T101530Z"), "{ ilegível"],
+    ]);
+    const corpo = (await get("/")).corpo;
+    expect(corpo).toMatch(naoEntrou);
+    expect(corpo).not.toContain("A Receita não devolveu créditos");
+  });
+
+  it("vários arquivos: plural", async () => {
+    const { get } = await painelCom([[RUIM, "{ ilegível"], [nomeArquivo("creditos", "FICTRUIM2"), "{ ilegível"]]);
+    expect((await get("/")).corpo).toContain("2 arquivos de créditos que não entraram");
+  });
+
+  it("sem arquivo de créditos, ou só com créditos vazios, continua dizendo que a Receita não devolveu", async () => {
+    const casos: Array<Array<[string, unknown]>> = [
+      [],
+      [[CRED, { ...arquivoCreditos([], { ni: RAIZ }), apuracao: [] }]],
+      [[DEB, debitosP1], [nomeArquivo("debitos", "FICTRUIM"), "{ ilegível"]],
+    ];
+    for (const arquivos of casos) {
+      const corpo = (await (await painelCom(arquivos)).get("/")).corpo;
+      expect(corpo).toContain("A Receita não devolveu créditos nos arquivos lidos.");
+    }
+  });
+
+  it("débitos recusados: o bloco de débitos não diz que não há débito", async () => {
+    const { get } = await painelCom([[CRED, creditosP1], [nomeArquivo("debitos", "FICTRUIM"), "{ ilegível"]]);
+    const corpo = (await get("/")).corpo;
+    expect(corpo).not.toContain("Nenhum débito nos arquivos lidos.");
+    expect(corpo).toMatch(/arquivo de débitos que não entrou[\s\S]*?href="\/arquivos"/);
+  });
+
+  it("sem arquivo de débitos, segue dizendo que não há débito", async () => {
+    const { get } = await painelCom([[CRED, creditosP1]]);
+    expect((await get("/")).corpo).toContain("Nenhum débito nos arquivos lidos.");
+  });
+});
+
 describe("saldo na página inicial (CA-7, CA-9, CA-D2)", () => {
   it("os quatro rótulos da D-3, com o nome do campo ao lado", async () => {
     const { corpo } = await (await painelCom(P1)).get("/");

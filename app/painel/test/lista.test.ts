@@ -66,6 +66,33 @@ describe("leitura da consulta pela URL (CA-10)", () => {
     expect(lerConsulta(new URLSearchParams({ busca: "1234" })).avisos).toEqual([]);
   });
 
+  it("período, tipo de documento e emitente fora do padrão são ignorados e avisados (rodada 1, C3)", () => {
+    const pa = lerConsulta(new URLSearchParams({ pa: "13/2026" }));
+    expect(pa.consulta.pa).toBeUndefined();
+    expect(pa.avisos).toHaveLength(1);
+    expect(pa.avisos[0]).toContain("período");
+    const doc = lerConsulta(new URLSearchParams({ documento: "abc" }));
+    expect(doc.consulta.documento).toBeUndefined();
+    expect(doc.avisos).toHaveLength(1);
+    expect(doc.avisos[0]).toContain("tipo de documento");
+    const em = lerConsulta(new URLSearchParams({ emitente: "xx" }));
+    expect(em.consulta.emitente).toBeUndefined();
+    expect(em.avisos).toHaveLength(1);
+    expect(em.avisos[0]).toContain("emitente");
+  });
+
+  it("campo vazio (todos) e valores válidos não geram aviso", () => {
+    expect(lerConsulta(new URLSearchParams("pa=&documento=&emitente=&busca=")).avisos).toEqual([]);
+    expect(lerConsulta(new URLSearchParams("pa=11/2026&documento=55&emitente=propria-empresa")).avisos).toEqual([]);
+  });
+
+  it("emitente colado com pontuação vale: CNPJ, CPF e raiz", () => {
+    expect(lerConsulta(new URLSearchParams({ emitente: "11.222.333/0001-81" })).consulta.emitente).toBe("11222333000181");
+    expect(lerConsulta(new URLSearchParams({ emitente: "123.456.789-09" })).consulta.emitente).toBe("12345678909");
+    expect(lerConsulta(new URLSearchParams({ emitente: "11.222.333" })).consulta.emitente).toBe("11222333");
+    expect(lerConsulta(new URLSearchParams({ emitente: "11.222.333/0001-81" })).avisos).toEqual([]);
+  });
+
   it("valores inválidos voltam ao padrão", () => {
     const c = consulta("ordem=xx&sentido=yy&pagina=abc&documento=abc&pa=zz&pendente=0");
     expect([c.ordem, c.sentido, c.pagina, c.documento, c.pa, c.pendente]).toEqual(["emissao", "desc", 1, undefined, undefined, false]);

@@ -138,3 +138,41 @@ describe("arquivos recusados (CA-2)", () => {
     expect(recusado(arquivoCreditos([["11/2026", [c]]], { ni: "90817263" })).situacao).toBe("recusado");
   });
 });
+
+describe("datas que o painel não sabe ler (rodada 1, C4)", () => {
+  // O schema (format date-time do ajv-formats) aceita estas formas, que o painel não consegue comparar nem exibir.
+  const ilegiveis: Array<[string, string]> = [
+    ["fuso sem dois-pontos", "2026-11-18T08:00:00-0300"],
+    ["t minúsculo", "2026-11-18t08:00:00-03:00"],
+    ["z minúsculo", "2026-11-18T08:00:00z"],
+    ["espaço no lugar do T", "2026-11-18 08:00:00-03:00"],
+    ["fração com mais de 9 dígitos", "2026-11-18T08:00:00.1234567890-03:00"],
+    ["segundo 60", "2026-11-18T23:59:60Z"],
+  ];
+  type Servico = "creditos" | "debitos" | "recolhimentos";
+  const campos: Array<[string, Servico, (d: string) => unknown]> = [
+    ["atualizacao", "creditos", (d) => arquivoCreditos([["11/2026", [credito({ atualizacao: d })]]], { ni: "90817263" })],
+    ["emissao", "creditos", (d) => arquivoCreditos([["11/2026", [credito({ emissao: d })]]], { ni: "90817263" })],
+    ["registro", "creditos", (d) => arquivoCreditos([["11/2026", [credito({ registro: d })]]], { ni: "90817263" })],
+    ["geradoEm", "creditos", (d) => arquivoCreditos([["11/2026", [credito()]]], { ni: "90817263", geradoEm: d })],
+    ["geradoEm", "debitos", (d) => arquivoDebitos([["11/2026", [debito()]]], { ni: "90817263", geradoEm: d })],
+    ["geradoEm", "recolhimentos", (d) => arquivoRecolhimentos([["2026-11-10", [["99999000000000001", [itemRecolhimento()]]]]], { ni: "90817263", geradoEm: d })],
+  ];
+
+  for (const [campo, servico, montar] of campos) {
+    for (const [nome, data] of ilegiveis) {
+      it(`${servico}, ${campo}: ${nome} é recusada com motivo claro`, () => {
+        const r = validador.validar(servico, bytes(montar(data)));
+        expect(r.situacao).toBe("recusado");
+        expect(r.motivos.join(" ")).toContain("data que o painel não consegue ler");
+        expect(r.motivos.join(" ")).toContain(campo);
+        expect(r.dados).toBeUndefined();
+      });
+    }
+  }
+
+  it("as datas no formato lido pelo painel seguem aceitas", () => {
+    const itens = [credito({ emissao: "2026-11-02T10:00:00Z", registro: "2026-11-02T10:00:00.123456789+05:30", atualizacao: "2026-11-02T10:00:00.1-03:00" })];
+    expect(validador.validar("creditos", bytes(arquivoCreditos([["11/2026", itens]], { ni: "90817263" }))).situacao).toBe("aceito");
+  });
+});
