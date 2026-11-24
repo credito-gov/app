@@ -3,11 +3,11 @@
 - **Status:** spec-em-revisão
 - **US:** [`us.md`](us.md), aprovada em 2026-11-24 (decisões D-1 a D-8)
 
-> **Bloqueio para aprovar a Spec (F-1).** A identificação do emitente pela chave de 44 dígitos (D-4) depende de uma fonte oficial do leiaute da chave registrada em `docs/referencias/`. Não há nenhuma no repositório (conferido em `docs/referencias/apuracao-cbs/` e `docs/referencias/split-payment/`). A seção "Emitente" descreve o que precisa ser obtido e o que muda sem ele. Pela D-4, sem a fonte a demanda volta ao usuário.
+> **Leiaute da chave (antiga F-1): resolvido.** As fontes oficiais foram localizadas pela sessão em 2026-11-24 e estão em "Fontes do leiaute da chave". Resta a F-2 (nomes das tabelas de documento e origem).
 
 ## Critérios de aceite atendidos
 
-Todos os CA da US: CA-1 a CA-23, CA-D1 a CA-D3 e CA-A1 a CA-A3. A parte do CA-12 e do CA-14 que usa a chave da nota depende da F-1; sem ela, o CA-12 é atendido só com o recolhimento, como na D-4.
+Todos os CA da US: CA-1 a CA-23, CA-D1 a CA-D3 e CA-A1 a CA-A3. O CA-12 e o CA-14 usam o recolhimento e a chave de 44 posições, com as fontes F-A a F-E (D-4).
 
 ## Abordagem
 
@@ -41,7 +41,7 @@ app/painel/
 │   │   ├── validacao.ts      # schema oficial + tolerância do ni (D-2)
 │   │   ├── empresa.ts        # raiz do CNPJ, conflito entre empresas (CA-3)
 │   │   ├── consolidacao.ts   # identidade e versão mais recente (D-5)
-│   │   ├── emitente.ts       # recolhimento e chave (D-4, F-1)
+│   │   ├── emitente.ts       # recolhimento e chave (D-4, fontes F-A a F-E)
 │   │   ├── saldo.ts          # quatro totais por período (CA-7)
 │   │   ├── pendencias.ts     # grupos por emitente (CA-14)
 │   │   ├── lista.ts          # filtro, ordenação, busca, paginação (CA-10)
@@ -116,17 +116,65 @@ Mesma validação da `apuracao-cbs`: ajv 2020-12 com `ajv-formats` sobre as cóp
 - Percentual do CA-14: `Big` com uma casa decimal, arredondamento meio para cima; total a apropriar zero mostra "—".
 - Teste de texto: nenhuma página contém "disponível", "pode usar", "pode ser usado", "confirmado" nem "liberado" (CA-8, D-3).
 
-#### Emitente (CA-12, CA-14, D-4, F-1)
+#### Emitente (CA-12, CA-14, D-4)
+
+Fontes: F-A a F-E, em "Fontes do leiaute da chave", registradas em `docs/referencias/documentos-fiscais/README.md` na implementação. A leitura pela chave vale só para os documentos 55, 57, 62 e 65. O documento 91 e qualquer outro código ficam "emitente não identificado", porque o leiaute da chave da NFS-e nacional (50 posições) não foi confirmado.
 
 Ordem para cada nota de crédito:
 
-1. **Recolhimento:** se houver item de recolhimento com `chaveDFE` igual à `chave`, o emitente é o `niFornecedor` dele, com a indicação "do recolhimento". Itens diferentes com `niFornecedor` diferentes para a mesma chave: o emitente fica "não identificado (recolhimentos divergentes)", e o detalhe lista todos.
-2. **Chave da nota (depende da F-1):** para os documentos 55, 57, 62 e 65, quando a chave tem o formato e o tamanho que o leiaute oficial define, o emitente é o campo do emitente nas posições que o leiaute define, com a indicação "da chave da nota". O painel confere também o campo do modelo dentro da chave contra o `documento` do crédito; se divergir, o emitente fica "não identificado (chave fora do leiaute)". Evidência observada, que não substitui a fonte: nos arquivos reais (O-6, O-16, O-23), as posições 7–20 têm 14 dígitos com padrão de CNPJ do emitente, e as posições 21–22 repetem o código do documento.
-3. **Demais casos**, inclusive todo documento 91 (chave de 50 dígitos): "emitente não identificado".
+1. **Recolhimento.** Se houver item de recolhimento com `chaveDFE` igual à `chave`, o emitente é o `niFornecedor` dele, com o rótulo "CNPJ do fornecedor, informado no recolhimento". Se houver itens com `niFornecedor` diferentes para a mesma chave, o emitente fica "não identificado (recolhimentos divergentes)", e o detalhe lista todos.
+2. **Chave da nota.** Os passos são feitos em ordem; o primeiro que falha encerra com "emitente não identificado", e o motivo entre parênteses aparece no detalhe da nota.
+   1. **Formato.** A chave precisa casar com `^[0-9]{6}[A-Z0-9]{12}[0-9]{26}$` (44 posições; F-D, item 5). Se não casar: "(chave fora do leiaute de 44 posições)". O schema oficial da apuração não restringe o formato de `chave` (só tamanho de 1 a 100), então chave com letras passa na validação e chega a este passo.
+   2. **Modelo.** As posições 21–22 precisam ser iguais ao `documento` do crédito. Se não forem: "(modelo na chave diverge do tipo de documento)".
+   3. **Dígito verificador.** A posição 44 precisa ser igual ao DV calculado sobre as 43 primeiras: módulo 11, pesos de 2 a 9 da direita para a esquerda, cada caractere convertido pelo código ASCII menos 48, DV = 11 − resto, e resto 0 ou 1 dá DV 0 (F-A, 2.2.6.2; F-B, 7.3; F-C, 5.3; F-D, item 5, que mantém o cálculo e acrescenta a conversão; para chave só com dígitos o resultado é o mesmo). Se não bater: "(dígito verificador da chave inválido)".
+   4. **Série, modelos 55 e 65.** A série são as posições 23–25.
+      - Modelo 55, série de 890 a 899 (NFA-e): a chave traz o CNPJ da SEFAZ, não o do remetente (F-A, Tabela 2-4). Resultado: "(nota fiscal avulsa: a chave traz o CNPJ do fisco)".
+      - Modelo 55, série de 910 em diante: reservada para emitente pessoa física, cujo CPF consta na chave precedido de zeros até completar 14 posições (F-A, 2.2.6.1 e Tabela 2-4). Se as posições 7–9 forem `000` e as posições 10–20 forem 11 dígitos, o emitente é o CPF (posições 10–20), com o rótulo "CPF do emitente, lido da chave da nota". Senão: "(série de emitente CPF sem CPF na chave)".
+      - Modelo 65, série de 890 em diante: as fontes não confirmam se a NFC-e admite CPF ou nota avulsa nessas séries. Resultado: "(série sem regra confirmada para NFC-e)".
+   5. **CT-e, modelo 57.** A F-B admite CPF do emitente na NFF (2.1.6), com zeros à esquerda, mas a chave não traz campo que distinga CPF de CNPJ. Se as posições 7–9 forem `000`, o painel não decide: "(CT-e com CPF ou CNPJ não distinguível pela chave)". Custo: um CT-e de CNPJ que comece com `000` também cai aqui.
+   6. **CNPJ.** Nos demais casos, o emitente são as posições 7–20: CNPJ, que pode ter letras maiúsculas nas posições 7–18 desde julho de 2026 (F-D, item 4; F-E), com o rótulo "CNPJ do emitente, lido da chave da nota". O painel não confere o dígito verificador do CNPJ: a chave já passou pelo DV dela, e a regra do DV do CNPJ não está nas fontes registradas.
+3. **Demais casos:** "emitente não identificado".
 
-Quando os dois existem e divergem, vale o recolhimento, e o detalhe mostra os dois. Emitente com a mesma raiz da empresa vai para "emitida pela própria empresa" (CA-12, CA-14). O detalhe da nota também mostra se a mesma chave aparece nos débitos (O-25), sem compensar nada.
+As posições absolutas (emitente 7–20, modelo 21–22, série 23–25, DV 44) são **derivadas** da ordem e do tamanho dos campos nas tabelas das fontes, que não trazem coluna de posição; a expressão regular da F-D confirma a conta. Nos arquivos reais (O-6, O-16, O-23), as chaves de 44 posições eram só dígitos, as posições 21–22 repetiam o `documento` e as posições 7–20 tinham o padrão de CNPJ do emitente: evidência compatível com a regra, não fonte dela.
 
-**Sem a F-1**, o passo 2 não é implementado. Com recolhimentos fora do ar (O-17), toda nota real cai em "emitente não identificado". Pela D-4, isso volta ao usuário antes das Tasks.
+**Prioridade e grupos.** Quando o recolhimento e a chave dão emitentes diferentes, vale o recolhimento, e o detalhe mostra os dois (DT-6). Emitente CNPJ com a mesma raiz da empresa (os 8 primeiros caracteres do CNPJ iguais à raiz do `ni`) vai para "emitida pela própria empresa" (CA-12, CA-14). CPF nunca é da própria empresa. Nas pendências, cada CNPJ ou CPF é um grupo, e o rótulo diz se é CNPJ ou CPF e de onde veio. O detalhe da nota também mostra se a mesma chave aparece nos débitos (O-25), sem compensar nada.
+
+**Exibição.** CNPJ formatado `AA.AAA.AAA/AAAA-DD`, com as letras como vierem; CPF `DDD.DDD.DDD-DD`. O CPF é dado pessoal do emitente: aparece só no painel local, nunca em log, teste, documento ou PR.
+
+#### Fontes do leiaute da chave
+
+Lidas pela sessão nos portais oficiais em 2026-11-24. Na implementação, são registradas em `docs/referencias/documentos-fiscais/README.md` com título, versão, data, URL e seção, mais a tabela de composição com as posições marcadas como derivadas e a lista do que não foi confirmado.
+
+| ID | Documento | Versão e data | URL | Seções usadas |
+|---|---|---|---|---|
+| F-A | "Sistema Nota Fiscal Eletrônica – Manual de Orientação do Contribuinte – Visão Geral" (NF-e e NFC-e, modelos 55 e 65), Portal Nacional da NF-e | MOC 7.0, novembro/2020 | PDF: <https://www.nfe.fazenda.gov.br/portal/exibirArquivo.aspx?conteudo=LrBx7WT9PuA=>; lista: <https://www.nfe.fazenda.gov.br/portal/listaConteudo.aspx?tipoConteudo=ndIjl+iEFdE=> | 2.2.6 "Chave de Acesso" (p. 18); 2.2.6.1, Tabela 2-1 (p. 19); 2.2.6.2, DV (p. 19–20); 2.2.8, Tabela 2-4, séries reservadas (p. 21) |
+| F-B | "Projeto Conhecimento de Transporte Eletrônico – Manual de Orientação do Contribuinte – Padrões Técnicos de Comunicação do CTe" (modelo 57), Portal Nacional do CT-e | MOC 4.00; capa de agosto/2022, listado no portal como fevereiro/2023 | PDF: <https://www.cte.fazenda.gov.br/portal/exibirArquivo.aspx?conteudo=0eu1YksSGXM=>; lista: <https://www.cte.fazenda.gov.br/portal/listaConteudo.aspx?tipoConteudo=YIi+H8VETH0=> | 2.1.4 (p. 8–9); 2.1.6, NFF (p. 9–10); 7.3, DV (p. 78) |
+| F-C | "MOC NFCom - Padrões Técnicos de Comunicação" (modelo 62), SVRS | v.1.00a, 11/04/2023 | online: <https://moc.sped.fazenda.pr.gov.br/NFCom/VisaoGeral.html>; lista: <https://dfe-portal.svrs.rs.gov.br/Nfcom/Documentos> | 2.1.3, Tabela 2-1; 5.3, DV |
+| F-D | "Nota Técnica Conjunta – CNPJ Alfanumérico – Nota Técnica 2025.001", ENCAT | v1.00, 25/04/2025 | <https://www.nfe.fazenda.gov.br/portal/exibirArquivo.aspx?conteudo=5ZkvIZt10mQ=> | item 4 (p. 7), CNPJ `[A-Z0-9]{12}[0-9]{2}`; item 5 (p. 8), chave `[0-9]{6}[A-Z0-9]{12}[0-9]{26}` e DV com ASCII − 48; produção em 06/07/2026 |
+| F-E | Nota Técnica 2026.004 (NF-e) e página "CNPJ alfanumérico" da Receita Federal | NT v1.01, junho/2026 | NT: <https://www.nfe.fazenda.gov.br/portal/exibirArquivo.aspx?conteudo=BTZQzgsO9Ws=>; Receita: <https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/acoes-e-programas/programas-e-atividades/cnpj-alfanumerico> | produção em 01/07/2026 (NT 2026.004); primeiro CNPJ alfanumérico em 31/07/2026 (Receita) |
+
+Composição da chave de 44 posições (ordem e tamanho das fontes; posições derivadas):
+
+| Campo | NF-e, NFC-e, CT-e (F-A, F-B) | NFCom (F-C) | Posições |
+|---|---|---|---|
+| UF (`cUF`) | 2 | 2 | 1–2 |
+| Ano e mês de emissão (`AAMM`) | 4 | 4 | 3–6 |
+| CNPJ do emitente (na NF-e e no CT-e, ou CPF precedido de zeros) | 14 | 14 | 7–20 |
+| Modelo (`mod`) | 2 | 2 | 21–22 |
+| Série | 3 | 3 | 23–25 |
+| Número (`nNF`) | 9 | 9 | 26–34 |
+| Forma de emissão (`tpEmis`) | 1 | 1 | 35 |
+| Código numérico | `cNF`, 8 | `nSiteAutoriz`, 1, e `cNFCom`, 7 | 36–43 |
+| Dígito verificador (`cDV`) | 1 | 1 | 44 |
+
+**Não confirmado** (entra assim na referência; o painel não depende disso ou trata como "emitente não identificado"):
+
+- leiaute da chave da NFS-e nacional (50 posições, documento 91);
+- se a NFC-e admite CPF do emitente ou nota avulsa na chave;
+- quais letras são vedadas no CNPJ alfanumérico (o painel aceita `A-Z`, como a expressão da F-D);
+- a data exata de produção do CNPJ alfanumérico nos documentos (01/07 na F-E × 06/07/2026 na F-D);
+- o texto da IN RFB nº 2.229/2024, que não foi aberto;
+- a regra do dígito verificador do CNPJ alfanumérico.
 
 #### Lista de créditos (CA-10, CA-13)
 
@@ -162,7 +210,7 @@ Uma folha `estilo.css` com variáveis tiradas das cores usadas na landing (`app/
   - **escritos à mão**, pequenos, um por caso: as origens diferentes de normal; o mesmo crédito em dois arquivos com valores diferentes; recolhimentos com e sem `chaveDFE`; apropriado não utilizado; `ni` de 8 dígitos; arquivo vazio; débitos com `extinto` e a nota presente nos dois lados;
   - **gerados** por `npm run gerar-ficticios` (script determinístico, sem aleatoriedade não semeada, saída versionada): o arquivo de volume com cerca de 900 créditos, um período concentrando quase tudo, a mistura de documentos da O-6, a forma da O-9 a O-15; e um arquivo de débitos com cerca de 2.800 notas em 3 períodos, com a mistura de estabelecimentos da O-23.
 - Os casos de erro ficam em `test/fixtures/` (fora da pasta padrão), para a demonstração não abrir com aviso: arquivo de outra empresa, arquivo inválido por outro motivo, JSON ilegível, nome fora do padrão, arquivo de pagamentos.
-- Identificadores fictícios: NIs e emitentes com dígito verificador de CNPJ propositalmente errado; chaves com dígito verificador errado (se a F-1 trouxer o algoritmo; senão, prefixo de UF inexistente, como `99`); tíquetes e DARFs com o prefixo `FICT`. Um teste recalcula o dígito verificador do CNPJ (módulo 11) de todo NI e de todo emitente dos fictícios e falha se algum for válido. O algoritmo serve só para garantir que o dado de teste não é real, não é regra do produto.
+- Identificadores fictícios: NIs e emitentes com dígito verificador de CNPJ propositalmente errado; chaves de 44 posições com DV correto (para o emitente ser lido) e UF que não seja código da tabela de UFs do MOC (por exemplo, `99`), mais casos com DV errado, modelo divergente, série 890–899, série de CPF, CT-e começando com `000`, chave com letras nas posições 7–18 e chave de 50 posições; CPFs fictícios com dígito verificador errado; tíquetes e DARFs com o prefixo `FICT`. Um teste recalcula o dígito verificador do CNPJ e do CPF (módulo 11) de todo NI e de todo emitente só com dígitos dos fictícios e falha se algum for válido; CNPJ fictício com letras usa um prefixo como `FICT`. Esse cálculo serve só para garantir que o dado de teste não é real, não é regra do produto.
 
 #### README (CA-20)
 
@@ -179,7 +227,7 @@ Nenhuma mudança. O painel copia código e schemas (DT-2) em vez de importar.
 - `.claude/fluxo.json`: `"painel": "app/painel"` em `apps` (CA-21).
 - `docs/referencias/apuracao-cbs/README.md`: na seção "Observado na chamada real", O-1 a O-25 sem dado real; na tabela de divergências, a nova divergência "`ni` com 14 dígitos no arquivo × `^\d{8}$` nos quatro schemas", **confirmada**; a linha de recolhimentos (404 com outra credencial e mensagem de endereço não encontrado); conferir a anotação "Válido contra o schema 1.0.0" da primeira chamada, que registra `ni` com 14 dígitos, e corrigi-la se o arquivo foi de fato recusado (CA-23).
 - `docs/produto/hipoteses.md`: H1 com o que os arquivos reais mostraram (motivo da pendência ainda sem campo; 99% a apropriar; apropriado todo utilizado; recolhimentos 404), e as hipóteses D-3 a D-6 e a identidade do item de recolhimento (CA-23).
-- `docs/referencias/documentos-fiscais/README.md` (novo, se a F-1 for obtida): o leiaute da chave, com a fonte.
+- `docs/referencias/documentos-fiscais/README.md` (novo): as fontes F-A a F-E com título, versão, data, URL e seção; a tabela de composição da chave com as posições marcadas como derivadas; as regras de CPF, NFA-e, letras e DV, cada uma com a seção; e a lista do que não foi confirmado (seção "Fontes do leiaute da chave"). Entra no `docs/README.md` e na tabela de referências do `PROJECT_CONTEXT.md` (§10).
 - Tabelas de documento e origem em `docs/referencias/apuracao-cbs/README.md`, se a F-2 for aceita.
 
 ## Contratos
@@ -190,7 +238,7 @@ Estruturas do núcleo, entre o núcleo e as páginas (nomes indicativos; os tipo
 |---|---|---|
 | `ArquivoLido` | `nome`, `servico` (`creditos`, `recolhimentos`, `debitos`, `pagamentos` ou nenhum), `situacao` (`aceito`, `aceito-com-divergencia`, `recusado`, `ignorado`), `motivos[]`, `geradoEm`, `raiz`, `quantidade` | CA-2, CA-3, CA-5 |
 | `Nota` (crédito) | `pa`, `chave`, `documento`, `origem`, `emissao`, `registro`, `atualizacao`, `valores` (mapa do caminho oficial, por exemplo `cbs.apropriacao.aApropriar`, para `Big` ou ausente), `arquivo` | CA-4, CA-10, CA-11 |
-| `Emitente` | `tipo` (`identificado`, `propria-empresa`, `nao-identificado`), `numero`, `fonte` (`recolhimento`, `chave`), `observacao` | CA-12 |
+| `Emitente` | `tipo` (`identificado`, `propria-empresa`, `nao-identificado`), `documento` (`cnpj`, `cpf`), `numero`, `fonte` (`recolhimento`, `chave`), `motivo` (quando não identificado) | CA-12 |
 | `Totais` | por período e geral: `aApropriar`, `apropriado`, `utilizado`, `saldoCredor` | CA-7 |
 | `GrupoPendencia` | `emitente`, `quantidade`, `total`, `notas` | CA-14 |
 | `TotaisDebitos` | por período e geral: `apurado`, `extinto`, `saldoDevedor` | CA-D2 |
@@ -223,8 +271,9 @@ Decisões técnicas, para aprovação junto com a Spec:
 
 Riscos:
 
-- **F-1 não obtida:** a visão por emitente fica vazia com dados reais enquanto recolhimentos responder 404.
-- **CNPJ alfanumérico.** Se o leiaute vigente admite letras no campo do emitente da chave, uma regra "só dígitos" erra. A F-1 precisa trazer isso; os fictícios cobrem o formato que a fonte definir.
+- **Regra conservadora do emitente.** NFC-e em série 890 ou acima, CT-e com emitente começando em `000` e todo documento 91 ficam "não identificado". Nos arquivos reais, o documento 91 é 15% das notas de crédito.
+- **CNPJ alfanumérico em `ni` e `niFornecedor`.** Os schemas 1.0.0 só aceitam dígitos nesses campos, e a tolerância da D-2 também (`^\d{14}$`). Se a Receita mandar letras, o arquivo é recusado e aparece em `/arquivos`; aceitar isso exige decisão nova. Na chave, letras já são aceitas (F-D).
+- **Posições derivadas.** As fontes dão ordem e tamanho, não posições. Um erro de conta apareceria nos testes de modelo (21–22) e de DV (44); nos arquivos reais, o modelo nas posições 21–22 bateu com o `documento` (O-6).
 - **Hipóteses D-5, D-6 e DT-7** podem cair na segunda consulta real. O efeito fica isolado em `consolidacao.ts` e nos totais, com testes próprios.
 - **Validação com ajv sobre `JSON.parse`** herda o limite conhecido da `apuracao-cbs` (`multipleOfPrecision`) para valores acima de alguns bilhões: arquivo correto pode ser recusado. O motivo aparece em `/arquivos`.
 - **Arquivos reais em pasta de worktree.** `app/apuracao-cbs/.local/` de um worktree some quando o worktree é removido (ver "Implantação").
@@ -265,7 +314,7 @@ Comandos, em `app/painel`: `npm test` (vitest), `npm run lint` (oxlint), `npm ru
 | CA-9 | Texto de só CBS na página inicial |
 | CA-10 | Filtros isolados e combinados, ordenação nos dois sentidos, busca, paginação (100 por página, total do filtro inteiro, página fora do intervalo); com o arquivo gerado de volume |
 | CA-11 | Detalhe com todos os campos presentes, ausentes como "não veio no arquivo", recolhimentos ligados e a marca de chave presente nos débitos |
-| CA-12 | Emitente do recolhimento; da chave (se F-1); divergência recolhimento × chave; recolhimentos divergentes; documento 91; modelo da chave diferente do `documento`; mesma raiz da empresa; chave fora do formato |
+| CA-12 | Emitente do recolhimento; da chave (CNPJ só com dígitos, CNPJ com letras, CPF em série 910 ou acima); divergência recolhimento × chave; recolhimentos divergentes; documento 91; chave fora do formato; modelo divergente; DV inválido (cálculo conferido com chave só de dígitos e com letras); série 890–899; série de CPF sem zeros; NFC-e em série 890 ou acima; CT-e com `000`; mesma raiz da empresa; CPF nunca "própria empresa"; rótulos "lido da chave da nota" e "informado no recolhimento" |
 | CA-13 | Origens diferentes de normal marcadas e somadas como vêm, inclusive valor negativo; emissão fora do mês sem alteração |
 | CA-14, CA-15 | Grupos, ordem, grupos fixos, linha de negativos, soma igual ao total do CA-7, percentual de não identificado; texto fixo presente e nenhuma frase sobre recolhimento do emitente |
 | CA-16 | Somas exatas com valores que dão erro em ponto flutuante (`0.1 + 0.2`); formatação de positivo, negativo, zero e milhar; nenhum `parseFloat`, `Number(` em valor ou `toFixed` sobre `number` no núcleo (varredura do código) |
@@ -284,10 +333,5 @@ Conferência manual, no navegador, antes do PR: as cinco páginas com os fictíc
 
 ## Perguntas em aberto
 
-- **F-1 (bloqueante): fonte oficial do leiaute da chave de 44 dígitos.** Não há nada no repositório. Precisa ser registrado em `docs/referencias/documentos-fiscais/README.md`, com título, versão, data, URL e a seção citada, de:
-  - **NF-e e NFC-e (modelos 55 e 65):** "Manual de Orientação do Contribuinte (MOC)" do Projeto NF-e, versão vigente, publicado pelo ENCAT e pela Receita Federal no Portal Nacional da NF-e (`www.nfe.fazenda.gov.br`), seção da chave de acesso; e a Nota Técnica do Projeto NF-e que trata do CNPJ alfanumérico, se alterar a chave;
-  - **CT-e (modelo 57):** "Manual de Orientação do Contribuinte do CT-e", versão vigente, Portal Nacional do CT-e (`www.cte.fazenda.gov.br`), seção da chave de acesso;
-  - **NFCom (modelo 62):** "Manual de Orientação do Contribuinte da NFCom", versão vigente, no portal da NFCom.
-
-  De cada um deve constar: a tabela de campos da chave (posição inicial, tamanho, conteúdo), em especial o campo do emitente e o do modelo; se o emitente pode ser CPF e como ele aparece; se o campo do emitente admite letras (CNPJ alfanumérico) e desde quando; e o cálculo do dígito verificador da chave. Recomendação: a sessão ou o responsável obtém os documentos nos portais oficiais e os registra (trecho citado ou PDF, como em `split-payment/`); com isso, a Spec é atualizada só na seção "Emitente" e nos fictícios. Se não forem obtidos, a D-4 manda voltar ao usuário: seguir só com recolhimento (visão por emitente vazia com dados reais) ou esperar.
+- **F-1 (resolvida em 2026-11-24):** fontes F-A a F-E, na seção "Fontes do leiaute da chave". O que elas não confirmam está listado lá e cai em "emitente não identificado".
 - **F-2: nomes dos tipos de documento e das origens.** Os schemas trazem só os códigos. Os nomes estão em `app/apuracao-cbs/src/tabelas.ts`, transcritos na demanda 029 das páginas `credito.html` e `debito.html` versão 1.3 (13/11/2026), mas não em `docs/referencias/`. Recomendação: aceitar essa transcrição como fonte, mostrar o nome oficial como está (por exemplo, `DEVOLUCAO_POR_PCONT`) com o código ao lado, e copiar as duas tabelas para `docs/referencias/apuracao-cbs/README.md` nesta demanda, com a página e a versão. Código fora da tabela aparece como "código <n> (sem nome na tabela)".
