@@ -147,9 +147,9 @@ describe("pasta configurável e recarga (CA-A2)", () => {
     const pasta = await copiaDosFicticios();
     const s = await subir(pasta.caminho);
     const nome = nomeArquivo("creditos", "FICTCRED06", "20261123T090000Z");
-    expect((await pedir(s.porta, "/arquivos")).corpo).not.toContain("recusado");
+    expect((await pedir(s.porta, "/arquivos")).corpo).not.toContain("situacao-recusado");
     await pasta.escrever(nome, "{ agora ilegível");
-    expect((await pedir(s.porta, "/arquivos")).corpo).toContain("recusado");
+    expect((await pedir(s.porta, "/arquivos")).corpo).toContain("situacao-recusado");
   });
 
   it("pasta inexistente: o servidor sobe e as páginas dizem isso", async () => {
