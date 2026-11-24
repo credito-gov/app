@@ -31,6 +31,14 @@ function responder(req: IncomingMessage, res: ServerResponse, status: number, ti
   res.end(req.method === "HEAD" ? undefined : bytes);
 }
 
+/** Host aceito: o endereço de loopback ou `localhost`, com a porta; na porta 80 o navegador omite a porta. */
+export function hostAceito(host: string | undefined, porta: number): boolean {
+  if (host === undefined) return false;
+  const aceitos = [`${ENDERECO}:${porta}`, `localhost:${porta}`];
+  if (porta === 80) aceitos.push(ENDERECO, "localhost");
+  return aceitos.includes(host);
+}
+
 /** Registra o erro interno em stderr com a rota (sem a query, sem conteúdo de arquivo nem valores). */
 function registrarErro(url: string, e: unknown): void {
   const rota = url.split("?")[0];
@@ -45,7 +53,7 @@ export async function iniciarServidor(opcoes: OpcoesServidor): Promise<ServidorP
 
   const servidor = createServer((req, res) => {
     const host = req.headers.host;
-    if (host !== `${ENDERECO}:${porta}` && host !== `localhost:${porta}`) {
+    if (!hostAceito(host, porta)) {
       responder(req, res, 421, "text/plain; charset=utf-8", "Host não aceito.");
       return;
     }
