@@ -3,7 +3,11 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { lerSemPerda } from "../src/json.js";
 import { resumirCreditos } from "../src/leitores/creditos.js";
-import { cabecalhoDe, linhasDoResumo, MENSAGEM_SEM_ALTERACOES } from "../src/saida.js";
+import { resumirDebitos } from "../src/leitores/debitos.js";
+import { resumirPagamentos } from "../src/leitores/pagamentos.js";
+import { resumirRecolhimentos } from "../src/leitores/recolhimentos.js";
+import { cabecalhoDe, linhasDoResumo, MENSAGEM_SEM_ALTERACOES, type Resumo } from "../src/saida.js";
+import type { NomeServico } from "../src/servicos.js";
 
 const PROIBIDOS = /dispon[ií]vel|a pagar|pendente|confirmado/i;
 
@@ -56,4 +60,24 @@ describe("resumo de créditos", () => {
     expect(MENSAGEM_SEM_ALTERACOES).toContain("8 dias");
     expect(t).not.toMatch(PROIBIDOS);
   });
+});
+
+describe("rótulos das quatro consultas (CA-9)", () => {
+  const casos: Array<[NomeServico, (d: unknown) => Resumo, string[]]> = [
+    ["creditos", resumirCreditos, ["a apropriar", "apropriado"]],
+    ["recolhimentos", resumirRecolhimentos, ["total"]],
+    ["pagamentos", resumirPagamentos, ["RAD", "PCONT", "total"]],
+    ["debitos", resumirDebitos, ["apurado", "extinto", "saldo devedor"]],
+  ];
+
+  for (const [servico, resumir, rotulos] of casos) {
+    it(`${servico}: usa os rótulos da documentação e nenhum de disponível, a pagar, pendente, confirmado`, () => {
+      for (const arquivo of ["valido.json", "vazio.json"]) {
+        const brutos = dados(servico, arquivo);
+        const texto = linhasDoResumo(cabecalhoDe(servico, brutos, "C:/x/a.json"), resumir(brutos)).join("\n");
+        expect(texto).not.toMatch(PROIBIDOS);
+        if (arquivo === "valido.json") for (const rotulo of rotulos) expect(texto, rotulo).toContain(rotulo);
+      }
+    });
+  }
 });
