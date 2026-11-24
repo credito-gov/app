@@ -5,6 +5,7 @@ import { abrirGuardado, guardar } from "./armazenamento.js";
 import { ErroConfig, lerConfig } from "./config.js";
 import { ErroApi, ErroUso } from "./erros.js";
 import { resumirCreditos } from "./leitores/creditos.js";
+import { resumirDebitos } from "./leitores/debitos.js";
 import { resumirPagamentos } from "./leitores/pagamentos.js";
 import { resumirRecolhimentos } from "./leitores/recolhimentos.js";
 import { criarRedator } from "./redacao.js";
@@ -29,11 +30,12 @@ const TIQUETE_VALIDO = /^[A-Za-z0-9._-]{1,200}$/;
 
 type Leitor = (dados: unknown) => Resumo;
 
-/** Leitor de cada consulta. Consulta sem leitor ainda não pode chamar a API. */
-const LEITORES: Partial<Record<NomeServico, Leitor>> = {
+/** Leitor de cada uma das quatro consultas. */
+const LEITORES: Record<NomeServico, Leitor> = {
   creditos: resumirCreditos,
   recolhimentos: resumirRecolhimentos,
   pagamentos: resumirPagamentos,
+  debitos: resumirDebitos,
 };
 
 const USO = [
@@ -56,12 +58,6 @@ function escolherServico(positionals: string[]): NomeServico {
   return servico.nome;
 }
 
-function exigirLeitor(servico: NomeServico): Leitor {
-  const leitor = LEITORES[servico];
-  if (!leitor) throw new ErroUso(`A consulta ${servico} ainda não tem leitor nesta versão; nenhuma chamada foi feita.`);
-  return leitor;
-}
-
 /** Valida o arquivo e, se estiver certo, imprime o resumo. Devolve o código de saída. */
 function validarEResumir(servico: NomeServico, bytes: Uint8Array, caminho: string, saida: Saida): number {
   const resultado = criarValidador().validar(servico, bytes);
@@ -69,7 +65,7 @@ function validarEResumir(servico: NomeServico, bytes: Uint8Array, caminho: strin
     for (const linha of linhasDasDivergencias(caminho, resultado.total, resultado.divergencias)) saida.escrever(linha);
     return 3;
   }
-  const resumo = exigirLeitor(servico)(resultado.dados);
+  const resumo = LEITORES[servico](resultado.dados);
   saida.escrever("");
   for (const linha of linhasDoResumo(cabecalhoDe(servico, resultado.dados, caminho), resumo)) saida.escrever(linha);
   return 0;
@@ -83,7 +79,6 @@ async function consulta(args: string[], deps: DepsCli, redator: ReturnType<typeo
     throw new ErroUso(`Argumentos inválidos: ${e instanceof Error ? e.message : "erro de leitura"}.`);
   }
   const servico = escolherServico(parsed.positionals);
-  exigirLeitor(servico);
   const tiquetePedido = parsed.values.tiquete;
   if (tiquetePedido !== undefined && !TIQUETE_VALIDO.test(tiquetePedido)) {
     throw new ErroUso("Tíquete inválido: use só letras, números, ponto, hífen e sublinhado (1 a 200 caracteres).");
@@ -132,7 +127,6 @@ function ler(args: string[], deps: DepsCli): number {
   }
   if (parsed.positionals.length !== 1) throw new ErroUso("Informe o caminho de um arquivo guardado.");
   const guardado = abrirGuardado(parsed.positionals[0]);
-  exigirLeitor(guardado.servico);
   return validarEResumir(guardado.servico, guardado.bytes, guardado.caminho, deps.saida);
 }
 

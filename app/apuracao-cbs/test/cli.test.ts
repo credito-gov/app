@@ -6,9 +6,6 @@ import { MENSAGEM_SEM_ALTERACOES } from "../src/saida.js";
 import { RESPOSTA_TOKEN, bytesDaFixture, criarAmbienteCli, roteirizarCiclo, type AmbienteCli } from "./apoio/cli.js";
 import { ID, SEGREDO, TOKEN, URL_ASSINADA, URL_BASE, URL_TOKEN } from "./apoio/ficticios.js";
 
-/** Serviços que ainda não têm leitor nesta etapa (o estado intermediário some na task 28). */
-const SEM_LEITOR = ["debitos"];
-
 function trilha(a: AmbienteCli): string[] {
   return a.api.pedidos.map((p) => {
     if (p.url === URL_TOKEN) return `${p.metodo} TOKEN`;
@@ -158,13 +155,6 @@ describe("a consulta é obrigatória e única (CA-24)", () => {
     });
   }
 
-  for (const nome of SEM_LEITOR) {
-    it(`${nome} ainda sem leitor: não chega a fazer nenhuma chamada`, async () => {
-      const a = criarAmbienteCli();
-      expect(await a.rodar(["consulta", nome])).toBe(2);
-      expect(a.api.pedidos).toHaveLength(0);
-    });
-  }
 });
 
 describe("configuração", () => {

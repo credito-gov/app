@@ -1,5 +1,6 @@
 import { formatar } from "./dinheiro.js";
 import type { ResumoCreditos } from "./leitores/creditos.js";
+import type { ResumoDebitos } from "./leitores/debitos.js";
 import type { ResumoPagamentos } from "./leitores/pagamentos.js";
 import type { ResumoRecolhimentos } from "./leitores/recolhimentos.js";
 import type { NomeServico } from "./servicos.js";
@@ -15,7 +16,7 @@ export interface Cabecalho {
   caminho: string;
 }
 
-export type Resumo = ResumoCreditos | ResumoRecolhimentos | ResumoPagamentos;
+export type Resumo = ResumoCreditos | ResumoRecolhimentos | ResumoPagamentos | ResumoDebitos;
 
 /** Cabeçalho comum dos resumos. O niConsumidor não é mostrado (pode ser CPF). */
 export function cabecalhoDe(servico: NomeServico, dados: unknown, caminho: string): Cabecalho {
@@ -70,6 +71,22 @@ function linhasDePagamentos(resumo: ResumoPagamentos): string[] {
   return linhas;
 }
 
+function linhasDeDebitos(resumo: ResumoDebitos): string[] {
+  const linhas: string[] = [];
+  for (const p of resumo.periodos) {
+    linhas.push("", `Período ${p.pa}`);
+    for (const l of p.linhas) {
+      linhas.push(
+        `  ${l.chave} | ${l.documento.nome} (${l.documento.codigo}) | apurado ${formatar(l.apurado)} | extinto ${formatar(l.extinto)} | saldo devedor ${formatar(l.saldoDevedor)}`,
+      );
+    }
+    linhas.push(
+      `  Total do período ${p.pa}: ${p.quantidade} débito(s) | total apurado ${formatar(p.totalApurado)} | total extinto ${formatar(p.totalExtinto)} | total saldo devedor ${formatar(p.totalSaldoDevedor)}`,
+    );
+  }
+  return linhas;
+}
+
 export function linhasDoResumo(cabecalho: Cabecalho, resumo: Resumo): string[] {
   const linhas = [
     `Resumo da consulta de ${cabecalho.servico}`,
@@ -83,7 +100,8 @@ export function linhasDoResumo(cabecalho: Cabecalho, resumo: Resumo): string[] {
   }
   if (resumo.servico === "creditos") linhas.push(...linhasDeCreditos(resumo));
   else if (resumo.servico === "recolhimentos") linhas.push(...linhasDeRecolhimentos(resumo));
-  else linhas.push(...linhasDePagamentos(resumo));
+  else if (resumo.servico === "pagamentos") linhas.push(...linhasDePagamentos(resumo));
+  else linhas.push(...linhasDeDebitos(resumo));
   return linhas;
 }
 
