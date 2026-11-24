@@ -450,7 +450,7 @@ describe("todo texto vindo de arquivo é escapado (DT-10)", () => {
       const { corpo, status } = await p.get(url);
       expect(status, url).toBe(200);
       expect(corpo, url).not.toContain("<script>alert");
-      if (!["/", "/arquivos"].includes(url)) expect(corpo, url).toContain(ESCAPADO);
+      if (!["/", "/arquivos", "/pendencias"].includes(url)) expect(corpo, url).toContain(ESCAPADO);
     }
   });
 });

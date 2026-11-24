@@ -5,6 +5,9 @@ import { montarVisao, type Visao } from "./nucleo/visao.js";
 import { paginaArquivos } from "./paginas/arquivos.js";
 import { paginaDeErro, paginaNaoEncontrada } from "./paginas/erro.js";
 import { ESTILO } from "./paginas/estilo.js";
+import { paginaCreditos } from "./paginas/creditos.js";
+import { paginaDetalhe } from "./paginas/detalhe.js";
+import { paginaPendencias } from "./paginas/pendencias.js";
 import { paginaSaldo } from "./paginas/saldo.js";
 
 export interface Pedido {
@@ -35,9 +38,9 @@ type Pagina = (visao: Visao, parametros: URLSearchParams) => string | undefined;
 /** Rotas de valores: ficam atrás da guarda de pasta ilegível e de conflito de empresas. */
 const PAGINAS: Record<string, { titulo: string; ativo: string; gerar?: Pagina }> = {
   "/": { titulo: "Saldo de CBS", ativo: "/", gerar: (v) => paginaSaldo(v) },
-  "/creditos": { titulo: "Créditos", ativo: "/creditos" },
-  "/creditos/nota": { titulo: "Detalhe da nota", ativo: "/creditos" },
-  "/pendencias": { titulo: "Pendências", ativo: "/pendencias" },
+  "/creditos": { titulo: "Créditos", ativo: "/creditos", gerar: paginaCreditos },
+  "/creditos/nota": { titulo: "Detalhe da nota", ativo: "/creditos", gerar: paginaDetalhe },
+  "/pendencias": { titulo: "Pendências", ativo: "/pendencias", gerar: paginaPendencias },
 };
 
 export function criarPainel(opcoes: OpcoesPainel): Painel {
