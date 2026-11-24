@@ -35,6 +35,11 @@ const FAQ_COLUMNS = [
         'Não. Ele não calcula imposto nem faz a apuração. Seu contador continua responsável por isso.',
     },
     {
+      question: 'E o IBS?',
+      answer:
+        'Vem depois. A primeira versão começa pela CBS; o IBS entra numa etapa seguinte, ainda sem data.',
+    },
+    {
       question: 'Sou contador. Posso participar?',
       answer:
         'Sim. Se você atende empresas no regime regular de CBS/IBS, entre na mesma lista de espera e conte um pouco sobre a sua carteira.',
