@@ -1,0 +1,3 @@
+schemas/oficiais/*.json -text
+dados/ficticios/*.json -text
+test/fixtures/**/*.json -text
