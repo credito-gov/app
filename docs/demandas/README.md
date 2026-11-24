@@ -19,7 +19,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 | NNN | Slug | Título | Status | Branch / PR |
 |---|---|---|---|---|
 | 028 | [revisao-texto-landing](028-revisao-texto-landing/us.md) | Revisar o texto da landing para o pré-lançamento | concluída | [credito-gov/app#27](https://github.com/credito-gov/app/pull/27) |
-| 029 | poc-api-apuracao-cbs | Prova de conceito da API de apuração da CBS | em-review | [credito-gov/app#29](https://github.com/credito-gov/app/pull/29) |
+| 029 | [poc-api-apuracao-cbs](029-poc-api-apuracao-cbs/us.md) | Prova de conceito da API de apuração da CBS | concluída | [credito-gov/app#29](https://github.com/credito-gov/app/pull/29) |
 
 ## Backlog
 

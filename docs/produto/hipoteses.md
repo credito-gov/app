@@ -18,14 +18,18 @@ A API não está nos manuais do Split Payment, que tratam de outra plataforma (e
 |---|---|
 | Acesso em nome de vários clientes | A credencial é do titular do CNPJ ou de procurador digital. Não está documentado como um software consulta por muitos contribuintes. Define o cadastro de cada cliente |
 | IBS | A API cobre só CBS. Não sabemos se e quando o Comitê Gestor oferecerá o equivalente |
-| Motivo da pendência | Nenhum campo explica por que um crédito está "a apropriar". O fornecedor sai da chave da nota e da API de recolhimentos; a relação com o pagamento dele precisa ser observada na prática |
+| Motivo da pendência | Nenhum campo explica por que um crédito está "a apropriar". O fornecedor sai da chave da nota e da API de recolhimentos; a relação com o pagamento dele precisa ser observada na prática. **Não respondido pela prova de conceito:** em 2026-11-24 a consulta de créditos veio vazia e a de recolhimentos respondeu HTTP 404 |
 | Histórico | Cada consulta devolve só o que mudou nos últimos 8 dias. Não há como pedir dados antigos: o que não for coletado a tempo se perde |
 | Limite de quatro chamadas por API e por credencial (por dia, segundo a FAQ), resposta em até 4 horas | O produto é de atualização diária, não em tempo real |
-| Ambiente de teste | A URL de produção restrita continua sem fonte. O manual da Plataforma da CBS (maio/2026) descreve um Ambiente Beta de 13/01/2026 a dezembro/2026, com DF-e reais e pagamentos simulados |
-| Token | O endereço, a validade (1 hora) e o limite (2 por hora) agora têm fonte: manual Receita Integra v1.4 (17/07/2026). A forma de enviar as credenciais (no corpo ou em Basic) e a existência de scope **não** têm |
+| Ambiente de teste | **Observado em 2026-11-24:** o portal não deixa escolher ambiente ao gerar a credencial, e os endereços documentados como "Produção" atenderam. Não há, pelo que se viu, uma URL separada de produção restrita. O manual da Plataforma da CBS (maio/2026) descreve um Ambiente Beta de 13/01/2026 a dezembro/2026, com DF-e reais e pagamentos simulados |
+| Token | O endereço, a validade (1 hora) e o limite (2 por hora) agora têm fonte: manual Receita Integra v1.4 (17/07/2026). A forma de enviar as credenciais e a existência de scope **não** têm fonte; **observado em 2026-11-24:** `Basic`, sem scope, funciona, com validade de 3600 segundos |
 | Serviço em beta | A documentação teve quatro versões em três meses |
+| Recolhimentos e pagamentos | Documentados, mas `POST /recolhimentos` e `POST /pagamentos` responderam HTTP 404 em 2026-11-24. Sem eles não há `niFornecedor` nem como ver pagamento por RAD |
+| Dados para observar | Créditos e débitos vieram vazios em 2026-11-24. Não se sabe se é "nada mudou no mês" ou "ambiente sem dados deste CNPJ" |
 
-**Como resolver:** a prova de conceito é a demanda 029 (`app/apuracao-cbs`): as respostas dependem da chamada real, que ainda não foi feita. Pergunta à Receita ou a quem já integra sobre o modelo de procuração.
+**Prova de conceito (demanda 029, `app/apuracao-cbs`), chamada real em 2026-11-24:** o ciclo completo (token, abertura, situação, download, arquivo válido) funcionou para créditos e débitos, em até um minuto cada. Recolhimentos e pagamentos responderam HTTP 404. Os arquivos vieram sem nenhum crédito ou débito, então as perguntas sobre o conteúdo continuam abertas. O registro completo está em [`../referencias/apuracao-cbs/README.md`](../referencias/apuracao-cbs/README.md), seção "Observado na chamada real".
+
+**Como resolver o que falta:** repetir a consulta de créditos quando houver nota de compra com CBS destacada no período; acompanhar a liberação de recolhimentos e pagamentos nas páginas oficiais; perguntar à Receita ou a quem já integra sobre o modelo de procuração.
 
 ## H2 — A empresa não enxerga o próprio crédito (aberta)
 

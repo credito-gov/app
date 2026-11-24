@@ -14,41 +14,41 @@ Pequenas, ordenadas, um commit por task. Cada task cita a seção da Spec e como
 
 | # | Task | Spec | CA | Verificação | Status |
 |---|---|---|---|---|---|
-| 1 | Estrutura da aplicação, `.gitignore` com `.local/` e bloqueio de rede nos testes | Decisões técnicas; Aplicação nova; Pasta local; Garantias gerais | CA-12, CA-16, CA-18 | `npm install`; `npm test` (1 teste passa); `npm run lint`; `git check-ignore` | ☐ |
-| 2 | `.env.example` | `.env.example`; Configuração | CA-12, CA-13, CA-17 | comandos de conferência abaixo | ☐ |
-| 3 | Testes das cópias oficiais dos schemas (`sha256` = `versoes.json`) | Validação › Cópias versionadas | CA-6, CA-20 | falham (cópias ainda não existem) | ☐ |
-| 4 | Baixar as quatro cópias oficiais, `versoes.json` e `.gitattributes` | Validação › Cópias versionadas | CA-6, CA-20 | testes da task 3 passam; segundo download confere | ☐ |
-| 5 | Testes das fixtures fictícias | Dados fictícios | CA-14 | falham (fixtures ainda não existem) | ☐ |
-| 6 | Fixtures das quatro consultas | Dados fictícios | CA-14 | testes da task 5 passam | ☐ |
-| 7 | Testes de `json.ts` e `dinheiro.ts` | Leitura sem perda e dinheiro | CA-8 | falham | ☐ |
-| 8 | Implementar `json.ts` e `dinheiro.ts` | Leitura sem perda e dinheiro | CA-8 | testes da task 7 passam | ☐ |
-| 9 | Testes de `redacao.ts` e `config.ts` | Redação; Configuração; `.env.example` | CA-12, CA-13 | falham | ☐ |
-| 10 | Implementar `redacao.ts` e `config.ts` | Redação; Configuração | CA-12, CA-13 | testes da task 9 passam; lint e build passam | ☐ |
-| 11 | Testes de `servicos.ts` e `registro.ts` | Catálogo; Registro de chamadas | CA-15, CA-24, CA-25 | falham | ☐ |
-| 12 | Implementar `servicos.ts` e `registro.ts` | Catálogo; Registro de chamadas | CA-15, CA-24, CA-25 | testes da task 11 passam | ☐ |
-| 13 | Testes de `erros.ts` e `token.ts` | Cliente de token; Erros | CA-4, CA-12, CA-23 | falham | ☐ |
-| 14 | Implementar `erros.ts` e `token.ts` | Cliente de token; Erros | CA-4, CA-12, CA-23 | testes da task 13 passam | ☐ |
-| 15 | Apoio dos testes (API simulada, relógio, saída) e testes de `api.ts` | Cliente das APIs; Garantias gerais | CA-1, CA-4, CA-15, CA-16 | falham | ☐ |
-| 16 | Implementar `api.ts` | Cliente das APIs | CA-1, CA-4, CA-15 | testes da task 15 passam | ☐ |
-| 17 | Testes de `acompanhamento.ts` | Acompanhamento | CA-2, CA-3, CA-4 | falham | ☐ |
-| 18 | Implementar `acompanhamento.ts` | Acompanhamento | CA-2, CA-3, CA-4 | testes da task 17 passam | ☐ |
-| 19 | Testes de `armazenamento.ts` e `validacao.ts` | Guarda do arquivo bruto; Validação | CA-5, CA-6, CA-8 | falham | ☐ |
-| 20 | Implementar `armazenamento.ts` e `validacao.ts` | Guarda do arquivo bruto; Validação | CA-5, CA-6, CA-8 | testes das tasks 3 e 19 passam | ☐ |
-| 21 | **Créditos:** testes do leitor, do resumo e do comando (`cli`) | Comandos; Leitores › Créditos; Mapa CA | CA-1, CA-3, CA-5, CA-6, CA-7, CA-9, CA-10, CA-12, CA-24, CA-25 | falham | ☐ |
-| 22 | **Créditos:** implementar `leitores/creditos.ts`, `saida.ts`, `cli.ts` e `main.ts` | Comandos; Leitores › Créditos | os da task 21 | testes da task 21 passam; lint e build | ☐ |
-| 23 | **Recolhimentos:** testes do leitor, do resumo e do comando | Leitores › Recolhimentos | CA-1, CA-3, CA-5, CA-9, CA-10, CA-11 | falham | ☐ |
-| 24 | **Recolhimentos:** implementar `leitores/recolhimentos.ts` e o resumo | Leitores › Recolhimentos | os da task 23 | testes da task 23 passam | ☐ |
-| 25 | **Pagamentos:** testes do leitor, do resumo e do comando (inclui RAD com vencimento só data) | Leitores › Pagamentos; Riscos; D-1 | CA-1, CA-3, CA-5, CA-6, CA-9, CA-10, CA-21 | falham | ☐ |
-| 26 | **Pagamentos:** implementar `leitores/pagamentos.ts` e o resumo | Leitores › Pagamentos | os da task 25 | testes da task 25 passam | ☐ |
-| 27 | **Débitos:** testes do leitor, do resumo e do comando; rótulos das quatro consultas | Leitores › Débitos; Rótulos | CA-1, CA-3, CA-5, CA-9, CA-10, CA-22 | falham | ☐ |
-| 28 | **Débitos:** implementar `leitores/debitos.ts` e o resumo; retirar o estado intermediário do `cli` | Leitores › Débitos | os da task 27 | todos os testes passam; lint e build | ☐ |
-| 29 | README da aplicação com comandos, roteiro da chamada real e revogação da credencial | Roteiro da chamada real; Riscos | CA-17 | revisão contra a Spec | ☐ |
-| 30 | `AGENTS.md` (comando de teste e comandos) e `.claude/fluxo.json` (`apps`) | Implantação › Mudanças no repositório | CA-17 | revisão; JSON válido | ☐ |
-| 31 | `docs/PROJECT_CONTEXT.md` (§2, §4, §7, §11) | Implantação › Mudanças no repositório | — | revisão | ☐ |
-| 32 | Referência `docs/referencias/apuracao-cbs/README.md`: fontes, token, ambientes e divergências já conferidos | Fontes lidas; Divergências; Documentação e configuração do repositório | CA-20 | revisão contra a Spec | ☐ |
-| 33 | `docs/produto/hipoteses.md`, H1: o que já tem fonte pública | Documentação e configuração do repositório | CA-19 (parte documental) | revisão | ☐ |
-| 34 | Verificação de fechamento | Estratégia de verificação › Comandos | CA-12, CA-16, CA-18 | comandos abaixo; sem commit, salvo correção | ☐ |
-| 35 | **Manual — usuário + sessão principal:** chamada real e registro das respostas observadas | Roteiro da chamada real; D-1; D-2 | CA-1, CA-2, CA-3, CA-19, CA-23 | roteiro, passos 1 a 9 | ☐ |
+| 1 | Estrutura da aplicação, `.gitignore` com `.local/` e bloqueio de rede nos testes | Decisões técnicas; Aplicação nova; Pasta local; Garantias gerais | CA-12, CA-16, CA-18 | `npm install`; `npm test` (1 teste passa); `npm run lint`; `git check-ignore` | ☑ |
+| 2 | `.env.example` | `.env.example`; Configuração | CA-12, CA-13, CA-17 | comandos de conferência abaixo | ☑ |
+| 3 | Testes das cópias oficiais dos schemas (`sha256` = `versoes.json`) | Validação › Cópias versionadas | CA-6, CA-20 | falham (cópias ainda não existem) | ☑ |
+| 4 | Baixar as quatro cópias oficiais, `versoes.json` e `.gitattributes` | Validação › Cópias versionadas | CA-6, CA-20 | testes da task 3 passam; segundo download confere | ☑ |
+| 5 | Testes das fixtures fictícias | Dados fictícios | CA-14 | falham (fixtures ainda não existem) | ☑ |
+| 6 | Fixtures das quatro consultas | Dados fictícios | CA-14 | testes da task 5 passam | ☑ |
+| 7 | Testes de `json.ts` e `dinheiro.ts` | Leitura sem perda e dinheiro | CA-8 | falham | ☑ |
+| 8 | Implementar `json.ts` e `dinheiro.ts` | Leitura sem perda e dinheiro | CA-8 | testes da task 7 passam | ☑ |
+| 9 | Testes de `redacao.ts` e `config.ts` | Redação; Configuração; `.env.example` | CA-12, CA-13 | falham | ☑ |
+| 10 | Implementar `redacao.ts` e `config.ts` | Redação; Configuração | CA-12, CA-13 | testes da task 9 passam; lint e build passam | ☑ |
+| 11 | Testes de `servicos.ts` e `registro.ts` | Catálogo; Registro de chamadas | CA-15, CA-24, CA-25 | falham | ☑ |
+| 12 | Implementar `servicos.ts` e `registro.ts` | Catálogo; Registro de chamadas | CA-15, CA-24, CA-25 | testes da task 11 passam | ☑ |
+| 13 | Testes de `erros.ts` e `token.ts` | Cliente de token; Erros | CA-4, CA-12, CA-23 | falham | ☑ |
+| 14 | Implementar `erros.ts` e `token.ts` | Cliente de token; Erros | CA-4, CA-12, CA-23 | testes da task 13 passam | ☑ |
+| 15 | Apoio dos testes (API simulada, relógio, saída) e testes de `api.ts` | Cliente das APIs; Garantias gerais | CA-1, CA-4, CA-15, CA-16 | falham | ☑ |
+| 16 | Implementar `api.ts` | Cliente das APIs | CA-1, CA-4, CA-15 | testes da task 15 passam | ☑ |
+| 17 | Testes de `acompanhamento.ts` | Acompanhamento | CA-2, CA-3, CA-4 | falham | ☑ |
+| 18 | Implementar `acompanhamento.ts` | Acompanhamento | CA-2, CA-3, CA-4 | testes da task 17 passam | ☑ |
+| 19 | Testes de `armazenamento.ts` e `validacao.ts` | Guarda do arquivo bruto; Validação | CA-5, CA-6, CA-8 | falham | ☑ |
+| 20 | Implementar `armazenamento.ts` e `validacao.ts` | Guarda do arquivo bruto; Validação | CA-5, CA-6, CA-8 | testes das tasks 3 e 19 passam | ☑ |
+| 21 | **Créditos:** testes do leitor, do resumo e do comando (`cli`) | Comandos; Leitores › Créditos; Mapa CA | CA-1, CA-3, CA-5, CA-6, CA-7, CA-9, CA-10, CA-12, CA-24, CA-25 | falham | ☑ |
+| 22 | **Créditos:** implementar `leitores/creditos.ts`, `saida.ts`, `cli.ts` e `main.ts` | Comandos; Leitores › Créditos | os da task 21 | testes da task 21 passam; lint e build | ☑ |
+| 23 | **Recolhimentos:** testes do leitor, do resumo e do comando | Leitores › Recolhimentos | CA-1, CA-3, CA-5, CA-9, CA-10, CA-11 | falham | ☑ |
+| 24 | **Recolhimentos:** implementar `leitores/recolhimentos.ts` e o resumo | Leitores › Recolhimentos | os da task 23 | testes da task 23 passam | ☑ |
+| 25 | **Pagamentos:** testes do leitor, do resumo e do comando (inclui RAD com vencimento só data) | Leitores › Pagamentos; Riscos; D-1 | CA-1, CA-3, CA-5, CA-6, CA-9, CA-10, CA-21 | falham | ☑ |
+| 26 | **Pagamentos:** implementar `leitores/pagamentos.ts` e o resumo | Leitores › Pagamentos | os da task 25 | testes da task 25 passam | ☑ |
+| 27 | **Débitos:** testes do leitor, do resumo e do comando; rótulos das quatro consultas | Leitores › Débitos; Rótulos | CA-1, CA-3, CA-5, CA-9, CA-10, CA-22 | falham | ☑ |
+| 28 | **Débitos:** implementar `leitores/debitos.ts` e o resumo; retirar o estado intermediário do `cli` | Leitores › Débitos | os da task 27 | todos os testes passam; lint e build | ☑ |
+| 29 | README da aplicação com comandos, roteiro da chamada real e revogação da credencial | Roteiro da chamada real; Riscos | CA-17 | revisão contra a Spec | ☑ |
+| 30 | `AGENTS.md` (comando de teste e comandos) e `.claude/fluxo.json` (`apps`) | Implantação › Mudanças no repositório | CA-17 | revisão; JSON válido | ☑ |
+| 31 | `docs/PROJECT_CONTEXT.md` (§2, §4, §7, §11) | Implantação › Mudanças no repositório | — | revisão | ☑ |
+| 32 | Referência `docs/referencias/apuracao-cbs/README.md`: fontes, token, ambientes e divergências já conferidos | Fontes lidas; Divergências; Documentação e configuração do repositório | CA-20 | revisão contra a Spec | ☑ |
+| 33 | `docs/produto/hipoteses.md`, H1: o que já tem fonte pública | Documentação e configuração do repositório | CA-19 (parte documental) | revisão | ☑ |
+| 34 | Verificação de fechamento | Estratégia de verificação › Comandos | CA-12, CA-16, CA-18 | comandos abaixo; sem commit, salvo correção | ☑ |
+| 35 | **Manual — usuário + sessão principal:** chamada real e registro das respostas observadas | Roteiro da chamada real; D-1; D-2 | CA-1, CA-2, CA-3, CA-19, CA-23 | roteiro, passos 1 a 9 | ☑ |
 
 ## Detalhe das tasks
 
