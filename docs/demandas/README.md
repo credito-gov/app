@@ -18,7 +18,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 
 | NNN | Slug | Título | Status | Branch / PR |
 |---|---|---|---|---|
-| 028 | [revisao-texto-landing](028-revisao-texto-landing/us.md) | Revisar o texto da landing para o pré-lançamento | em-review | `feat/028-revisao-texto-landing` |
+| 028 | [revisao-texto-landing](028-revisao-texto-landing/us.md) | Revisar o texto da landing para o pré-lançamento | concluída | [credito-gov/app#27](https://github.com/credito-gov/app/pull/27) |
 
 ## Backlog
 
