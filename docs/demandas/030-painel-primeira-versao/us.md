@@ -1,6 +1,6 @@
 # 030-painel-primeira-versao — Primeira versão do painel: saldo, origem e pendências
 
-- **Status:** us-aprovada
+- **Status:** spec-em-revisão
 - **US aprovada:** 2026-11-24, pelo responsável ("Aprovo assim"), sobre a versão do commit `1c558d6`, com as recomendações de todas as perguntas (ver "Decisões na aprovação")
 - **Branch:** `feat/030-painel-primeira-versao`
 - **Worktree:** `.claude/worktrees/030-painel-primeira-versao`
