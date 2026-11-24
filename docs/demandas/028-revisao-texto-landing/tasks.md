@@ -138,9 +138,9 @@ app/landing-page/src/config/contato.ts:3:export const EMAIL_CONTATO = 'PREENCHER
 
 - (b) Busca complementar: vazia (código de saída `1`).
 - (c) Lint e build: `npm run lint` e `npm run build` em `app/landing-page` sem erro. `dist/` fora do commit.
-- (d) Conferência visual 1280 px: **pendente, fica para a sessão principal.** O Developer não tem navegador. Subir com `cd app/landing-page && npm run dev` (http://localhost:5173) e seguir a checklist da Spec.
-- (d) Conferência visual 375 px: **pendente, fica para a sessão principal** (mesmo comando, com as ferramentas de desenvolvedor em 375 px).
-- (d) Caso com número de WhatsApp de teste: **pendente, fica para a sessão principal.** Preencher `WHATSAPP_NUMERO` localmente com um número de teste, conferir o botão "Falar pelo WhatsApp" na chamada final e o item "WhatsApp" no rodapé, e **não commitar**.
+- (d) Conferência visual 1280 px: **feita pela sessão principal (2026-11-23).** Sem rolagem horizontal (`scrollWidth` = `clientWidth`); links do menu e do rodapé levam às seções; selo "Exemplo ilustrativo" visível nos dois mockups.
+- (d) Conferência visual 375 px: **feita pela sessão principal.** Na rodada 1 havia rolagem horizontal (383 px), corrigida nas rodadas 1 e 2; depois, `scrollWidth` 375 antes e depois da animação do Hero; menu do celular abre, fecha ao tocar num item e rola até a seção.
+- (d) Caso com WhatsApp: **conferido com o número real** depois da task 16 (sem número de teste): "Falar pelo WhatsApp" na chamada final e "WhatsApp" no rodapé levam a `https://wa.me/5511971929226` com `target="_blank"`; os botões de e-mail levam ao `mailto:` com assunto e corpo.
 
 ### Correções da rodada 1 de revisão
 
@@ -189,5 +189,5 @@ app/landing-page/index.html:38:      content="Em desenvolvimento: o crédito de 
 - (a) Busca CA-20: vazia, código de saída `1` (o marcador já tinha saído na task 16).
 - (b) Busca de IBS: exatamente as ocorrências da Spec, nenhuma outra: `index.html` (o "O IBS vem depois" nas duas descrições, linhas 16 e 26); `Hero.tsx:33` (parágrafo "Com a CBS e o IBS…"); `Features.tsx:13` ("O IBS vem numa etapa seguinte."); `Faq.tsx:38` e `:40` ("E o IBS?" e a resposta) e `:45` ("regime regular de CBS/IBS"). Nada em `DashboardShowcase.tsx`, `HowItWorks.tsx`, `ProblemSolution.tsx`, `Footer.tsx`, `<title>` nem `twitter:description`. Busca complementar CA-10 também vazia.
 - (c) Lint e build: sem erro em cada task (17 a 24) e no final.
-- (d) Conferência visual 1280 px: **pendente, fica para a sessão principal** (`cd app/landing-page && npm run dev`, http://localhost:5173). Itens: selo do Hero "Começa pela CBS", mockup e tabela só com CBS, FAQ com 4 + 4 perguntas sem desalinhamento, sem rolagem horizontal.
-- (d) Conferência visual 375 px: **pendente, fica para a sessão principal** (mesmos itens; atenção ao selo do Hero, que ficou mais longo).
+- (d) Conferência visual 1280 px: **feita pela sessão principal (2026-11-24).** Selo "Começa pela CBS", mockup e tabela só com CBS, FAQ 4 + 4, sem rolagem horizontal.
+- (d) Conferência visual 375 px: **feita pela sessão principal.** `scrollWidth` 375 no topo, no painel, na FAQ e na chamada final; o selo do Hero cabe numa linha.
