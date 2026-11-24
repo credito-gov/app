@@ -1,4 +1,8 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { criarCache, lerPasta } from "../src/nucleo/arquivos.js";
+import { MOTIVOS } from "../src/nucleo/emitente.js";
+import { montarVisao } from "../src/nucleo/visao.js";
+import { urlNota as urlNotaDe } from "../src/paginas/links.js";
 import {
   arquivoCreditos,
   arquivoDebitos,
@@ -380,6 +384,19 @@ describe("/pendencias (CA-14, CA-15)", () => {
     expect((await p.get("/pendencias?grupo=negativas")).corpo).toContain(NEG);
   });
 
+  it("a tela mostra as duas fontes quando o grupo tem notas do recolhimento e da chave (rodada 1, E6)", async () => {
+    const pelaChaveY = chaveDe("99887766");
+    const pelaChaveX = chaveDe("11223344");
+    const { corpo } = await (
+      await painelCom([
+        [CRED, arquivoCreditos([["11/2026", [credito({ chave: pelaChaveY, aApropriar: "10.00" }), credito({ chave: pelaChaveX, aApropriar: "5.00" })]]], { ni: RAIZ })],
+        [nomeArquivo("recolhimentos", "FICTR1"), arquivoRecolhimentos([["2026-11-10", [["99999000000000001", [itemRecolhimento({ chaveDFE: pelaChaveY, niFornecedor: emit("11223344") })]]]]], { ni: RAIZ })],
+      ])
+    ).get("/pendencias");
+    expect(corpo).toContain("CNPJ do fornecedor, informado no recolhimento");
+    expect(corpo).toContain("CNPJ do emitente, lido da chave da nota");
+  });
+
   it("grupo inexistente dá 404", async () => {
     expect((await (await painelCom(arquivosPendencias)).get("/pendencias?grupo=cnpj-00000000000000")).status).toBe(404);
   });
@@ -406,11 +423,24 @@ describe("/pendencias (CA-14, CA-15)", () => {
 
 const PROIBIDAS = ["disponível", "pode usar", "pode ser usado", "confirmado", "liberado"];
 
+/** Uma nota de cada tipo de documento e de cada motivo ou fonte de emitente: a página de detalhe muda com eles. */
+async function notasVariadas(p: PainelDeTeste): Promise<Map<string, string>> {
+  const visao = montarVisao(await lerPasta(p.pasta.caminho, { cache: criarCache() }));
+  const variadas = new Map<string, string>();
+  for (const nota of visao.notas) {
+    const e = nota.emitente.emitente;
+    const tipo = `${nota.documento}|${e.motivo ?? `${e.tipo}-${e.fonte ?? ""}`}`;
+    if (!variadas.has(tipo)) variadas.set(tipo, urlNotaDe(nota));
+  }
+  return variadas;
+}
+
 async function rotasDe(p: PainelDeTeste): Promise<string[]> {
   const urls = ["/", "/creditos", "/creditos?pa=11/2026", "/pendencias", "/pendencias?grupo=nao-identificado", "/pendencias?grupo=propria-empresa", "/arquivos", "/nao-existe"];
   const lista = (await p.get("/creditos")).corpo;
   const nota = hrefsNota(lista)[0];
   if (nota !== undefined) urls.push(nota);
+  urls.push(...(await notasVariadas(p)).values());
   const textos: string[] = [];
   for (const url of urls) textos.push((await p.get(url)).corpo);
   return textos;
@@ -430,6 +460,16 @@ describe("nenhuma tela sugere crédito disponível (CA-8, D-3)", () => {
       }
     });
   }
+
+  it("a varredura visita notas de todos os tipos de documento e de todos os motivos de emitente não identificado dos fictícios", async () => {
+    const variadas = await notasVariadas(await painelCopiando(PASTA_FICTICIOS));
+    const tipos = new Set([...variadas.keys()].map((k) => k.split("|")[0]));
+    expect([...tipos].sort()).toEqual(["55", "57", "62", "65", "91"].filter((d) => tipos.has(d)));
+    expect(tipos.has("55")).toBe(true);
+    expect(tipos.has("91")).toBe(true);
+    expect(variadas.has(`91|${MOTIVOS.semLeiaute}`)).toBe(true);
+    expect(variadas.size).toBeGreaterThan(tipos.size);
+  });
 
   it("com a pasta pequena de detalhe e a de pendências", async () => {
     for (const arquivos of [arquivosDetalhe, arquivosPendencias]) {

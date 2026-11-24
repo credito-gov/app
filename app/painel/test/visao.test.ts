@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ResultadoPasta } from "../src/nucleo/arquivos.js";
+import { ROTULO_CNPJ_CHAVE, ROTULO_RECOLHIMENTO } from "../src/nucleo/emitente.js";
 import { montarVisao } from "../src/nucleo/visao.js";
 import {
   arquivoCreditos,
@@ -122,6 +123,29 @@ describe("débitos separados do crédito (CA-D2, O-25)", () => {
     const v = montarVisao(pasta([lido("d.json", "debitos", arquivoDebitos([["11/2026", [debito()]]]))]));
     expect(v.vazio).toBe(true);
     expect(v.totaisDebitos).toBeDefined();
+  });
+});
+
+describe("grupo de pendência com duas fontes de identificação (rodada 1, E6)", () => {
+  const X = emit("11223344");
+  const pelaChaveY = chaveDe("99887766"); // a chave diz outro CNPJ; o recolhimento diz X
+  const pelaChaveX = chaveDe("11223344");
+  const v = montarVisao(
+    pasta([
+      lido("a.json", "creditos", arquivoCreditos([["11/2026", [credito({ chave: pelaChaveY, aApropriar: "10.00" }), credito({ chave: pelaChaveX, aApropriar: "5.00" })]]], { ni: RAIZ })),
+      lido("r.json", "recolhimentos", arquivoRecolhimentos([["2026-11-10", [["99999000000000001", [itemRecolhimento({ chaveDFE: pelaChaveY, niFornecedor: X })]]]]], { ni: RAIZ })),
+    ]),
+  );
+
+  it("o grupo do mesmo CNPJ junta as duas notas e guarda os dois rótulos", () => {
+    const g = v.pendencias!.grupos.find((x) => x.id === `cnpj-${X}`)!;
+    expect(g.quantidade).toBe(2);
+    expect([...g.rotulos].sort()).toEqual([ROTULO_CNPJ_CHAVE, ROTULO_RECOLHIMENTO].sort());
+  });
+
+  it("grupo de uma fonte só guarda um rótulo", () => {
+    const so = montarVisao(pasta([lido("a.json", "creditos", arquivoCreditos([["11/2026", [credito({ chave: pelaChaveX, aApropriar: "5.00" })]]], { ni: RAIZ }))]));
+    expect(so.pendencias!.grupos.find((x) => x.id === `cnpj-${X}`)!.rotulos).toEqual([ROTULO_CNPJ_CHAVE]);
   });
 });
 

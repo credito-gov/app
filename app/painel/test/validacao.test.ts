@@ -91,6 +91,9 @@ describe("arquivos recusados (CA-2)", () => {
     const r = recusado(arquivoCreditos([["11/2026", [credito({ origem: 7 })]]], { ni: NI14 }));
     expect(r.situacao).toBe("recusado");
     expect(r.motivos.length).toBeGreaterThanOrEqual(1);
+    // O motivo listado é o erro de origem; o ni tolerado não entra.
+    expect(r.motivos.some((m) => m.startsWith("/apuracao/0/creditos/0/origem"))).toBe(true);
+    expect(r.motivos.some((m) => m.startsWith("/ni"))).toBe(false);
     expect(r.dados).toBeUndefined();
   });
 

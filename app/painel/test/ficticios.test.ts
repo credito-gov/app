@@ -44,7 +44,7 @@ beforeAll(async () => {
   visao = montarVisao(r);
 });
 
-describe("a pasta padrão abre sem aviso (CA-17, CA-A2)", () => {
+describe("a pasta padrão: todos os arquivos são aceitos, com a divergência conhecida do ni (CA-17, CA-A2)", () => {
   it("tem os arquivos esperados, todos no padrão de nome", async () => {
     const nomes = (await readdir(PASTA_FICTICIOS)).filter((n) => n.endsWith(".json")).sort();
     expect(nomes).toEqual(Object.values(NOMES).sort());

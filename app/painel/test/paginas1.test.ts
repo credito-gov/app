@@ -169,6 +169,25 @@ describe("estado vazio com arquivo que não entrou (rodada 1, C1)", () => {
   });
 });
 
+describe("arquivo recusado ao lado de um válido (CA-2, rodada 1, E5)", () => {
+  it("os totais do saldo e das pendências são só os do arquivo válido", async () => {
+    const recusado = arquivoCreditos([["11/2026", [credito({ chave: "FICT-RECUSADA", aApropriar: "999.123" })]]], { ni: RAIZ });
+    const sozinho = await painelCom(P1);
+    const junto = await painelCom([...P1, [nomeArquivo("creditos", "FICTRUIM", "20261121T101530Z"), recusado]]);
+    const bloco = (corpo: string) => /<h2>Crédito de CBS \(compras\)<\/h2>[\s\S]*?<\/section>/.exec(corpo)?.[0] ?? "";
+
+    const saldo = (await junto.get("/")).corpo;
+    expect(bloco(saldo)).toContain("R$ 1.245,06");
+    expect(bloco(saldo)).toBe(bloco((await sozinho.get("/")).corpo));
+    expect(saldo).not.toContain("999");
+    expect(saldo).toContain("1 arquivo recusado");
+    expect((await junto.get("/creditos")).corpo).not.toContain("FICT-RECUSADA");
+    const pendencias = (await junto.get("/pendencias")).corpo;
+    expect(pendencias).toContain("R$ 1.245,06");
+    expect(pendencias).not.toContain("999");
+  });
+});
+
 describe("saldo na página inicial (CA-7, CA-9, CA-D2)", () => {
   it("os quatro rótulos da D-3, com o nome do campo ao lado", async () => {
     const { corpo } = await (await painelCom(P1)).get("/");

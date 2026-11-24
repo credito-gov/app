@@ -115,7 +115,7 @@ describe("emitente pela chave de 44 posições (CA-12, D-4, fontes F-A a F-E)", 
   it("documento 91 com chave de 50 posições não é lido pela chave", () => {
     const r = pelaChave("12345678901234567890123456789012345678901234567890", 91);
     expect(r.emitente.tipo).toBe("nao-identificado");
-    expect(r.emitente.motivo).toBe("leiaute da chave deste tipo de documento não confirmado");
+    expect(r.emitente.motivo).toBe("leiaute da chave deste tipo de documento sem fonte registrada");
   });
 
   it("outro código de documento também não é lido", () => {

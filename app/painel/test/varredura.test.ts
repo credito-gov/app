@@ -1,9 +1,10 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-const RAIZ = new URL("../", import.meta.url);
-const PASTA_SRC = new URL("src/", RAIZ).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+// fileURLToPath decodifica espaços e acentos do caminho; `.pathname` deixaria `%20` e a varredura passaria vazia.
+const PASTA_SRC = fileURLToPath(new URL("../src/", import.meta.url));
 
 function listarTs(pasta: string): string[] {
   if (!existsSync(pasta)) return [];
@@ -32,12 +33,12 @@ function ocorrencias(padrao: RegExp, filtro: (nome: string) => boolean = () => t
   return achados;
 }
 
-// Enquanto não houver código em src/, as varreduras não conferem nada: esta guarda impede que passem vazias.
-const haCodigo = existsSync(join(PASTA_SRC, "nucleo", "dinheiro.ts"));
-
 describe("varredura do código: o painel não usa rede nem credencial (CA-19)", () => {
-  it.skipIf(!haCodigo)("src/ tem código para varrer", () => {
-    expect(arquivos.length).toBeGreaterThan(0);
+  // Guarda contra a varredura vazia: sem arquivos varridos, todas as asserções abaixo passariam à toa.
+  it("src/ tem código para varrer", () => {
+    expect(arquivos.length).toBeGreaterThan(10);
+    expect(arquivos.map((a) => a.nome)).toContain("nucleo/dinheiro.ts");
+    expect(arquivos.map((a) => a.nome)).toContain("servidor.ts");
   });
 
   const proibidos: Array<[string, RegExp]> = [
