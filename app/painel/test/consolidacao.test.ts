@@ -131,6 +131,41 @@ describe("itens de recolhimento (DT-7)", () => {
     expect(r.substituidos).toBe(1);
   });
 
+  it("item repetido: o arquivo mais recente vence mesmo vindo depois na lista (rodada 1, F3)", () => {
+    const antigo = reco("a.json", A1, [itemRecolhimento({ principal: "10.00" })]);
+    const novo = reco("b.json", A2, [itemRecolhimento({ principal: "20.00" })]);
+    for (const ordem of [[antigo, novo], [novo, antigo]]) {
+      const r = consolidarRecolhimentos(ordem);
+      expect(r.itens).toHaveLength(1);
+      expect(r.itens[0].principal.toFixed(2)).toBe("20.00");
+      expect(r.itens[0].arquivo).toBe("b.json");
+      expect(r.substituidos).toBe(1);
+    }
+  });
+
+  it("empate de geradoEm: vence o maior nome de arquivo, em qualquer ordem da lista (rodada 1, F3)", () => {
+    const a = reco("20261120T100000Z_recolhimentos_A.json", A1, [itemRecolhimento({ principal: "10.00" })]);
+    const b = reco("20261120T110000Z_recolhimentos_B.json", A1, [itemRecolhimento({ principal: "20.00" })]);
+    for (const ordem of [[a, b], [b, a]]) {
+      const r = consolidarRecolhimentos(ordem);
+      expect(r.itens).toHaveLength(1);
+      expect(r.itens[0].arquivo).toBe("20261120T110000Z_recolhimentos_B.json");
+      expect(r.itens[0].principal.toFixed(2)).toBe("20.00");
+    }
+  });
+
+  it("três versões do mesmo item, em todas as ordens, dão o mesmo resultado (rodada 1, F3)", () => {
+    const v1 = reco("a.json", "2026-11-19T10:00:00-03:00", [itemRecolhimento({ principal: "1.00" })]);
+    const v2 = reco("b.json", "2026-11-21T10:00:00-03:00", [itemRecolhimento({ principal: "2.00" })]);
+    const v3 = reco("c.json", "2026-11-20T10:00:00-03:00", [itemRecolhimento({ principal: "3.00" })]);
+    const ordens = [[v1, v2, v3], [v1, v3, v2], [v2, v1, v3], [v2, v3, v1], [v3, v1, v2], [v3, v2, v1]];
+    for (const ordem of ordens) {
+      const r = consolidarRecolhimentos(ordem);
+      expect(r.itens.map((i) => i.principal.toFixed(2))).toEqual(["2.00"]);
+      expect(r.substituidos).toBe(2);
+    }
+  });
+
   it("o mesmo arquivo lido duas vezes não duplica itens", () => {
     const itens = [itemRecolhimento({ sequencial: 1 }), itemRecolhimento({ sequencial: 2 })];
     expect(consolidarRecolhimentos([reco("a.json", A1, itens), reco("b.json", A1, itens)]).itens).toHaveLength(2);

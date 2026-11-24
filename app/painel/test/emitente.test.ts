@@ -225,6 +225,63 @@ describe("própria empresa (CA-12)", () => {
   });
 });
 
+// Vetores com o DV escrito como literal (rodada 1, F1). Chaves fictícias, UF 99. O DV de cada uma foi calculado à parte, sem usar
+// o helper dvChave nem o código de src/: soma de (caractere ASCII - 48) x peso (2 a 9, da direita para a esquerda, voltando a 2 depois do 9),
+// resto da divisão por 11, DV = 0 se o resto for 0 ou 1, senão 11 - resto.
+describe("dígito verificador da chave, com vetores literais (rodada 1, F1)", () => {
+  const VETORES: Array<{ nome: string; base: string; soma: number; resto: number; dv: string; emitente: string }> = [
+    { nome: "só dígitos, resto 9", base: "9926111122334400015555001000000001110000000", soma: 405, resto: 9, dv: "2", emitente: "11223344000155" },
+    { nome: "com letras, resto 7", base: "992611AB12CD34EF569955001000000001110000000", soma: 1074, resto: 7, dv: "4", emitente: "AB12CD34EF5699" },
+    { nome: "só dígitos, resto 0", base: "9926111122334400015555001000000001110000001", soma: 407, resto: 0, dv: "0", emitente: "11223344000155" },
+    { nome: "com letras, resto 0", base: "992611AB12CD34EF569955001000000001110000002", soma: 1078, resto: 0, dv: "0", emitente: "AB12CD34EF5699" },
+    { nome: "só dígitos, resto 1", base: "9926111122334400015555001000000001110000007", soma: 419, resto: 1, dv: "0", emitente: "11223344000155" },
+    { nome: "com letras, resto 1", base: "992611AB12CD34EF569955001000000001110000008", soma: 1090, resto: 1, dv: "0", emitente: "AB12CD34EF5699" },
+  ];
+
+  for (const v of VETORES) {
+    it(`${v.nome}: com o DV ${v.dv} lê o emitente; com qualquer outro DV recusa`, () => {
+      expect(v.base).toHaveLength(43);
+      expect(v.soma % 11).toBe(v.resto);
+      const certa = pelaChave(`${v.base}${v.dv}`);
+      expect(certa.emitente).toMatchObject({ tipo: "identificado", documento: "cnpj", numero: v.emitente, fonte: "chave" });
+      for (const outro of "0123456789") {
+        if (outro === v.dv) continue;
+        expect(pelaChave(`${v.base}${outro}`).emitente, `DV ${outro}`).toMatchObject({ tipo: "nao-identificado", motivo: "dígito verificador da chave inválido" });
+      }
+    });
+  }
+
+  it("o helper dvChave dos testes concorda com os vetores literais", () => {
+    for (const v of VETORES) expect(dvChave(v.base)).toBe(v.dv);
+  });
+});
+
+describe("limites das séries reservadas (rodada 1, F2)", () => {
+  it("modelo 55: 889, 900 e 909 são CNPJ; 890 e 899 são nota avulsa; 910 sem CPF não é CNPJ", () => {
+    for (const serie of ["000", "001", "889", "900", "909"]) {
+      expect(pelaChave(montarChave({ emitente: OUTRO, serie })).emitente, serie).toMatchObject({ tipo: "identificado", documento: "cnpj", numero: OUTRO });
+    }
+    for (const serie of ["890", "899"]) {
+      expect(pelaChave(montarChave({ emitente: OUTRO, serie })).emitente.motivo, serie).toBe("nota fiscal avulsa: a chave traz o CNPJ do fisco");
+    }
+    expect(pelaChave(montarChave({ emitente: OUTRO, serie: "910" })).emitente.motivo).toBe("série de emitente CPF sem CPF na chave");
+  });
+
+  it("modelo 65: 889 é CNPJ; 890 não tem regra", () => {
+    expect(pelaChave(montarChave({ emitente: OUTRO, modelo: "65", serie: "889" }), 65).emitente).toMatchObject({ tipo: "identificado", numero: OUTRO });
+    expect(pelaChave(montarChave({ emitente: OUTRO, modelo: "65", serie: "890" }), 65).emitente.tipo).toBe("nao-identificado");
+  });
+
+  it("modelos 57 e 62 com série de 890 em diante seguem lidos como CNPJ", () => {
+    for (const modelo of ["57", "62"]) {
+      for (const serie of ["889", "890", "899", "910", "999"]) {
+        const r = pelaChave(montarChave({ emitente: OUTRO, modelo, serie }), parseInt(modelo, 10));
+        expect(r.emitente, `${modelo}/${serie}`).toMatchObject({ tipo: "identificado", documento: "cnpj", numero: OUTRO, fonte: "chave" });
+      }
+    }
+  });
+});
+
 describe("formatação", () => {
   it("CNPJ AA.AAA.AAA/AAAA-DD, com as letras como vierem", () => {
     expect(formatarCnpj("11223344000187")).toBe("11.223.344/0001-87");
