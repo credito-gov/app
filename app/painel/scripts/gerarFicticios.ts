@@ -180,9 +180,10 @@ function gerarCreditos(): string {
       mesEmissao = mes === 12 ? 1 : mes + 1;
       anoEmissao = mes === 12 ? 2027 : 2026;
     }
-    const emissao = dataHora(anoEmissao, mesEmissao, dia, sorteio.inteiro(24), sorteio.inteiro(60), sorteio.inteiro(60), 0, 0);
-    const registro = dataHora(anoEmissao, mesEmissao, dia, sorteio.inteiro(24), sorteio.inteiro(60), sorteio.inteiro(60), 3 + (i % 4), sorteio.inteiro(1000000));
-    const atualizacao = dataHora(2026, 11, 1 + sorteio.inteiro(17), sorteio.inteiro(24), sorteio.inteiro(60), sorteio.inteiro(60), i % 4, sorteio.inteiro(1000));
+    // Datas em ordem: emissão de manhã, registro à tarde do mesmo dia, atualização depois de tudo e geradoEm depois da atualização.
+    const emissao = dataHora(anoEmissao, mesEmissao, dia, sorteio.inteiro(12), sorteio.inteiro(60), sorteio.inteiro(60), 0, 0);
+    const registro = dataHora(anoEmissao, mesEmissao, dia, 12 + sorteio.inteiro(12), sorteio.inteiro(60), sorteio.inteiro(60), 3 + (i % 4), sorteio.inteiro(1000000));
+    const atualizacao = dataHora(2027, 2, 1 + sorteio.inteiro(9), sorteio.inteiro(24), sorteio.inteiro(60), sorteio.inteiro(60), i % 4, sorteio.inteiro(1000));
 
     const modelo = String(documento);
     let chave: string;
@@ -238,7 +239,7 @@ function gerarCreditos(): string {
     tiqueteSolicitacao: "FICTVOL01",
     ni: NI14,
     niConsumidor: NI14,
-    geradoEm: "2026-11-18T10:00:00.000-03:00",
+    geradoEm: "2027-02-10T10:00:00.000-03:00",
     apuracao,
   });
 }
@@ -261,11 +262,10 @@ function gerarDebitos(): string {
     const debitos = [];
     for (let k = 0; k < quantidade; k++, sequencia++) {
       const documento = sequencia % 28 === 5 ? 91 : 55;
-      const dia = 1 + sorteio.inteiro(28);
-      const hora = sorteio.inteiro(24);
-      const emissao = dataHora(2026, mes, dia, hora, sorteio.inteiro(60), sorteio.inteiro(60), 0, 0);
-      const registro = dataHora(2026, mes, dia, hora, sorteio.inteiro(60), sorteio.inteiro(60), 3 + (sequencia % 4), sorteio.inteiro(1000000));
-      const atualizacao = dataHora(2026, 11, 4 + sorteio.inteiro(16), sorteio.inteiro(24), sorteio.inteiro(60), sorteio.inteiro(60), sequencia % 4, sorteio.inteiro(1000));
+      const dia = 1 + sorteio.inteiro(17);
+      const emissao = dataHora(2026, mes, dia, sorteio.inteiro(12), sorteio.inteiro(60), sorteio.inteiro(60), 0, 0);
+      const registro = dataHora(2026, mes, dia, 12 + sorteio.inteiro(12), sorteio.inteiro(60), sorteio.inteiro(60), 3 + (sequencia % 4), sorteio.inteiro(1000000));
+      const atualizacao = dataHora(2026, 11, 18 + sorteio.inteiro(2), sorteio.inteiro(24), sorteio.inteiro(60), sorteio.inteiro(60), sequencia % 4, sorteio.inteiro(1000));
 
       let chave: string;
       if (documento === 91) chave = chave50(1000 + sequencia);
