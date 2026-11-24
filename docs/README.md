@@ -7,7 +7,7 @@ Comece pelo [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md).
 | [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md) | Estado do projeto, decisões, regras, glossário | Sim, é a fonte canônica |
 | [`produto/`](produto/) | [Visão](produto/visao.md), [hipóteses](produto/hipoteses.md), [reforma tributária](produto/reforma-tributaria.md) | Sim |
 | [`design/`](design/README.md) | Design system, wireframes, marca | Sim, com as ressalvas do README da pasta |
-| [`referencias/`](referencias/apuracao-cbs/README.md) | [APIs de apuração da CBS](referencias/apuracao-cbs/README.md) e [manuais do Split Payment](referencias/split-payment/README.md) | Fonte externa |
+| [`referencias/`](referencias/apuracao-cbs/README.md) | [APIs de apuração da CBS](referencias/apuracao-cbs/README.md), [leiaute da chave dos documentos fiscais](referencias/documentos-fiscais/README.md) e [manuais do Split Payment](referencias/split-payment/README.md) | Fonte externa |
 | [`demandas/`](demandas/README.md) | Kanban, templates e uma pasta por demanda | Sim |
 | [`handoff/`](handoff/README.md) | Passagem de contexto entre sessões | Registro |
 | [`tasks/`](tasks/README.md) | Tasks 001–027 do modelo antigo | Não. Congelado |
