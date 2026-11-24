@@ -3,22 +3,21 @@ import { useScrollReveal } from '../hooks/useScrollReveal'
 
 const FEATURES = [
   {
-    title: 'Sincronização diária',
-    description:
-      'Varremos notas fiscais emitidas contra o seu CNPJ na virada do dia para garantir que nenhum centavo de crédito seja esquecido.',
-    tag: 'Previsão sem esforço',
+    title: 'Pendências por fornecedor',
+    description: 'Quem ainda não quitou o imposto da venda e quanto isso segura do seu crédito.',
+    tag: 'Fornecedor a fornecedor',
   },
   {
-    title: 'Projeção de 90 dias',
+    title: 'Saldo de CBS',
     description:
-      'Antecipe o que está programado para entrar no seu caixa e otimize o planejamento orçamentário da empresa de forma visual.',
-    tag: 'Fluxo sob controle',
+      'O crédito de CBS separado em confirmado e pendente, sem misturar o que ainda não pode ser usado. O IBS vem numa etapa seguinte.',
+    tag: 'Confirmado × pendente',
   },
   {
-    title: 'Dois cliques para liquidar',
+    title: 'Complemento ao ERP e ao contador',
     description:
-      'Abata débitos tributários diretamente com os saldos validados ou solicite a antecipação imediata com taxas reduzidas.',
-    tag: 'Crédito vira dinheiro',
+      'O CreditoGov não calcula imposto nem emite nota: isso continua no seu ERP. Também não substitui o contador.',
+    tag: 'Sem trocar de sistema',
   },
 ]
 
@@ -47,17 +46,20 @@ export default function Features() {
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal<HTMLDivElement>()
 
   return (
-    <section className="w-full bg-white px-6 py-16 md:px-[64px] md:py-[96px]">
+    <section
+      id="produto"
+      className="w-full scroll-mt-[80px] bg-white px-6 py-16 md:px-[64px] md:py-[96px]"
+    >
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-14">
         <div
           ref={headerRef}
           className={`reveal-up flex flex-col items-center gap-4 text-center ${headerVisible ? 'is-visible' : ''}`}
         >
           <div className="rounded-full border border-[#a7f3d0] bg-[#ecfdf5] px-3 py-[6px]">
-            <p className="text-[11px] font-bold text-[#047857] uppercase">Vantagens Exclusivas</p>
+            <p className="text-[11px] font-bold text-[#047857] uppercase">Em desenvolvimento</p>
           </div>
           <h2 className="text-[36px] font-extrabold text-[#060a13]">
-            Três pilares de previsibilidade de caixa
+            O que o CreditoGov vai fazer, e o que não vai
           </h2>
         </div>
 

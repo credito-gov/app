@@ -1,12 +1,13 @@
 import { useState } from 'react'
 
 import logoLockupWhite from '../assets/brand/logo-lockup-white.png'
+import { MENSAGEM_LISTA, linkEmail } from '../config/contato'
 
 const NAV_LINKS = [
-  { label: 'Como funciona', href: '#como-funciona' },
-  { label: 'Soluções', href: '#solucoes' },
-  { label: 'Preço', href: '#preco' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'Como vai funcionar', href: '#como-funciona' },
+  { label: 'Prévia do painel', href: '#painel' },
+  { label: 'O que vai fazer', href: '#produto' },
+  { label: 'Perguntas', href: '#faq' },
 ]
 
 export default function Header() {
@@ -28,8 +29,11 @@ export default function Header() {
             </a>
           ))}
           <span className="h-[16px] w-px bg-[#1e293b]" />
-          <a href="#entrar" className="text-[14px] font-medium whitespace-nowrap text-[#94a3b8]">
-            Entrar
+          <a
+            href={linkEmail(MENSAGEM_LISTA)}
+            className="text-[14px] font-medium whitespace-nowrap text-[#94a3b8]"
+          >
+            Lista de espera
           </a>
         </nav>
 
@@ -49,12 +53,21 @@ export default function Header() {
       {isMenuOpen && (
         <div className="absolute top-full left-0 flex w-full flex-col gap-[20px] border-b border-[#1e293b] bg-[#0e1524] px-6 py-[20px] md:hidden">
           {NAV_LINKS.map((link) => (
-            <a key={link.label} href={link.href} className="text-[14px] text-[#94a3b8]">
+            <a
+              key={link.label}
+              href={link.href}
+              className="text-[14px] text-[#94a3b8]"
+              onClick={() => setIsMenuOpen(false)}
+            >
               {link.label}
             </a>
           ))}
-          <a href="#entrar" className="text-[14px] text-[#94a3b8]">
-            Entrar
+          <a
+            href={linkEmail(MENSAGEM_LISTA)}
+            className="text-[14px] text-[#94a3b8]"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Lista de espera
           </a>
         </div>
       )}

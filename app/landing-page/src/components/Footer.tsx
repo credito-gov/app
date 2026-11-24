@@ -1,18 +1,26 @@
 import logoLockupWhite from '../assets/brand/logo-lockup-white.png'
+import { MENSAGEM_CONVERSA, MENSAGEM_LISTA, linkEmail, linkWhatsApp } from '../config/contato'
 import { useScrollReveal } from '../hooks/useScrollReveal'
+
+const WHATSAPP_LINK = linkWhatsApp(MENSAGEM_CONVERSA.corpo)
 
 const COLUMNS = [
   {
-    title: 'Produto',
-    links: ['Como funciona', 'Preço', 'Dashboard', 'Segurança'],
+    title: 'Navegação',
+    links: [
+      { label: 'Como vai funcionar', href: '#como-funciona' },
+      { label: 'Prévia do painel', href: '#painel' },
+      { label: 'O que vai fazer', href: '#produto' },
+      { label: 'Perguntas', href: '#faq' },
+    ],
   },
   {
-    title: 'Soluções',
-    links: ['Antecipação', 'Compensação', 'Previsões', 'e-CNPJ'],
-  },
-  {
-    title: 'Suporte',
-    links: ['FAQ', 'Central de Ajuda', 'WhatsApp', 'Contato'],
+    title: 'Contato',
+    links: [
+      { label: 'Lista de espera', href: linkEmail(MENSAGEM_LISTA) },
+      { label: 'E-mail', href: linkEmail(MENSAGEM_CONVERSA) },
+      ...(WHATSAPP_LINK ? [{ label: 'WhatsApp', href: WHATSAPP_LINK, external: true }] : []),
+    ],
   },
 ]
 
@@ -30,7 +38,7 @@ export default function Footer() {
           <div className="flex flex-col items-start gap-4">
             <img src={logoLockupWhite} alt="CreditoGov" className="h-[32px] w-auto" />
             <p className="max-w-[280px] text-[13px] leading-[1.55] text-[#94a3b8]">
-              Auditoria de crédito fiscal CBS/IBS com atualização diária via Receita Federal.
+              Crédito de CBS como caixa para pequenas e médias empresas. Em desenvolvimento.
             </p>
           </div>
 
@@ -41,9 +49,14 @@ export default function Footer() {
                   {column.title}
                 </p>
                 {column.links.map((link) => (
-                  <p key={link} className="text-[13px] whitespace-nowrap text-[#94a3b8]">
-                    {link}
-                  </p>
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    {...('external' in link ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    className="text-[13px] whitespace-nowrap text-[#94a3b8]"
+                  >
+                    {link.label}
+                  </a>
                 ))}
               </div>
             ))}
@@ -55,7 +68,7 @@ export default function Footer() {
           className={`reveal flex w-full flex-col items-start gap-2 border-t border-[#1e293b] pt-6 text-[12px] text-[#64748b] md:flex-row md:items-center md:justify-between ${bottomVisible ? 'is-visible' : ''}`}
         >
           <p>© 2026 CreditoGov. Todos os direitos reservados.</p>
-          <p>Auditoria tributária, todo santo dia.</p>
+          <p>Produto em desenvolvimento.</p>
         </div>
       </div>
     </footer>

@@ -26,7 +26,7 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 
 | Parte | Situação |
 |---|---|
-| Landing page (`app/landing-page`) | Redesign escuro concluído e na `main` (tasks 015–027, PR #10). Ainda com números, depoimentos e promessas sem base — ver §6 |
+| Landing page (`app/landing-page`) | Redesign escuro concluído e na `main` (tasks 015–027, PR #10). Texto em postura de pré-lançamento desde a demanda 028: diz que o produto está em desenvolvimento e convida para a lista de espera, sem números, depoimentos ou promessas sem base. |
 | Publicação da landing | <https://credito-gov.vercel.app/> mostra a versão clara antiga. O Vercel recusa publicar a partir do repositório (organização privada no plano gratuito), então o redesign **não está no ar** |
 | Backend, banco, autenticação, painel | **Não iniciados.** As tasks 001–005 foram escritas e estão suspensas (ver §5) |
 | Validação de mercado (entrevistas, contadores, tributarista) | Sem registro no repositório |
@@ -189,3 +189,4 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | 2026-11-23 | Fonte de dados confirmada para a CBS (APIs de apuração da Receita); novas pendências: acesso multi-cliente e IBS |
 | 2026-11-23 | Redesign da landing concluído e mergeado na `main`; registrado que o Vercel não publica a partir do repositório |
 | 2026-11-23 | Reescrito na reorganização geral: estado real do projeto, API da Receita rebaixada a hipótese, stack do backend marcada como proposta, fluxo por demandas, nova estrutura de pastas |
+| 2026-11-23 | Landing em postura de pré-lançamento (demanda 028) |
