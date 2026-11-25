@@ -1,6 +1,6 @@
 # 032-design-system-produto — Design system do produto
 
-- **Status:** us-em-revisão
+- **Status:** us-aprovada
 - **Branch:** `docs/032-design-system-produto`
 - **Worktree:** `.claude/worktrees/032-design-system-produto`
 - **Solicitante / data:** responsável pelo projeto, 2026-11-25
@@ -13,7 +13,7 @@ Como responsável pelo CreditoGov, quero um design system do produto SaaS, deriv
 - **O que existe.** `docs/design/design-system.md` descreve o tema claro da primeira landing (verde `#10B981`, azul `#3B82F6`, fundo `#F9FAFB`, Inter). O redesign escuro da landing (tasks 015–027, na `main`) usa outras cores direto no código, sem tokens documentados: fundo `#060a13`, superfícies `#0c121e`/`#0e1524`, bordas `#1e293b`, texto secundário `#94a3b8`/`#64748b`, verde `#10b981`, âmbar `#fbbf24`, fonte Inter (`app/landing-page/src/index.css` e `src/components/`). O backlog tinha o item "Atualizar o design system para o tema escuro do redesign"; esta demanda o absorve.
 - **O que é o produto.** SaaS B2B que mostra o crédito de CBS das compras como caixa: quanto existe, de qual nota e emitente veio, o que ainda está a apropriar ([`../../produto/visao.md`](../../produto/visao.md)). Usuário: dono ou financeiro de pequena e média empresa; canal: contador. Autenticação própria por email e senha (decisão de 2026-08-25, `PROJECT_CONTEXT.md` §3).
 - **Vocabulário de valores.** A demanda 030 fixou os quatro totais com o nome oficial da API de apuração da CBS: "A apropriar (pendente)" (`aApropriar`), "Apropriado" (`apropriado`), "Já utilizado" (`utilizado`) e "Saldo credor não utilizado" (`saldoCredor`), sempre separados; débitos de vendas à parte, sem saldo líquido; pendências agrupadas por emitente, com "emitente não identificado" e "emitida pela própria empresa". "Confirmado" e "disponível" não são usados como rótulo de valor sem base (D-3 da [`030`](../030-painel-primeira-versao/us.md)). Fonte dos campos: [`../../referencias/apuracao-cbs/README.md`](../../referencias/apuracao-cbs/README.md).
-- **Ferramenta.** O design é feito no Claude Design (Artifacts do tipo "Design System" e "Design" do claude.ai), alimentado com o contexto do produto. Agentes deste repositório não operam o claude.ai: o contexto é preparado no repositório e o artifact é produzido e aprovado pelo responsável (ver P-1).
+- **Ferramenta.** O design é feito no Claude Design (Artifacts do tipo "Design System" e "Design" do claude.ai), alimentado com o contexto do produto. A sessão da demanda opera o Claude Design com o briefing do CA-1 e leva cada rodada ao responsável, que aprova visualmente (D-1).
 - **Dependências.** A stack do produto está em decisão na demanda 031; os indicadores do dashboard, na demanda 033. As duas correm em paralelo noutras sessões.
 - **Referências visuais.** `app/landing-page/src` (tema escuro) e `docs/design/assets/` (marca). **Não** são referência: `app/painel` (ferramenta interna local) e o wireframe `docs/design/wireframes/dashboard-principal.md` (concepção, com compensação de ICMS, antecipação e "Validados", fora do escopo atual).
 - **Restrições permanentes.** `PROJECT_CONTEXT.md` §6: crédito não confirmado nunca aparece como disponível; nada de número, promessa, depoimento ou logo de cliente sem base; nenhuma regra de CBS/IBS sem fonte.
@@ -80,3 +80,10 @@ Como responsável pelo CreditoGov, quero um design system do produto SaaS, deriv
 - **P-6: celular.** O dashboard e o login precisam de versão para celular? Recomendação: login em desktop e celular; dashboard só em desktop nesta demanda, com celular depois da 033.
 - **P-7: link do artifact.** O artifact do claude.ai pode ficar privado na conta do responsável. Recomendação: registrar o link publicado (se ele aceitar publicar) e, sempre, o export em `docs/design/` (tokens e imagens das telas), para o repositório não depender do link.
 - **P-8: cores de estado de crédito.** A distinção "a apropriar" × "apropriado" × "já utilizado" é de domínio e qual valor é o saldo utilizável está em aberto para tributarista (D-3 da 030). Recomendação: estado a apropriar em atenção (âmbar), apropriado e já utilizado em neutro/informação, e nenhum valor de crédito em verde de sucesso até haver base.
+
+## Aprovação (2026-11-25)
+
+O responsável aprovou a US com as recomendações de todas as perguntas, com uma correção na P-1:
+
+- **D-1 (era P-1):** a sessão da demanda opera o Claude Design nesta sessão, a partir do briefing (CA-1), e leva cada rodada ao responsável; nada segue sem a aprovação visual dele.
+- **D-2 a D-8 (eram P-2 a P-8):** valem as recomendações acima (tema claro fora; marca como está; Inter com algarismos tabulares e monoespaçada só na chave, se ajudar; link "esqueci a senha" sem o fluxo; login em desktop e celular, dashboard só desktop; export sempre em `docs/design/`, link conforme o responsável; a apropriar em âmbar, apropriado e já utilizado em neutro/informação, nenhum crédito em verde de sucesso).
