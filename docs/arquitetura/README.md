@@ -495,13 +495,13 @@ Detalha a [AD-9](#ad-9--coletor-agendado). Fontes: [referência](../referencias/
 
 ### Ciclo de uma consulta
 
-Estados de `consulta`: `agendada` → `aberta` (com tíquete) → `concluida` → `baixada` → `lida`. Os estados finais de erro são `erro`, `expirada`, `credencial_invalida` e `servico_indisponivel`.
+Estados de `consulta`: `agendada` → `abrindo` → `aberta` (com tíquete) → `concluida` → `baixada` → `lida`. `abrindo` é o estado de quem já tem a chamada registrada e ainda não tem tíquete. Os estados finais de erro são `erro`, `expirada`, `credencial_invalida`, `servico_indisponivel` e `aberta_sem_tiquete`.
 
-- **Tíquete.** É gravado **na mesma transação** que registra a chamada de abertura, antes de qualquer outro passo. É a mesma regra da PoC: o tíquete vale uma abertura do limite (seção "Limite de uso").
+- **Abertura em duas transações.** Primeira transação: registra a `chamada_receita` e passa a consulta a `abrindo`, **antes** de enviar a abertura. Só depois a abertura é enviada. Segunda transação: grava o tíquete e passa a consulta a `aberta`, antes de qualquer outro passo. O tíquete vale uma abertura do limite (seção "Limite de uso"), por isso a chamada é contada antes de sair.
 - **Espera.** Só por consulta de situação, com `urlRetorno` vazio, que foi aceito na chamada real (HTTP 201 em créditos e débitos; divergência 6; "Observado na chamada real", 2026-11-24). Intervalo mínimo de 5 minutos entre consultas de situação, o padrão da PoC. Depois de 240 min sem conclusão, a consulta vira `expirada` (seção "Fluxo de uma consulta"; divergência 5: guia e FAQ falam em "status de erro", a página de situação mostra `EXPIRADA`, e os dois são tratados como fim).
 - **Por que não o aviso (`urlRetorno`).** Exige endereço público nosso e não tem assinatura nem autenticação (seção "Fluxo de uma consulta"). Se um dia for adotado, vale só como sinal para consultar a situação antes do horário, nunca como resultado.
 - **Download.** Logo depois de `CONCLUIDA`, bem antes das 48 h (seção "Fluxo de uma consulta"; a divergência 7 registra 24 h no manual da Plataforma da CBS v1, que não vale onde diverge da v2). Se falhar, nova URL assinada pelo mesmo tíquete, sem nova abertura.
-- **Reinício.** Ao subir, o coletor retoma as consultas `aberta` e `concluida` pelo tíquete gravado. A espera é estado no banco, não processo preso.
+- **Reinício.** Ao subir, o coletor retoma as consultas `aberta` e `concluida` pelo tíquete gravado. Uma consulta encontrada em `abrindo` é tratada como `aberta_sem_tiquete` (a abertura pode ter saído sem o tíquete voltar): não reabre sem decisão explícita da operação. A espera é estado no banco, não processo preso.
 
 ### Frequência e orçamento
 
@@ -525,7 +525,7 @@ Nenhuma retentativa é automática quando gasta abertura, salvo onde a tabela di
 | HTTP 404 na abertura (recolhimentos e pagamentos) | `servico_indisponivel`. Tenta uma vez por dia, porque a notícia de 09/11/2026 fala em serviços novos ainda em novembro. Se o 404 conta no limite não se sabe; 1 de 4 por dia é aceitável | Divergência 9 e O-17 (2026-11-24); notícia oficial de 09/11/2026, seção "Ambientes e novidades" |
 | Situação `ERRO` ou `EXPIRADA` | Uma nova abertura no mesmo dia, se o orçamento tiver sobra (até 2 por dia por serviço, deixando 2 de reserva). Senão, no ciclo seguinte | Divergência 5; não testada |
 | Recusa da credencial no token, ou "consumidor não autorizado para este NI" | Descarta o token. Uma única nova tentativa com token novo. Se repetir, a credencial vira `invalida` (a consulta termina em `credencial_invalida`), a coleta da empresa para e um alerta vai para os usuários dela (AD-10). A PoC trata o HTTP 401 da abertura como token recusado ou consumidor não autorizado: é interpretação da PoC, e o código exato desse erro não tem fonte | Seção "O que não está documentado" (erro "consumidor não autorizado para este NI") |
-| Sem resposta (rede, tempo esgotado) na abertura | Fica `aberta_sem_tiquete`, tratada como chamada gasta. Não repete no dia | Decisão de arquitetura, para não gastar o limite; sem fonte sobre como a Receita conta a abertura sem resposta |
+| Sem resposta (rede, tempo esgotado) na abertura, ou processo reiniciado com a consulta em `abrindo` | Fica `aberta_sem_tiquete`, tratada como chamada gasta. Não repete no dia nem reabre sem decisão explícita | Decisão de arquitetura, para não gastar o limite; sem fonte sobre como a Receita conta a abertura sem resposta |
 | Falha no download | Nova URL assinada pelo mesmo tíquete, até as 48 h | Seção "Fluxo de uma consulta" |
 
 ### Alertas
