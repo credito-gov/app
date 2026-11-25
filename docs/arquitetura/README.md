@@ -302,11 +302,81 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 
 **Fontes:** [referência](../referencias/apuracao-cbs/README.md), seção "Consulta incremental" e divergência 10 (2026-11-24); números com 0 a 2 casas no JSON, O-13; hipóteses D-2 a D-6 em [`hipoteses.md`](../produto/hipoteses.md).
 
-<!-- TASK-4 -->
+### AD-9 — Coletor agendado
+
+**Problema.** Consultar cada serviço de cada empresa a tempo (janela de 8 dias), dentro dos limites, aguentando até 240 min de processamento, com 48 h para baixar o arquivo e sem gastar chamada à toa. O desenho completo (ciclo, orçamento, falhas e alertas) está na [seção 5](#5-coleta-agendada).
+
+**Critérios:** sobreviver a reinício; contar cada chamada; nunca repetir abertura sem decisão explícita; simplicidade.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. Processo coletor contínuo, com fila e máquina de estados no PostgreSQL** | Estado sobrevive a reinício; a contagem do limite fica na mesma transação do estado; nenhum serviço a mais | O coletor é um processo sempre ligado |
+| B. Agendador + funções sob demanda (serverless), estado no banco | Paga só pelo uso | Cada passo vira uma função, o que traz mais peças e mais acoplamento ao provedor |
+| C. Fila gerenciada do provedor | Retentativas prontas | Retentativa automática pode gastar chamada do limite sem querer; estado em dois lugares |
+
+**Recomendação:** A, com o desenho da seção 5.
+
+**Escolha do responsável:** A, processo coletor contínuo com fila e máquina de estados no PostgreSQL. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- B: peças demais e acoplamento ao provedor;
+- C: retentativa automática pode gastar o limite da Receita.
+
+**Fontes:** [referência](../referencias/apuracao-cbs/README.md): seção "Fluxo de uma consulta" (240 min, 48 h, aviso sem autenticação), "Consulta incremental" (8 dias), "Limite de uso", divergências 1, 5, 6 e 9, "Observado na chamada real (2026-11-24)"; manual Receita Integra v1.4 (17/07/2026) para o token; notícia oficial de 09/11/2026 para os serviços novos.
+
+<!-- AD-NEXT -->
 
 ## 5. Coleta agendada
 
-<!-- TASK-4 -->
+Detalha a [AD-9](#ad-9--coletor-agendado). Fontes: [referência](../referencias/apuracao-cbs/README.md). Os comportamentos observados valem para um dia e uma empresa (2026-11-24): a referência manda conferir de novo antes de depender deles, e o documento manda reconferir a referência antes de cada demanda de coletor (R-2).
+
+### Ciclo de uma consulta
+
+Estados de `consulta`: `agendada` → `aberta` (com tíquete) → `concluida` → `baixada` → `lida`. Os estados finais de erro são `erro`, `expirada`, `credencial_invalida` e `servico_indisponivel`.
+
+- **Tíquete.** É gravado **na mesma transação** que registra a chamada de abertura, antes de qualquer outro passo. É a mesma regra da PoC: o tíquete vale uma abertura do limite (seção "Limite de uso").
+- **Espera.** Só por consulta de situação, com `urlRetorno` vazio, que foi aceito na chamada real (HTTP 201 em créditos e débitos; divergência 6; "Observado na chamada real", 2026-11-24). Intervalo mínimo de 5 minutos entre consultas de situação, o padrão da PoC. Depois de 240 min sem conclusão, a consulta vira `expirada` (seção "Fluxo de uma consulta"; divergência 5: guia e FAQ falam em "status de erro", a página de situação mostra `EXPIRADA`, e os dois são tratados como fim).
+- **Por que não o aviso (`urlRetorno`).** Exige endereço público nosso e não tem assinatura nem autenticação (seção "Fluxo de uma consulta"). Se um dia for adotado, vale só como sinal para consultar a situação antes do horário, nunca como resultado.
+- **Download.** Logo depois de `CONCLUIDA`, bem antes das 48 h (seção "Fluxo de uma consulta"; a divergência 7 registra 24 h no manual da Plataforma da CBS v1, que não vale onde diverge da v2). Se falhar, nova URL assinada pelo mesmo tíquete, sem nova abertura.
+- **Reinício.** Ao subir, o coletor retoma as consultas `aberta` e `concluida` pelo tíquete gravado. A espera é estado no banco, não processo preso.
+
+### Frequência e orçamento
+
+Por empresa, por serviço, por credencial:
+
+- **Uma abertura por dia** em cada serviço disponível (créditos e débitos), o que usa **1 das 4 chamadas** (limite por API e por credencial; "por dia" só na FAQ, divergência 1, não testada). Sobram 3 para casos decididos.
+- A cadência diária deixa **7 dias de folga** dentro da janela de 8 (seção "Consulta incremental": consultar pelo menos uma vez a cada 8 dias, por serviço e por cliente).
+- **Não reabrir no mesmo dia** depois de uma consulta concluída: a segunda abertura de créditos feita cerca de 2 min depois da primeira concluída respondeu HTTP 400, sem motivo conhecido ("Observado na chamada real", 2026-11-24; a divergência 1 registra a mesma observação).
+- **Horários** espalhados ao longo do dia e longe da meia-noite, porque a FAQ diz que a cota reinicia à meia-noite e não diz o fuso (divergência 1; pergunta em aberto).
+- **Token.** Um por ciclo da credencial, reaproveitado por 1 hora para os serviços daquela credencial, guardado cifrado (AD-10), dentro do limite de 2 por hora. Validade de 1 hora e limite de 2 por hora: manual Receita Integra v1.4 (17/07/2026), seção "O que não está documentado" da referência. O controle local conta os pedidos, como na PoC.
+- **Situação e download** também ficam registrados em `chamada_receita`, porque não se sabe se contam no limite ("Observado na chamada real": nenhum HTTP 429 em 1 token, 5 aberturas, 2 situações e 2 downloads; não dá para dizer se situação e download contam, nem se abertura recusada conta).
+
+### Falhas
+
+Nenhuma retentativa é automática quando gasta abertura, salvo onde a tabela diz.
+
+| Situação | Tratamento | Fonte |
+|---|---|---|
+| HTTP 429 | Para o serviço daquela credencial até o dia seguinte; registra o ocorrido | Limite de 4 chamadas, seção "Limite de uso"; o 429 não foi observado (divergência 1) |
+| HTTP 400 na abertura, sem motivo conhecido | Não repete no dia; tenta no ciclo seguinte; no segundo dia seguido, vira alerta para a operação | "Observado na chamada real" (2026-11-24); a mensagem de erro não foi registrada |
+| HTTP 404 na abertura (recolhimentos e pagamentos) | `servico_indisponivel`. Tenta uma vez por dia, porque a notícia de 09/11/2026 fala em serviços novos ainda em novembro. Se o 404 conta no limite não se sabe; 1 de 4 por dia é aceitável | Divergência 9 e O-17 (2026-11-24); notícia oficial de 09/11/2026, seção "Ambientes e novidades" |
+| Situação `ERRO` ou `EXPIRADA` | Uma nova abertura no mesmo dia, se o orçamento tiver sobra (até 2 por dia por serviço, deixando 2 de reserva). Senão, no ciclo seguinte | Divergência 5; não testada |
+| Recusa da credencial no token, ou "consumidor não autorizado para este NI" | Descarta o token. Uma única nova tentativa com token novo. Se repetir, a credencial vira `credencial_invalida`, a coleta da empresa para e um alerta vai para os usuários dela (AD-10). A PoC trata o HTTP 401 da abertura como token recusado ou consumidor não autorizado: é interpretação da PoC, e o código exato desse erro não tem fonte | Seção "O que não está documentado" (erro "consumidor não autorizado para este NI") |
+| Sem resposta (rede, tempo esgotado) na abertura | Fica `aberta_sem_tiquete`, tratada como chamada gasta. Não repete no dia | Decisão de arquitetura, para não gastar o limite; sem fonte sobre como a Receita conta a abertura sem resposta |
+| Falha no download | Nova URL assinada pelo mesmo tíquete, até as 48 h | Seção "Fluxo de uma consulta" |
+
+### Alertas
+
+Para cada empresa e serviço disponível, o banco guarda a data da última consulta `lida`. A perda de dados ocorre quando passam mais de 8 dias sem coleta (seção "Consulta incremental").
+
+| Dias sem coleta lida | Quem é avisado |
+|---|---|
+| 2 dias | Equipe do CreditoGov |
+| 3 dias, e o problema depende do cliente (credencial inválida ou ausente) | Também os usuários com vínculo na empresa, inclusive o contador |
+| 5 dias | Alerta crítico para a equipe, faltando 3 para a perda de dados |
+
+O canal (email ou outro) e o texto ficam para a demanda que implementar o coletor.
 
 ## 6. Credencial da Receita
 
