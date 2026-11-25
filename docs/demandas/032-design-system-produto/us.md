@@ -93,3 +93,6 @@ O responsável aprovou a US com as recomendações de todas as perguntas, com um
 - **Paleta a partir do logo:** o verde (`#27a671`) e o azul-marinho (`#354363`, `#001955`) de `docs/design/assets/` passam a ser a fonte das cores; o logo colorido aparece numa placa clara no tema escuro.
 - **D-2 alterada: tema claro é o principal e sai primeiro.** O escuro continua, com os mesmos nomes de token.
 - **Telas:** login e dashboard desenhados juntos, já com o design da aplicação. A US da 033 foi aprovada em 2026-11-25, então a dependência do CA-3/CA-19 está liberada; a carteira do contador (CA-C1 a CA-C4 da 033) entrou no mesmo canvas.
+- **Navegação no topo, sem barra lateral** (pedido do responsável: barra lateral “cara de sistema corporativo”).
+- **Login com provedor externo** (Google e Microsoft na proposta), além de e-mail e senha. Muda o CA-18 (“sem login social”) e a decisão de 2026-08-25 (“autenticação própria, email + senha”) do `PROJECT_CONTEXT.md`; os provedores finais e o impacto na arquitetura ficam para a demanda 031. Continua sem credencial de ERP ou da Receita no login.
+- **Painel do login com mensagens alternadas:** três mensagens com ilustração feita de componentes do produto, trocando a cada 6 segundos, com pausa sob o ponteiro e sem animação para quem pede menos movimento.
