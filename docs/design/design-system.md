@@ -35,7 +35,7 @@ A paleta vem do logo (`docs/design/assets/`): verde `#27a671` e azul-marinho `#3
 | `ink` | `#0b1530` | `#f8fafc` | Texto principal e valores |
 | `ink-muted` | `#475569` | `#94a3b8` | Texto secundário, rótulos, cabeçalho de coluna |
 | `ink-subtle` | `#5f6b7e` | `#7c8aa0` | Metadados, nome oficial do campo, ajuda, placeholder |
-| `brand` | `#1a7d55` | `#27a671` | Verde do logo. Botão primário, link, foco, ícone do item ativo. Nunca em valor de crédito |
+| `brand` | `#1a7d55` | `#27a671` | Verde do logo. Botão primário, link, foco, sublinhado do item ativo da navegação. Nunca em valor de crédito |
 | `brand-hover` | `#166b49` | `#2fbf83` | Botão primário sob o ponteiro |
 | `brand-strong` | `#047857` | `#047857` | Faixa de destaque com texto branco |
 | `brand-soft` / `brand-line` | `#27a6711a` / `#27a67159` | `#27a67126` / `#27a67166` | Fundo e borda do selo de marca |
