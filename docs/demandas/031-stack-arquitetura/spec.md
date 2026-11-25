@@ -68,7 +68,7 @@ São só as entidades e as relações que as decisões exigem, sem colunas nem m
 | `usuario` | Pessoa que entra no CreditoGov | N:N com `empresa`, por `vinculo_empresa` |
 | `vinculo_empresa` | Liga usuário a empresa. O papel (titular, contador, outro) fica para a demanda de login | Um usuário com várias empresas (a carteira do contador); uma empresa com vários usuários |
 | `identidade` | Forma de login de um usuário: email e senha hoje; Google, Apple ou gov.br depois (CA-22a) | N:1 com `usuario` |
-| `credencial_receita` | O par `client_id`/`client_secret` cifrado (AD-10), com o estado (ativa, inválida, substituída, removida) | **N:N com `empresa` por `credencial_empresa`**, restrito a 1:1 por regra no cenário A (AD-11) |
+| `credencial_receita` | O par `client_id`/`client_secret` cifrado (AD-10), com o estado (`ativa`, `invalida`, `substituida`, `removida`) | **N:N com `empresa` por `credencial_empresa`**, restrito a 1:1 por regra no cenário A (AD-11) |
 | `credencial_entrega` | Rastreio: quem informou, quando, para qual empresa e de que forma (titular ou procurador, **como declarado**, sem verificação) | Uma por entrega ou troca; imutável (CA-21a) |
 | `consulta` | Uma solicitação à API: serviço, empresa, credencial, tíquete, estado, horários e erro | Máquina de estados da AD-9 |
 | `chamada_receita` | Cada chamada feita (token, abertura, situação, download, arquivo), com HTTP e horário, sem segredo | Base do orçamento do limite, como o `.local/chamadas.jsonl` da PoC |
@@ -339,7 +339,7 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 | HTTP 400 na abertura, sem motivo conhecido | Não repete no dia; tenta no ciclo seguinte; no segundo dia seguido, vira alerta para a operação |
 | HTTP 404 na abertura (recolhimentos e pagamentos, divergência 9) | `servico_indisponivel`. Tenta uma vez por dia, porque a notícia de 09/11/2026 fala em serviços novos ainda em novembro. Se o 404 conta no limite não se sabe; 1 de 4 por dia é aceitável |
 | Situação `ERRO` ou `EXPIRADA` (divergência 5) | Uma nova abertura no mesmo dia, se o orçamento tiver sobra (até 2 por dia por serviço, deixando 2 de reserva). Senão, no ciclo seguinte |
-| Recusa da credencial no token, ou "consumidor não autorizado para este NI" (a PoC trata o HTTP 401 da abertura como token recusado ou consumidor não autorizado; o código exato desse erro não tem fonte) | Descarta o token. Uma única nova tentativa com token novo. Se repetir, a credencial vira `credencial_invalida`, a coleta da empresa para e um alerta vai para os usuários dela (AD-10) |
+| Recusa da credencial no token, ou "consumidor não autorizado para este NI" (a PoC trata o HTTP 401 da abertura como token recusado ou consumidor não autorizado; o código exato desse erro não tem fonte) | Descarta o token. Uma única nova tentativa com token novo. Se repetir, a credencial vira `invalida` (a consulta termina em `credencial_invalida`), a coleta da empresa para e um alerta vai para os usuários dela (AD-10) |
 | Sem resposta (rede, tempo esgotado) na abertura | Fica `aberta_sem_tiquete`, tratada como chamada gasta. Não repete no dia |
 | Falha no download | Nova URL assinada pelo mesmo tíquete, até as 48 h |
 
@@ -392,7 +392,7 @@ O canal (email ou outro) e o texto ficam para a demanda que implementar o coleto
 1. **Entrega:** no cadastro da empresa, um usuário com vínculo nela informa `client_id` e `client_secret`, gerados no gov.br pelo titular ou pelo procurador. O formulário diz que credenciais anteriores à v2.0 (28/10/2026) precisam ser geradas de novo (seção "Fluxo de uma consulta").
 2. **Conferência:** um pedido de token (1 dos 2 por hora) confirma que o par é válido, sem gastar abertura. A autorização para o CNPJ só se confirma na primeira abertura de créditos, que é a própria primeira coleta, feita logo após o cadastro. Não há chamada só para conferir.
 3. **Troca:** a credencial nova entra como `ativa`, e a anterior vira `substituida`. A anterior é apagada (chave de dados destruída) depois da primeira coleta bem-sucedida com a nova.
-4. **Revogação ou invalidez:** detectada pela coleta (tabela de falhas da AD-9). A credencial vira `credencial_invalida`, a coleta para e os usuários são avisados para informar uma nova.
+4. **Revogação ou invalidez:** detectada pela coleta (tabela de falhas da AD-9). A credencial vira `invalida` (e a consulta termina em `credencial_invalida`), a coleta para e os usuários são avisados para informar uma nova.
 5. **Credencial anterior à v2.0:** a mensagem de recusa no token orienta gerar de novo. O CreditoGov não distingue esse caso de outra recusa sem fonte para isso.
 6. **Saída do cliente:** a chave de dados da credencial é destruída na hora. O destino dos dados fiscais e dos arquivos brutos depois da saída é pergunta de LGPD (CA-25).
 
@@ -427,7 +427,7 @@ O registro é imutável e não guarda segredo. **Não é verificação de procur
 **Cenário B, contingência** (CA-19). Só o plano entra no documento:
 
 - **O que o tornaria possível:** resposta da Receita (ou de quem já integra) às perguntas do CA-21. Uma credencial de procurador cobre vários CNPJs? O limite conta por credencial ou por credencial e CNPJ?
-- **Efeito do limite**, com a cadência da AD-9 e o limite "por dia" da FAQ:
+- **Efeito do limite**, com o limite "por dia" da FAQ:
   - **por credencial e CNPJ:** igual ao A, uma credencial atende tantos CNPJs quanto a procuração cobrir;
   - **por credencial no total:** duas contas. Com a cadência diária da AD-9, as 4 aberturas por dia atendem 4 CNPJs por serviço. Os 28 CNPJs por serviço só valem com uma consulta a cada 7 dias por CNPJ (1 dia de folga na janela de 8), sem nenhuma sobra para falha. Na prática, bem menos. É inviável para uma carteira grande sem várias credenciais.
 - **Credencial que deixa de valer para um dos CNPJs** ("consumidor não autorizado para este NI"): só o vínculo `credencial_empresa` daquele CNPJ vira inválido; os outros CNPJs da mesma credencial continuam.
@@ -558,7 +558,7 @@ Não têm alternativas porque decorrem das decisões acima. O CA-2 vale para as 
 | Token da Receita e URL assinada | HTTPS | Token cifrado (AD-10); URL assinada não é guardada | Nunca |
 | Dados fiscais da empresa (arquivos e leitura) | HTTPS | Cifra em repouso do provedor; isolamento por empresa (AD-6) | Só contagens e identificadores internos; nenhum valor, chave de nota ou CNPJ |
 | Dados pessoais de usuários (nome, email) | HTTPS | Banco cifrado em repouso; senha só como hash (AD-12) | Sem email em texto; identificador interno |
-| `niConsumidor` (na primeira chamada veio com 11 dígitos (tamanho de um CPF; a referência não diz o que é); na segunda, igual ao `ni` da empresa) | HTTPS | Fica no arquivo bruto; não é copiado para `leitura` sem necessidade | Nunca |
+| `niConsumidor` (na primeira chamada veio com 11 dígitos, tamanho de um CPF, e a referência não diz o que é; na segunda, igual ao `ni` da empresa) | HTTPS | Fica no arquivo bruto; não é copiado para `leitura` sem necessidade | Nunca |
 
 Perguntas para advogado, sem afirmar regra:
 
@@ -643,7 +643,7 @@ Perguntas para advogado, sem afirmar regra:
 
 - **R-1. Limite por credencial no cenário B.** Se o limite for por credencial no total, o B quase não ajuda: 4 CNPJs por serviço com a cadência diária, até 28 se cada CNPJ for consultado só a cada 7 dias. A base no A evita depender da resposta.
 - **R-2. Serviço em beta.** Quatro versões da documentação em três meses, e recolhimentos e pagamentos com 404. A máquina de estados e o `servico_indisponivel` absorvem isso. O documento manda reconferir a referência antes de cada demanda de coletor.
-- **R-3. Recomendações sobre bibliotecas sem prova no projeto.** Fastify e Kysely não foram usados aqui. A primeira demanda de backend confirma com um teste o isolamento por linha e o `numeric` como texto. Se falhar, as segundas opções registradas (Drizzle e, para a autenticação, a B da AD-12) entram sem nova demanda de arquitetura, só com registro no histórico do documento.
+- **R-3. Recomendações sobre bibliotecas sem prova no projeto.** Fastify e Kysely não foram usados aqui. A primeira demanda de backend confirma com um teste o isolamento por linha (papel de trabalho sem posse, sem `BYPASSRLS` e não superusuário, com `FORCE ROW LEVEL SECURITY`; empresa fixada só por transação; papel de agendamento do coletor sem acesso a `leitura` nem `credencial_receita`) e o `numeric` como texto. Se falhar, as segundas opções registradas (Drizzle e, para a autenticação, a B da AD-12) entram sem nova demanda de arquitetura, só com registro no histórico do documento.
 - **R-4. Custo sem fonte.** A escolha do provedor pode ficar para depois da PD-1, sem travar a primeira demanda de backend, que roda local.
 - **R-5. Sobreposição com a 033.** A 033 tem a carteira do contador. A AD-6 garante que o modelo a aceita; papéis e permissões continuam com a demanda de login.
 - **R-6. Visão de produto.** O passo 4 de `produto/visao.md` ("Primeira versão do painel") pode ser lido como a 030. A US não pede mudança em `visao.md`; o `PROJECT_CONTEXT.md` esclarece. Ajustar a visão fica para o responsável.
