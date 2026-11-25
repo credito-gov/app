@@ -53,7 +53,190 @@ Os componentes e as relações têm o modelo de dados conceitual na [AD-6](#ad-6
 
 ## 4. Decisões
 
-<!-- TASK-2 -->
+Formato fixo de cada decisão: problema, critérios, alternativas com prós e contras, recomendação, escolha do responsável (com data), alternativas descartadas e fontes.
+
+### AD-1 — Linguagem e runtime do backend
+
+**Problema.** O produto precisa de uma API, de um coletor agendado e de leitura e validação dos arquivos da Receita.
+
+**Critérios:** continuidade com o código existente; tipagem; bibliotecas de decimal exato e de JSON Schema 2020-12; equipe pequena; mesma linguagem na web.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. Node 24 + TypeScript (ESM)** | As aplicações 029 e 030 já usam: leitura, validação (`ajv`, schemas oficiais), decimal (`big.js`), JSON sem perda (`lossless-json`), tolerância do `ni` e regras do emitente já escritas e testadas (`vitest`, `oxlint`). Mesma linguagem da landing e da aplicação web | Pede disciplina para não usar `number` em dinheiro (já resolvido na PoC) |
+| B. Outra linguagem (Python, Go, Java, C#) | Ecossistemas maduros para backend | Reescrever o que 029 e 030 já provaram; duas linguagens no projeto |
+
+**Recomendação:** A.
+
+**Escolha do responsável:** A, Node 24 + TypeScript. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartada:** B, porque obrigaria a reescrever código já validado contra arquivos reais.
+
+**Fontes:** [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §4 (o que existe em `app/apuracao-cbs` e `app/painel`); [`../referencias/apuracao-cbs/README.md`](../referencias/apuracao-cbs/README.md), O-1 a O-25 (arquivos reais lidos pelo código existente, 2026-11-24).
+
+### AD-2 — Organização em aplicações e framework HTTP
+
+**Problema.** Quantas aplicações novas e com qual framework a API é escrita.
+
+**Critérios:** separar o processo da API do processo do coletor (o coletor não pode parar a API, e vice-versa); código de domínio compartilhado; validação de entrada; simplicidade.
+
+**Organização recomendada:**
+
+- `app/backend`: um pacote com dois pontos de entrada, `api` e `coletor`, que compartilham o código de domínio (leitura, validação, regras de crédito);
+- `app/web`: a aplicação web (AD-3).
+
+| Framework da API | Prós | Contras |
+|---|---|---|
+| Express (proposta da concepção) | O mais conhecido; muitas bibliotecas | Validação e tipagem por bibliotecas externas; tratamento de erro assíncrono depende da versão |
+| **Fastify** | Validação de entrada e saída por JSON Schema, com `ajv`, a mesma biblioteca da PoC; tipagem TypeScript; plugins para cookie e sessão | Menos material que o Express |
+| NestJS | Estrutura opinativa (módulos, injeção de dependência) | Camada a mais para uma equipe pequena; decorators |
+| `node:http` puro (como o `app/painel`) | Zero dependência | Roteamento, validação, sessão e segurança escritos à mão |
+
+**Recomendação:** organização em `app/backend` (api + coletor) e `app/web`, com Fastify na API.
+
+**Escolha do responsável:** `app/backend` (api + coletor) e `app/web`, com Fastify na API. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- Express: a concepção não é especificação, e o Fastify já valida com o `ajv` que o projeto usa;
+- NestJS: estrutura demais para o tamanho do time;
+- `node:http` puro: segurança e sessão escritas à mão.
+
+**Fontes:** [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §4 (proposta da concepção e o painel em `node:http`). A afirmação é sobre características gerais das bibliotecas; Fastify não foi usado no projeto (ver R-3 na [seção 12](#12-perguntas-em-aberto-e-pendências)).
+
+### AD-3 — Aplicação web do produto
+
+**Problema.** O framework e a forma de renderização do dashboard e das telas de cadastro. A demanda 033 aprovou a US do dashboard, com indicadores, estados e a carteira do contador (troca entre empresas). A biblioteca visual é da demanda 032.
+
+**Critérios:**
+
+- interação da carteira do contador (troca de empresa, filtros) sem recarregar tudo;
+- não fixar biblioteca de componentes nem tokens, que são da 032;
+- continuidade com a landing (React 19, Vite, TypeScript);
+- hospedagem simples;
+- a API como única porta dos dados.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. React 19 + Vite + TypeScript, aplicação de página única consumindo a API** | Mesma base da landing; arquivos estáticos (hospedagem simples); separação limpa: a web não acessa o banco; deixa a 032 livre | Carga inicial maior que HTML do servidor; sem renderização no servidor (irrelevante numa área logada) |
+| B. Next.js (React com renderização no servidor) | Renderização no servidor; rotas integradas | Um servidor Node a mais para operar; mistura camadas se acessar dados direto; mais acoplamento ao fornecedor do framework |
+| C. HTML montado no servidor, sem JavaScript (como o `app/painel`) | Simples, seguro, já usado | Fraco para a carteira e os filtros do dashboard; não reaproveita a landing |
+| D. React + Redux Toolkit + shadcn/ui (concepção) | Igual à A no framework | O estado do dashboard é quase todo dado vindo da API, o que não pede um estado global como o Redux; shadcn/ui é biblioteca visual e cabe à 032 |
+
+**Recomendação:** A. Roteamento e busca de dados ficam para a Spec da implementação do dashboard, com um critério: estado vindo da API em cache por empresa, sem estado global. A biblioteca de componentes e a camada de estilo são da 032.
+
+**Escolha do responsável:** A, React 19 + Vite + TypeScript, página única consumindo a API. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- B: um servidor a mais sem ganho numa área logada;
+- C: não atende a interação da 033;
+- D: Redux sem necessidade; shadcn/ui é decisão da 032.
+
+**Fontes:** [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §4 (landing em React 19 e Vite; proposta da concepção); US da demanda 031, P-2 ([`us.md`](../demandas/031-stack-arquitetura/us.md)).
+
+### AD-4 — Banco de dados
+
+**Problema.** Onde ficam empresas, usuários, credenciais cifradas, consultas, metadados dos arquivos e dados lidos.
+
+**Critérios:** decimal exato; isolamento por empresa no próprio banco; transações; migrações; serviço gerenciado nos provedores da AD-7.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. PostgreSQL** | Tipo `numeric` exato; segurança por linha (row level security) para isolar empresas; `jsonb` se preciso; oferecido como serviço gerenciado pelos provedores da AD-7 | Exige cuidado com conexões em escala (pool) |
+| B. MySQL | Também tem decimal exato e serviço gerenciado | Não tem segurança por linha nativa, então o isolamento fica só na aplicação |
+| C. Banco de documentos (ex.: MongoDB) | Guarda o JSON da Receita como vem | Decimal e transações menos naturais; o JSON bruto já vai para o armazenamento de objetos (AD-8) |
+
+**Recomendação:** A.
+
+**Escolha do responsável:** A, PostgreSQL. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- B: perde a segunda barreira de isolamento (AD-6);
+- C: o arquivo bruto não precisa estar no banco.
+
+**Fontes:** características gerais dos bancos, sem preço. A ser confirmada com teste na primeira demanda de backend (R-3). Valores com 0 a 2 casas decimais no JSON da Receita: [`../referencias/apuracao-cbs/README.md`](../referencias/apuracao-cbs/README.md), O-13 (2026-11-24).
+
+### AD-5 — Acesso a dados
+
+**Problema.** Como o backend lê e escreve no PostgreSQL.
+
+**Critérios:**
+
+- `numeric` chega à aplicação como texto, nunca como `number`;
+- funciona com a segurança por linha (fixar a empresa da transação antes das consultas);
+- migrações versionadas;
+- tipagem;
+- SQL legível.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| TypeORM (proposta da concepção) | Conhecido; entidades com decorators | Decorators e entidades ativas escondem o SQL; fixar a empresa por transação junto com o gerenciamento de conexões dele exige cuidado |
+| Prisma | Tipagem gerada; migrações | Decimal vem num tipo próprio, a converter para `big.js`; consultas fora do modelo dele ficam em SQL cru, o que também vale para fixar a empresa por transação |
+| Drizzle | SQL tipado; `numeric` como texto; migrações | Projeto mais novo |
+| **Kysely (construtor de consultas) + migrações dele** | SQL explícito e tipado; transação com comando de sessão simples; `numeric` como texto pelo driver `pg` | Sem modelo de entidades; os tipos do esquema são mantidos à mão ou gerados |
+
+**Recomendação:** Kysely. Fica o SQL explícito, que combina com o isolamento por linha e com o decimal como texto.
+
+**Escolha do responsável:** Kysely (segunda opção registrada: Drizzle). Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- TypeORM: a concepção não é especificação, e o ORM esconde o SQL do isolamento;
+- Prisma: conversão de decimal e SQL cru para o isolamento;
+- Drizzle: alternativa aceitável, segunda opção.
+
+**Fontes:** características gerais das bibliotecas, sem preço nem promessa de desempenho. Kysely não foi usado no projeto: a primeira demanda de backend confirma com teste o isolamento por linha e o `numeric` como texto (R-3).
+
+### AD-6 — Separação dos dados por empresa
+
+**Problema.** Dentro da operação única, como garantir que uma empresa nunca veja os dados de outra, sabendo que o contador vê várias.
+
+**Critérios:** garantia mesmo com erro de programação; custo de operação com muitas empresas; migrações; consulta da carteira do contador (várias empresas numa tela).
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. Tabelas compartilhadas com o identificador da empresa + segurança por linha do PostgreSQL** | Uma migração para todos; a carteira consulta várias empresas numa consulta só; duas barreiras: a aplicação filtra, e o banco recusa o que não é da empresa fixada na transação | Toda tabela de dado de empresa precisa da regra de segurança, e os testes têm de provar o isolamento |
+| B. Um schema por empresa | Isolamento visível | Migração repetida em cada schema; a carteira cruza schemas; o custo cresce com o número de empresas |
+| C. Um banco por empresa | Isolamento máximo | Operação e custo proporcionais ao número de clientes; inviável para assinatura de PME |
+| Fora do modelo: instalação por cliente, on-premise | — | **Descartada pela decisão de 2026-11-25** ("tem que seguir o modelo de saas") |
+
+**Unidade de empresa:** a raiz do CNPJ (8 dígitos). Fonte: a API usa o CNPJ base na consulta, e um arquivo traz notas de vários estabelecimentos da mesma raiz ([`../referencias/apuracao-cbs/README.md`](../referencias/apuracao-cbs/README.md), O-24, 2026-11-24). "Vários CNPJs por cliente" (várias raízes num mesmo assinante, por exemplo um grupo) continua decisão em aberto em [`hipoteses.md`](../produto/hipoteses.md). O modelo abaixo aceita as duas respostas: o agrupamento seria uma entidade acima de `empresa`, sem mudar o isolamento.
+
+**Contador:** um usuário com vínculos em várias empresas. A consulta da carteira fixa na transação o **conjunto** de empresas em que o usuário tem vínculo. Permissões por papel ficam para a demanda de login.
+
+**Recomendação:** A, com o isolamento garantido na aplicação **e** no banco.
+
+**Escolha do responsável:** A, tabelas compartilhadas com o identificador da empresa + segurança por linha do PostgreSQL. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- B e C: custo e operação crescem com cada cliente, e a carteira fica difícil;
+- instalação por cliente e on-premise: fora do modelo SaaS (decisão de 2026-11-25).
+
+**Fontes:** O-24 da referência, 2026-11-24; premissa de 2026-11-25 (seção 2); US da demanda 031 (CA-9 e CA-10).
+
+#### Modelo de dados conceitual
+
+São só as entidades e as relações que as decisões exigem, sem colunas nem migração: o esquema real é da primeira demanda de backend.
+
+| Entidade | O que é | Relações |
+|---|---|---|
+| `empresa` | A unidade de inquilino: uma **raiz de CNPJ** (8 dígitos), como na API (`{cnpj}` base) e na O-24 | Tem estabelecimentos, que aparecem nos documentos; tem uma ou mais credenciais ao longo do tempo |
+| `usuario` | Pessoa que entra no CreditoGov | N:N com `empresa`, por `vinculo_empresa` |
+| `vinculo_empresa` | Liga usuário a empresa. O papel (titular, contador, outro) fica para a demanda de login | Um usuário com várias empresas (a carteira do contador); uma empresa com vários usuários |
+| `identidade` | Forma de login de um usuário: email e senha hoje; Google, Apple ou gov.br depois (AD-12) | N:1 com `usuario` |
+| `credencial_receita` | O par `client_id`/`client_secret` cifrado (AD-10), com o estado (ativa, inválida, substituída, removida) | **N:N com `empresa` por `credencial_empresa`**, restrito a 1:1 por regra no cenário A (AD-11) |
+| `credencial_entrega` | Rastreio: quem informou, quando, para qual empresa e de que forma (titular ou procurador, **como declarado**, sem verificação) | Uma por entrega ou troca; imutável |
+| `consulta` | Uma solicitação à API: serviço, empresa, credencial, tíquete, estado, horários e erro | Máquina de estados da AD-9 |
+| `chamada_receita` | Cada chamada feita (token, abertura, situação, download, arquivo), com HTTP e horário, sem segredo | Base do orçamento do limite, como o `.local/chamadas.jsonl` da PoC |
+| `arquivo_bruto` | Metadados do arquivo baixado (serviço, empresa, tíquete, `geradoEm`, hash, versão do schema, onde está) | O conteúdo fica no armazenamento de objetos (AD-8) |
+| `leitura` | Dados lidos de cada arquivo (créditos, débitos e o resto), com a versão do leitor que os produziu | Reconstruível a partir dos `arquivo_bruto` (AD-8) |
+
+Toda tabela com dado de empresa leva o identificador da empresa (AD-6).
+
+<!-- TASK-3 -->
 
 ## 5. Coleta agendada
 
