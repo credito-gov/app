@@ -206,6 +206,14 @@ Formato fixo de cada decisão: problema, critérios, alternativas com prós e co
 
 **Contador:** um usuário com vínculos em várias empresas. A consulta da carteira fixa na transação o **conjunto** de empresas em que o usuário tem vínculo. Permissões por papel ficam para a demanda de login.
 
+**Condições para a segurança por linha valer** (sem elas o banco não é uma segunda barreira):
+
+- **Papel da aplicação sem posse das tabelas e sem `BYPASSRLS`**, e as tabelas com `FORCE ROW LEVEL SECURITY`. O dono da tabela e quem tem `BYPASSRLS` ignoram as regras. As migrações rodam com outro papel, que a aplicação não usa.
+- **A empresa (ou o conjunto, no caso do contador) é fixada só com `SET LOCAL` ou `set_config(..., true)`, por transação.** Nunca `SET` de sessão: com pool de conexões, o valor ficaria na conexão e vazaria para a transação seguinte, de outra empresa.
+- **O coletor roda sob a mesma regra:** trabalha empresa por empresa, fixando a empresa da consulta em cada transação, com o mesmo tipo de papel (sem posse e sem `BYPASSRLS`). Um papel próprio só se justifica por tarefa que precise cruzar empresas (por exemplo, achar quais consultas vencem hoje); nesse caso a justificativa e o alcance do papel ficam registrados no histórico (seção 13), e ele não lê dados de empresa.
+
+Essas três condições entram no teste de isolamento (seção 9) e no R-3.
+
 **Recomendação:** A, com o isolamento garantido na aplicação **e** no banco.
 
 **Escolha do responsável:** A, tabelas compartilhadas com o identificador da empresa + segurança por linha do PostgreSQL. Responsável, 2026-11-25 ("Aprovo todas").
@@ -626,7 +634,7 @@ Sobre o `niConsumidor`: na primeira chamada real veio com 11 dígitos, compatív
 | Produção | Reais | Real, pelo coletor |
 
 - Testes com `vitest` e API simulada; nenhum teste chama a API real nem lê `.env` (regra do [`AGENTS.md`](../../AGENTS.md)).
-- O isolamento por empresa tem teste próprio contra um PostgreSQL de teste.
+- O isolamento por empresa tem teste próprio contra um PostgreSQL de teste. O teste prova as três condições da AD-6: (1) com o papel da aplicação (sem posse e sem `BYPASSRLS`, tabelas com `FORCE ROW LEVEL SECURITY`), uma consulta sem empresa fixada não devolve linha e uma com a empresa A não vê a B; (2) a empresa fixada por `SET LOCAL` ou `set_config(..., true)` não sobrevive à transação, inclusive com a mesma conexão reaproveitada pelo pool; (3) o coletor, com o seu papel, também só vê a empresa fixada.
 - Chamada real fora da produção só pelo responsável, como hoje com `npm run consulta`. Agentes não pedem credencial nem criam `.env`.
 
 ### Variáveis de ambiente (só os nomes)
@@ -694,7 +702,7 @@ Sem fonte em `docs/referencias/`. Registradas em [`hipoteses.md`](../produto/hip
 
 - **R-1. Limite por credencial no cenário B.** Se o limite for por credencial no total, o B quase não ajuda: até 28 CNPJs por serviço. A base no A evita depender da resposta.
 - **R-2. Serviço em beta.** Quatro versões da documentação em três meses, e recolhimentos e pagamentos com 404 (referência, divergência 9). A máquina de estados e o `servico_indisponivel` absorvem isso. Reconferir a referência antes de cada demanda de coletor.
-- **R-3. Recomendações sobre bibliotecas sem prova no projeto.** Fastify e Kysely não foram usados aqui. A primeira demanda de backend confirma com um teste o isolamento por linha e o `numeric` como texto. Se falhar, as segundas opções registradas (Drizzle e, para a autenticação, a B da AD-12) entram sem nova demanda de arquitetura, só com registro no histórico (seção 13).
+- **R-3. Recomendações sobre bibliotecas sem prova no projeto.** Fastify e Kysely não foram usados aqui. A primeira demanda de backend confirma com um teste o isolamento por linha (com as três condições da AD-6: papel sem posse e sem `BYPASSRLS` com `FORCE ROW LEVEL SECURITY`, empresa fixada só por transação, coletor sob a mesma regra) e o `numeric` como texto. Se falhar, as segundas opções registradas (Drizzle e, para a autenticação, a B da AD-12) entram sem nova demanda de arquitetura, só com registro no histórico (seção 13).
 - **R-4. Custo sem fonte.** A escolha do provedor pode ficar para depois da PD-1, sem travar a primeira demanda de backend, que roda local.
 - **R-5. Sobreposição com a 033.** A 033 tem a carteira do contador. A AD-6 garante que o modelo a aceita; papéis e permissões continuam com a demanda de login.
 - **R-6. Visão de produto.** O passo 4 de [`produto/visao.md`](../produto/visao.md) ("Primeira versão do painel") pode ser lido como a 030. O `PROJECT_CONTEXT.md` esclarece que a 030 é ferramenta interna; ajustar a visão fica para o responsável.
