@@ -87,3 +87,9 @@ O responsável aprovou a US com as recomendações de todas as perguntas, com um
 
 - **D-1 (era P-1):** a sessão da demanda opera o Claude Design nesta sessão, a partir do briefing (CA-1), e leva cada rodada ao responsável; nada segue sem a aprovação visual dele.
 - **D-2 a D-8 (eram P-2 a P-8):** valem as recomendações acima (tema claro fora; marca como está; Inter com algarismos tabulares e monoespaçada só na chave, se ajudar; link "esqueci a senha" sem o fluxo; login em desktop e celular, dashboard só desktop; export sempre em `docs/design/`, link conforme o responsável; a apropriar em âmbar, apropriado e já utilizado em neutro/informação, nenhum crédito em verde de sucesso).
+
+### Mudanças pedidas pelo responsável durante o design (2026-11-25)
+
+- **Paleta a partir do logo:** o verde (`#27a671`) e o azul-marinho (`#354363`, `#001955`) de `docs/design/assets/` passam a ser a fonte das cores; o logo colorido aparece numa placa clara no tema escuro.
+- **D-2 alterada: tema claro é o principal e sai primeiro.** O escuro continua, com os mesmos nomes de token.
+- **Telas:** login e dashboard desenhados juntos, já com o design da aplicação. A US da 033 foi aprovada em 2026-11-25, então a dependência do CA-3/CA-19 está liberada; a carteira do contador (CA-C1 a CA-C4 da 033) entrou no mesmo canvas.
