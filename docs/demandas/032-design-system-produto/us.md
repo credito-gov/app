@@ -1,6 +1,6 @@
 # 032-design-system-produto — Design system do produto
 
-- **Status:** us-aprovada
+- **Status:** em-review
 - **Branch:** `docs/032-design-system-produto`
 - **Worktree:** `.claude/worktrees/032-design-system-produto`
 - **Solicitante / data:** responsável pelo projeto, 2026-11-25
