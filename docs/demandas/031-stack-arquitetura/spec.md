@@ -429,7 +429,7 @@ O registro é imutável e não guarda segredo. **Não é verificação de procur
 - **O que o tornaria possível:** resposta da Receita (ou de quem já integra) às perguntas do CA-21. Uma credencial de procurador cobre vários CNPJs? O limite conta por credencial ou por credencial e CNPJ?
 - **Efeito do limite**, com a cadência da AD-9 e o limite "por dia" da FAQ:
   - **por credencial e CNPJ:** igual ao A, uma credencial atende tantos CNPJs quanto a procuração cobrir;
-  - **por credencial no total:** com 4 aberturas por dia por serviço e uma consulta por CNPJ a cada 7 dias (1 dia de folga na janela de 8), uma credencial atende **no máximo 28 CNPJs por serviço**, sem nenhuma sobra para falha. Na prática, bem menos. É inviável para uma carteira grande sem várias credenciais.
+  - **por credencial no total:** duas contas. Com a cadência diária da AD-9, as 4 aberturas por dia atendem 4 CNPJs por serviço. Os 28 CNPJs por serviço só valem com uma consulta a cada 7 dias por CNPJ (1 dia de folga na janela de 8), sem nenhuma sobra para falha. Na prática, bem menos. É inviável para uma carteira grande sem várias credenciais.
 - **Credencial que deixa de valer para um dos CNPJs** ("consumidor não autorizado para este NI"): só o vínculo `credencial_empresa` daquele CNPJ vira inválido; os outros CNPJs da mesma credencial continuam.
 - **Rastreio:** o mesmo da AD-10, com o procurador como forma declarada.
 
@@ -628,7 +628,7 @@ Perguntas para advogado, sem afirmar regra:
 
 - **H1, linha "Acesso em nome de vários clientes":** reescrita com a premissa de 2026-11-25 (o acesso é decidido pela Receita pela credencial; a base é a credencial por cliente) e com as perguntas operacionais. Cada pergunta leva o efeito na arquitetura e como obter a resposta (Receita, quem já integra, portal):
   - **Uma credencial de procurador cobre vários CNPJs?** Se sim, o cenário B fica possível (AD-11). Se não, segue só o A.
-  - **O limite de 4 chamadas é por credencial ou por credencial e CNPJ?** O efeito sobre o B está na AD-11: até 28 CNPJs por serviço ou igual ao A.
+  - **O limite de 4 chamadas é por credencial ou por credencial e CNPJ?** O efeito sobre o B está na AD-11: 4 CNPJs por serviço com a cadência diária, até 28 com uma consulta a cada 7 dias por CNPJ, ou igual ao A.
   - **Qual o papel do `niConsumidor`?** Ele identifica quem gerou a credencial? Isso afeta o rastreio e a LGPD.
 - **H1, linha do limite**, acrescentar:
   - situação e download contam no limite?
@@ -641,7 +641,7 @@ Perguntas para advogado, sem afirmar regra:
 
 ## Riscos e decisões
 
-- **R-1. Limite por credencial no cenário B.** Se o limite for por credencial no total, o B quase não ajuda: até 28 CNPJs por serviço. A base no A evita depender da resposta.
+- **R-1. Limite por credencial no cenário B.** Se o limite for por credencial no total, o B quase não ajuda: 4 CNPJs por serviço com a cadência diária, até 28 se cada CNPJ for consultado só a cada 7 dias. A base no A evita depender da resposta.
 - **R-2. Serviço em beta.** Quatro versões da documentação em três meses, e recolhimentos e pagamentos com 404. A máquina de estados e o `servico_indisponivel` absorvem isso. O documento manda reconferir a referência antes de cada demanda de coletor.
 - **R-3. Recomendações sobre bibliotecas sem prova no projeto.** Fastify e Kysely não foram usados aqui. A primeira demanda de backend confirma com um teste o isolamento por linha e o `numeric` como texto. Se falhar, as segundas opções registradas (Drizzle e, para a autenticação, a B da AD-12) entram sem nova demanda de arquitetura, só com registro no histórico do documento.
 - **R-4. Custo sem fonte.** A escolha do provedor pode ficar para depois da PD-1, sem travar a primeira demanda de backend, que roda local.

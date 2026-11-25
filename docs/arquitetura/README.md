@@ -595,7 +595,7 @@ Só o plano entra no documento; nada é construído.
 - **O que o tornaria possível:** resposta da Receita (ou de quem já integra) a duas perguntas. Uma credencial de procurador cobre vários CNPJs? O limite conta por credencial ou por credencial e CNPJ? Ambas estão abertas em `hipoteses.md` (H1).
 - **Efeito do limite**, com a cadência da AD-9 e o limite "por dia" da FAQ (divergência 1, não testada):
   - **por credencial e CNPJ:** igual ao A, uma credencial atende tantos CNPJs quanto a procuração cobrir;
-  - **por credencial no total:** com 4 aberturas por dia por serviço e uma consulta por CNPJ a cada 7 dias (1 dia de folga na janela de 8), uma credencial atende **no máximo 28 CNPJs por serviço** (4 por dia vezes 7 dias), sem nenhuma sobra para falha. Na prática, bem menos. É inviável para uma carteira grande sem várias credenciais.
+  - **por credencial no total:** duas contas. (a) Com a cadência diária da AD-9 (uma abertura por dia por serviço de cada CNPJ), as 4 aberturas por dia atendem **4 CNPJs por serviço**. (b) Os **28 CNPJs por serviço** só valem com outra cadência: uma consulta a cada 7 dias por CNPJ (1 dia de folga na janela de 8), ou seja, 4 por dia vezes 7 dias, sem nenhuma sobra para falha. Na prática, bem menos. É inviável para uma carteira grande sem várias credenciais.
 - **Credencial que deixa de valer para um dos CNPJs** ("consumidor não autorizado para este NI"): só o vínculo `credencial_empresa` daquele CNPJ vira inválido; os outros CNPJs da mesma credencial continuam.
 - **Rastreio:** o mesmo da seção 6, com o procurador como forma declarada.
 
@@ -686,7 +686,7 @@ Sem fonte em `docs/referencias/`. Registradas em [`hipoteses.md`](../produto/hip
 | Pergunta | Efeito | Onde |
 |---|---|---|
 | Uma credencial de procurador cobre vários CNPJs? | Se sim, o cenário B fica possível (AD-11). Se não, segue só o A | `hipoteses.md`, H1 |
-| O limite de 4 chamadas é por credencial ou por credencial e CNPJ? | Efeito sobre o B: até 28 CNPJs por serviço, ou igual ao A (seção 7) | `hipoteses.md`, H1 |
+| O limite de 4 chamadas é por credencial ou por credencial e CNPJ? | Efeito sobre o B: 4 CNPJs por serviço com a cadência diária, até 28 com uma consulta a cada 7 dias por CNPJ, ou igual ao A (seção 7) | `hipoteses.md`, H1 |
 | Situação e download contam no limite? Abertura recusada (400, 404) conta? Qual o fuso do reinício à meia-noite? | Orçamento da AD-9 | `hipoteses.md`, H1 |
 | Qual o papel do `niConsumidor`? | Rastreio e LGPD | `hipoteses.md`, H1 |
 | Um software privado pode usar o login do gov.br, e em que condições? | AD-12 e `identidade` | `hipoteses.md`, "Outras decisões em aberto" |
@@ -700,7 +700,7 @@ Sem fonte em `docs/referencias/`. Registradas em [`hipoteses.md`](../produto/hip
 
 ### Riscos
 
-- **R-1. Limite por credencial no cenário B.** Se o limite for por credencial no total, o B quase não ajuda: até 28 CNPJs por serviço. A base no A evita depender da resposta.
+- **R-1. Limite por credencial no cenário B.** Se o limite for por credencial no total, o B quase não ajuda: 4 CNPJs por serviço com a cadência diária da AD-9, ou até 28 se cada CNPJ for consultado só a cada 7 dias. A base no A evita depender da resposta.
 - **R-2. Serviço em beta.** Quatro versões da documentação em três meses, e recolhimentos e pagamentos com 404 (referência, divergência 9). A máquina de estados e o `servico_indisponivel` absorvem isso. Reconferir a referência antes de cada demanda de coletor.
 - **R-3. Recomendações sobre bibliotecas sem prova no projeto.** Fastify e Kysely não foram usados aqui. A primeira demanda de backend confirma com um teste o isolamento por linha (com as três condições da AD-6: papel sem posse e sem `BYPASSRLS` com `FORCE ROW LEVEL SECURITY`, empresa fixada só por transação, coletor sob a mesma regra) e o `numeric` como texto. Se falhar, as segundas opções registradas (Drizzle e, para a autenticação, a B da AD-12) entram sem nova demanda de arquitetura, só com registro no histórico (seção 13).
 - **R-4. Custo sem fonte.** A escolha do provedor pode ficar para depois da PD-1, sem travar a primeira demanda de backend, que roda local.
