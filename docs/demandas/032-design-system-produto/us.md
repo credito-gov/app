@@ -100,7 +100,7 @@ O responsável aprovou a US com as recomendações de todas as perguntas, com um
 ### Aprovação visual (2026-11-25)
 
 - O responsável aprovou visualmente o design system e as telas e pediu o PR ("Aprovo, abra o PR"). Versões aprovadas:
-  - design system: <https://claude.ai/artifact/2vTKm7rfbExpg6DSpo8B7U>, versão 1795617722-c486 (só o texto de uso de dois tokens mudou depois da aprovação, para bater com o menu no topo);
+  - design system: <https://claude.ai/artifact/2vTKm7rfbExpg6DSpo8B7U>, aprovado na versão 1795610679-604c. As versões seguintes (1795617722-c486 e 1795620356-7048, a vigente) mudaram só o texto de uso de quatro tokens (`navy`, `on-navy`, `brand` e `body-strong`), para bater com o menu no topo e a regra do emitente. Nenhum valor mudou;
   - telas: <https://claude.ai/artifact/Xj5Mwa2tH2hRGDX7bZWbRg>.
 - **D-7 alterada:** as imagens das telas não são exportadas para `docs/design/`. O responsável decidiu registrar só os links, mesmo privados ("registra os links privados... eles são mesmo, então não tem problema"). Os tokens e o CSS de referência ficam no repositório.
 - Spec e Tasks dispensadas: a entrega desta demanda é o próprio design aprovado mais o registro do CA-21 e do CA-22.
