@@ -227,7 +227,7 @@ São só as entidades e as relações que as decisões exigem, sem colunas nem m
 | `usuario` | Pessoa que entra no CreditoGov | N:N com `empresa`, por `vinculo_empresa` |
 | `vinculo_empresa` | Liga usuário a empresa. O papel (titular, contador, outro) fica para a demanda de login | Um usuário com várias empresas (a carteira do contador); uma empresa com vários usuários |
 | `identidade` | Forma de login de um usuário: email e senha hoje; Google, Apple ou gov.br depois (AD-12) | N:1 com `usuario` |
-| `credencial_receita` | O par `client_id`/`client_secret` cifrado (AD-10), com o estado (ativa, inválida, substituída, removida) | **N:N com `empresa` por `credencial_empresa`**, restrito a 1:1 por regra no cenário A (AD-11) |
+| `credencial_receita` | O par `client_id`/`client_secret` cifrado (AD-10), com o estado (`ativa`, `invalida`, `substituida`, `removida`) | **N:N com `empresa` por `credencial_empresa`**, restrito a 1:1 por regra no cenário A (AD-11) |
 | `credencial_entrega` | Rastreio: quem informou, quando, para qual empresa e de que forma (titular ou procurador, **como declarado**, sem verificação) | Uma por entrega ou troca; imutável |
 | `consulta` | Uma solicitação à API: serviço, empresa, credencial, tíquete, estado, horários e erro | Máquina de estados da AD-9 |
 | `chamada_receita` | Cada chamada feita (token, abertura, situação, download, arquivo), com HTTP e horário, sem segredo | Base do orçamento do limite, como o `.local/chamadas.jsonl` da PoC |
@@ -338,7 +338,7 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 
 | Alternativa | Prós | Contras |
 |---|---|---|
-| **A. Cifra de envelope: KMS do provedor guarda a chave mestra; cada credencial tem chave de dados própria; o banco guarda só o texto cifrado** | Chave fora do banco; permissões separadas (a API só cifra, o coletor decifra); a remoção apaga a chave de dados, o que torna o texto ilegível | Depende do KMS (já incluído na AD-7) |
+| **A. Cifra de envelope: KMS do provedor guarda a chave mestra; cada credencial tem chave de dados própria; o banco guarda só o texto cifrado** | Chave fora do banco; permissões separadas (a API só cifra, o coletor decifra); a remoção apaga a chave de dados, o que torna ilegível o texto do banco vivo | Depende do KMS (já incluído na AD-7); a remoção não alcança backups e réplicas (ver "Remoção e backups" na seção 6) |
 | B. Um segredo por cliente no gerenciador de segredos do provedor | Rotação e auditoria prontas | Custo e limite por segredo (a confirmar, PD-1); muitos segredos para administrar |
 | C. Cifra na aplicação com chave em variável de ambiente | Simples | Chave junto da aplicação; quem lê a variável lê todas as credenciais |
 
@@ -516,7 +516,7 @@ Nenhuma retentativa é automática quando gasta abertura, salvo onde a tabela di
 | HTTP 400 na abertura, sem motivo conhecido | Não repete no dia; tenta no ciclo seguinte; no segundo dia seguido, vira alerta para a operação | "Observado na chamada real" (2026-11-24); a mensagem de erro não foi registrada |
 | HTTP 404 na abertura (recolhimentos e pagamentos) | `servico_indisponivel`. Tenta uma vez por dia, porque a notícia de 09/11/2026 fala em serviços novos ainda em novembro. Se o 404 conta no limite não se sabe; 1 de 4 por dia é aceitável | Divergência 9 e O-17 (2026-11-24); notícia oficial de 09/11/2026, seção "Ambientes e novidades" |
 | Situação `ERRO` ou `EXPIRADA` | Uma nova abertura no mesmo dia, se o orçamento tiver sobra (até 2 por dia por serviço, deixando 2 de reserva). Senão, no ciclo seguinte | Divergência 5; não testada |
-| Recusa da credencial no token, ou "consumidor não autorizado para este NI" | Descarta o token. Uma única nova tentativa com token novo. Se repetir, a credencial vira `credencial_invalida`, a coleta da empresa para e um alerta vai para os usuários dela (AD-10). A PoC trata o HTTP 401 da abertura como token recusado ou consumidor não autorizado: é interpretação da PoC, e o código exato desse erro não tem fonte | Seção "O que não está documentado" (erro "consumidor não autorizado para este NI") |
+| Recusa da credencial no token, ou "consumidor não autorizado para este NI" | Descarta o token. Uma única nova tentativa com token novo. Se repetir, a credencial vira `invalida` (a consulta termina em `credencial_invalida`), a coleta da empresa para e um alerta vai para os usuários dela (AD-10). A PoC trata o HTTP 401 da abertura como token recusado ou consumidor não autorizado: é interpretação da PoC, e o código exato desse erro não tem fonte | Seção "O que não está documentado" (erro "consumidor não autorizado para este NI") |
 | Sem resposta (rede, tempo esgotado) na abertura | Fica `aberta_sem_tiquete`, tratada como chamada gasta. Não repete no dia | Decisão de arquitetura, para não gastar o limite; sem fonte sobre como a Receita conta a abertura sem resposta |
 | Falha no download | Nova URL assinada pelo mesmo tíquete, até as 48 h | Seção "Fluxo de uma consulta" |
 
@@ -550,10 +550,16 @@ A credencial e o token são retirados de toda saída, log e erro, como faz o red
 
 1. **Entrega.** No cadastro da empresa, um usuário com vínculo nela informa `client_id` e `client_secret`, gerados no gov.br pelo titular ou pelo procurador (referência, seção "Fluxo de uma consulta", passo 1). O formulário diz que credenciais anteriores à v2.0 (liberada em 28/10/2026) precisam ser geradas de novo (mesma seção).
 2. **Conferência.** Um pedido de token (1 dos 2 por hora) confirma que o par é válido, sem gastar abertura. A autorização para o CNPJ só se confirma na primeira abertura de créditos, que é a própria primeira coleta, feita logo após o cadastro. Não há chamada só para conferir.
-3. **Troca.** A credencial nova entra como `ativa`, e a anterior vira `substituida`. A anterior é apagada (chave de dados destruída) depois da primeira coleta bem-sucedida com a nova.
-4. **Revogação ou invalidez.** Detectada pela coleta (tabela de falhas da [seção 5](#falhas)). A credencial vira `credencial_invalida`, a coleta para e os usuários são avisados para informar uma nova.
+3. **Troca.** A credencial nova entra como `ativa`, e a anterior vira `substituida`. A anterior é removida (chave de dados destruída, ver "Remoção e backups" abaixo) depois da primeira coleta bem-sucedida com a nova.
+4. **Revogação ou invalidez.** Detectada pela coleta (tabela de falhas da [seção 5](#falhas)). A credencial vira `invalida` (e a consulta termina em `credencial_invalida`), a coleta para e os usuários são avisados para informar uma nova.
 5. **Credencial anterior à v2.0.** A mensagem de recusa no token orienta gerar de novo. O CreditoGov não distingue esse caso de outra recusa, porque não há fonte sobre o formato da recusa.
-6. **Saída do cliente.** A chave de dados da credencial é destruída na hora. O destino dos dados fiscais e dos arquivos brutos depois da saída é pergunta de LGPD (seção 8).
+6. **Saída do cliente.** A chave de dados da credencial é destruída na hora, no banco vivo (ver "Remoção e backups" abaixo). O destino dos dados fiscais e dos arquivos brutos depois da saída é pergunta de LGPD (seção 8).
+
+### Remoção e backups
+
+Destruir a chave de dados vale para o **banco vivo**. Um backup ou réplica feito antes da remoção ainda guarda o texto cifrado e a chave de dados cifrada, e a chave mestra do KMS continua abrindo essa chave de dados. Por isso a credencial **só some de vez quando expira o último backup que a contém**. O prazo de retenção do backup é a **janela de apagamento** da credencial: é registrado quando a primeira demanda de backend configurar o backup, e se liga à pergunta de LGPD sobre prazo de guarda depois da saída do cliente (seção 8). Não há fonte nesta demanda para dizer se esse prazo atende à lei.
+
+Alternativa futura, sem mudar a escolha da AD-10: uma chave mestra por empresa no KMS, agendada para exclusão na saída do cliente, o que tornaria ilegíveis também as cópias antigas. Custo e limites de chaves por provedor: a confirmar (PD-1).
 
 ### Rastreio
 
@@ -607,7 +613,7 @@ Sobre o `niConsumidor`: na primeira chamada real veio com 11 dígitos, compatív
 **Perguntas para advogado**, sem afirmar regra (também em [`hipoteses.md`](../produto/hipoteses.md)):
 
 - base legal para tratar os dados da empresa e de quem gerou a credencial;
-- prazo de guarda depois da saída do cliente;
+- prazo de guarda depois da saída do cliente (inclui a janela de apagamento da credencial nos backups, seção 6);
 - se a hospedagem fora do Brasil seria transferência internacional e o que ela exige;
 - o tratamento do `niConsumidor` quando for CPF.
 
