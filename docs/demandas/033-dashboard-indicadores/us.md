@@ -1,6 +1,6 @@
 # 033-dashboard-indicadores — Primeiro dashboard do usuário final: indicadores do crédito de CBS
 
-- **Status:** us-em-revisão
+- **Status:** us-aprovada
 - **Branch:** `feat/033-dashboard-indicadores`
 - **Worktree:** `.claude/worktrees/033-dashboard-indicadores`
 - **Solicitante / data:** responsável pelo produto, 2026-11-25
@@ -151,3 +151,5 @@ Notas sobre os indicadores:
 - **P-7 (produto):** Qual o recorte inicial ao abrir o dashboard: todos os períodos coletados ou o período de apuração mais recente com nota? Nos dados reais, quase todas as notas estavam num só período (O-3). Recomendação: todos os períodos coletados, porque a consulta é incremental e o usuário não tem outro histórico; o período fica a um clique (CA-12).
 - **P-8 (escopo):** A lista completa de créditos e o detalhe da nota (que a 030 tinha) entram nesta demanda ou numa seguinte? CA-10 exige chegar às notas de cada grupo. Recomendação: esta demanda entrega o dashboard e uma lista simples das notas de um grupo (chave, emissão, tipo, a apropriar); filtros, busca e detalhe da nota ficam para uma demanda própria.
 - **P-9 (produto):** O limiar de CA-15 é o próprio limite de 8 dias da consulta incremental. Quer um aviso mais cedo (por exemplo, antes de chegar ao limite), sabendo que o produto é de atualização diária? Recomendação: avisar ao passar de 8 dias, que é o único número com fonte; antecipar o aviso depende da frequência de consulta definida na 031.
+
+**Aprovação (2026-11-25):** o responsável aprovou a US com as recomendações de P-1 a P-9. P-1 a P-4 continuam como perguntas ao tributarista; até a resposta, valem as recomendações. A Spec espera as demandas 031 (stack e arquitetura), 032 (design system) e a de login, ainda não aberta.
