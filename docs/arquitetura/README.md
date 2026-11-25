@@ -376,7 +376,110 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 
 **Fontes:** [referência](../referencias/apuracao-cbs/README.md), seção "O que não está documentado" (acesso por software em nome de vários contribuintes) e divergência 1 (limite de 4 chamadas, "por dia" só na FAQ); perguntas em [`hipoteses.md`](../produto/hipoteses.md), H1.
 
-<!-- AD-NEXT -->
+### AD-12 — Onde fica a autenticação
+
+**Problema.** Onde ficam o login por email e senha (decisão de 2026-08-25) e a sessão. Login federado com Google, Apple ou gov.br não pode ser bloqueado depois (decisão de 2026-11-25). Tela, cadastro, recuperação de senha e permissões são da demanda de login.
+
+**Critérios:**
+
+- respeitar 2026-08-25: login do CreditoGov, sem credencial de ERP (um serviço gerenciado é aceitável se o usuário só vê o login do CreditoGov, P-3 da US);
+- segurança da senha (guarda, MFA, recuperação);
+- facilidade de acrescentar Google, Apple e gov.br;
+- custo (sem fonte, ver PD-1);
+- dados dos usuários no mesmo provedor e região;
+- dependência de fornecedor.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. Autenticação própria no backend**: senha com hash `argon2id` por biblioteca consolidada, sessão no servidor com cookie `HttpOnly` e `Secure`, entidade `identidade` separada de `usuario` | Sem custo por usuário; dados no mesmo banco e região; controle total do fluxo. O login federado entra como uma nova linha em `identidade`, por OpenID Connect (Google e Apple oferecem login federado por esse padrão aberto) | A equipe responde pela segurança da senha, pela recuperação e pelo MFA |
+| B. Serviço de identidade gerenciado (ex.: Auth0, Amazon Cognito, Firebase Authentication, Clerk) com a marca do CreditoGov | Senha, MFA, recuperação e Google/Apple prontos | Custo por usuário (a confirmar, PD-1); dados de usuário fora do banco e talvez da região; trocar de fornecedor depois é caro; o gov.br dependeria do suporte do serviço (sem fonte) |
+| C. Servidor de identidade próprio separado (ex.: Keycloak) | Federado e MFA prontos, sem custo por usuário | Mais um sistema para operar e atualizar; pesado para o tamanho atual |
+
+**Efeito sobre o login federado:**
+
+- Na A, cada provedor entra como uma integração no backend. Uma conta pode ter várias formas de login, ligadas pelo `usuario`, e a regra para ligar email e senha a uma conta Google com o mesmo email é decidida na demanda de login.
+- Na B, Google e Apple vêm prontos, mas o gov.br depende do fornecedor.
+- Na C, a mesma flexibilidade da A, com mais operação.
+- **gov.br:** se e em que condições um software privado pode usar o login do gov.br **não tem fonte** em `docs/referencias/`. Não é afirmado aqui; é pergunta em aberto (seção 12 e [`hipoteses.md`](../produto/hipoteses.md)).
+
+**Ligação com a demanda 032 (design system).** O desenho do login da 032 (PR credito-gov/app#33, ainda não mergeado quando esta decisão foi escrita) já mostra entrada por provedor externo, com Google e Microsoft propostos, além de email e senha, e deixa os provedores finais e o impacto na arquitetura para esta demanda. A autenticação própria com a entidade `identidade` **não bloqueia** Google, Apple, Microsoft nem gov.br: cada um é uma linha nova de identidade, sem mudar o modelo. A **lista final de provedores e quando entram é da demanda de login** ("pode não entrar agora"). Isso complementa a decisão de login do design, sem revogá-la; a recomendação aprovada não muda.
+
+**Recomendação:** A. Respeita 2026-08-25 sem leitura ampla, não tem custo por usuário, mantém os dados de usuário no mesmo lugar e deixa a entidade `identidade` pronta para o federado. Se a demanda de login concluir que MFA e recuperação próprios pesam demais, a B fica como segunda opção registrada.
+
+**Escolha do responsável:** A, autenticação própria no backend com a entidade `identidade` (segunda opção registrada: B). Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- B: custo sem fonte, dependência do fornecedor e o gov.br incerto;
+- C: operação demais para o tamanho atual.
+
+**Fontes:** [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §3 (decisão de 2026-08-25); US da demanda 031, P-3; premissa de 2026-11-25 (seção 2). Características gerais dos serviços e padrões citados, sem preço. Sobre o gov.br: nenhuma fonte.
+
+### AD-13 — Valores monetários
+
+**Problema.** Dinheiro nunca em ponto flutuante, do banco à tela ([`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §6).
+
+**Critérios:** exatidão ao centavo; compatibilidade com o JSON da Receita (números com 0 a 2 casas, O-13); simplicidade.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. `numeric` com 2 casas no banco; texto decimal na aplicação (`big.js`); texto decimal no JSON da API (ex.: `"1234.50"`); leitura do arquivo da Receita com `lossless-json`; a web formata a partir do texto, sem converter para `number`** | Exato em toda a cadeia; mesmas bibliotecas da PoC e do painel | Cada camada precisa respeitar a regra (testes) |
+| B. Inteiro em centavos em todas as camadas | Aritmética simples | Converte na entrada e na saída; risco de passar de `Number.MAX_SAFE_INTEGER` se virar `number` no navegador |
+
+**Recomendação:** A. Ponto de atenção herdado: a validação com `multipleOfPrecision` pode recusar por engano valores acima de alguns bilhões (limite conhecido do painel, no [handoff da 030](../handoff/SESSION-HANDOFF-2026-11-24-030.md)). A primeira demanda de backend trata isso.
+
+**Escolha do responsável:** A, `numeric` com 2 casas e texto decimal em toda a cadeia. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartada:** B, pelas conversões em toda entrada e saída.
+
+**Fontes:** [referência](../referencias/apuracao-cbs/README.md), O-13 (2026-11-24); [handoff da demanda 030](../handoff/SESSION-HANDOFF-2026-11-24-030.md).
+
+### AD-14 — Destino de `app/apuracao-cbs` e `app/painel`
+
+**Problema.** O que das duas aplicações passa ao produto.
+
+**Critérios:** não mexer no que funciona (as duas ficam fora de escopo da demanda 031); reaproveitar o que já foi validado contra arquivos reais; não contrariar a decisão de que o dashboard do usuário é feito do zero.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. As duas continuam como ferramentas internas (diagnóstico da API e validação dos dados); o `app/backend` começa com uma cópia revisada do código de leitura e validação** | Não mexe no que funciona; a cópia já é o precedente da 030 | Três cópias do leitor até a unificação |
+| B. Extrair já um pacote compartilhado usado pelas três | Uma cópia só | Mexe nas duas aplicações (fora de escopo da US) e atrasa o backend |
+| C. Evoluir `app/painel` até virar o produto | Reaproveita telas | Contraria a decisão de que o dashboard do usuário é feito do zero; HTML sem JavaScript não atende a 033 |
+
+**O que passa ao produto, por cópia revisada:**
+
+- schemas oficiais e `versoes.json`;
+- validação com a tolerância única do `ni` (D-2);
+- decimal e JSON sem perda;
+- tabelas de documento e origem;
+- emitente pela chave (D-4);
+- consolidação de versões (D-5);
+- redação de segredo.
+
+**O que não passa:**
+
+- a interface de linha de comando;
+- o estado em `.local/`;
+- a leitura de `.env`;
+- o servidor HTML do painel.
+
+**O que segue só como ferramenta:**
+
+- `npm run consulta`, para diagnóstico manual pelo responsável;
+- o painel, para conferir arquivos.
+
+A unificação em pacote compartilhado vira item de backlog.
+
+**Recomendação:** A.
+
+**Escolha do responsável:** A, as duas aplicações como ferramentas internas e cópia revisada do leitor no `app/backend`. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- B: fora de escopo agora;
+- C: contraria a decisão de 2026-11-25.
+
+**Fontes:** [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §2 e §4 (o que existe nas duas aplicações); hipóteses D-2, D-4 e D-5 em [`hipoteses.md`](../produto/hipoteses.md); [referência](../referencias/apuracao-cbs/README.md), divergência 10 e O-16 a O-24 (2026-11-24).
 
 ## 5. Coleta agendada
 
