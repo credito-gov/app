@@ -7,7 +7,7 @@
 
 ## História
 
-Como responsável pelo CreditoGov, quero um documento de decisão de arquitetura que compare alternativas, com prós e contras, para a stack, a hospedagem, o banco, a separação de dados por empresa, a coleta agendada da API de apuração da CBS, a guarda da credencial de cada cliente e o lugar da autenticação, e que funcione tanto se um software puder consultar a API por vários contribuintes quanto se não puder, para escolher com base em fatos e liberar as demandas de login e de dashboard sem refazer a base depois.
+Como responsável pelo CreditoGov, quero um documento de decisão de arquitetura que compare alternativas, com prós e contras, para a stack, a hospedagem, o banco, a separação de dados por empresa, a coleta agendada da API de apuração da CBS, a guarda da credencial de cada cliente e o lugar da autenticação, e que funcione tanto com uma credencial por CNPJ quanto com uma credencial de procurador que cubra vários CNPJs, para escolher com base em fatos e liberar as demandas de login e de dashboard sem refazer a base depois.
 
 ## Contexto
 
@@ -27,19 +27,22 @@ De [`../../referencias/apuracao-cbs/README.md`](../../referencias/apuracao-cbs/R
 - **Incremental:** cada chamada traz só o que mudou desde a última solicitação concluída, limitado a 8 dias; não há histórico. O que não for coletado a tempo se perde.
 - **Limite:** 4 chamadas por API e por credencial; a FAQ diz "por dia", o guia não diz o período (divergência 1, não testada).
 - **Observado em 2026-11-24:** segunda abertura de créditos cerca de dois minutos depois da primeira concluída respondeu HTTP 400, sem motivo conhecido; recolhimentos e pagamentos responderam HTTP 404 com duas credenciais; o arquivo traz `ni` com 14 dígitos, contra 8 no schema 1.0.0; `niConsumidor` identifica quem consome a credencial.
-- **Multi-cliente:** existe o erro "consumidor não autorizado para este NI", mas o modelo de procuração para um software consultar por vários contribuintes **não está documentado** (H1).
+- **Multi-cliente:** existe o erro "consumidor não autorizado para este NI", ou seja, a própria API recusa a credencial que não vale para o CNPJ consultado. **Não está documentado** se uma credencial de procurador cobre vários CNPJs nem como o limite de 4 chamadas se aplica nesse caso (H1).
 - **Estado local da PoC:** arquivo bruto guardado sem sobrescrever (`.local/arquivos/`), registro de chamadas (`.local/chamadas.jsonl`), cache do token (`.local/token.json`); configuração por `.env`.
 
 ### Os dois cenários do acesso multi-cliente
 
-O maior risco da demanda. A arquitetura precisa funcionar nos dois, ou ter um plano para cada um:
+**Premissa decidida pelo responsável (2026-11-25):** quem decide se alguém pode consultar um CNPJ é a Receita, pela credencial gerada no gov.br pelo titular ou pelo procurador. O CreditoGov não verifica nem prova representação ou procuração: usa a credencial que recebe, e o que ela permite acessar é o que vale. Nas palavras do responsável: "essa responsabilidade é da receita, eu poderia por exemplo 'representar' o cnpj de qualquer empresa, mas o que vai valer são as credenciais do gov.br para aquele cnpj".
 
-- **Cenário A — credencial por cliente.** Cada empresa (ou o procurador dela) gera a própria credencial e a entrega ao CreditoGov. Cada credencial consulta um CNPJ base.
-- **Cenário B — credencial de terceiro com procuração.** Uma credencial de terceiro (do escritório de contabilidade ou do próprio CreditoGov) consulta vários CNPJs, com procuração de cada contribuinte. Não se sabe se o limite de 4 chamadas vale por credencial no total ou por credencial e CNPJ: no primeiro caso, uma credencial atenderia poucos clientes por dia.
+Por isso o maior risco da demanda não é se o software pode consultar por terceiros, e sim operacional: quantas credenciais existem e como o limite de 4 chamadas se aplica a cada uma. A arquitetura precisa funcionar nos dois cenários, ou ter um plano para cada um:
+
+- **Cenário A — uma credencial por CNPJ.** Cada credencial, gerada pelo titular ou pelo procurador e entregue ao CreditoGov, consulta um CNPJ base.
+- **Cenário B — credencial de procurador que cobre vários CNPJs.** Uma credencial gerada por um procurador (por exemplo, o escritório de contabilidade) que, segundo a própria Receita, dá acesso a vários CNPJs. Não se sabe se esse caso existe nem se o limite de 4 chamadas vale por credencial no total ou por credencial e CNPJ: no primeiro caso, uma credencial atenderia poucos clientes por dia.
 
 ### Decisões já tomadas que a arquitetura respeita
 
 - Autenticação própria da plataforma, por email e senha, sem credencial de ERP (2026-08-25).
+- O acesso a cada CNPJ é decidido pela Receita, pela credencial do gov.br; o CreditoGov não verifica representação nem procuração (2026-11-25, ver acima).
 - Venda direta, com escritórios de contabilidade como canal (2026-08-26).
 - Antecipação com fintech ou FIDC fica para depois de haver base de clientes (2026-08-26).
 - Fonte de dados da CBS: APIs de apuração da Receita; o produto começa só com CBS (2026-11-23).
@@ -85,10 +88,11 @@ O maior risco da demanda. A arquitetura precisa funcionar nos dois, ou ter um pl
 
 ### Acesso em nome de vários clientes
 
-- **CA-18:** O documento descreve como a arquitetura funciona no **cenário A** (uma credencial por cliente): cadastro, coleta, limite por credencial e guarda da credencial.
-- **CA-19:** O documento descreve como a arquitetura funciona no **cenário B** (uma credencial de terceiro para vários CNPJs): de quem é a credencial, como a procuração entra no cadastro, e como a coleta se comporta nas duas leituras do limite (4 chamadas por credencial no total ou por credencial e CNPJ), incluindo quantos clientes por dia cada leitura permite.
-- **CA-20:** O documento diz o que é comum aos dois cenários, o que muda, como passar de A para B (ou conviver com os dois) sem refazer o modelo de dados, e o que fazer se nenhum dos dois se mostrar viável.
-- **CA-21:** As perguntas do acesso multi-cliente que não têm fonte (modelo de procuração, contagem do limite no cenário B, papel do `niConsumidor`) estão em `docs/produto/hipoteses.md`, cada uma com o que muda na arquitetura conforme a resposta e como obtê-la.
+- **CA-18:** O documento descreve como a arquitetura funciona no **cenário A** (uma credencial por CNPJ): cadastro, coleta, limite por credencial e guarda da credencial.
+- **CA-19:** O documento descreve como a arquitetura funciona no **cenário B** (uma credencial de procurador que cobre vários CNPJs): como uma credencial se liga a várias empresas no cadastro, como a coleta se comporta nas duas leituras do limite (4 chamadas por credencial no total ou por credencial e CNPJ), incluindo quantos clientes por dia cada leitura permite, e o que acontece quando a credencial deixa de valer para um dos CNPJs ("consumidor não autorizado para este NI").
+- **CA-20:** O documento diz o que é comum aos dois cenários, o que muda, como passar de A para B (ou conviver com os dois) sem refazer o modelo de dados, e o que fazer se o cenário B não existir ou se o limite tornar inviável atender muitos CNPJs por credencial.
+- **CA-21:** As perguntas operacionais do acesso multi-cliente que não têm fonte (uma credencial de procurador cobre vários CNPJs? o limite é por credencial ou por credencial e CNPJ? qual o papel do `niConsumidor`?) estão em `docs/produto/hipoteses.md`, cada uma com o que muda na arquitetura conforme a resposta e como obtê-la. A legitimidade do acesso não entra como pergunta: é premissa decidida (2026-11-25).
+- **CA-21a:** O documento registra a premissa de 2026-11-25: o CreditoGov não verifica representação nem procuração, e o acesso que vale é o que a credencial do gov.br permite. Para rastreio, a arquitetura guarda quem entregou cada credencial, quando e para qual empresa, sem tratar esse registro como verificação de procuração.
 
 ### Autenticação
 
@@ -119,11 +123,12 @@ O maior risco da demanda. A arquitetura precisa funcionar nos dois, ou ter um pl
 - Antecipação de crédito, compensação, geração de guia (RAD, PCONT), cobrança da assinatura e comissão do contador.
 - Integração com ERP e coleta do IBS.
 - Mudar `app/apuracao-cbs` ou `app/painel`.
-- Regra tributária nova ou interpretação jurídica (LGPD, procuração, cessão de crédito).
+- Regra tributária nova ou interpretação jurídica (LGPD, cessão de crédito).
+- Verificar ou provar representação ou procuração do cliente: é da Receita, pela credencial (premissa de 2026-11-25).
 
 ## Perguntas em aberto
 
 - **P-1 — Quando o responsável escolhe.** Recomendação: a Spec traz as alternativas com prós, contras e recomendação; o responsável escolhe ao aprovar a Spec; o documento final registra a escolha (CA-2).
 - **P-2 — Stack da aplicação web e o design system (032).** A escolha do framework da interface afeta o design system. Recomendação: esta demanda decide o framework e a forma de renderização; a 032 decide tokens, componentes e biblioteca visual sobre ele. Se a 032 já estiver fixando biblioteca de componentes, alinhar antes da Spec.
 - **P-3 — Alcance de "autenticação própria".** A decisão de 2026-08-25 exclui um serviço de identidade gerenciado? Recomendação: ler como "login do CreditoGov por email e senha, não do ERP"; um serviço gerenciado é aceitável se o usuário só vê o login do CreditoGov. O documento compara as duas formas (CA-22).
-- **P-4 — Perguntar à Receita antes da Spec?** O cenário B depende de resposta que só a Receita ou quem já integra pode dar. Recomendação: não esperar; a Spec desenha os dois cenários e o responsável leva as perguntas de CA-21 em paralelo.
+- **P-4 — Perguntar à Receita antes da Spec?** O cenário B depende de respostas operacionais (cobertura de vários CNPJs por credencial de procurador, contagem do limite) que só a Receita ou quem já integra pode dar. Recomendação: não esperar; a Spec desenha os dois cenários e o responsável leva as perguntas de CA-21 em paralelo.
