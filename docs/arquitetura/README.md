@@ -325,6 +325,57 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 
 **Fontes:** [referência](../referencias/apuracao-cbs/README.md): seção "Fluxo de uma consulta" (240 min, 48 h, aviso sem autenticação), "Consulta incremental" (8 dias), "Limite de uso", divergências 1, 5, 6 e 9, "Observado na chamada real (2026-11-24)"; manual Receita Integra v1.4 (17/07/2026) para o token; notícia oficial de 09/11/2026 para os serviços novos.
 
+### AD-10 — Guarda e ciclo da credencial da Receita
+
+**Problema.** Cada cliente informa a própria credencial (decisão de 2026-11-25): um `client_id` e um `client_secret` que dão acesso aos dados fiscais da empresa. O ciclo e as regras de acesso estão na [seção 6](#6-credencial-da-receita).
+
+**Critérios:**
+
+- chave de cifra fora do banco;
+- menor número de processos capazes de decifrar;
+- nunca aparecer em log, tela ou erro;
+- remoção definitiva quando o cliente sai.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. Cifra de envelope: KMS do provedor guarda a chave mestra; cada credencial tem chave de dados própria; o banco guarda só o texto cifrado** | Chave fora do banco; permissões separadas (a API só cifra, o coletor decifra); a remoção apaga a chave de dados, o que torna o texto ilegível | Depende do KMS (já incluído na AD-7) |
+| B. Um segredo por cliente no gerenciador de segredos do provedor | Rotação e auditoria prontas | Custo e limite por segredo (a confirmar, PD-1); muitos segredos para administrar |
+| C. Cifra na aplicação com chave em variável de ambiente | Simples | Chave junto da aplicação; quem lê a variável lê todas as credenciais |
+
+**Recomendação:** A, com as regras da seção 6.
+
+**Escolha do responsável:** A, cifra de envelope com KMS. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- B: custo e administração por segredo;
+- C: a chave fica junto da aplicação.
+
+**Fontes:** [referência](../referencias/apuracao-cbs/README.md), seção "Fluxo de uma consulta" (passo 1: credencial gerada pelo contribuinte ou pelo procurador digital; chaves anteriores à versão 2.0, liberada em 28/10/2026, precisam ser geradas de novo) e seção "O que não está documentado" (token: validade de 1 hora e limite de 2 por hora, manual Receita Integra v1.4).
+
+### AD-11 — Cenários de acesso: A como base, B como contingência
+
+**Problema.** Quantas credenciais existem por empresa e como o limite se aplica. Premissas de 2026-11-25: o acesso é decidido pela Receita; cada cliente informa a sua. O detalhe está na [seção 7](#7-cenários-de-acesso).
+
+**Critérios:** respeitar a decisão de 2026-11-25; não refazer o modelo se o cenário B existir; não desenhar sem fonte.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. Construir só o cenário A; o modelo já aceita o B** (`credencial_empresa` N:N, restrito a 1:1 por regra; orçamento contado por credencial e por CNPJ) | Atende a decisão do responsável; passar ao B é trocar uma regra, sem migração de modelo | Um pouco mais de modelo do que o A precisa |
+| B. Modelar só o A (credencial como campo da empresa) | Mais simples hoje | Passar ao B exige migrar o modelo e o orçamento |
+| C. Construir A e B desde já | Pronto para escritório com credencial de procurador | Desenha algo que pode não existir (sem fonte) e contraria a decisão de 2026-11-25 |
+
+**Recomendação:** A.
+
+**Escolha do responsável:** A, construir só o cenário A, com o modelo aceitando o B. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- B: migração futura;
+- C: desenha sem fonte e contra a decisão do responsável.
+
+**Fontes:** [referência](../referencias/apuracao-cbs/README.md), seção "O que não está documentado" (acesso por software em nome de vários contribuintes) e divergência 1 (limite de 4 chamadas, "por dia" só na FAQ); perguntas em [`hipoteses.md`](../produto/hipoteses.md), H1.
+
 <!-- AD-NEXT -->
 
 ## 5. Coleta agendada
@@ -380,11 +431,63 @@ O canal (email ou outro) e o texto ficam para a demanda que implementar o coleto
 
 ## 6. Credencial da Receita
 
-<!-- TASK-5 -->
+Detalha a [AD-10](#ad-10--guarda-e-ciclo-da-credencial-da-receita).
+
+### Acesso
+
+- A API recebe a credencial pelo cadastro (HTTPS), cifra e grava. **Não tem permissão de decifrar.**
+- Só o coletor decifra, em memória, na hora de pedir o token.
+- Ninguém na equipe vê a credencial em texto. A tela mostra só `informada em (data) por (usuário)` e o estado.
+
+### Registro e saída
+
+A credencial e o token são retirados de toda saída, log e erro, como faz o redator da PoC. O token fica cifrado do mesmo modo, para sobreviver a reinício sem gastar o limite de 2 por hora (manual Receita Integra v1.4; [referência](../referencias/apuracao-cbs/README.md), seção "O que não está documentado").
+
+### Ciclo
+
+1. **Entrega.** No cadastro da empresa, um usuário com vínculo nela informa `client_id` e `client_secret`, gerados no gov.br pelo titular ou pelo procurador (referência, seção "Fluxo de uma consulta", passo 1). O formulário diz que credenciais anteriores à v2.0 (liberada em 28/10/2026) precisam ser geradas de novo (mesma seção).
+2. **Conferência.** Um pedido de token (1 dos 2 por hora) confirma que o par é válido, sem gastar abertura. A autorização para o CNPJ só se confirma na primeira abertura de créditos, que é a própria primeira coleta, feita logo após o cadastro. Não há chamada só para conferir.
+3. **Troca.** A credencial nova entra como `ativa`, e a anterior vira `substituida`. A anterior é apagada (chave de dados destruída) depois da primeira coleta bem-sucedida com a nova.
+4. **Revogação ou invalidez.** Detectada pela coleta (tabela de falhas da [seção 5](#falhas)). A credencial vira `credencial_invalida`, a coleta para e os usuários são avisados para informar uma nova.
+5. **Credencial anterior à v2.0.** A mensagem de recusa no token orienta gerar de novo. O CreditoGov não distingue esse caso de outra recusa, porque não há fonte sobre o formato da recusa.
+6. **Saída do cliente.** A chave de dados da credencial é destruída na hora. O destino dos dados fiscais e dos arquivos brutos depois da saída é pergunta de LGPD (seção 8).
+
+### Rastreio
+
+Cada entrega ou troca grava em `credencial_entrega`:
+
+- o usuário que informou;
+- a data e a hora;
+- a empresa;
+- a forma declarada (titular ou procurador).
+
+O registro é imutável e não guarda segredo. **Não é verificação de procuração:** quem decide o acesso é a Receita, pela credencial (premissa de 2026-11-25, seção 2).
 
 ## 7. Cenários de acesso
 
-<!-- TASK-5B -->
+Detalha a [AD-11](#ad-11--cenários-de-acesso-a-como-base-b-como-contingência). Fonte do que não se sabe: [referência](../referencias/apuracao-cbs/README.md), seção "O que não está documentado", e as perguntas de [`hipoteses.md`](../produto/hipoteses.md), H1.
+
+### Cenário A, a base
+
+Cada empresa tem uma credencial ativa por vez. Cadastro, coleta, orçamento e guarda estão nas AD-9 e AD-10. O limite de 4 chamadas por API vale para a credencial daquela empresa (seção "Limite de uso"), então o número de empresas não pressiona o limite. A capacidade depende só do coletor.
+
+### Cenário B, contingência
+
+Só o plano entra no documento; nada é construído.
+
+- **O que o tornaria possível:** resposta da Receita (ou de quem já integra) a duas perguntas. Uma credencial de procurador cobre vários CNPJs? O limite conta por credencial ou por credencial e CNPJ? Ambas estão abertas em `hipoteses.md` (H1).
+- **Efeito do limite**, com a cadência da AD-9 e o limite "por dia" da FAQ (divergência 1, não testada):
+  - **por credencial e CNPJ:** igual ao A, uma credencial atende tantos CNPJs quanto a procuração cobrir;
+  - **por credencial no total:** com 4 aberturas por dia por serviço e uma consulta por CNPJ a cada 7 dias (1 dia de folga na janela de 8), uma credencial atende **no máximo 28 CNPJs por serviço** (4 por dia vezes 7 dias), sem nenhuma sobra para falha. Na prática, bem menos. É inviável para uma carteira grande sem várias credenciais.
+- **Credencial que deixa de valer para um dos CNPJs** ("consumidor não autorizado para este NI"): só o vínculo `credencial_empresa` daquele CNPJ vira inválido; os outros CNPJs da mesma credencial continuam.
+- **Rastreio:** o mesmo da seção 6, com o procurador como forma declarada.
+
+### Passagem e convivência
+
+- **Comum aos dois:** a guarda, o ciclo, o rastreio, o coletor, os arquivos e o isolamento.
+- **O que muda:** a regra 1:1 de `credencial_empresa` e a chave do orçamento.
+- **Convivência:** A e B convivem, com empresa de credencial própria e empresa coberta por procurador.
+- **Se o B não existir ou o limite o tornar inviável:** o produto segue só com o A, e o contador orienta cada cliente a informar a credencial.
 
 ## 8. Dados sensíveis e proteção
 
