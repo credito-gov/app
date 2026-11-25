@@ -19,7 +19,7 @@ Decididas pelo responsável em 2026-11-25, com as palavras dele quando existem:
 - **SaaS multi-inquilino.** "tem que seguir o modelo de saas". Uma única instalação, operada pelo CreditoGov, atende todas as empresas clientes por assinatura. Não há instalação por cliente nem on-premise.
 - **O acesso a cada CNPJ é decidido pela Receita, pela credencial do gov.br.** "essa responsabilidade é da receita, eu poderia por exemplo 'representar' o cnpj de qualquer empresa, mas o que vai valer são as credenciais do gov.br para aquele cnpj". O CreditoGov **não verifica** representação nem procuração: usa a credencial que recebe, e o que ela permite acessar é o que vale.
 - **Cada cliente informa a própria credencial.** "Cada cliente cadastrado na plataforma vai precisar informar a sua." A base é o cenário A (uma credencial por CNPJ); o cenário B (credencial de procurador que cobre vários CNPJs) fica como contingência (AD-11).
-- **Email e senha como base, sem bloquear login federado.** "Pode não entrar agora, mas teria muita credibilidade se usar logins federados (google e apple), e mais ainda se der para usar o login do gov.br". O login por email e senha (decisão de 2026-08-25) continua a base; a arquitetura não impede Google, Apple nem gov.br no futuro (AD-12).
+- **Email e senha como base, sem bloquear login federado.** "Pode não entrar agora, mas teria muita credibilidade se usar logins federados (google e apple), e mais ainda se der para usar o login do gov.br". O login por email e senha (decisão de 2026-08-25) continua a base, junto com a decisão da 032 de 2026-11-25 (login também com provedor externo, que revê a de 2026-08-25); a arquitetura não impede Google, Apple nem gov.br no futuro (AD-12).
 - **ERP só como possível fonte de dados.** Integração com ERP não é o modelo, nem canal de distribuição, nem forma de login.
 - **`app/painel` é ferramenta interna** de validação dos dados, não a primeira versão do produto para o usuário final. O dashboard do usuário é feito do zero (AD-14).
 
@@ -262,8 +262,8 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 | Alternativa | Prós | Contras |
 |---|---|---|
 | **A. Nuvem grande com serviços gerenciados (AWS, Google Cloud ou Azure): contêineres gerenciados para API e coletor, PostgreSQL gerenciado, armazenamento de objetos, KMS e hospedagem estática da web** | KMS e armazenamento de objetos com bloqueio de sobrescrita no mesmo provedor; backup gerenciado; região no Brasil a confirmar na página de cada provedor | Mais conceitos para configurar; risco de custo sem limite, se não houver alerta de gasto |
-| B. Plataforma como serviço simplificada (ex.: Render, Railway, Fly.io) | Deploy simples | KMS e região no Brasil não garantidos (a confirmar); a credencial pode exigir um segundo provedor só para chaves |
-| C. Servidor virtual próprio com contêineres | Custo previsível | Backup, atualização, chaves e segurança ficam todos com a equipe |
+| B. Plataforma como serviço simplificada (ex.: Render, Railway, Fly.io) | Deploy simples | KMS e região no Brasil não garantidos (a confirmar); a credencial pode exigir um segundo provedor só para chaves; suporte a processo contínuo em segundo plano para o coletor varia por plataforma e fica a confirmar |
+| C. Servidor virtual próprio com contêineres | Custo previsível | Backup, atualização, chaves e segurança ficam todos com a equipe; o coletor roda como processo contínuo sem serviço gerenciado, e o reinício e o monitoramento também ficam com a equipe |
 
 **Custo estimado.** **Sem fonte.** Nenhuma página oficial de preço foi lida e citada com data nesta demanda, e nenhum valor entra sem ela. Cada linha abaixo fica "a confirmar (PD-1)" até alguém ler a página oficial de preço do provedor e registrar o endereço e a data da leitura.
 
@@ -386,11 +386,11 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 
 ### AD-12 — Onde fica a autenticação
 
-**Problema.** Onde ficam o login por email e senha (decisão de 2026-08-25) e a sessão. Login federado com Google, Apple ou gov.br não pode ser bloqueado depois (decisão de 2026-11-25). Tela, cadastro, recuperação de senha e permissões são da demanda de login.
+**Problema.** Onde ficam o login e a sessão. As decisões de login vigentes são duas: email e senha próprios, sem credencial de ERP (2026-08-25), e a da demanda 032 de 2026-11-25, que revê a anterior e aceita também provedor externo (Google e Microsoft propostos). Login federado com Google, Apple ou gov.br não pode ser bloqueado depois (decisão de 2026-11-25). Tela, cadastro, recuperação de senha e permissões são da demanda de login.
 
 **Critérios:**
 
-- respeitar 2026-08-25: login do CreditoGov, sem credencial de ERP (um serviço gerenciado é aceitável se o usuário só vê o login do CreditoGov, P-3 da US);
+- respeitar 2026-08-25 e a 032 de 2026-11-25: login do CreditoGov, sem credencial de ERP (um serviço gerenciado é aceitável se o usuário só vê o login do CreditoGov, P-3 da US);
 - segurança da senha (guarda, MFA, recuperação);
 - facilidade de acrescentar Google, Apple e gov.br;
 - custo (sem fonte, ver PD-1);
@@ -400,8 +400,8 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 | Alternativa | Prós | Contras |
 |---|---|---|
 | **A. Autenticação própria no backend**: senha com hash `argon2id` por biblioteca consolidada, sessão no servidor com cookie `HttpOnly` e `Secure`, entidade `identidade` separada de `usuario` | Sem custo por usuário; dados no mesmo banco e região; controle total do fluxo. O login federado entra como uma nova linha em `identidade`, por OpenID Connect (Google e Apple oferecem login federado por esse padrão aberto) | A equipe responde pela segurança da senha, pela recuperação e pelo MFA |
-| B. Serviço de identidade gerenciado (ex.: Auth0, Amazon Cognito, Firebase Authentication, Clerk) com a marca do CreditoGov | Senha, MFA, recuperação e Google/Apple prontos | Custo por usuário (a confirmar, PD-1); dados de usuário fora do banco e talvez da região; trocar de fornecedor depois é caro; o gov.br dependeria do suporte do serviço (sem fonte) |
-| C. Servidor de identidade próprio separado (ex.: Keycloak) | Federado e MFA prontos, sem custo por usuário | Mais um sistema para operar e atualizar; pesado para o tamanho atual |
+| B. Serviço de identidade gerenciado (ex.: Auth0, Amazon Cognito, Firebase Authentication, Clerk) com a marca do CreditoGov | Senha, MFA, recuperação e Google/Apple prontos | Custo por usuário (a confirmar, PD-1); dados de usuário fora do banco e talvez da região; trocar de fornecedor depois é caro; o gov.br dependeria do suporte do serviço (sem fonte); ligar várias formas de login à mesma conta depende do que o fornecedor oferece (a confirmar) |
+| C. Servidor de identidade próprio separado (ex.: Keycloak) | Federado e MFA prontos, sem custo por usuário | Mais um sistema para operar e atualizar; pesado para o tamanho atual; a ligação de várias formas de login à mesma conta fica no próprio servidor, que a equipe configura e mantém |
 
 **Efeito sobre o login federado:**
 
@@ -410,7 +410,7 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 - Na C, a mesma flexibilidade da A, com mais operação.
 - **gov.br:** se e em que condições um software privado pode usar o login do gov.br **não tem fonte** em `docs/referencias/`. Não é afirmado aqui; é pergunta em aberto (seção 12 e [`hipoteses.md`](../produto/hipoteses.md)).
 
-**Ligação com a demanda 032 (design system).** O desenho do login da 032 (PR credito-gov/app#33, ainda não mergeado quando esta decisão foi escrita) já mostra entrada por provedor externo, com Google e Microsoft propostos, além de email e senha, e deixa os provedores finais e o impacto na arquitetura para esta demanda. A autenticação própria com a entidade `identidade` **não bloqueia** Google, Apple, Microsoft nem gov.br: cada um é uma linha nova de identidade, sem mudar o modelo. A **lista final de provedores e quando entram é da demanda de login** ("pode não entrar agora"). Isso complementa a decisão de login do design, sem revogá-la; a recomendação aprovada não muda.
+**Ligação com a demanda 032 (design system).** A 032 está na `main` ([`../design/README.md`](../design/README.md)). A decisão dela de 2026-11-25 (login com provedor externo, Google e Microsoft propostos, além de email e senha; revê a de 2026-08-25) é a decisão de login vigente, junto com a de 2026-08-25 (autenticação do CreditoGov, sem credencial de ERP). A 032 deixa os provedores finais e o impacto na arquitetura para esta demanda. A autenticação própria com a entidade `identidade` **não bloqueia** Google, Apple, Microsoft nem gov.br: cada um é uma linha nova de identidade, sem mudar o modelo. A **lista final de provedores e quando entram é da demanda de login** ("pode não entrar agora"). Isso complementa a decisão de login do design, sem revogá-la; a recomendação aprovada não muda.
 
 **Recomendação:** A. Respeita 2026-08-25 sem leitura ampla, não tem custo por usuário, mantém os dados de usuário no mesmo lugar e deixa a entidade `identidade` pronta para o federado. Se a demanda de login concluir que MFA e recuperação próprios pesam demais, a B fica como segunda opção registrada.
 
