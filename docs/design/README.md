@@ -15,7 +15,7 @@ Design do produto CreditoGov, aprovado pelo responsável em 2026-11-25 na demand
 
 Os dois artifacts são **privados ao dono** (conta do responsável). Quem não tiver acesso deve usar este diretório: os tokens e o `design-system.md` são o registro que o repositório mantém. Os arquivos das telas (`.dc.html`) não estão no repositório.
 
-- Design system "CreditoGov", versão `1795610679-604c`: <https://claude.ai/artifact/2vTKm7rfbExpg6DSpo8B7U>
+- Design system "CreditoGov", versão `1795617722-c486`: <https://claude.ai/artifact/2vTKm7rfbExpg6DSpo8B7U>
 - Canvas "CreditoGov — Login e Dashboard": <https://claude.ai/artifact/Xj5Mwa2tH2hRGDX7bZWbRg>. Cada tela é um artboard do canvas:
 
 | Tela (artboard) | O que mostra |
