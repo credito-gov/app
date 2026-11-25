@@ -1,6 +1,6 @@
 # 031-stack-arquitetura — Tasks
 
-- **Status:** tasks-em-revisão
+- **Status:** em-implementação
 - **Spec:** [`spec.md`](spec.md), aprovada em 2026-11-25 ("Aprovo todas")
 
 Pequenas, ordenadas, um commit por task (`docs(031): ...`, com a linha `Co-Authored-By`). Cada task cita a seção da Spec e como é verificada.
