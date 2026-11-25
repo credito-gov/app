@@ -236,7 +236,73 @@ São só as entidades e as relações que as decisões exigem, sem colunas nem m
 
 Toda tabela com dado de empresa leva o identificador da empresa (AD-6).
 
-<!-- TASK-3 -->
+### AD-7 — Hospedagem
+
+**Problema.** Onde roda a operação única: API, coletor, web estática, banco, arquivos, chaves.
+
+**Critérios:**
+
+- custo (só com fonte);
+- operação por equipe pequena;
+- processo contínuo para o coletor (a espera de até 240 min é estado no banco, não processo preso, ver AD-9);
+- serviço de chaves (KMS) para a credencial (AD-10);
+- backup do banco e dos arquivos;
+- região no Brasil.
+
+A região no Brasil é critério de latência e de cuidado com dados. Se a lei exige ou não é pergunta para advogado (seção 8).
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. Nuvem grande com serviços gerenciados (AWS, Google Cloud ou Azure): contêineres gerenciados para API e coletor, PostgreSQL gerenciado, armazenamento de objetos, KMS e hospedagem estática da web** | KMS e armazenamento de objetos com bloqueio de sobrescrita no mesmo provedor; backup gerenciado; região no Brasil a confirmar na página de cada provedor | Mais conceitos para configurar; risco de custo sem limite, se não houver alerta de gasto |
+| B. Plataforma como serviço simplificada (ex.: Render, Railway, Fly.io) | Deploy simples | KMS e região no Brasil não garantidos (a confirmar); a credencial pode exigir um segundo provedor só para chaves |
+| C. Servidor virtual próprio com contêineres | Custo previsível | Backup, atualização, chaves e segurança ficam todos com a equipe |
+
+**Custo estimado.** **Sem fonte.** Nenhuma página oficial de preço foi lida e citada com data nesta demanda, e nenhum valor entra sem ela. Cada linha abaixo fica "a confirmar (PD-1)" até alguém ler a página oficial de preço do provedor e registrar o endereço e a data da leitura.
+
+| Provedor | Contêineres (API e coletor) | PostgreSQL gerenciado | Armazenamento de objetos | KMS | Região no Brasil | Fonte e data |
+|---|---|---|---|---|---|---|
+| AWS | a confirmar (PD-1) | a confirmar (PD-1) | a confirmar (PD-1) | a confirmar (PD-1) | a confirmar (PD-1) | sem página lida |
+| Google Cloud | a confirmar (PD-1) | a confirmar (PD-1) | a confirmar (PD-1) | a confirmar (PD-1) | a confirmar (PD-1) | sem página lida |
+| Azure | a confirmar (PD-1) | a confirmar (PD-1) | a confirmar (PD-1) | a confirmar (PD-1) | a confirmar (PD-1) | sem página lida |
+
+**Recomendação:** A. O tipo (nuvem gerenciada) se decide pelos critérios não financeiros. O provedor (AWS, Google Cloud ou Azure) sai da tabela de custo com fonte (PD-1). Não há preferência técnica forte entre os três para o que esta arquitetura usa.
+
+**Escolha do responsável:** tipo A, nuvem grande com serviços gerenciados; provedor (AWS, Google Cloud ou Azure) pendente da PD-1. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- B: guarda de chaves e região incertas;
+- C: operação demais para a equipe;
+- instalação por cliente e on-premise: fora do modelo SaaS (2026-11-25).
+
+**Fontes:** o limite de 240 min de processamento vem da [referência](../referencias/apuracao-cbs/README.md), seção "Fluxo de uma consulta" (lida em 2026-11-24). Preço: nenhuma fonte (PD-1, na [seção 12](#12-perguntas-em-aberto-e-pendências)). A primeira demanda de backend roda local e não depende desta escolha (R-4).
+
+### AD-8 — Guarda do arquivo bruto e reconstrução
+
+**Problema.** A API não devolve histórico: cada chamada traz só o que mudou nos últimos 8 dias, e o que não for coletado a tempo se perde (referência, seção "Consulta incremental"). O arquivo perdido não volta. A regra de leitura vai mudar: o schema já diverge do arquivo real (divergência 10 da referência, confirmada em 2026-11-24), e as hipóteses D-2 a D-6 de [`hipoteses.md`](../produto/hipoteses.md) estão abertas.
+
+**Critérios:** imutável; com backup; reprocessável; separado por empresa.
+
+| Alternativa | Prós | Contras |
+|---|---|---|
+| **A. Armazenamento de objetos com sobrescrita bloqueada e versionamento; metadados e hash em `arquivo_bruto`** | Barato para arquivos grandes (o limite de leitura do painel é 200 MB; o maior arquivo real observado tem menos de 1 MB, demanda 030); imutável por configuração; backup por replicação | Dois lugares a manter coerentes (objeto e linha) |
+| B. Arquivo dentro do PostgreSQL (`jsonb` ou binário) | Uma só cópia de segurança | Banco cresce com arquivos grandes; `jsonb` perde a forma original dos números |
+| C. Disco do servidor (como a PoC em `.local/`) | Simples | Perde-se com o servidor; sem replicação |
+
+**Reconstrução.** Cada linha de `leitura` guarda a versão do leitor. Quando a regra muda (schema novo, tolerância nova, D-5 confirmada), um comando relê os `arquivo_bruto` da empresa e regrava `leitura`, sem chamar a API. O arquivo é guardado **antes** de ser validado, como na PoC: arquivo recusado também fica.
+
+**Recomendação:** A.
+
+**Escolha do responsável:** A, armazenamento de objetos imutável + metadados em `arquivo_bruto`. Responsável, 2026-11-25 ("Aprovo todas").
+
+**Descartadas:**
+
+- B: o tamanho dos arquivos e a perda da forma original dos números;
+- C: o arquivo se perde junto com o servidor.
+
+**Fontes:** [referência](../referencias/apuracao-cbs/README.md), seção "Consulta incremental" e divergência 10 (2026-11-24); números com 0 a 2 casas no JSON, O-13; hipóteses D-2 a D-6 em [`hipoteses.md`](../produto/hipoteses.md).
+
+<!-- TASK-4 -->
 
 ## 5. Coleta agendada
 
