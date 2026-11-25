@@ -1,6 +1,6 @@
 # 031-stack-arquitetura — Stack e arquitetura do produto
 
-- **Status:** us-aprovada
+- **Status:** spec-em-revisão
 - **US aprovada:** 2026-11-25, pelo responsável ("Aprovo a US"), sobre a versão do commit `88ecfd1`, com as recomendações de P-1 a P-4
 - **Branch:** `feat/031-stack-arquitetura`
 - **Worktree:** `.claude/worktrees/031-stack-arquitetura`
