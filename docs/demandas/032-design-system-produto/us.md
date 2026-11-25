@@ -96,3 +96,11 @@ O responsável aprovou a US com as recomendações de todas as perguntas, com um
 - **Navegação no topo, sem barra lateral** (pedido do responsável: barra lateral “cara de sistema corporativo”).
 - **Login com provedor externo** (Google e Microsoft na proposta), além de e-mail e senha. Muda o CA-18 (“sem login social”) e a decisão de 2026-08-25 (“autenticação própria, email + senha”) do `PROJECT_CONTEXT.md`; os provedores finais e o impacto na arquitetura ficam para a demanda 031. Continua sem credencial de ERP ou da Receita no login.
 - **Painel do login com mensagens alternadas:** três mensagens com ilustração feita de componentes do produto, trocando a cada 6 segundos, com pausa sob o ponteiro e sem animação para quem pede menos movimento.
+
+### Aprovação visual (2026-11-25)
+
+- O responsável aprovou visualmente o design system e as telas e pediu o PR ("Aprovo, abra o PR"). Versões aprovadas:
+  - design system: <https://claude.ai/artifact/2vTKm7rfbExpg6DSpo8B7U>, versão 1795617722-c486 (só o texto de uso de dois tokens mudou depois da aprovação, para bater com o menu no topo);
+  - telas: <https://claude.ai/artifact/Xj5Mwa2tH2hRGDX7bZWbRg>.
+- **D-7 alterada:** as imagens das telas não são exportadas para `docs/design/`. O responsável decidiu registrar só os links, mesmo privados ("registra os links privados... eles são mesmo, então não tem problema"). Os tokens e o CSS de referência ficam no repositório.
+- Spec e Tasks dispensadas: a entrega desta demanda é o próprio design aprovado mais o registro do CA-21 e do CA-22.
