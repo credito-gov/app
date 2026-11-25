@@ -616,7 +616,7 @@ Só o plano entra no documento; nada é construído.
 | Dados pessoais de usuários (nome, email) | HTTPS | Banco cifrado em repouso; senha só como hash (AD-12) | Sem email em texto; identificador interno |
 | `niConsumidor` | HTTPS | Fica no arquivo bruto; não é copiado para `leitura` sem necessidade | Nunca |
 
-Sobre o `niConsumidor`: na primeira chamada real veio com 11 dígitos, compatível com CPF; na segunda, igual ao `ni` da empresa ([referência](../referencias/apuracao-cbs/README.md), seção "Observado na chamada real" e O-2, 2026-11-24). O que ele identifica não está documentado (pergunta em aberto).
+Sobre o `niConsumidor`: na primeira chamada real veio com 11 dígitos (tamanho de um CPF; a referência não diz o que é); na segunda, igual ao `ni` da empresa ([referência](../referencias/apuracao-cbs/README.md), seção "Observado na chamada real" e O-2, 2026-11-24). O que ele identifica não está documentado (pergunta em aberto).
 
 **Perguntas para advogado**, sem afirmar regra (também em [`hipoteses.md`](../produto/hipoteses.md)):
 
@@ -701,7 +701,7 @@ Sem fonte em `docs/referencias/`. Registradas em [`hipoteses.md`](../produto/hip
 ### Riscos
 
 - **R-1. Limite por credencial no cenário B.** Se o limite for por credencial no total, o B quase não ajuda: 4 CNPJs por serviço com a cadência diária da AD-9, ou até 28 se cada CNPJ for consultado só a cada 7 dias. A base no A evita depender da resposta.
-- **R-2. Serviço em beta.** Quatro versões da documentação em três meses, e recolhimentos e pagamentos com 404 (referência, divergência 9). A máquina de estados e o `servico_indisponivel` absorvem isso. Reconferir a referência antes de cada demanda de coletor.
+- **R-2. Serviço em beta.** Quatro versões da documentação em três meses (referência, linha 3: "quatro versões entre setembro e novembro de 2026"), e recolhimentos e pagamentos com 404 (referência, divergência 9). A máquina de estados e o `servico_indisponivel` absorvem isso. Reconferir a referência antes de cada demanda de coletor.
 - **R-3. Recomendações sobre bibliotecas sem prova no projeto.** Fastify e Kysely não foram usados aqui. A primeira demanda de backend confirma com um teste o isolamento por linha (com as três condições da AD-6: papel sem posse e sem `BYPASSRLS` com `FORCE ROW LEVEL SECURITY`, empresa fixada só por transação, coletor sob a mesma regra) e o `numeric` como texto. Se falhar, as segundas opções registradas (Drizzle e, para a autenticação, a B da AD-12) entram sem nova demanda de arquitetura, só com registro no histórico (seção 13).
 - **R-4. Custo sem fonte.** A escolha do provedor pode ficar para depois da PD-1, sem travar a primeira demanda de backend, que roda local.
 - **R-5. Sobreposição com a 033.** A 033 tem a carteira do contador. A AD-6 garante que o modelo a aceita; papéis e permissões continuam com a demanda de login.

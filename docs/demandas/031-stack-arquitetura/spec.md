@@ -558,7 +558,7 @@ Não têm alternativas porque decorrem das decisões acima. O CA-2 vale para as 
 | Token da Receita e URL assinada | HTTPS | Token cifrado (AD-10); URL assinada não é guardada | Nunca |
 | Dados fiscais da empresa (arquivos e leitura) | HTTPS | Cifra em repouso do provedor; isolamento por empresa (AD-6) | Só contagens e identificadores internos; nenhum valor, chave de nota ou CNPJ |
 | Dados pessoais de usuários (nome, email) | HTTPS | Banco cifrado em repouso; senha só como hash (AD-12) | Sem email em texto; identificador interno |
-| `niConsumidor` (na primeira chamada veio com 11 dígitos, compatível com CPF; na segunda, igual ao `ni` da empresa) | HTTPS | Fica no arquivo bruto; não é copiado para `leitura` sem necessidade | Nunca |
+| `niConsumidor` (na primeira chamada veio com 11 dígitos (tamanho de um CPF; a referência não diz o que é); na segunda, igual ao `ni` da empresa) | HTTPS | Fica no arquivo bruto; não é copiado para `leitura` sem necessidade | Nunca |
 
 Perguntas para advogado, sem afirmar regra:
 
