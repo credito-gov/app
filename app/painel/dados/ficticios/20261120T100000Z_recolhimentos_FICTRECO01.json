@@ -1,0 +1,73 @@
+{
+  "tiqueteSolicitacao": "FICTRECO01",
+  "ni": "90817263000181",
+  "niConsumidor": "90817263000181",
+  "geradoEm": "2026-11-20T10:00:00.000-03:00",
+  "apuracao": [
+    {
+      "dataArrecadacao": "2026-11-10",
+      "pagamentos": [
+        {
+          "numeroDARF": "99999000000000001",
+          "tipo": 1,
+          "composicao": [
+            {
+              "sequencial": 1,
+              "pa": "11/2026",
+              "vencimento": "2026-12-20",
+              "niFornecedor": "55667788000187",
+              "chaveDFE": "99261155667788000187550010000010021400000024",
+              "principal": 44.44,
+              "multa": 0,
+              "juros": 0,
+              "total": 44.44
+            },
+            {
+              "sequencial": 2,
+              "pa": "11/2026",
+              "vencimento": "2026-12-20",
+              "niFornecedor": "11223344000187",
+              "principal": 100.00,
+              "multa": 1.00,
+              "juros": 0.25,
+              "total": 101.25
+            },
+            {
+              "sequencial": 3,
+              "pa": "11/2026",
+              "vencimento": "2026-12-20",
+              "niFornecedor": "44556677000187",
+              "chaveDFE": "99261133445566000187550010000010121400000128",
+              "principal": 10.00,
+              "multa": 0,
+              "juros": 0,
+              "total": 10.00
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dataArrecadacao": "2026-11-12",
+      "pagamentos": [
+        {
+          "numeroDARF": "99999000000000002",
+          "tipo": 1,
+          "composicao": [
+            {
+              "sequencial": 1,
+              "pa": "11/2026",
+              "vencimento": "2026-12-20",
+              "niFornecedor": "66778899000187",
+              "chaveDFE": "99261111223344000187559200000010131400000139",
+              "principal": 10.00,
+              "multa": 0,
+              "juros": 0,
+              "total": 10.00
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

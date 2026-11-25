@@ -1,0 +1,34 @@
+{
+  "tiqueteSolicitacao": "FICTCRED04",
+  "ni": "90817263000181",
+  "niConsumidor": "90817263000181",
+  "geradoEm": "2026-11-21T09:00:00.000-03:00",
+  "apuracao": [
+    {
+      "pa": "11/2026",
+      "creditos": [
+        {
+          "origem": 0,
+          "documento": 55,
+          "chave": "99261111223344000187550010000010001400000003",
+          "emissao": "2026-11-03T10:00:00-03:00",
+          "registro": "2026-11-03T10:05:00.123-03:00",
+          "atualizacao": "2026-11-20T08:00:00.5-03:00",
+          "cbs": {
+            "apurado": 500.00,
+            "apropriacao": {
+              "aApropriar": 450.00,
+              "apropriado": 50.00,
+              "utilizacao": {
+                "utilizado": 50.00,
+                "naoUtilizado": {
+                  "saldoCredor": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

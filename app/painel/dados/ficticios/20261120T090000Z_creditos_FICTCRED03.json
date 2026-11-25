@@ -1,0 +1,89 @@
+{
+  "tiqueteSolicitacao": "FICTCRED03",
+  "ni": "90817263000181",
+  "niConsumidor": "90817263000181",
+  "geradoEm": "2026-11-20T09:00:00.000-03:00",
+  "apuracao": [
+    {
+      "pa": "11/2026",
+      "creditos": [
+        {
+          "origem": 20,
+          "documento": 55,
+          "chave": "99261144556677000187550010000010211400000216",
+          "emissao": "2026-11-03T10:00:00-03:00",
+          "registro": "2026-11-03T10:05:00.123-03:00",
+          "atualizacao": "2026-11-17T08:00:00.123456-03:00",
+          "cbs": {
+            "apurado": -25.00,
+            "apropriacao": {
+              "aApropriar": -25.00,
+              "utilizacao": {
+                "naoUtilizado": {
+                  "saldoCredor": 0
+                }
+              }
+            }
+          }
+        },
+        {
+          "origem": 30,
+          "documento": 55,
+          "chave": "99261144556677000187550010000010221400000221",
+          "emissao": "2026-11-03T10:00:00-03:00",
+          "registro": "2026-11-03T10:05:00.123-03:00",
+          "atualizacao": "2026-11-17T08:00:00.123456-03:00",
+          "cbs": {
+            "apurado": 10.00,
+            "apropriacao": {
+              "aApropriar": 10.00,
+              "utilizacao": {
+                "naoUtilizado": {
+                  "saldoCredor": 0
+                }
+              }
+            }
+          }
+        },
+        {
+          "origem": 55,
+          "documento": 55,
+          "chave": "99261144556677000187550010000010231400000237",
+          "emissao": "2026-11-03T10:00:00-03:00",
+          "registro": "2026-11-03T10:05:00.123-03:00",
+          "atualizacao": "2026-11-17T08:00:00.123456-03:00",
+          "cbs": {
+            "apurado": 5.50,
+            "apropriacao": {
+              "aApropriar": 5.50,
+              "utilizacao": {
+                "naoUtilizado": {
+                  "saldoCredor": 0
+                }
+              }
+            }
+          }
+        },
+        {
+          "origem": 50,
+          "documento": 57,
+          "chave": "99261144556677000187570010000010241400000240",
+          "emissao": "2026-11-03T10:00:00-03:00",
+          "registro": "2026-11-03T10:05:00.123-03:00",
+          "atualizacao": "2026-11-17T08:00:00.123456-03:00",
+          "cbs": {
+            "apurado": 7.00,
+            "apropriacao": {
+              "aApropriar": 7.00,
+              "utilizacao": {
+                "naoUtilizado": {
+                  "saldoCredor": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

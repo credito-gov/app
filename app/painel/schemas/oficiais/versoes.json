@@ -1,0 +1,34 @@
+{
+  "credito-retorno.schema.json": {
+    "url": "https://docs.receitafederal.gov.br/apuracao-cbs/schemas/credito-retorno.schema.json",
+    "versaoSchema": "1.0.0",
+    "pagina": "credito.html",
+    "versaoPagina": "1.3 (13/11/2026)",
+    "lidoEm": "2026-11-24",
+    "sha256": "e5520bbdb1ea587d5dac67c148d4165d25064a1684d463d735415bfd1fa58271"
+  },
+  "recolhimento-retorno.schema.json": {
+    "url": "https://docs.receitafederal.gov.br/apuracao-cbs/schemas/recolhimento-retorno.schema.json",
+    "versaoSchema": "1.0.0",
+    "pagina": "recolhimentos.html",
+    "versaoPagina": "1.3 (13/11/2026)",
+    "lidoEm": "2026-11-24",
+    "sha256": "09466e7610913dcdb23d0c93eff7ea116578377e3f397d57db71a225c7805866"
+  },
+  "pagamento-retorno.schema.json": {
+    "url": "https://docs.receitafederal.gov.br/apuracao-cbs/schemas/pagamento-retorno.schema.json",
+    "versaoSchema": "1.0.0",
+    "pagina": "pagamentos.html",
+    "versaoPagina": "1.3 (13/11/2026)",
+    "lidoEm": "2026-11-24",
+    "sha256": "7988a96e7b64805dbe2e7a1fdce51e8d47a3834b03bc0b65117f3f5d9362769f"
+  },
+  "debito-retorno.schema.json": {
+    "url": "https://docs.receitafederal.gov.br/apuracao-cbs/schemas/debito-retorno.schema.json",
+    "versaoSchema": "1.0.0",
+    "pagina": "debito.html",
+    "versaoPagina": "1.3 (13/11/2026)",
+    "lidoEm": "2026-11-24",
+    "sha256": "b7e342c316e7c87948675633f6cb46592d3c5bf59cb10f67d37ca7b841ece704"
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "tiqueteSolicitacao": "TIQUETE-FICTICIO-CRED-0001",
+  "ni": "12345678",
+  "niConsumidor": "12345678000100",
+  "geradoEm": "2026-11-20T10:15:30.000-03:00",
+  "apuracao": [
+    {
+      "pa": "10/2026",
+      "creditos": [
+        {
+          "origem": 0,
+          "documento": 55,
+          "chave": "FICT-NFE-0001",
+          "emissao": "2026-10-05T09:00:00.000-03:00",
+          "registro": "2026-10-05T09:05:00.000-03:00",
+          "atualizacao": "2026-11-18T08:00:00.000-03:00",
+          "cbs": {
+            "apurado": 1234.56,
+            "apropriacao": {
+              "aApropriar": 1000.10,
+              "apropriado": 234.46,
+              "utilizacao": {
+                "naoUtilizado": { "saldoCredor": 234.46 }
+              }
+            }
+          }
+        },
+        {
+          "origem": 0,
+          "documento": 57,
+          "chave": "FICT-CTE-0002",
+          "emissao": "2026-10-07T14:00:00.000-03:00",
+          "registro": "2026-10-07T14:10:00.000-03:00",
+          "atualizacao": "2026-11-18T08:00:00.000-03:00",
+          "cbs": {
+            "apurado": 500.20,
+            "apropriacao": {
+              "apropriado": 500.20,
+              "utilizacao": {
+                "naoUtilizado": { "saldoCredor": 500.20 }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "pa": "11/2026",
+      "creditos": [
+        {
+          "origem": 20,
+          "documento": 55,
+          "chave": "FICT-NFE-0003",
+          "emissao": "2026-11-02T10:00:00.000-03:00",
+          "registro": "2026-11-02T10:02:00.000-03:00",
+          "atualizacao": "2026-11-19T08:00:00.000-03:00",
+          "cbs": {
+            "apurado": 100.07,
+            "apropriacao": {
+              "aApropriar": 100.07,
+              "utilizacao": {
+                "naoUtilizado": { "saldoCredor": 0.00 }
+              }
+            }
+          }
+        },
+        {
+          "origem": 0,
+          "documento": 65,
+          "chave": "FICT-NFCE-0004",
+          "emissao": "2026-11-03T11:00:00.000-03:00",
+          "registro": "2026-11-03T11:01:00.000-03:00",
+          "atualizacao": "2026-11-19T08:00:00.000-03:00",
+          "cbs": {
+            "apurado": 20.10,
+            "apropriacao": {
+              "aApropriar": 0.10,
+              "apropriado": 20.00,
+              "utilizacao": {
+                "naoUtilizado": { "saldoCredor": 20.00 }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
