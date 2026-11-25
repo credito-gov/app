@@ -594,23 +594,104 @@ Só o plano entra no documento; nada é construído.
 
 ## 8. Dados sensíveis e proteção
 
-<!-- TASK-7A -->
+| Dado | Em trânsito | Em repouso | Em log |
+|---|---|---|---|
+| Credencial da Receita | HTTPS | Cifra de envelope (AD-10) | Nunca |
+| Token da Receita e URL assinada | HTTPS | Token cifrado (AD-10); URL assinada não é guardada | Nunca |
+| Dados fiscais da empresa (arquivos e leitura) | HTTPS | Cifra em repouso do provedor; isolamento por empresa (AD-6) | Só contagens e identificadores internos; nenhum valor, chave de nota ou CNPJ |
+| Dados pessoais de usuários (nome, email) | HTTPS | Banco cifrado em repouso; senha só como hash (AD-12) | Sem email em texto; identificador interno |
+| `niConsumidor` | HTTPS | Fica no arquivo bruto; não é copiado para `leitura` sem necessidade | Nunca |
+
+Sobre o `niConsumidor`: na primeira chamada real veio com 11 dígitos, compatível com CPF; na segunda, igual ao `ni` da empresa ([referência](../referencias/apuracao-cbs/README.md), seção "Observado na chamada real" e O-2, 2026-11-24). O que ele identifica não está documentado (pergunta em aberto).
+
+**Perguntas para advogado**, sem afirmar regra (também em [`hipoteses.md`](../produto/hipoteses.md)):
+
+- base legal para tratar os dados da empresa e de quem gerou a credencial;
+- prazo de guarda depois da saída do cliente;
+- se a hospedagem fora do Brasil seria transferência internacional e o que ela exige;
+- o tratamento do `niConsumidor` quando for CPF.
 
 ## 9. Ambientes, testes e configuração
 
-<!-- TASK-7B -->
+| Ambiente | Dados | API da Receita |
+|---|---|---|
+| Local (desenvolvedor e agentes) | Fictícios | Simulada (servidor falso nos testes, como a PoC) |
+| Homologação | Fictícios | Simulada; nenhuma credencial real |
+| Produção | Reais | Real, pelo coletor |
+
+- Testes com `vitest` e API simulada; nenhum teste chama a API real nem lê `.env` (regra do [`AGENTS.md`](../../AGENTS.md)).
+- O isolamento por empresa tem teste próprio contra um PostgreSQL de teste.
+- Chamada real fora da produção só pelo responsável, como hoje com `npm run consulta`. Agentes não pedem credencial nem criam `.env`.
+
+### Variáveis de ambiente (só os nomes)
+
+Os nomes são a proposta deste documento; a primeira demanda de backend pode ajustá-los, registrando a mudança no histórico.
+
+| Variável | Para quê |
+|---|---|
+| `CREDITOGOV_BANCO_URL` | Endereço do PostgreSQL |
+| `CREDITOGOV_ARQUIVOS_BUCKET` | Armazenamento de arquivos brutos (AD-8) |
+| `CREDITOGOV_KMS_CHAVE` | Chave mestra do KMS (AD-10) |
+| `CREDITOGOV_SESSAO_SEGREDO` | Segredo da sessão (AD-12) |
+| `APURACAO_URL_TOKEN` e `APURACAO_URL_BASE` | Endereços da API da Receita; os mesmos nomes da PoC |
+| `CREDITOGOV_AMBIENTE` | local, homologação ou produção |
+
+**A credencial de cada cliente não é variável de ambiente:** fica no banco, cifrada (AD-10). Os valores de cada ambiente ficam no gerenciador de segredos do provedor, nunca no repositório (regra de [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §6).
 
 ## 10. O que a arquitetura não bloqueia
 
-<!-- TASK-7C -->
+- **Antecipação** (H3 de [`hipoteses.md`](../produto/hipoteses.md), sem construir):
+  - histórico por nota preservado (arquivos imutáveis, AD-8);
+  - origem de cada valor rastreável até o arquivo e o tíquete;
+  - isolamento e rastreio de entrega da credencial;
+  - um futuro acesso de parceiro seria um tipo novo de vínculo, com autorização registrada do cliente, sobre a mesma API.
+
+  Nada disso é construído. Se a antecipação é possível, e com quais parceiros e condições, é pergunta jurídica e comercial em aberto (H3).
+- **Outra fonte de dados.** O coletor e a leitura ficam atrás de uma interface "fonte". A API da Receita é a única implementação. Um ERP (só como fonte, nunca como canal) ou o equivalente do IBS, se o Comitê Gestor publicar, entrariam como outra implementação gravando em `arquivo_bruto` e `leitura` com o identificador da fonte. A API da Receita cobre só CBS e não se sabe se o equivalente do IBS será oferecido ([referência](../referencias/apuracao-cbs/README.md), seção "O que não está documentado"). Nenhuma das duas fontes é desenhada.
+- **Login federado.** A entidade `identidade` aceita Google, Apple, Microsoft e gov.br como novas formas de login do mesmo usuário (AD-12). Se o gov.br é possível para software privado não tem fonte.
 
 ## 11. Decidido aqui / fica para
 
-<!-- TASK-7D -->
+| Tema | Fica para |
+|---|---|
+| Telas, fluxo de cadastro, recuperação de senha, MFA, papéis e permissões; login federado e a lista final de provedores | Demanda de login |
+| Biblioteca de componentes, camada de estilo, tokens | Demanda 032 (design system) |
+| Telas, indicadores, roteamento e busca de dados da web | Demanda 033 e a Spec da implementação do dashboard |
+| Esquema real, migrações, canal e texto dos alertas | Primeira demanda de backend ou do coletor |
+| Provedor de nuvem | Depois da PD-1 (preço com fonte) |
+| Antecipação, compensação, guias (RAD, PCONT), cobrança | Depois da base de clientes (H3) |
+| IBS, ERP | Quando houver fonte |
+| Pacote compartilhado do leitor | Backlog |
 
 ## 12. Perguntas em aberto e pendências
 
-<!-- TASK-7E -->
+### Perguntas em aberto
+
+Sem fonte em `docs/referencias/`. Registradas em [`hipoteses.md`](../produto/hipoteses.md), cada uma com o efeito na arquitetura e como obter a resposta.
+
+| Pergunta | Efeito | Onde |
+|---|---|---|
+| Uma credencial de procurador cobre vários CNPJs? | Se sim, o cenário B fica possível (AD-11). Se não, segue só o A | `hipoteses.md`, H1 |
+| O limite de 4 chamadas é por credencial ou por credencial e CNPJ? | Efeito sobre o B: até 28 CNPJs por serviço, ou igual ao A (seção 7) | `hipoteses.md`, H1 |
+| Situação e download contam no limite? Abertura recusada (400, 404) conta? Qual o fuso do reinício à meia-noite? | Orçamento da AD-9 | `hipoteses.md`, H1 |
+| Qual o papel do `niConsumidor`? | Rastreio e LGPD | `hipoteses.md`, H1 |
+| Um software privado pode usar o login do gov.br, e em que condições? | AD-12 e `identidade` | `hipoteses.md`, "Outras decisões em aberto" |
+| LGPD (as quatro perguntas da seção 8) | Retenção, região, base legal | `hipoteses.md`, "Outras decisões em aberto" |
+| Vários CNPJs por cliente: cadastros separados ou agrupados? | Entidade acima de `empresa` (AD-6) | `hipoteses.md`, "Outras decisões em aberto" |
+| Qual a causa do HTTP 400 na segunda abertura de créditos? | Regra de reabertura da AD-9 | [Referência](../referencias/apuracao-cbs/README.md), "Observado na chamada real" |
+
+### Pendências
+
+- **PD-1 — Preço de hospedagem, banco, KMS e serviço de identidade.** Preencher a tabela de custo da AD-7 só com página oficial de preço citada com data. A tabela está "a confirmar"; o responsável, ou uma sessão com acesso, a completa antes de escolher o provedor.
+
+### Riscos
+
+- **R-1. Limite por credencial no cenário B.** Se o limite for por credencial no total, o B quase não ajuda: até 28 CNPJs por serviço. A base no A evita depender da resposta.
+- **R-2. Serviço em beta.** Quatro versões da documentação em três meses, e recolhimentos e pagamentos com 404 (referência, divergência 9). A máquina de estados e o `servico_indisponivel` absorvem isso. Reconferir a referência antes de cada demanda de coletor.
+- **R-3. Recomendações sobre bibliotecas sem prova no projeto.** Fastify e Kysely não foram usados aqui. A primeira demanda de backend confirma com um teste o isolamento por linha e o `numeric` como texto. Se falhar, as segundas opções registradas (Drizzle e, para a autenticação, a B da AD-12) entram sem nova demanda de arquitetura, só com registro no histórico (seção 13).
+- **R-4. Custo sem fonte.** A escolha do provedor pode ficar para depois da PD-1, sem travar a primeira demanda de backend, que roda local.
+- **R-5. Sobreposição com a 033.** A 033 tem a carteira do contador. A AD-6 garante que o modelo a aceita; papéis e permissões continuam com a demanda de login.
+- **R-6. Visão de produto.** O passo 4 de [`produto/visao.md`](../produto/visao.md) ("Primeira versão do painel") pode ser lido como a 030. O `PROJECT_CONTEXT.md` esclarece que a 030 é ferramenta interna; ajustar a visão fica para o responsável.
 
 ## 13. Histórico de decisões
 
