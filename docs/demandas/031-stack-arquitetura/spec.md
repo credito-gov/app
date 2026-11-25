@@ -1,6 +1,7 @@
 # 031-stack-arquitetura — Spec
 
-- **Status:** spec-em-revisão
+- **Status:** spec-aprovada
+- **Spec aprovada:** 2026-11-25, pelo responsável ("Aprovo todas"), com as recomendações das AD-1 a AD-14; na AD-7, o provedor fica pendente da PD-1
 - **US:** [`us.md`](us.md), aprovada em 2026-11-25 com as recomendações de P-1 a P-4
 
 Esta demanda só produz documentação. A Spec traz cada decisão já pronta para a escolha do responsável (P-1): problema, critérios, alternativas com prós e contras, recomendação e o campo **Escolha do responsável**. Ao aprovar a Spec, o responsável preenche (ou confirma) a escolha de cada decisão. O Developer transcreve as escolhas para o documento de arquitetura e faz as atualizações em `PROJECT_CONTEXT.md` e `hipoteses.md`.
@@ -110,7 +111,7 @@ O formato é o mesmo em todas. **Escolha do responsável** fica em branco até a
 
 **Descartada:** B, porque obrigaria a reescrever código já validado contra arquivos reais.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, Node 24 + TypeScript. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-2 — Organização em aplicações e framework HTTP (CA-5, CA-6)
 
@@ -138,7 +139,7 @@ O formato é o mesmo em todas. **Escolha do responsável** fica em branco até a
 - NestJS: estrutura demais para o tamanho do time;
 - `node:http` puro: segurança e sessão escritas à mão.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** `app/backend` (api + coletor) e `app/web`, com Fastify na API. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-3 — Aplicação web do produto (CA-5; P-2)
 
@@ -167,7 +168,7 @@ O formato é o mesmo em todas. **Escolha do responsável** fica em branco até a
 - C: não atende a interação da 033;
 - D: Redux sem necessidade; shadcn/ui é decisão da 032.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, React 19 + Vite + TypeScript, página única consumindo a API. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-4 — Banco de dados (CA-7, CA-8)
 
@@ -188,7 +189,7 @@ O formato é o mesmo em todas. **Escolha do responsável** fica em branco até a
 - B: perde a segunda barreira de isolamento (AD-6);
 - C: o arquivo bruto não precisa estar no banco.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, PostgreSQL. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-5 — Acesso a dados (CA-5, CA-7)
 
@@ -217,7 +218,7 @@ O formato é o mesmo em todas. **Escolha do responsável** fica em branco até a
 - Prisma: conversão de decimal e SQL cru para o isolamento;
 - Drizzle: alternativa aceitável, segunda opção.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** Kysely (segunda opção registrada: Drizzle). Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-6 — Separação dos dados por empresa (CA-9, CA-10; SaaS multi-inquilino)
 
@@ -243,7 +244,7 @@ O formato é o mesmo em todas. **Escolha do responsável** fica em branco até a
 - B e C: custo e operação crescem com cada cliente, e a carteira fica difícil;
 - instalação por cliente: fora do modelo SaaS.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, tabelas compartilhadas com o identificador da empresa + segurança por linha do PostgreSQL. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-7 — Hospedagem (CA-8; SaaS multi-inquilino)
 
@@ -275,7 +276,7 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 - B: guarda de chaves e região incertas;
 - C: operação demais para a equipe.
 
-**Escolha do responsável:** tipo ______; provedor ______ (ou "depois da PD-1") (data: ______)
+**Escolha do responsável:** tipo A, nuvem grande com serviços gerenciados; provedor (AWS, Google Cloud ou Azure) pendente da PD-1. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-8 — Guarda do arquivo bruto e reconstrução (CA-11, CA-23)
 
@@ -298,7 +299,7 @@ A região no Brasil é critério de latência e de cuidado com dados. Se a lei e
 - B: o tamanho dos arquivos e a perda da forma original dos números;
 - C: o arquivo se perde junto com o servidor.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, armazenamento de objetos imutável + metadados em `arquivo_bruto`. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-9 — Coletor agendado (CA-12 a CA-15)
 
@@ -357,7 +358,7 @@ O canal (email ou outro) e o texto ficam para a demanda que implementar o coleto
 - B: peças demais e acoplamento ao provedor;
 - C: retentativa automática pode gastar o limite da Receita.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, processo coletor contínuo com fila e máquina de estados no PostgreSQL. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-10 — Guarda e ciclo da credencial da Receita (CA-16, CA-17, CA-21a)
 
@@ -409,7 +410,7 @@ O registro é imutável e não guarda segredo. **Não é verificação de procur
 - B: custo e administração por segredo;
 - C: a chave fica junto da aplicação.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, cifra de envelope com KMS. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-11 — Cenários de acesso: A como base, B como contingência (CA-18 a CA-21)
 
@@ -446,7 +447,7 @@ O registro é imutável e não guarda segredo. **Não é verificação de procur
 - B: migração futura;
 - C: desenha sem fonte e contra a decisão do responsável.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, construir só o cenário A, com o modelo aceitando o B. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-12 — Onde fica a autenticação (CA-22, CA-22a; P-3)
 
@@ -481,7 +482,7 @@ O registro é imutável e não guarda segredo. **Não é verificação de procur
 - B: custo sem fonte, dependência do fornecedor e o gov.br incerto;
 - C: operação demais para o tamanho atual.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, autenticação própria no backend com a entidade `identidade` (segunda opção registrada: B). Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-13 — Valores monetários (CA-7)
 
@@ -498,7 +499,7 @@ O registro é imutável e não guarda segredo. **Não é verificação de procur
 
 **Descartada:** B, pelas conversões em toda entrada e saída.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, `numeric` com 2 casas e texto decimal em toda a cadeia. Responsável, 2026-11-25 ("Aprovo todas")
 
 ### AD-14 — Destino de `app/apuracao-cbs` e `app/painel` (CA-6, CA-27)
 
@@ -541,7 +542,7 @@ A unificação em pacote compartilhado vira item de backlog.
 - B: fora de escopo agora;
 - C: contraria a decisão de 2026-11-25.
 
-**Escolha do responsável:** ______ (data: ______)
+**Escolha do responsável:** A, as duas aplicações como ferramentas internas e cópia revisada do leitor no `app/backend`. Responsável, 2026-11-25 ("Aprovo todas")
 
 ---
 
