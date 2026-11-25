@@ -22,6 +22,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 | 029 | [poc-api-apuracao-cbs](029-poc-api-apuracao-cbs/us.md) | Prova de conceito da API de apuração da CBS | concluída | [credito-gov/app#29](https://github.com/credito-gov/app/pull/29) |
 | 030 | [painel-primeira-versao](030-painel-primeira-versao/us.md) | Primeira versão do painel: saldo, origem e pendências | concluída | [credito-gov/app#31](https://github.com/credito-gov/app/pull/31) |
 | 031 | [stack-arquitetura](031-stack-arquitetura/us.md) | Stack e arquitetura do produto | em-implementação | `feat/031-stack-arquitetura` |
+| 032 | [design-system-produto](032-design-system-produto/us.md) | Design system do produto | concluída | [credito-gov/app#33](https://github.com/credito-gov/app/pull/33) |
 
 ## Backlog
 
@@ -31,7 +32,6 @@ Sem número: o número é reservado quando a demanda começa. Em ordem sugerida.
 |---|---|---|
 | Publicação da landing: decidir como o site vai ao ar, já que o Vercel recusa o repositório (plano pago, outro provedor ou conta pessoal) | Funcionalidade | Decisão do responsável |
 | CI da landing: lint e build em cada PR | Funcionalidade | — |
-| Atualizar o design system para o tema escuro do redesign | Documentação | — |
 
 ## Fora do repositório, mas travando o backlog
 

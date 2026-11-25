@@ -30,6 +30,7 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 | Publicação da landing | <https://credito-gov.vercel.app/> mostra a versão clara antiga. O Vercel recusa publicar a partir do repositório (organização privada no plano gratuito), então o redesign **não está no ar** |
 | Prova de conceito da API de apuração da CBS (`app/apuracao-cbs`) | Demanda 029. Aplicação de linha de comando, só leitura, com as quatro consultas; implementada e testada com respostas simuladas. **Chamada real feita em 2026-11-24:** o ciclo funcionou para créditos e débitos, que vieram vazios; recolhimentos e pagamentos responderam HTTP 404. Não é o backend do produto |
 | Painel local (`app/painel`) | Demanda 030. Web local, sem login, em Node/TypeScript: lê a pasta de arquivos que a `apuracao-cbs` baixa e mostra saldo de crédito (quatro totais separados), débitos à parte, lista de créditos, detalhe da nota, pendências por emitente e a lista de arquivos. Só CBS. Testado com arquivos fictícios; não chama a API. Aceita, com marca, o `ni` de 14 dígitos que os arquivos reais trazem e o schema 1.0.0 não aceita. **Ferramenta interna de validação dos dados, não a primeira versão do produto para o usuário final;** o dashboard do usuário será feito do zero (demanda 031) |
+| Design system do produto (`docs/design/`) | Demanda 032. Aprovado pelo responsável em 2026-11-25: tokens (tema claro principal e escuro), componentes e telas de login, dashboard e carteira do contador, com dados fictícios. Registro em [`design/`](design/README.md), sem código de aplicação; a stack é da demanda 031 |
 | Backend, banco, autenticação | **Arquitetura decidida (demanda 031, [`arquitetura/README.md`](arquitetura/README.md)); nada construído.** As tasks 001–005 foram escritas e estão suspensas (ver §5) |
 | Validação de mercado (entrevistas, contadores, tributarista) | Sem registro no repositório |
 
@@ -42,12 +43,16 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 | 2026-08-12 | Escopo só CBS/IBS; tributos antigos fora |
 | 2026-08-12 | O produto é gestão do crédito como caixa, não cálculo de imposto |
 | 2026-08-25 | Omie descartado como canal de distribuição e como forma de login |
-| 2026-08-25 | Autenticação própria da plataforma (email + senha), sem credencial de ERP |
+| 2026-08-25 | Autenticação própria da plataforma (email + senha), sem credencial de ERP. **Revista em 2026-11-25:** o login passa a aceitar também provedor externo (ver abaixo) |
 | 2026-08-26 | Venda direta (SaaS), com escritórios de contabilidade como canal comercial principal |
 | 2026-08-26 | Antecipação com fintech/FIDC fica para depois de haver base de clientes |
 | 2026-11-23 | Fonte de dados dos créditos rebaixada de premissa para **hipótese em aberto** (ver §5) |
 | 2026-11-23 | Fonte de dados **confirmada para a CBS**: APIs de apuração da CBS da Receita Federal. Produto começa só com CBS |
 | 2026-11-23 | Fluxo de trabalho passa a ser por demandas (US → Spec → Tasks) com subagentes; o modelo de tasks + walkthrough fica congelado |
+| 2026-11-25 | Design do produto (demanda 032): tema claro é o principal, com o escuro disponível, mesmos nomes de token nos dois |
+| 2026-11-25 | Design do produto (demanda 032): paleta tirada do logo (verde e azul-marinho de `docs/design/assets/`) |
+| 2026-11-25 | Design do produto (demanda 032): navegação por menu no topo, sem barra lateral |
+| 2026-11-25 | Design do produto (demanda 032): login com provedor externo (Google e Microsoft propostos), além de e-mail e senha. **Revê a decisão de 2026-08-25** de autenticação própria só com e-mail e senha. Continua sem credencial de ERP ou da Receita no login. Provedores finais e impacto na arquitetura ficam para a demanda 031 |
 | 2026-11-25 | Demanda 031: o CreditoGov é **SaaS multi-inquilino**, uma instalação única operada por nós. Sem instalação por cliente nem on-premise |
 | 2026-11-25 | Demanda 031: o acesso a cada CNPJ é decidido pela Receita, pela credencial do gov.br. O CreditoGov não verifica representação nem procuração; só registra quem entregou cada credencial |
 | 2026-11-25 | Demanda 031: cada cliente informa a própria credencial da Receita (cenário A, a base). Credencial de procurador para vários CNPJs (cenário B) é contingência, sem fonte |
@@ -255,4 +260,5 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | 2026-11-24 | Demanda 029: criada `app/apuracao-cbs`, prova de conceito de linha de comando da API de apuração da CBS (quatro consultas, só leitura). Chamada real pendente. A stack do painel continua não decidida |
 | 2026-11-24 | Chamada real da prova de conceito (demanda 029): ciclo comprovado para créditos e débitos, sem dados no retorno; recolhimentos e pagamentos indisponíveis (HTTP 404); não há URL separada de produção restrita |
 | 2026-11-24 | Demanda 030: criado `app/painel`, painel local sem login que lê os arquivos da `apuracao-cbs` (saldo em quatro totais separados, débitos à parte, lista de créditos, detalhe, pendências por emitente, arquivos). Segunda chamada real (outra credencial) trouxe dados: o `ni` vem com 14 dígitos e o schema 1.0.0 exige 8, tratado no painel como divergência conhecida. Leiaute da chave dos documentos fiscais registrado em `referencias/documentos-fiscais/`. Stack do painel local: Node/TypeScript com HTML no servidor |
+| 2026-11-25 | Demanda 032: design system do produto aprovado e registrado em `docs/design/` (tokens claro e escuro, componentes, telas de login, dashboard e carteira do contador, com dados fictícios). Login com provedor externo revê a decisão de autenticação de 2026-08-25. O wireframe da concepção fica superado |
 | 2026-11-25 | Demanda 031: arquitetura do produto decidida em `docs/arquitetura/` (AD-1 a AD-14; nada construído). SaaS multi-inquilino; cada cliente informa a própria credencial da Receita; login federado não bloqueado; `app/painel` é ferramenta interna. Stack do backend e hospedagem resolvidas em `hipoteses.md`, com o provedor pendente da PD-1 |
