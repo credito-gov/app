@@ -29,9 +29,9 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 | Landing page (`app/landing-page`) | Redesign escuro concluído e na `main` (tasks 015–027, PR #10). Texto em postura de pré-lançamento desde a demanda 028: diz que o produto está em desenvolvimento e convida para a lista de espera, sem números, depoimentos ou promessas sem base. |
 | Publicação da landing | <https://credito-gov.vercel.app/> mostra a versão clara antiga. O Vercel recusa publicar a partir do repositório (organização privada no plano gratuito), então o redesign **não está no ar** |
 | Prova de conceito da API de apuração da CBS (`app/apuracao-cbs`) | Demanda 029. Aplicação de linha de comando, só leitura, com as quatro consultas; implementada e testada com respostas simuladas. **Chamada real feita em 2026-11-24:** o ciclo funcionou para créditos e débitos, que vieram vazios; recolhimentos e pagamentos responderam HTTP 404. Não é o backend do produto |
-| Painel local (`app/painel`) | Demanda 030. Web local, sem login, em Node/TypeScript: lê a pasta de arquivos que a `apuracao-cbs` baixa e mostra saldo de crédito (quatro totais separados), débitos à parte, lista de créditos, detalhe da nota, pendências por emitente e a lista de arquivos. Só CBS. Testado com arquivos fictícios; não chama a API. Aceita, com marca, o `ni` de 14 dígitos que os arquivos reais trazem e o schema 1.0.0 não aceita |
+| Painel local (`app/painel`) | Demanda 030. Web local, sem login, em Node/TypeScript: lê a pasta de arquivos que a `apuracao-cbs` baixa e mostra saldo de crédito (quatro totais separados), débitos à parte, lista de créditos, detalhe da nota, pendências por emitente e a lista de arquivos. Só CBS. Testado com arquivos fictícios; não chama a API. Aceita, com marca, o `ni` de 14 dígitos que os arquivos reais trazem e o schema 1.0.0 não aceita. **Ferramenta interna de validação dos dados, não a primeira versão do produto para o usuário final;** o dashboard do usuário será feito do zero (demanda 033) |
 | Design system do produto (`docs/design/`) | Demanda 032. Aprovado pelo responsável em 2026-11-25: tokens (tema claro principal e escuro), componentes e telas de login, dashboard e carteira do contador, com dados fictícios. Registro em [`design/`](design/README.md), sem código de aplicação; a stack é da demanda 031 |
-| Backend, banco, autenticação | **Não iniciados.** As tasks 001–005 foram escritas e estão suspensas (ver §5). O painel com login e banco continua em aberto |
+| Backend, banco, autenticação | **Arquitetura decidida (demanda 031, [`arquitetura/README.md`](arquitetura/README.md)); nada construído.** As tasks 001–005 foram escritas e estão suspensas (ver §5) |
 | Validação de mercado (entrevistas, contadores, tributarista) | Sem registro no repositório |
 
 ---
@@ -53,6 +53,13 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 | 2026-11-25 | Design do produto (demanda 032): paleta tirada do logo (verde e azul-marinho de `docs/design/assets/`) |
 | 2026-11-25 | Design do produto (demanda 032): navegação por menu no topo, sem barra lateral |
 | 2026-11-25 | Design do produto (demanda 032): login com provedor externo (Google e Microsoft propostos), além de e-mail e senha. **Revê a decisão de 2026-08-25** de autenticação própria só com e-mail e senha. Continua sem credencial de ERP ou da Receita no login. Provedores finais e impacto na arquitetura ficam para a demanda 031 |
+| 2026-11-25 | Demanda 031: o CreditoGov é **SaaS multi-inquilino**, uma instalação única operada por nós. Sem instalação por cliente nem on-premise |
+| 2026-11-25 | Demanda 031: o acesso a cada CNPJ é decidido pela Receita, pela credencial do gov.br. O CreditoGov não verifica representação nem procuração; só registra quem entregou cada credencial |
+| 2026-11-25 | Demanda 031: cada cliente informa a própria credencial da Receita (cenário A, a base). Credencial de procurador para vários CNPJs (cenário B) é contingência, sem fonte |
+| 2026-11-25 | Demanda 031: email e senha continuam a base do login e a arquitetura não bloqueia login federado (Google, Apple, Microsoft e gov.br). A lista final de provedores e quando entram é da demanda de login; complementa a decisão de login da 032, sem revogá-la |
+| 2026-11-25 | Demanda 031: integração com ERP não é o modelo; o ERP é, no máximo, uma possível fonte de dados |
+| 2026-11-25 | Demanda 031: `app/painel` é ferramenta interna de validação dos dados, não a primeira versão do produto; o dashboard do usuário é feito do zero |
+| 2026-11-25 | Demanda 031: AD-1 a AD-14 em [`arquitetura/README.md`](arquitetura/README.md). Node 24 + TypeScript (AD-1); `app/backend` (api + coletor) e `app/web`, Fastify (AD-2); React 19 + Vite, página única (AD-3); PostgreSQL (AD-4); Kysely (AD-5); tabelas compartilhadas com segurança por linha (AD-6); nuvem gerenciada, provedor pendente da PD-1 (AD-7); arquivo bruto imutável em armazenamento de objetos (AD-8); coletor contínuo com fila no banco (AD-9); cifra de envelope com KMS para a credencial (AD-10); cenário A construído, modelo aceita o B (AD-11); autenticação própria com entidade `identidade` (AD-12); decimal exato do banco à tela (AD-13); PoC e painel seguem como ferramentas, leitor copiado (AD-14) |
 
 ---
 
@@ -100,9 +107,29 @@ npm run gerar-ficticios
 npm start -- [--pasta <caminho>] [--porta <n>]   # http://127.0.0.1:5180/, fictícios por padrão
 ```
 
-### Backend e painel com login — proposta, não confirmada
+### Produto (backend, coletor e aplicação web) — decidido, não construído
 
-A concepção propôs Node.js + Express + TypeORM + PostgreSQL no backend e React + Redux Toolkit + shadcn/ui no painel. Nada disso foi construído; o painel local acima não decide a stack do produto com backend. A stack será confirmada na Spec da primeira demanda de backend, depois de resolvida a fonte de dados. O desenho antigo está em [`historico/2026-08-concepcao/05_ARQUITETURA_TECNICA.md`](historico/2026-08-concepcao/05_ARQUITETURA_TECNICA.md) e **não deve ser seguido como especificação**.
+Decidido em 2026-11-25 (demanda 031); nada foi construído. Detalhes, alternativas e fontes em [`arquitetura/README.md`](arquitetura/README.md).
+
+- **Backend:** Node 24 + TypeScript, em `app/backend` com dois processos, API (Fastify) e coletor agendado.
+- **Web:** `app/web`, React 19 + Vite + TypeScript, página única que consome a API.
+- **Dados:** PostgreSQL com Kysely; tabelas compartilhadas e identificador da empresa, com segurança por linha; valores em `numeric` e texto decimal, nunca `number`.
+- **Arquivos brutos:** armazenamento de objetos imutável, com a leitura reconstruível.
+- **Credencial da Receita:** cifra de envelope com KMS; cada cliente informa a sua.
+- **Autenticação:** própria no backend, com a entidade `identidade` pronta para login federado.
+- **Hospedagem:** nuvem gerenciada; o provedor depende da PD-1 (preço com fonte).
+
+A proposta da concepção (Node.js + Express + TypeORM + PostgreSQL no backend; React + Redux Toolkit + shadcn/ui no painel), item a item:
+
+| Item | Situação |
+|---|---|
+| Node.js, PostgreSQL, React | Confirmados |
+| Express | Descartado (AD-2): Fastify, que valida com o `ajv` que o projeto já usa |
+| TypeORM | Descartado (AD-5): Kysely, com SQL explícito para o isolamento por linha |
+| Redux Toolkit | Descartado (AD-3): o estado é dado da API, em cache por empresa |
+| shadcn/ui | Fora desta decisão: biblioteca visual é da demanda 032 |
+
+O desenho antigo está em [`historico/2026-08-concepcao/05_ARQUITETURA_TECNICA.md`](historico/2026-08-concepcao/05_ARQUITETURA_TECNICA.md) e **não deve ser seguido como especificação**.
 
 ---
 
@@ -111,7 +138,7 @@ A concepção propôs Node.js + Express + TypeORM + PostgreSQL no backend e Reac
 Lista completa em [`produto/hipoteses.md`](produto/hipoteses.md). As que travam desenvolvimento:
 
 - **Fonte de dados: resolvida para a CBS.** A Receita publica as APIs de apuração da CBS (créditos, débitos e pagamentos por CNPJ, com OAuth2). Ver [`referencias/apuracao-cbs/`](referencias/apuracao-cbs/README.md). A API **não** é a Plataforma de Split Payment, que liga PSPs ao governo. Os endpoints e tabelas da concepção continuam errados e não devem ser seguidos.
-- **Acesso em nome de vários clientes (bloqueia o cadastro de clientes).** A credencial é gerada pelo titular do CNPJ ou por procurador digital; o modelo para um software consultar por muitos contribuintes não está documentado.
+- **Acesso em nome de vários clientes (risco operacional, não bloqueia o cadastro).** Cada cliente informa a própria credencial (cenário A, a base, decidido em 2026-11-25). O risco é operacional: quantas credenciais existem e como o limite de 4 chamadas vale para cada uma. O modelo para uma credencial de procurador cobrir vários CNPJs (cenário B) não está documentado. Ver [`arquitetura/README.md`](arquitetura/README.md), seção 7, e as perguntas em [`produto/hipoteses.md`](produto/hipoteses.md).
 - **IBS.** A API cobre só CBS.
 - **Compensar e antecipar pelo painel.** A API permite gerar a guia de recolhimento pelo adquirente (RAD); não há serviço para disparar compensação. A antecipação depende de parceiro e de entendimento jurídico sobre cessão desse crédito.
 - **Preço e comissão do contador** (R$ 100/mês e 15–20% são hipóteses da concepção).
@@ -158,6 +185,7 @@ credito-gov/
     ├── PROJECT_CONTEXT.md     # este arquivo
     ├── README.md              # índice da documentação
     ├── produto/               # visão, hipóteses, reforma tributária
+    ├── arquitetura/           # arquitetura do produto: decisões AD-N (stack, dados, coleta, credencial, autenticação)
     ├── design/                # design system, wireframes, marca
     ├── referencias/           # material oficial de terceiros (Split Payment, API de apuração da CBS, documentos fiscais)
     ├── demandas/              # kanban, templates e uma pasta por demanda
@@ -211,6 +239,7 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | APIs de apuração da CBS | [`referencias/apuracao-cbs/`](referencias/apuracao-cbs/README.md) |
 | Manuais do Split Payment | [`referencias/split-payment/`](referencias/split-payment/README.md) |
 | Leiaute da chave dos documentos fiscais | [`referencias/documentos-fiscais/`](referencias/documentos-fiscais/README.md) |
+| Arquitetura do produto | [`arquitetura/`](arquitetura/README.md) |
 | Design system e wireframes | [`design/`](design/README.md) |
 | Kanban de demandas | [`demandas/README.md`](demandas/README.md) |
 | Tasks do modelo antigo | [`tasks/README.md`](tasks/README.md) |
@@ -232,3 +261,4 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | 2026-11-24 | Chamada real da prova de conceito (demanda 029): ciclo comprovado para créditos e débitos, sem dados no retorno; recolhimentos e pagamentos indisponíveis (HTTP 404); não há URL separada de produção restrita |
 | 2026-11-24 | Demanda 030: criado `app/painel`, painel local sem login que lê os arquivos da `apuracao-cbs` (saldo em quatro totais separados, débitos à parte, lista de créditos, detalhe, pendências por emitente, arquivos). Segunda chamada real (outra credencial) trouxe dados: o `ni` vem com 14 dígitos e o schema 1.0.0 exige 8, tratado no painel como divergência conhecida. Leiaute da chave dos documentos fiscais registrado em `referencias/documentos-fiscais/`. Stack do painel local: Node/TypeScript com HTML no servidor |
 | 2026-11-25 | Demanda 032: design system do produto aprovado e registrado em `docs/design/` (tokens claro e escuro, componentes, telas de login, dashboard e carteira do contador, com dados fictícios). Login com provedor externo revê a decisão de autenticação de 2026-08-25. O wireframe da concepção fica superado |
+| 2026-11-25 | Demanda 031: arquitetura do produto decidida em `docs/arquitetura/` (AD-1 a AD-14; nada construído). SaaS multi-inquilino; cada cliente informa a própria credencial da Receita; login federado não bloqueado; `app/painel` é ferramenta interna. Stack do backend e hospedagem resolvidas em `hipoteses.md`, com o provedor pendente da PD-1 |
