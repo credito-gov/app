@@ -21,7 +21,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 | 028 | [revisao-texto-landing](028-revisao-texto-landing/us.md) | Revisar o texto da landing para o pré-lançamento | concluída | [credito-gov/app#27](https://github.com/credito-gov/app/pull/27) |
 | 029 | [poc-api-apuracao-cbs](029-poc-api-apuracao-cbs/us.md) | Prova de conceito da API de apuração da CBS | concluída | [credito-gov/app#29](https://github.com/credito-gov/app/pull/29) |
 | 030 | [painel-primeira-versao](030-painel-primeira-versao/us.md) | Primeira versão do painel: saldo, origem e pendências | concluída | [credito-gov/app#31](https://github.com/credito-gov/app/pull/31) |
-| 031 | [stack-arquitetura](031-stack-arquitetura/us.md) | Stack e arquitetura do produto | em-review | [credito-gov/app#35](https://github.com/credito-gov/app/pull/35) |
+| 031 | [stack-arquitetura](031-stack-arquitetura/us.md) | Stack e arquitetura do produto | concluída | [credito-gov/app#35](https://github.com/credito-gov/app/pull/35) |
 | 032 | [design-system-produto](032-design-system-produto/us.md) | Design system do produto | concluída | [credito-gov/app#33](https://github.com/credito-gov/app/pull/33) |
 
 ## Backlog

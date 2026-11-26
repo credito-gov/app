@@ -1,6 +1,6 @@
 # 031-stack-arquitetura — Stack e arquitetura do produto
 
-- **Status:** em-review
+- **Status:** concluída
 - **Tasks aprovadas:** 2026-11-25, pelo responsável ("Aprovo as Tasks"), sobre o commit `d7168c6`
 - **Spec aprovada:** 2026-11-25, pelo responsável ("Aprovo todas"), com as recomendações das AD-1 a AD-14; na AD-7, o provedor fica pendente da PD-1
 - **US aprovada:** 2026-11-25, pelo responsável ("Aprovo a US"), sobre a versão do commit `88ecfd1`, com as recomendações de P-1 a P-4
