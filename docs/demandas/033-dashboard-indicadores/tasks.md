@@ -1,6 +1,6 @@
 # 033-dashboard-indicadores — Tasks
 
-- **Status:** tasks-em-revisão
+- **Status:** tasks-aprovada
 - **Spec:** [`spec.md`](spec.md), aprovada em 2026-11-27 com as recomendações de P-S1 a P-S5
 - **US:** [`us.md`](us.md), aprovada em 2026-11-25
 
@@ -528,3 +528,5 @@ Preenchida pelo Developer na task 1.
 | Item da Spec | Nome esperado | Nome e arquivo reais | Bate? |
 |---|---|---|---|
 | | | | |
+
+**Aprovação (2026-11-27):** o responsável aprovou as Tasks com a recomendação de P-T1 (o papel aparece como texto secundário abaixo do nome na linha da carteira). A implementação espera a 034 na `main`.
