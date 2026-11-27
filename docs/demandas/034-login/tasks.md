@@ -1,6 +1,6 @@
 # 034-login — Tasks
 
-- **Status:** tasks-em-revisão
+- **Status:** em-implementação
 - **Spec:** [`spec.md`](spec.md), aprovada em 2026-11-27 ("Aprovo") sobre o commit `9c72e76`, com DT-1 a DT-12, P-S1 e P-S2
 
 Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da Spec, os CA que atende e como é verificada. A referência é a Spec aprovada; se esta lista divergir dela, vale a Spec, e a divergência volta para a sessão principal.
