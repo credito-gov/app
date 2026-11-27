@@ -1,6 +1,6 @@
 # 034-login — Login por e-mail e senha, convite e acesso por empresa
 
-- **Status:** us-aprovada
+- **Status:** spec-em-revisão
 - **US aprovada:** 2026-11-27, pelo responsável ("Aceito todas"), sobre o commit `1d2a25c`, com as recomendações de P-1 a P-13
 - **Tipo:** funcionalidade (primeira com código de produto: `app/backend` e `app/web`)
 - **Branch:** `feat/034-login`
