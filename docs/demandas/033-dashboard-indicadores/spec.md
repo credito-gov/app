@@ -1,6 +1,6 @@
 # 033-dashboard-indicadores — Spec
 
-- **Status:** spec-em-revisão
+- **Status:** spec-aprovada
 - **US:** [`us.md`](us.md), aprovada em 2026-11-25 com as recomendações de P-1 a P-9
 - **Base:** [`../../arquitetura/README.md`](../../arquitetura/README.md) (AD-1 a AD-14), [`../../design/design-system.md`](../../design/design-system.md) e a Spec aprovada da demanda 034 (login), que está no worktree `.claude/worktrees/034-login` e ainda não tem código na `main`
 
@@ -524,3 +524,5 @@ Para o responsável, na aprovação desta Spec:
 - **P-S5 (produto): quem vê a carteira.** Todo usuário com mais de uma empresa, ou só quem tem papel `contador` em alguma delas? Recomendação: todos, porque a 034 decidiu que os três papéis veem os mesmos dados, e um titular de duas empresas também precisa escolher entre elas (DT-9).
 
 Continuam abertas para o tributarista, sem bloquear a Spec, com as recomendações aprovadas na US: P-1 (qual valor é o crédito utilizável), P-2 (saldo líquido), P-3 (quando o a apropriar passa a apropriado) e P-4 (significado do saldo credor e do pedido de ressarcimento). As respostas vão para `docs/produto/hipoteses.md`. Nenhuma regra de CBS/IBS nova foi escrita nesta Spec.
+
+**Aprovação (2026-11-27):** o responsável aprovou a Spec com as recomendações de P-S1 a P-S5. P-S3 segue com os valores provisórios (5 emitentes, textos desta Spec, evolução em tabela) até a transcrição das telas da 032.

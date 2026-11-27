@@ -1,6 +1,6 @@
 # 033-dashboard-indicadores — Primeiro dashboard do usuário final: indicadores do crédito de CBS
 
-- **Status:** spec-em-revisão
+- **Status:** spec-aprovada
 - **Branch:** `feat/033-dashboard-indicadores`
 - **Worktree:** `.claude/worktrees/033-dashboard-indicadores`
 - **Solicitante / data:** responsável pelo produto, 2026-11-25
