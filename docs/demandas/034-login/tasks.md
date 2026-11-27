@@ -31,7 +31,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 5 | `globalSetup` do banco de teste e testes de isolamento, catálogo e `numeric` | Banco; Estratégia › Banco de teste; R-3 | CA-2, CA-35 a CA-38 | falham (não há migração) | ☐ |
 | 6 | Migração `0001`, `npm run migrar` e `banco/transacao.ts` | Banco › Migrações; Modelo de dados; Transação com empresa fixada; DT-5 | idem 5 | testes da task 5 passam | ☐ |
 | 7 | Testes de senha e tokens | API › Senha; Tokens; DT-3, DT-8 | CA-14, CA-19 | falham | ☑ |
-| 8 | Implementar `senha.ts`, `senhasComuns.ts` e `tokens.ts` | idem 7 | idem 7 | testes da task 7 passam | ☐ |
+| 8 | Implementar `senha.ts`, `senhasComuns.ts` e `tokens.ts` | idem 7 | idem 7 | testes da task 7 passam | ☑ |
 | 9 | Testes do limite de tentativas | API › Limite de tentativas; DT-9 | CA-17, CA-26 | falham | ☐ |
 | 10 | Implementar `limite.ts` | idem 9 | idem 9 | testes da task 9 passam | ☐ |
 | 11 | Testes do e-mail (adaptadores e modelos) | API › E-mail | CA-27, CA-28 | falham | ☑ |
