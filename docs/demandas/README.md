@@ -23,7 +23,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 | 030 | [painel-primeira-versao](030-painel-primeira-versao/us.md) | Primeira versão do painel: saldo, origem e pendências | concluída | [credito-gov/app#31](https://github.com/credito-gov/app/pull/31) |
 | 031 | [stack-arquitetura](031-stack-arquitetura/us.md) | Stack e arquitetura do produto | concluída | [credito-gov/app#35](https://github.com/credito-gov/app/pull/35) |
 | 032 | [design-system-produto](032-design-system-produto/us.md) | Design system do produto | concluída | [credito-gov/app#33](https://github.com/credito-gov/app/pull/33) |
-| 033 | [dashboard-indicadores](033-dashboard-indicadores/us.md) | Primeiro dashboard do usuário final: indicadores do crédito de CBS | spec-aprovada | `feat/033-dashboard-indicadores` |
+| 033 | [dashboard-indicadores](033-dashboard-indicadores/us.md) | Primeiro dashboard do usuário final: indicadores do crédito de CBS | tasks-em-revisão | `feat/033-dashboard-indicadores` |
 
 ## Backlog
 
