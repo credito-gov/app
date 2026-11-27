@@ -24,7 +24,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 
 | # | Task | Spec | CA | Verificação | Status |
 |---|---|---|---|---|---|
-| 1 | Estrutura do `app/backend` | Abordagem; API › Estrutura; Implantação | CA-1, CA-3, CA-4 | `npm install`; `npm test` (1 teste passa); lint; build; `git check-ignore` | ☐ |
+| 1 | Estrutura do `app/backend` | Abordagem; API › Estrutura; Implantação | CA-1, CA-3, CA-4 | `npm install`; `npm test` (1 teste passa); lint; build; `git check-ignore` | ☑ |
 | 2 | Docker Compose, papéis e scripts `banco:*` | Banco › Docker Compose e papéis; DT-12 | CA-2, CA-3 | `npm run banco:subir`; atributos dos papéis conferidos | ☐ |
 | 3 | Testes de `config.ts` | API › Estrutura; E-mail | CA-4, CA-27 | falham | ☐ |
 | 4 | Implementar `config.ts` | idem 3 | idem 3 | testes da task 3 passam | ☐ |

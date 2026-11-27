@@ -1,0 +1,31 @@
+{
+  "name": "backend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "oxlint",
+    "test": "vitest run",
+    "dev": "npm run build && node --env-file-if-exists=.env dist/api/main.js",
+    "migrar": "node scripts/naoImplementado.mjs migrar",
+    "admin": "node scripts/naoImplementado.mjs admin"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.1.5",
+    "argon2": "^0.45.2",
+    "fastify": "^5.12.8",
+    "kysely": "^0.29.9",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.4",
+    "@types/pg": "^8.23.1",
+    "oxlint": "^1.95.0",
+    "typescript": "~6.0",
+    "vitest": "^5.1.2"
+  }
+}
