@@ -54,7 +54,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 28 | Testes de `Entrar`, `PainelMarca` e `CampoSenha` | Web › Telas e rotas (`/entrar`, `PainelMarca`, formulário de login) | CA-7, CA-15 a CA-18, CA-20 | falham | ☐ |
 | 29 | Implementar `Entrar`, `PainelMarca`, `CampoSenha` e `Alerta` | idem 28 | idem 28 | testes da task 28 passam | ☑ |
 | 30 | Testes de `EsqueciSenha`, `RedefinirSenha` e `AceitarConvite` | Web › Telas e rotas; API › Tokens (fragmento) | CA-11 a CA-14, CA-23 a CA-25 | falham | ☐ |
-| 31 | Implementar `EsqueciSenha`, `RedefinirSenha` e `AceitarConvite` | idem 30 | idem 30 | testes da task 30 passam | ☐ |
+| 31 | Implementar `EsqueciSenha`, `RedefinirSenha` e `AceitarConvite` | idem 30 | idem 30 | testes da task 30 passam | ☑ |
 | 32 | Testes de `/`, `EscolherEmpresa`, `LayoutEmpresa`, `BarraTopo`, `TrocaEmpresa`, `Inicio` e `Pessoas` | Web › Telas e rotas; O que a 033 consome | CA-8, CA-9, CA-31 a CA-34 | falham | ☐ |
 | 33 | Implementar essas telas e a rota `/` | idem 32 | idem 32 | testes da task 32 passam | ☐ |
 | 34 | Roteiro de conferência no navegador | Estratégia › CA-18; P-9 | CA-18, CA-31, CA-32 | roteiro escrito; conferência feita pelo responsável | ☐ |

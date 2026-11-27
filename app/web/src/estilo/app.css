@@ -10,7 +10,7 @@ html[data-theme="claro"] { --font-sans: "Inter Variable", Inter, ui-sans-serif, 
 .entrar-acesso { margin: 0; color: var(--ink-muted); font-size: 13px; line-height: 20px; }
 
 /* Painel da marca */
-.marca { background: var(--navy-deep); color: var(--on-navy); display: flex; flex-direction: column; justify-content: center; gap: var(--space-6); padding: var(--space-12) var(--space-10); }
+.marca { background: var(--navy-deep); color: var(--on-navy); display: flex; flex-direction: column; justify-content: center; gap: var(--space-6); padding: var(--space-12) var(--space-8); }
 .marca-logo { height: 40px; width: fit-content; background: var(--brand-plate); border-radius: var(--radius-lg); padding: 6px 12px; box-sizing: border-box; }
 .marca-texto { min-height: 120px; }
 .marca-titulo { margin: 0 0 var(--space-3); font-size: 28px; line-height: 36px; font-weight: 800; letter-spacing: -0.02em; }
@@ -36,3 +36,10 @@ html[data-theme="claro"] { --font-sans: "Inter Variable", Inter, ui-sans-serif, 
   .marca-texto { min-height: 0; }
   .marca-cartao { display: none; }
 }
+
+/* Telas simples sem sessao */
+.pagina-cartao { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: var(--space-8) var(--space-6); }
+.pagina-cartao-corpo { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: var(--space-4); }
+.pagina-cartao-corpo .heading { margin: 0; }
+.pagina-cartao-logo { height: 40px; width: fit-content; }
+.pagina-cartao-dados { margin: 0; display: flex; flex-direction: column; gap: var(--space-1); }
