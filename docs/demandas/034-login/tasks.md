@@ -52,7 +52,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 26 | Testes do cliente da API e do `ProvedorSessao` | Web › Cliente da API | CA-18, CA-20 | falham | ☐ |
 | 27 | Implementar `api/cliente.ts` e `sessao/ProvedorSessao.tsx` | idem 26 | idem 26 | testes da task 26 passam | ☑ |
 | 28 | Testes de `Entrar`, `PainelMarca` e `CampoSenha` | Web › Telas e rotas (`/entrar`, `PainelMarca`, formulário de login) | CA-7, CA-15 a CA-18, CA-20 | falham | ☐ |
-| 29 | Implementar `Entrar`, `PainelMarca`, `CampoSenha` e `Alerta` | idem 28 | idem 28 | testes da task 28 passam | ☐ |
+| 29 | Implementar `Entrar`, `PainelMarca`, `CampoSenha` e `Alerta` | idem 28 | idem 28 | testes da task 28 passam | ☑ |
 | 30 | Testes de `EsqueciSenha`, `RedefinirSenha` e `AceitarConvite` | Web › Telas e rotas; API › Tokens (fragmento) | CA-11 a CA-14, CA-23 a CA-25 | falham | ☐ |
 | 31 | Implementar `EsqueciSenha`, `RedefinirSenha` e `AceitarConvite` | idem 30 | idem 30 | testes da task 30 passam | ☐ |
 | 32 | Testes de `/`, `EscolherEmpresa`, `LayoutEmpresa`, `BarraTopo`, `TrocaEmpresa`, `Inicio` e `Pessoas` | Web › Telas e rotas; O que a 033 consome | CA-8, CA-9, CA-31 a CA-34 | falham | ☐ |
