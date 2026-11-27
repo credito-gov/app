@@ -1,6 +1,7 @@
 # 034-login — Login por e-mail e senha, convite e acesso por empresa
 
-- **Status:** us-em-revisão
+- **Status:** us-aprovada
+- **US aprovada:** 2026-11-27, pelo responsável ("Aceito todas"), sobre o commit `1d2a25c`, com as recomendações de P-1 a P-13
 - **Tipo:** funcionalidade (primeira com código de produto: `app/backend` e `app/web`)
 - **Branch:** `feat/034-login`
 - **Worktree:** `.claude/worktrees/034-login`
@@ -34,7 +35,7 @@ Primeira demanda que escreve código do produto. Nenhum backend existe; as tasks
 
 Telas aprovadas: login normal; login com "E-mail ou senha incorretos" (sem dizer qual dos dois, para não revelar se o e-mail tem conta) e botão carregando; login no celular sem conexão ("Sem conexão", "Tentar de novo"); link "Esqueci a senha"; texto "Ainda não tem acesso? Fale com a equipe CreditoGov ou com o seu contador."; painel da marca com três mensagens alternadas. Barra do topo com a empresa em foco, troca de empresa, avatar e saída da sessão. Campos de senha com mostrar/ocultar; erros ligados ao campo por `aria-describedby`.
 
-O design **não** tem telas de aceitar convite, definir senha, redefinir senha, escolher empresa nem convidar pessoas (ver P-9).
+O design **não** tem telas de aceitar convite, definir senha, redefinir senha, escolher empresa nem convidar pessoas. Elas são montadas só com os componentes e tokens do design system, sem nova rodada de design, e o responsável as confere no navegador na revisão (P-9).
 
 ### Decisões do responsável nesta demanda (2026-11-27)
 
@@ -59,25 +60,25 @@ A 034 **não** entrega indicadores, carteira com valores nem dados fiscais.
 
 ## Critérios de aceite
 
-"Usuário" é uma pessoa com conta; "vínculo" liga um usuário a uma empresa com um papel; "convite" é o pedido pendente de vínculo enviado a um e-mail. Prazos e limites marcados com P-N dependem da pergunta correspondente. Todo exemplo, teste e dado de desenvolvimento usa e-mails de domínio reservado para exemplo e CNPJ fictício (como `00.000.000/0001-00` do design), nunca dado real.
+"Usuário" é uma pessoa com conta; "vínculo" liga um usuário a uma empresa com um papel; "convite" é o pedido pendente de vínculo enviado a um e-mail. As respostas de P-1 a P-13 já estão nos critérios. Todo exemplo, teste e dado de desenvolvimento usa e-mails de domínio reservado para exemplo e CNPJ fictício (como `00.000.000/0001-00` do design), nunca dado real.
 
 ### Estrutura e verificação
 
 - **CA-1:** Existem `app/backend` (API em Fastify, TypeScript, Node 24) e `app/web` (React 19 + Vite + TypeScript), cada um com `npm test`, `npm run lint` e `npm run build` passando, e com o comando de teste registrado no `AGENTS.md` e no `PROJECT_CONTEXT.md` §4, como a regra "Testes primeiro" pede para aplicação nova.
 - **CA-2:** O esquema do banco é criado só por migrações versionadas, rodadas com um papel de migração que a API não usa. A API conecta com o papel de trabalho da AD-6 (sem posse das tabelas, sem `BYPASSRLS`, não superusuário).
-- **CA-3:** Os testes rodam sem rede externa, sem `.env` e sem segredo real: o banco de teste é um PostgreSQL local (forma em P-10) e o envio de e-mail é substituído por um adaptador em memória. Nenhum teste depende de provedor de nuvem.
+- **CA-3:** Os testes rodam sem rede externa, sem `.env` e sem segredo real: o banco de teste é um PostgreSQL local, levantado por Docker Compose no repositório, com a versão fixada e escutando só em `127.0.0.1` (P-10) e o envio de e-mail é substituído por um adaptador em memória. Nenhum teste depende de provedor de nuvem.
 - **CA-4:** Segredos e endereços (banco, segredo da sessão, endereço público da web para os links) vêm só de variável de ambiente. O repositório traz um exemplo com os nomes e sem valores; nenhum `.env`, senha, token ou credencial é commitado.
 
 ### Empresa e convite pela equipe CreditoGov
 
-- **CA-5:** A equipe CreditoGov cria uma empresa informando a raiz do CNPJ (8 dígitos) e o nome, pela ação administrativa definida em P-1. Raiz com formato inválido ou já cadastrada é recusada com mensagem que diz o motivo.
-- **CA-6:** Pela mesma ação, a equipe convida uma pessoa para a empresa, por e-mail e com papel titular ou contador. O convite gera um link de uso único, válido pelo prazo de P-5, enviado ao e-mail pelo adaptador de envio (CA-27).
+- **CA-5:** A equipe CreditoGov cria uma empresa informando a raiz do CNPJ (8 dígitos) e o nome, pelo comando administrativo `npm run admin` do `app/backend`, rodado por quem tem acesso ao banco (P-1). Raiz com formato inválido ou já cadastrada é recusada com mensagem que diz o motivo.
+- **CA-6:** Pela mesma ação, a equipe convida uma pessoa para a empresa, por e-mail e com papel titular ou contador. O convite gera um link de uso único, válido por 7 dias (P-5), enviado ao e-mail pelo adaptador de envio (CA-27).
 - **CA-7:** Nenhuma tela ou rota pública cria conta, empresa ou vínculo sem convite. A tela de login não tem "Criar conta"; mantém o texto "Ainda não tem acesso? Fale com a equipe CreditoGov ou com o seu contador."
 
 ### Convite por quem já tem vínculo
 
-- **CA-8:** Um usuário com vínculo ativo numa empresa convida outra pessoa para **essa** empresa, por e-mail, com os papéis que P-2 permitir ao papel dele. Ele não consegue convidar para empresa em que não tem vínculo, nem com papel que P-2 não lhe permita: a API recusa, mesmo com a requisição montada à mão.
-- **CA-9:** Convidar um e-mail que já tem vínculo ativo com a empresa é recusado com mensagem que diz isso a quem convida. Convidar de novo um e-mail com convite pendente para a mesma empresa invalida o link anterior e gera um novo.
+- **CA-8:** Um usuário com vínculo ativo numa empresa convida outra pessoa para **essa** empresa, por e-mail, com os papéis que o papel dele permite (P-2): o titular convida titular, contador e colaborador; o contador convida titular e colaborador; o colaborador não convida. Ele não consegue convidar para empresa em que não tem vínculo, nem com papel que não lhe é permitido: a API recusa, mesmo com a requisição montada à mão.
+- **CA-9:** Convidar um e-mail que já tem vínculo ativo com a empresa é recusado com mensagem que diz isso a quem convida. Fora esse caso, quem convida vê sempre "Convite enviado", tenha ou não o e-mail conta no CreditoGov (P-13). Convidar de novo um e-mail com convite pendente para a mesma empresa invalida o link anterior e gera um novo.
 - **CA-10:** Quem convidou e o momento do convite e da aceitação ficam registrados, sem a senha e sem o link.
 
 ### Aceitar convite e definir senha
@@ -85,42 +86,42 @@ A 034 **não** entrega indicadores, carteira com valores nem dados fiscais.
 - **CA-11:** O convidado sem conta abre o link, vê o nome da empresa e o papel, define a senha (regra de CA-14) e informa o nome. Ao concluir, a conta, a identidade de e-mail e senha e o vínculo são criados, o convite fica usado e ele entra na área logada já com sessão.
 - **CA-12:** O convidado que já tem conta (por exemplo, o contador convidado para mais uma empresa) abre o link, entra com a senha que já tem e, ao aceitar, ganha o vínculo novo, sem definir outra senha. A senha dele não muda.
 - **CA-13:** Link expirado, já usado, invalidado (CA-9) ou adulterado não cria conta nem vínculo; a tela diz que o convite não vale mais e orienta a pedir um novo a quem convidou.
-- **CA-14:** A senha segue a regra de P-4. Senha fora da regra é recusada com mensagem no campo que diz o que falta. A senha é guardada só como hash `argon2id`; nenhuma tabela, log ou resposta guarda ou devolve a senha.
+- **CA-14:** A senha tem de 12 a 128 caracteres, sem exigência de tipos de caractere, e não pode estar na lista de senhas comuns guardada no próprio código, sem consulta a serviço externo (P-4). Senha fora da regra é recusada com mensagem no campo que diz o que falta. A senha é guardada só como hash `argon2id`; nenhuma tabela, log ou resposta guarda ou devolve a senha.
 
 ### Login
 
 - **CA-15:** Com e-mail e senha corretos, o usuário entra e recebe a sessão (CA-19). O e-mail é comparado sem diferenciar maiúsculas e minúsculas e sem espaços nas pontas.
 - **CA-16:** E-mail inexistente, senha errada, ou conta sem identidade de senha recebem a mesma resposta: o mesmo código, o mesmo corpo e a mensagem "E-mail ou senha incorretos". A verificação de hash roda também quando o e-mail não existe, para o tempo de resposta não revelar a diferença (o teste confirma que o caminho do e-mail inexistente executa a verificação).
-- **CA-17:** Tentativas erradas seguidas são limitadas conforme P-6. Enquanto o limite estiver ativo, a resposta não diz se o e-mail existe e não revela a senha certa nem se ela estava certa.
+- **CA-17:** Cinco tentativas erradas em 15 minutos, contadas por e-mail e por endereço de origem, bloqueiam novas tentativas por 15 minutos, com o aviso "Muitas tentativas. Tente de novo em alguns minutos." A contagem fica no banco, para valer com mais de uma instância da API (P-6). Enquanto o limite estiver ativo, a resposta não diz se o e-mail existe e não revela a senha certa nem se ela estava certa.
 - **CA-18:** A tela de login segue o design aprovado, **sem** os botões de Google e Microsoft (D-1): campos de e-mail e senha (com mostrar/ocultar), botão em estado carregando durante o envio, alerta "E-mail ou senha incorretos", alerta "Sem conexão" com "Tentar de novo" quando a API não responde, "Esqueci a senha" e o texto de CA-7. Funciona em largura de celular e de desktop, e o painel da marca respeita `prefers-reduced-motion`.
 
 ### Sessão e logout
 
 - **CA-19:** A sessão é guardada no servidor; o navegador recebe só um identificador aleatório num cookie `HttpOnly`, `Secure` e `SameSite`. O banco guarda o identificador só como hash. O JavaScript da página não lê o cookie.
-- **CA-20:** A sessão expira por inatividade e por tempo máximo, nos prazos de P-3. Sessão expirada não dá acesso; a web leva à tela de login dizendo que a sessão expirou.
+- **CA-20:** A sessão expira por inatividade e por tempo máximo, depois de 2 horas sem uso ou 12 horas depois do login, o que vier antes. Não há "manter conectado" (P-3). Sessão expirada não dá acesso; a web leva à tela de login dizendo que a sessão expirou.
 - **CA-21:** "Sair" encerra a sessão no servidor: o mesmo cookie, reapresentado, não dá mais acesso.
 - **CA-22:** Ao entrar, o identificador de sessão é sempre novo (o anterior, se havia, deixa de valer). Requisições que mudam estado são protegidas contra envio a partir de outro site (a forma fica para a Spec), e o teste mostra a recusa.
 
 ### Recuperação de senha
 
-- **CA-23:** Em "Esqueci a senha", o usuário informa o e-mail e vê sempre a mesma mensagem, exista ou não conta com ele ("Se houver uma conta com esse e-mail, enviaremos um link para criar uma nova senha"). Só quando existe conta com identidade de senha é enviado um link de uso único, válido pelo prazo de P-5.
+- **CA-23:** Em "Esqueci a senha", o usuário informa o e-mail e vê sempre a mesma mensagem, exista ou não conta com ele ("Se houver uma conta com esse e-mail, enviaremos um link para criar uma nova senha"). Só quando existe conta com identidade de senha é enviado um link de uso único, válido por 1 hora (P-5).
 - **CA-24:** Pelo link válido, o usuário define a nova senha (regra de CA-14). Ao concluir, o link fica usado e **todas** as sessões abertas dele são encerradas; ele entra de novo com a senha nova.
 - **CA-25:** Link de recuperação expirado, já usado ou adulterado não troca a senha; a tela diz que o link não vale mais e oferece pedir outro. Pedir um link novo invalida o anterior.
-- **CA-26:** Pedidos de recuperação são limitados conforme P-6, sem que o limite revele se o e-mail existe.
+- **CA-26:** Pedidos de recuperação seguem o mesmo limite de CA-17 (5 em 15 minutos, por e-mail e por origem, bloqueio de 15 minutos), sem que o limite revele se o e-mail existe.
 
 ### Envio de e-mail
 
-- **CA-27:** O envio de e-mail (convite e recuperação) passa por uma interface de envio, sem provedor amarrado. Esta demanda traz dois adaptadores: em memória, para os testes, e local, que grava cada mensagem em arquivo numa pasta ignorada pelo git, para o desenvolvedor abrir o link. Nenhum provedor real é configurado (P-7).
+- **CA-27:** O envio de e-mail (convite e recuperação) passa por uma interface de envio, sem provedor amarrado. Esta demanda traz dois adaptadores: em memória, para os testes, e local, que grava cada mensagem em arquivo numa pasta ignorada pelo git, para o desenvolvedor abrir o link. Nenhum provedor real é configurado (P-7); até ele entrar, convite e recuperação só funcionam no ambiente local.
 - **CA-28:** O texto dos e-mails diz o que é o CreditoGov, quem convidou (no convite), para qual empresa, até quando o link vale e que, se a pessoa não pediu, pode ignorar. Sem promessa, número ou funcionalidade que não exista (`PROJECT_CONTEXT.md` §6).
 
 ### Papéis, empresas do usuário e empresa em foco
 
-- **CA-29:** Cada vínculo tem um papel entre os de P-2. Um usuário pode ter vínculo com várias empresas, e uma empresa com vários usuários.
+- **CA-29:** Cada vínculo tem um papel: `titular`, `contador` ou `colaborador` (P-2). Os três veem os mesmos dados da empresa nesta versão; diferem em convidar (CA-8) e remover vínculo (CA-34). Um usuário pode ter vínculo com várias empresas, e uma empresa com vários usuários.
 - **CA-30:** A API devolve ao usuário logado só as empresas em que ele tem vínculo ativo, com nome, raiz do CNPJ formatada e papel. Nenhuma outra empresa aparece, nem por contagem.
 - **CA-31:** Depois de entrar: com uma empresa, o usuário cai direto nela; com mais de uma, escolhe numa lista (a carteira com valores é da 033); sem nenhuma, vê uma mensagem que diz que ainda não tem acesso a empresa e a quem pedir, sem erro técnico.
 - **CA-32:** A barra do topo mostra a empresa em foco (nome e CNPJ formatado), a troca de empresa (só com mais de uma), o avatar e "Sair", conforme o design. A página inicial é provisória e diz que o painel de créditos ainda não está disponível, sem número nem promessa de data.
 - **CA-33:** Toda requisição da área logada que trata dado de empresa informa a empresa em foco, e a API confere o vínculo ativo antes de qualquer leitura. Para empresa sem vínculo ou inexistente, a resposta é a mesma, sem revelar se a empresa existe.
-- **CA-34:** A remoção de vínculo segue P-8. Vínculo removido deixa de dar acesso à empresa na requisição seguinte, inclusive em sessão já aberta.
+- **CA-34:** Removem vínculo a equipe CreditoGov, pelo `npm run admin`, e o titular, para qualquer vínculo da empresa dele; ninguém remove o último titular ativo de uma empresa (P-8). Contador e colaborador não removem vínculo. Vínculo removido deixa de dar acesso à empresa na requisição seguinte, inclusive em sessão já aberta.
 
 ### Isolamento entre empresas (R-3)
 
@@ -137,17 +138,20 @@ A 034 **não** entrega indicadores, carteira com valores nem dados fiscais.
 ## Fora de escopo
 
 - **Login federado** (Google, Microsoft, Apple, gov.br): demanda própria (D-1). A entidade `identidade` fica pronta, sem integração.
-- **MFA:** fica fora desta demanda. A arquitetura lembra que, com autenticação própria, a equipe responde por ele; vira demanda própria antes de dado real de cliente, se o responsável quiser (ver P-11).
+- **MFA:** fica fora desta demanda. A arquitetura lembra que, com autenticação própria, a equipe responde por ele; vira demanda própria antes de haver dado real de cliente no ar (P-11).
 - Dashboard, indicadores, carteira com valores e qualquer dado fiscal (demanda 033).
-- Coletor, credencial da Receita, consultas e arquivos brutos (demandas de backend seguintes). Por isso a parte do teste de isolamento sobre o **papel de agendamento** do coletor (seção 9, item 3) fica para a demanda do coletor, que cria a tabela `consulta` (ver P-12).
+- Coletor, credencial da Receita, consultas e arquivos brutos (demandas de backend seguintes). Por isso a parte do teste de isolamento sobre o **papel de agendamento** do coletor (seção 9, item 3) fica para a demanda do coletor, que cria a tabela `consulta` (P-12).
 - Cadastro aberto, autocadastro de empresa, cobrança e assinatura.
 - Troca de senha estando logado, troca de e-mail, edição de perfil e exclusão de conta (a recuperação de CA-23 a CA-25 cobre a troca de senha nesta versão).
 - Provedor real de e-mail, domínio de envio, hospedagem, deploy e CI.
-- Permissões por papel além de convidar e remover vínculo (por exemplo, o que cada papel pode ver no dashboard): todos os papéis com vínculo ativo veem os dados da empresa, salvo decisão diferente em P-2.
+- Permissões por papel além de convidar e remover vínculo (por exemplo, o que cada papel pode ver no dashboard): todos os papéis com vínculo ativo veem os dados da empresa (P-2).
 - Agrupar várias raízes de CNPJ num mesmo cliente ("Vários CNPJs por cliente", em aberto em `hipoteses.md`).
-- Telas de administração para a equipe CreditoGov (a ação administrativa de P-1 basta).
+- Telas de administração para a equipe CreditoGov (o `npm run admin` basta, P-1).
 
 ## Perguntas em aberto
+
+Respondidas pelo responsável em 2026-11-27 ("Aceito todas"): valem as recomendações abaixo, já levadas aos critérios.
+
 
 - **P-1 (operação):** Como a equipe CreditoGov cria a empresa e o primeiro convite? Alternativas: (a) comando de linha de comando no `app/backend` (`npm run admin -- ...`), rodado por quem tem acesso ao banco; (b) usuário "equipe" com tela de administração na web; (c) inserção direta no banco. Recomendação: (a), porque não abre nova superfície pública nem exige papel especial na web, e é testável sem rede; a tela de administração vira demanda quando o volume pedir.
 - **P-2 (papéis):** Quais papéis existem e quem convida com qual papel? Alternativas: (a) só `titular` e `contador`; titular convida titular e contador; contador convida titular e contador; (b) acrescentar `colaborador` (funcionário da empresa, por exemplo o financeiro), que vê os dados mas não convida; titular convida qualquer papel, contador convida titular e colaborador, colaborador não convida; (c) papel único, sem diferença. Recomendação: (b), porque a história inclui o "responsável financeiro" que não é titular nem contador, e o colaborador sem poder de convite limita quem espalha acesso; os três veem os mesmos dados nesta versão. Se o responsável preferir começar menor, (a).
