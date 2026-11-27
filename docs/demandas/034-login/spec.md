@@ -1,6 +1,7 @@
 # 034-login — Spec
 
-- **Status:** spec-em-revisão
+- **Status:** spec-aprovada
+- **Spec aprovada:** 2026-11-27, pelo responsável ("Aprovo"), sobre o commit `9c72e76`, com DT-1 a DT-12 e as respostas de P-S1 e P-S2
 - **US:** [`us.md`](us.md), aprovada em 2026-11-27 ("Aceito todas"), com as respostas de P-1 a P-13
 - **Base:** [`../../arquitetura/README.md`](../../arquitetura/README.md) (AD-1 a AD-6, AD-12, seções 8 e 9, R-3) e [`../../design/design-system.md`](../../design/design-system.md)
 
@@ -194,7 +195,7 @@ Pino, o logger do Fastify:
 #### Estrutura e ferramentas (CA-1, CA-18, P-9)
 
 - React 19, Vite e TypeScript, com o mesmo `oxlint` da landing. Rotas com `react-router` (modo de biblioteca, `createBrowserRouter`). Testes com `vitest`, `jsdom` e `@testing-library/react`, com o `fetch` simulado.
-- **Estilo:** `tokens.css` e `bundle.css` copiados de `docs/design/tokens/` para `src/estilo/`, com um comentário de origem no topo. As classes são as `cg-` do design system, e não há outra biblioteca visual. Tema claro (`data-theme="claro"`).
+- **Estilo:** `tokens.css` e `bundle.css` copiados de `docs/design/tokens/` para `src/estilo/`, com um comentário de origem no topo. As classes são as `cg-` do design system, e não há outra biblioteca visual. Só o tema claro (`data-theme="claro"`), sem seletor de tema (P-S2).
 - **Fonte e logo:** Inter servida pelo próprio app (`@fontsource-variable/inter`), sem chamada ao Google Fonts. Logo copiado de `docs/design/assets/logo.png` para `public/`.
 - **Desenvolvimento:** `npm run dev` em `http://localhost:5173`, com proxy do Vite de `/api` para a API em `http://127.0.0.1:3000`. Mesma origem: o cookie vale sem CORS.
 
@@ -233,7 +234,20 @@ Um `401` com `sessao_expirada` ou `sem_sessao` em rota logada leva a `/entrar?mo
 | `/e/:empresaId` com empresa sem vínculo | "Empresa não encontrada ou sem acesso" e o link para `/empresas` | CA-33 |
 
 - **`BarraTopo`:** `cg-appbar` com o logo, `cg-topnav` (por ora "Início" e "Pessoas"), a empresa em foco (`cg-company-name` e `cg-company-meta` com "CNPJ raiz 00.000.000"), a troca de empresa (`cg-company-switch`, só com mais de uma empresa, levando a `/e/:outraId` pela lista de `GET /api/empresas`), `cg-avatar` com as iniciais e "Sair" (CA-32).
-- **`PainelMarca`:** três mensagens que trocam a cada 6 segundos, pausam sob o ponteiro e com o foco, com pontos clicáveis (`button` com `aria-label` e `aria-current`) e sem troca automática quando `prefers-reduced-motion: reduce`. O texto das três mensagens depende de P-S1.
+- **`PainelMarca`** (P-S1): textos do artboard "Login" do canvas da 032, lidos pela sessão principal em 2026-11-27. Cada mensagem tem título, subtítulo e um cartão ilustrativo montado com componentes do design system:
+
+  | # | Título | Subtítulo | Cartão |
+  |---|---|---|---|
+  | 1 | "Veja o crédito de CBS das suas compras, nota a nota." | "Quanto a Receita registrou nas notas de compra da sua empresa, num só lugar." | "Crédito apurado nas compras", um valor fictício, "896 notas de compra" e o selo "Exemplo fictício" |
+  | 2 | "Saiba o que ainda está a apropriar e de quem vem." | "O crédito que a Receita ainda não liberou, agrupado pelo emitente de cada nota." | "A apropriar, por emitente", com CNPJs fictícios do tipo `11.111.111/0001-11`, a linha "Emitente não identificado" e o selo "Exemplo fictício" |
+  | 3 | "Saiba até quando cada número está atualizado." | "Os dados vêm da API de apuração da CBS da Receita Federal. O IBS ainda não está nessa fonte." | "Créditos atualizados em <data>", "Consulta à API de apuração da CBS da Receita" e o selo "Só CBS" |
+
+  Os valores e a data dos cartões são fictícios, fixos no código e iguais aos do artboard (P-S3). A troca é a cada 6 segundos. Ela pausa sob o ponteiro e com o foco, e não acontece sozinha com `prefers-reduced-motion: reduce`. Os pontos são `button` com `aria-label` "Mensagem N de 3" e `aria-current` na mensagem atual. O texto fica numa região `aria-live="polite"`.
+- **Formulário de login** (P-S1): os textos seguem o artboard: "Entrar", "E-mail", "Senha", "Mostrar senha", "Esqueci a senha" e "Ainda não tem acesso? Fale com a equipe CreditoGov ou com o seu contador.". **Ajuste decorrente de D-1:**
+  - o subtítulo do artboard, "Use a conta da sua empresa ou o e-mail cadastrado no CreditoGov.", fala dos provedores que saíram e passa a ser "Use o e-mail cadastrado no CreditoGov.";
+  - o divisor "ou com e-mail" sai junto com os botões de Google e Microsoft.
+
+  Não é texto novo nem promessa: é a retirada do que se referia aos provedores.
 
 ### Documentação (CA-1, CA-40)
 
@@ -319,7 +333,7 @@ Riscos:
 - **R-3 da arquitetura.** Se CA-35 a CA-38 falharem com Kysely, a task registra o resultado e a Spec passa para o Drizzle (segunda opção), com nova aprovação.
 - **R-4. Tempo de resposta.** O hash fictício (CA-16) iguala o trabalho principal, mas não garante tempo idêntico. O teste confirma que a verificação roda e não mede tempo, que seria instável.
 - **R-5. Lista de senhas comuns.** Ela depende de fonte pública e licença. Se o Developer não achar fonte com licença clara, a task para e pergunta.
-- **R-6. Painel da marca sem texto no repositório.** As três mensagens aprovadas estão só no artifact privado (P-S1).
+- **R-6. Texto do painel da marca fora do repositório.** As três mensagens aprovadas vêm do artifact privado da 032 e foram transcritas nesta Spec (P-S1). A task de documentação as registra também em `docs/design/design-system.md`, para o repositório não depender do artifact.
 
 ## Implantação
 
@@ -407,5 +421,8 @@ Nenhum teste lê `.env`, chama serviço externo ou usa dado real. Os e-mails dos
 
 ## Perguntas em aberto
 
-- **P-S1 (texto):** As três mensagens do painel da marca aprovadas na 032 estão só no artifact privado do responsável. O repositório não tem o texto delas. Alternativas: (a) o responsável copia os três textos do artboard "Login" para esta Spec antes das Tasks; (b) usar a proposta abaixo, tirada só do vocabulário já aprovado e sem número nem promessa, e o responsável confere na revisão. Proposta: "O crédito de CBS das suas compras, numa tela só."; "O que a Receita já liberou e o que ainda está a apropriar, sempre separados."; "De quais emitentes vem o crédito que ainda está parado." Recomendação: (a), porque o texto aprovado já existe; (b) se o artifact não estiver à mão. Nas duas, as mensagens descrevem o dashboard da 033, que ainda não existe. Por isso, até a 033 entrar, a terceira linha pode ficar fora.
-- **P-S2 (tema):** O design tem o tema escuro disponível. Esta demanda entrega só o claro (o principal), sem seletor? Recomendação: sim, só o claro. O seletor de tema e a preferência do sistema operacional entram numa demanda própria ou na 033, porque os tokens já têm os dois temas e a mudança é só de interface.
+Respondidas em 2026-11-27, na aprovação da Spec:
+
+- **P-S1 (texto): resolvida.** Valem os textos aprovados do artboard "Login" (`project/Main.dc.html`) do canvas da 032 (<https://claude.ai/artifact/Xj5Mwa2tH2hRGDX7bZWbRg>), lidos pela sessão principal e transcritos em "Telas e rotas" (`PainelMarca` e formulário de login). A proposta que estava nesta Spec foi descartada. O subtítulo do formulário muda por causa de D-1, e o divisor "ou com e-mail" sai.
+- **P-S2 (tema): resolvida.** Só o tema claro nesta demanda, sem seletor. O seletor fica para uma demanda própria ou para a 033.
+- **P-S3 (valores dos cartões): aberta.** O valor do cartão 1, os CNPJs e valores do cartão 2 e a data do cartão 3 não foram transcritos. Ver o `tasks.md`.
