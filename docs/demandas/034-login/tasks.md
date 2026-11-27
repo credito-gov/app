@@ -48,7 +48,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 22 | Implementar a recuperação de senha | idem 21 | idem 21 | testes da task 21 passam | ☐ |
 | 23 | Testes de logs e varredura de segredos | API › Logs; Estratégia › CA-39 | CA-14, CA-39 | falham, ou passam com falha provocada registrada | ☐ |
 | 24 | Ajustar a redação dos logs e o script `dev` | idem 23 | idem 23 | testes da task 23 passam; `npm run dev` sobe | ☐ |
-| 25 | Estrutura do `app/web` | Web › Estrutura e ferramentas; DT-10, DT-11 | CA-1, CA-3 | `npm install`; `npm test` (1 teste passa); lint; build | ☐ |
+| 25 | Estrutura do `app/web` | Web › Estrutura e ferramentas; DT-10, DT-11 | CA-1, CA-3 | `npm install`; `npm test` (1 teste passa); lint; build | ☑ |
 | 26 | Testes do cliente da API e do `ProvedorSessao` | Web › Cliente da API | CA-18, CA-20 | falham | ☐ |
 | 27 | Implementar `api/cliente.ts` e `sessao/ProvedorSessao.tsx` | idem 26 | idem 26 | testes da task 26 passam | ☐ |
 | 28 | Testes de `Entrar`, `PainelMarca` e `CampoSenha` | Web › Telas e rotas (`/entrar`, `PainelMarca`, formulário de login) | CA-7, CA-15 a CA-18, CA-20 | falham | ☐ |
