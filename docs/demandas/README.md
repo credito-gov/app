@@ -4,7 +4,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 
 ## Nomeação
 
-- Demanda: `NNN-slug`, três dígitos em sequência, nunca reutilizados, slug em minúsculas com hífen e sem acento. A próxima é a **034**.
+- Demanda: `NNN-slug`, três dígitos em sequência, nunca reutilizados, slug em minúsculas com hífen e sem acento. A próxima é a **035**.
 - Pasta: `docs/demandas/NNN-slug/` com `us.md`, `spec.md` e `tasks.md` (ou só `bug.md`, numa correção).
 - Branch: `feat/NNN-slug` (código), `docs/NNN-slug` (só documentação) ou `fix/NNN-slug` (correção).
 - Modelos em [`_template/`](_template/).
@@ -23,6 +23,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 | 030 | [painel-primeira-versao](030-painel-primeira-versao/us.md) | Primeira versão do painel: saldo, origem e pendências | concluída | [credito-gov/app#31](https://github.com/credito-gov/app/pull/31) |
 | 031 | [stack-arquitetura](031-stack-arquitetura/us.md) | Stack e arquitetura do produto | concluída | [credito-gov/app#35](https://github.com/credito-gov/app/pull/35) |
 | 032 | [design-system-produto](032-design-system-produto/us.md) | Design system do produto | concluída | [credito-gov/app#33](https://github.com/credito-gov/app/pull/33) |
+| 034 | [login](034-login/us.md) | Login por e-mail e senha, convite e acesso por empresa | us-em-revisão | `feat/034-login` |
 
 ## Backlog
 
