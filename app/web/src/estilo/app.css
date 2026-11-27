@@ -43,3 +43,15 @@ html[data-theme="claro"] { --font-sans: "Inter Variable", Inter, ui-sans-serif, 
 .pagina-cartao-corpo .heading { margin: 0; }
 .pagina-cartao-logo { height: 40px; width: fit-content; }
 .pagina-cartao-dados { margin: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+
+/* Area logada */
+.conteudo { max-width: 1120px; margin: 0 auto; padding: var(--space-8) var(--space-6); display: flex; flex-direction: column; gap: var(--space-6); }
+.troca-empresa { position: relative; }
+.troca-empresa-lista { position: absolute; right: 0; top: calc(100% + 4px); z-index: 10; list-style: none; margin: 0; padding: var(--space-2); min-width: 260px; box-shadow: var(--shadow-pop); }
+.troca-empresa-item { display: flex; flex-direction: column; padding: var(--space-3); }
+.lista-empresas { list-style: none; margin: 0; padding: 0; }
+.lista-empresas-item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--line); }
+.lista-empresas-item:last-child { border-bottom: 0; }
+.pessoas { display: flex; flex-direction: column; gap: var(--space-6); }
+.pessoas .heading { margin: 0; }
+.pessoas-convidar { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-end; }
