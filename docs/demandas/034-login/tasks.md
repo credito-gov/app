@@ -28,7 +28,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 2 | Docker Compose, papéis e scripts `banco:*` | Banco › Docker Compose e papéis; DT-12 | CA-2, CA-3 | `npm run banco:subir`; atributos dos papéis conferidos | ☑ |
 | 3 | Testes de `config.ts` | API › Estrutura; E-mail | CA-4, CA-27 | falham | ☑ |
 | 4 | Implementar `config.ts` | idem 3 | idem 3 | testes da task 3 passam | ☑ |
-| 5 | `globalSetup` do banco de teste e testes de isolamento, catálogo e `numeric` | Banco; Estratégia › Banco de teste; R-3 | CA-2, CA-35 a CA-38 | falham (não há migração) | ☐ |
+| 5 | `globalSetup` do banco de teste e testes de isolamento, catálogo e `numeric` | Banco; Estratégia › Banco de teste; R-3 | CA-2, CA-35 a CA-38 | falham (não há migração) | ☑ |
 | 6 | Migração `0001`, `npm run migrar` e `banco/transacao.ts` | Banco › Migrações; Modelo de dados; Transação com empresa fixada; DT-5 | idem 5 | testes da task 5 passam | ☐ |
 | 7 | Testes de senha e tokens | API › Senha; Tokens; DT-3, DT-8 | CA-14, CA-19 | falham | ☑ |
 | 8 | Implementar `senha.ts`, `senhasComuns.ts` e `tokens.ts` | idem 7 | idem 7 | testes da task 7 passam | ☑ |
