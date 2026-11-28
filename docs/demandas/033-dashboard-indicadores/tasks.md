@@ -62,8 +62,8 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 16 | Implementar `carregar-cenario` | idem 15 | idem 15 | testes da task 15 passam | ☑ |
 | 17 | Testes das rotas de painel, pendências e notas | API; Contratos | CA-1 a CA-25; AD-6 | falham | ☑ |
 | 18 | Implementar `paineis/dados.ts` e as três rotas | idem 17 | idem 17 | testes da task 17 passam | ☑ |
-| 19 | Testes da formatação de valores e datas na web | Web › Valores e datas | CA-23 | falham | ☐ |
-| 20 | Implementar `src/formatacao/` | idem 19 | idem 19 | testes da task 19 passam | ☐ |
+| 19 | Testes da formatação de valores e datas na web | Web › Valores e datas | CA-23 | falham | ☑ |
+| 20 | Implementar `src/formatacao/` | idem 19 | idem 19 | testes da task 19 passam | ☑ |
 | 21 | Testes da busca de dados | Web › Busca de dados; DT-5 | CA-12; AD-3 | falham | ☐ |
 | 22 | Implementar o cliente de cache e os ganchos de busca | idem 21 | idem 21 | testes da task 21 passam | ☐ |
 | 23 | Testes da Visão geral com dados | Web › Rotas e menu; Componentes; Textos | CA-1 a CA-13, CA-22, CA-25 | falham | ☐ |
