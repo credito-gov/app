@@ -214,3 +214,28 @@ describe("processo npm run admin", () => {
     expect(ok.stdout).toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/);
   }, 130_000);
 });
+
+describe("convidar: validação de e-mail e falha no envio", () => {
+  test("usa a mesma validação da API: e-mail sem ponto no domínio é recusado", async () => {
+    const { id } = await admin.criarEmpresa({ cnpjRaiz: "00000000", nome: "Comércio Exemplo Ltda." });
+    expect(await motivo(admin.convidar({ empresaId: id, email: "pessoa@exemplo", papel: "titular" }))).toMatch(/e-mail inválido/i);
+    expect(email.mensagens).toHaveLength(0);
+  });
+
+  test("se o e-mail não sai, diz que o convite foi criado", async () => {
+    const { id } = await admin.criarEmpresa({ cnpjRaiz: "00000000", nome: "Comércio Exemplo Ltda." });
+    const semEnvio = criarComandosAdmin({
+      banco: criarBanco(app),
+      email: {
+        async enviar() {
+          throw new Error("smtp caiu");
+        },
+      },
+      relogio: () => agora,
+      config: carregarConfig(ENV),
+    });
+    expect(await motivo(semEnvio.convidar({ empresaId: id, email: "novo@exemplo.com.br", papel: "titular" }))).toMatch(
+      /Convite criado, mas o e-mail não foi enviado/,
+    );
+  });
+});

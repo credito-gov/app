@@ -1,4 +1,5 @@
-import { describe, expect, test } from "vitest";
+import argon2 from "argon2";
+import { describe, expect, test, vi } from "vitest";
 import { gerarHash, validarSenha, verificar } from "../src/autenticacao/senha.js";
 import { senhasComuns } from "../src/autenticacao/senhasComuns.js";
 import { gerarToken, hmacToken } from "../src/autenticacao/tokens.js";
@@ -95,5 +96,20 @@ describe("tokens (CA-19)", () => {
     expect(hmacToken(s1, token)).not.toBe(hmacToken(s2, token));
     expect(hmacToken(s1, token)).not.toBe(token);
     expect(hmacToken(s1, token)).not.toBe(hmacToken(s1, gerarToken()));
+  });
+});
+
+describe("verificar: só o formato inválido vira false", () => {
+  test("hash de formato inválido avisa o chamador e devolve false", async () => {
+    let avisou = 0;
+    expect(await verificar("isto-nao-e-hash", "qualquer senha ficticia", () => avisou++)).toBe(false);
+    expect(avisou).toBe(1);
+  });
+
+  test("outro erro do argon2 é relançado", async () => {
+    const hash = await gerarHash("uma senha ficticia longa", CUSTO_BAIXO);
+    const espiao = vi.spyOn(argon2, "verify").mockRejectedValueOnce(new Error("sem memória"));
+    await expect(verificar(hash, "uma senha ficticia longa")).rejects.toThrow("sem memória");
+    espiao.mockRestore();
   });
 });
