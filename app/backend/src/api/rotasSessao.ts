@@ -35,7 +35,9 @@ export function registrarRotasSessao(app: FastifyInstance, ctx: Contexto): void 
       );
 
       // Sem identidade, verifica contra o hash fictício e descarta o resultado (CA-16).
-      const certa = await ctx.verificador(identidade?.hash ?? ctx.hashFicticio, request.body.senha);
+      const certa = await ctx.verificador(identidade?.hash ?? ctx.hashFicticio, request.body.senha, () =>
+        request.log.error({ evento: "hash_invalido", usuarioId: identidade?.usuarioId }, "hash_invalido"),
+      );
       if (!identidade || !identidade.hash || !certa) {
         await ctx.limite.registrarFalha("login", quem);
         request.log.info({ evento: "login_recusado" }, "login_recusado");
@@ -55,16 +57,20 @@ export function registrarRotasSessao(app: FastifyInstance, ctx: Contexto): void 
 
   // Sair é tolerante: sem sessão válida, só vence o cookie.
   app.delete("/api/sessao", async (request, reply) => {
-    const token = lerCookie(request);
-    if (token) {
-      const r = await ctx.sessoes.validar(token);
-      await ctx.sessoes.encerrar(token, "saida");
-      if (r.tipo === "ok") {
-        request.log.info({ evento: "sessao_encerrada", usuarioId: r.usuarioId }, "sessao_encerrada");
+    try {
+      const token = lerCookie(request);
+      if (token) {
+        const r = await ctx.sessoes.validar(token);
+        await ctx.sessoes.encerrar(token, "saida");
+        if (r.tipo === "ok") {
+          request.log.info({ evento: "sessao_encerrada", usuarioId: r.usuarioId }, "sessao_encerrada");
+        }
       }
+      return reply.code(204).send();
+    } finally {
+      // Mesmo se o banco falhar, o navegador esquece o cookie; o erro sobe como 500.
+      vencerCookie(reply);
     }
-    vencerCookie(reply);
-    return reply.code(204).send();
   });
 
 }

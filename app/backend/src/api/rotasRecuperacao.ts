@@ -36,13 +36,21 @@ export function registrarRotasRecuperacao(app: FastifyInstance, ctx: Contexto): 
       const pedido = await criarPedido(dep, email);
       if (pedido) {
         const base = ctx.config.webUrl.replace(/\/+$/, "");
-        await ctx.email.enviar(
-          modeloRecuperacao({
-            para: email,
-            link: `${base}/redefinir-senha#t=${pedido.token}`,
-            expiraEm: pedido.expiraEm,
-          }),
-        );
+        try {
+          await ctx.email.enviar(
+            modeloRecuperacao({
+              para: email,
+              link: `${base}/redefinir-senha#t=${pedido.token}`,
+              expiraEm: pedido.expiraEm,
+            }),
+          );
+        } catch (e) {
+          // Responde igual (CA-23): falhar só para contas que existem revelaria a existência.
+          request.log.error(
+            { evento: "email_falhou", tipo: "recuperacao", usuarioId: pedido.usuarioId, erro: (e as Error).name },
+            "email_falhou",
+          );
+        }
         request.log.info({ evento: "recuperacao_pedida", usuarioId: pedido.usuarioId }, "recuperacao_pedida");
       } else {
         request.log.info({ evento: "recuperacao_pedida" }, "recuperacao_pedida");

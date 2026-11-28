@@ -17,6 +17,16 @@ export interface DepsConvites {
   banco: Banco;
   relogio: () => Date;
   segredo: string;
+  /** Aviso de operação (log); só dados sem valores. */
+  aviso?: (dados: Record<string, unknown>, msg: string) => void;
+}
+
+/** Restrições de unicidade que dois aceites simultâneos podem esbarrar. */
+const RESTRICOES_DE_CORRIDA = ["usuario_email_normalizado_key", "identidade_provedor_sujeito_key", "vinculo_ativo"];
+
+export function ehCorridaDeAceite(e: unknown): boolean {
+  const { code, constraint } = (e ?? {}) as { code?: string; constraint?: string };
+  return code === "23505" && constraint !== undefined && RESTRICOES_DE_CORRIDA.includes(constraint);
 }
 
 async function lerConvite(
@@ -129,8 +139,12 @@ export async function aceitarConvite(
       return { tipo: "ok", usuarioId, conviteId: convite.id } as const;
     });
   } catch (e) {
-    // Corrida: e-mail ou vínculo já criado por outra requisição.
-    if ((e as { code?: string }).code === "23505") return { tipo: "invalido" };
+    // Corrida: e-mail ou vínculo já criado por outra requisição. Outra violação de
+    // unicidade é bug e sobe como erro.
+    if (ehCorridaDeAceite(e)) {
+      d.aviso?.({ restricao: (e as { constraint?: string }).constraint }, "aceite_corrida");
+      return { tipo: "invalido" };
+    }
     throw e;
   }
 }

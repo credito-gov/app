@@ -15,7 +15,12 @@ export interface CustoArgon2 {
 }
 
 /** Verificador injetável, para o espião do teste de CA-16. */
-export type Verificador = (hash: string, senha: string) => Promise<boolean>;
+export type Verificador = (
+  hash: string,
+  senha: string,
+  /** Chamado se o hash guardado tem formato inválido (o chamador registra, com o usuarioId). */
+  aoHashInvalido?: () => void,
+) => Promise<boolean>;
 
 /** De 12 a 128 pontos de código depois de NFC, fora da lista de senhas comuns. */
 export function validarSenha(
@@ -35,10 +40,18 @@ export function gerarHash(senha: string, custo: CustoArgon2 = {}): Promise<strin
   return argon2.hash(senha.normalize("NFC"), { type: argon2.argon2id, ...custo });
 }
 
-export const verificar: Verificador = async (hash, senha) => {
+/**
+ * Só o erro de formato de hash (TypeError do desserializador) vira false, e avisa o
+ * chamador para registrar. Qualquer outro erro (memória, bug) é relançado e vira 500.
+ */
+export const verificar: Verificador = async (hash, senha, aoHashInvalido) => {
   try {
     return await argon2.verify(hash, senha.normalize("NFC"));
-  } catch {
-    return false;
+  } catch (e) {
+    if (e instanceof TypeError) {
+      aoHashInvalido?.();
+      return false;
+    }
+    throw e;
   }
 };

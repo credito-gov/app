@@ -5,6 +5,8 @@ import { abrirKysely } from "../banco/conexao.js";
 import { criarBanco } from "../banco/transacao.js";
 import { carregarConfig, ErroConfig } from "../config.js";
 import { criarEnvioEmail } from "../email/fabrica.js";
+import { descreverErro } from "../erro.js";
+import { ErroPapel, verificarPapelDoBanco } from "../banco/papel.js";
 import { criarComandosAdmin, ErroAdmin } from "./comandos.js";
 
 const USO = `Uso: npm run admin -- <comando> [opções]
@@ -46,6 +48,12 @@ try {
 }
 
 const banco = criarBanco(abrirKysely(config.bancoUrl, { max: 2 }));
+try {
+  await verificarPapelDoBanco(banco);
+} catch (e) {
+  await banco.encerrar().catch(() => undefined);
+  falhar(e instanceof ErroPapel ? e.message : `Não foi possível conferir o papel do banco. ${descreverErro(e)}`);
+}
 const admin = criarComandosAdmin({
   banco,
   email: criarEnvioEmail(config.email, { pastaArquivo: join(process.cwd(), ".local", "emails") }),
@@ -82,7 +90,8 @@ try {
   }
   console.log(saida);
 } catch (e) {
-  console.error(e instanceof ErroAdmin ? e.message : "Falha ao executar o comando.");
+  // Terminal do operador: mostra name, code e message do erro que não é do comando.
+  console.error(e instanceof ErroAdmin ? e.message : `Falha ao executar o comando. ${descreverErro(e)}`);
   codigo = 1;
 } finally {
   await banco.encerrar();

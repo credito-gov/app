@@ -28,7 +28,10 @@ export type EventoLog =
   | "recuperacao_pedida"
   | "senha_redefinida"
   | "vinculo_removido"
-  | "sessao_encerrada";
+  | "sessao_encerrada"
+  | "email_falhou"
+  | "hash_invalido"
+  | "convite_aceito_sem_sessao";
 
 /** Dados permitidos num evento: só identificadores uuid. */
 export interface DadosEvento {

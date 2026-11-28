@@ -9,3 +9,10 @@ export function mascararEmail(email: string): string {
   if (arroba < 1) return "***";
   return `${email[0]}***${email.slice(arroba)}`;
 }
+
+const EMAIL_VALIDO = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+/** Validação única de e-mail, usada pela API e pelo admin (recebe o e-mail já normalizado). */
+export function emailValido(emailNormalizado: string): boolean {
+  return EMAIL_VALIDO.test(emailNormalizado);
+}

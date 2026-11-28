@@ -2,6 +2,7 @@
 import type { Papel, OrigemConvite } from "../banco/esquema.js";
 import type { Trx } from "../banco/transacao.js";
 import { gerarToken, hmacToken } from "../autenticacao/tokens.js";
+import { sql } from "kysely";
 
 export const CONVITE_VALIDADE_MS = 7 * 24 * 60 * 60_000;
 
@@ -37,6 +38,9 @@ export async function criarConvite(
     segredo: string;
   },
 ): Promise<ResultadoCriacao> {
+  // Serializa convites do mesmo e-mail na mesma empresa: o segundo espera o primeiro e então
+  // o invalida (o índice convite_pendente_unico é a rede de segurança).
+  await sql`select pg_advisory_xact_lock(hashtextextended(${d.empresaId + ":" + d.email}, 0))`.execute(trx);
   const empresa = await trx
     .selectFrom("empresa")
     .select("nome")

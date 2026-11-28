@@ -87,12 +87,14 @@ export async function trocarSenha(
       .forUpdate()
       .executeTakeFirst();
     if (!link) return null;
-    await trx
+    const troca = await trx
       .updateTable("identidade")
       .set({ hash_senha: hashSenha, senha_alterada_em: agora })
       .where("usuario_id", "=", link.usuario_id)
       .where("provedor", "=", "senha")
-      .execute();
+      .executeTakeFirst();
+    // Sem identidade de senha a troca não aconteceu: o erro desfaz a transação (o link segue válido).
+    if (Number(troca.numUpdatedRows) !== 1) throw new Error("identidade de senha não encontrada");
     await trx.updateTable("recuperacao_senha").set({ usada_em: agora }).where("id", "=", link.id).execute();
     await encerrarSessoesDoUsuario(trx, link.usuario_id, agora, "nova_senha");
     return { usuarioId: link.usuario_id };

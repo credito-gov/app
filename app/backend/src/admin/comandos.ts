@@ -1,7 +1,7 @@
 // Comandos do `npm run admin` (CA-5, CA-6, CA-34, DT-7). Usam o papel de trabalho:
 // cada comando fixa a empresa na transação, como a API. A saída não leva token, link nem hash.
 import { randomUUID } from "node:crypto";
-import { normalizarEmail } from "../autenticacao/email.js";
+import { emailValido, normalizarEmail } from "../autenticacao/email.js";
 import type { Papel } from "../banco/esquema.js";
 import { ehUuid, type Banco } from "../banco/transacao.js";
 import type { Config } from "../config.js";
@@ -80,7 +80,7 @@ export function criarComandosAdmin(deps: {
       }
       exigirEmpresaId(empresaId);
       const para = normalizarEmail(emailInformado);
-      if (!/^[^@\s]+@[^@\s]+$/.test(para)) throw new ErroAdmin("E-mail inválido.");
+      if (!emailValido(para)) throw new ErroAdmin("E-mail inválido.");
       const agora = relogio();
       const r = await banco.naEmpresaFixada(empresaId, (trx) =>
         criarConvite(trx, {
@@ -95,16 +95,22 @@ export function criarComandosAdmin(deps: {
       );
       if (r.tipo === "empresa_inexistente") throw new ErroAdmin("Empresa não encontrada.");
       if (r.tipo === "ja_vinculado") throw new ErroAdmin("Este e-mail já tem acesso a esta empresa.");
-      await email.enviar(
-        modeloConvite({
-          para,
-          quemConvidou: null,
-          empresaNome: r.empresaNome,
-          papel: papel as Papel,
-          link: linkConvite(config.webUrl, empresaId, r.token),
-          expiraEm: r.expiraEm,
-        }),
-      );
+      try {
+        await email.enviar(
+          modeloConvite({
+            para,
+            quemConvidou: null,
+            empresaNome: r.empresaNome,
+            papel: papel as Papel,
+            link: linkConvite(config.webUrl, empresaId, r.token),
+            expiraEm: r.expiraEm,
+          }),
+        );
+      } catch {
+        throw new ErroAdmin(
+          "Convite criado, mas o e-mail não foi enviado. Confira o adaptador de e-mail e peça o reenvio (convide de novo).",
+        );
+      }
       return { saida: `Convite enviado para ${para}, com o papel de ${papel}.` };
     },
 

@@ -51,6 +51,15 @@ export async function abrirSessao(
     }
   }
   const { token } = await ctx.sessoes.criar(usuarioId);
+  // O cookie só sai depois de os dados da sessão darem certo; se falharem, a sessão
+  // recém-criada é encerrada para não ficar aberta sem dono.
+  let dados: DadosSessao;
+  try {
+    dados = await dadosDaSessao(ctx, usuarioId);
+  } catch (e) {
+    await ctx.sessoes.encerrar(token, "saida").catch(() => undefined);
+    throw e;
+  }
   reply.setCookie(COOKIE_SESSAO, token, { ...base, maxAge: SESSAO_DURACAO_MS / 1000 });
-  return dadosDaSessao(ctx, usuarioId);
+  return dados;
 }

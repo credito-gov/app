@@ -56,6 +56,9 @@ export async function up(db: Kysely<unknown>): Promise<void> {
       invalidado_em timestamptz
     )`.execute(db);
   await sql`create index convite_empresa_email on convite (empresa_id, email_normalizado)`.execute(db);
+  // Um convite pendente por e-mail e empresa (a criação de um novo invalida o anterior).
+  await sql`create unique index convite_pendente_unico on convite (empresa_id, email_normalizado)
+    where usado_em is null and invalidado_em is null`.execute(db);
 
   await sql`
     create table vinculo_empresa (

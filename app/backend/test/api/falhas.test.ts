@@ -76,7 +76,7 @@ describe("erros 4xx do framework", () => {
   });
 
   test("tipo de conteúdo não aceito mantém 415", async () => {
-    const r = await bruto("oi", "text/plain");
+    const r = await bruto("<a/>", "application/xml");
     expect(r.statusCode).toBe(415);
   });
 

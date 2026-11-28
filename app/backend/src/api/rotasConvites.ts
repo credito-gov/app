@@ -1,6 +1,6 @@
 // Rotas de convite (CA-8 a CA-14): criar (com sessão), consultar e aceitar (pelo token).
 import type { FastifyInstance } from "fastify";
-import { mascararEmail, normalizarEmail } from "../autenticacao/email.js";
+import { emailValido, mascararEmail, normalizarEmail } from "../autenticacao/email.js";
 import { gerarHash, validarSenha } from "../autenticacao/senha.js";
 import type { Papel } from "../banco/esquema.js";
 import { criarConvite, linkConvite } from "../convites/criar.js";
@@ -11,8 +11,6 @@ import { modeloConvite } from "../email/modelos.js";
 import type { Contexto } from "./contexto.js";
 import { enviarErro, erroCredencial, erroMuitasTentativas } from "./erros.js";
 import { abrirSessao } from "./sessaoHttp.js";
-
-const EMAIL_VALIDO = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 const corpoCriar = {
   type: "object",
@@ -46,7 +44,12 @@ const MENSAGEM_CONVITE_INVALIDO =
   "Este convite não vale mais. Peça um novo a quem convidou você.";
 
 export function registrarRotasConvites(app: FastifyInstance, ctx: Contexto): void {
-  const dep = { banco: ctx.banco, relogio: ctx.relogio, segredo: ctx.config.sessaoSegredo };
+  const dep = {
+    banco: ctx.banco,
+    relogio: ctx.relogio,
+    segredo: ctx.config.sessaoSegredo,
+    aviso: (dados: Record<string, unknown>, msg: string) => app.log.warn(dados, msg),
+  };
   const conviteInvalido = (reply: Parameters<typeof enviarErro>[0]) =>
     enviarErro(reply, 410, "convite_invalido", MENSAGEM_CONVITE_INVALIDO);
 
@@ -55,7 +58,7 @@ export function registrarRotasConvites(app: FastifyInstance, ctx: Contexto): voi
     { onRequest: [app.exigirSessao, app.rotaDeEmpresa], schema: { body: corpoCriar } },
     async (request, reply) => {
       const email = normalizarEmail(request.body.email);
-      if (!EMAIL_VALIDO.test(email)) {
+      if (!emailValido(email)) {
         return enviarErro(reply, 400, "entrada_invalida", "Confira os campos informados.", {
           campos: [{ campo: "email", mensagem: "E-mail inválido." }],
         });
@@ -93,20 +96,40 @@ export function registrarRotasConvites(app: FastifyInstance, ctx: Contexto): voi
         return enviarErro(reply, 404, "empresa_nao_encontrada", "Empresa não encontrada ou sem acesso.");
       }
       // O e-mail sai depois de a transação gravar.
-      await ctx.email.enviar(
-        modeloConvite({
-          para: email,
-          quemConvidou: r.quem,
-          empresaNome: r.criado.empresaNome,
-          papel: papelConvidado,
-          link: linkConvite(ctx.config.webUrl, empresaId, r.criado.token),
-          expiraEm: r.criado.expiraEm,
-        }),
-      );
       request.log.info(
         { evento: "convite_criado", usuarioId: request.usuario!.id, empresaId, conviteId: r.criado.conviteId },
         "convite_criado",
       );
+      try {
+        await ctx.email.enviar(
+          modeloConvite({
+            para: email,
+            quemConvidou: r.quem,
+            empresaNome: r.criado.empresaNome,
+            papel: papelConvidado,
+            link: linkConvite(ctx.config.webUrl, empresaId, r.criado.token),
+            expiraEm: r.criado.expiraEm,
+          }),
+        );
+      } catch (e) {
+        request.log.error(
+          {
+            evento: "email_falhou",
+            tipo: "convite",
+            usuarioId: request.usuario!.id,
+            empresaId,
+            conviteId: r.criado.conviteId,
+            erro: (e as Error).name,
+          },
+          "email_falhou",
+        );
+        return enviarErro(
+          reply,
+          502,
+          "email_nao_enviado",
+          "O convite foi criado, mas o e-mail não saiu. Tente reenviar.",
+        );
+      }
       return reply.code(202).send({ mensagem: "Convite enviado" });
     },
   );
@@ -150,7 +173,12 @@ export function registrarRotasConvites(app: FastifyInstance, ctx: Contexto): voi
             .where("sujeito", "=", convite.email)
             .executeTakeFirst(),
         );
-        const certa = await ctx.verificador(identidade?.hash_senha ?? ctx.hashFicticio, senha);
+        const certa = await ctx.verificador(identidade?.hash_senha ?? ctx.hashFicticio, senha, () =>
+          request.log.error(
+            { evento: "hash_invalido", usuarioId: identidade?.usuario_id },
+            "hash_invalido",
+          ),
+        );
         if (!identidade?.hash_senha || !certa) {
           await ctx.limite.registrarFalha("login", quem);
           request.log.info({ evento: "login_recusado" }, "login_recusado");
@@ -175,11 +203,27 @@ export function registrarRotasConvites(app: FastifyInstance, ctx: Contexto): voi
       const aceite = await aceitarConvite(dep, { empresaId, token, usuarioExistenteId, novo });
       if (aceite.tipo !== "ok") return conviteInvalido(reply);
 
-      const dados = await abrirSessao(ctx, request, reply, aceite.usuarioId);
       request.log.info(
         { evento: "convite_aceito", usuarioId: aceite.usuarioId, empresaId, conviteId: aceite.conviteId },
         "convite_aceito",
       );
+      let dados;
+      try {
+        dados = await abrirSessao(ctx, request, reply, aceite.usuarioId);
+      } catch (e) {
+        // O aceite já foi gravado: dizer isso, em vez de um erro genérico que convida a repetir.
+        request.log.error(
+          {
+            evento: "convite_aceito_sem_sessao",
+            usuarioId: aceite.usuarioId,
+            empresaId,
+            conviteId: aceite.conviteId,
+            erro: (e as Error).name,
+          },
+          "convite_aceito_sem_sessao",
+        );
+        return enviarErro(reply, 500, "convite_aceito_sem_sessao", "Convite aceito. Entre com seu e-mail e senha.");
+      }
       return reply.code(200).send(dados);
     },
   );

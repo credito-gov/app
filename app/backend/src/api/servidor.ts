@@ -142,9 +142,26 @@ export async function criarServidor(deps: DepsServidor): Promise<Servidor> {
     }
     const status = erro.statusCode ?? 500;
     if (status >= 400 && status < 500) {
-      return enviarErro(reply, 400, "entrada_invalida", "Requisição inválida.", { campos: [] });
+      // Mantém o status do framework (413, 415 etc.); só o código vai para o log.
+      request.log.warn({ codigo: erro.code }, "requisicao_recusada");
+      return enviarErro(reply, status, "entrada_invalida", "Requisição inválida.", { campos: [] });
     }
-    request.log.error({ tipo: erro.name }, "erro_interno");
+    // Nunca registra detail, message, corpo nem parâmetros: podem trazer valores. A stack
+    // sai sem a primeira linha (que repete a message).
+    const e = erro as FastifyError & { constraint?: string };
+    request.log.error(
+      {
+        tipo: erro.name,
+        codigo: erro.code,
+        restricao: e.constraint,
+        rota: request.routeOptions?.url,
+        stack: erro.stack
+          ?.split("\n")
+          .filter((l) => l.trimStart().startsWith("at "))
+          .join("\n"),
+      },
+      "erro_interno",
+    );
     return enviarErro(reply, 500, "erro_interno", "Algo deu errado. Tente de novo.");
   });
 
