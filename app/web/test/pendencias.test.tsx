@@ -144,3 +144,35 @@ describe("palavras proibidas (CA-2) nas duas telas", () => {
     }
   });
 });
+
+describe("Pendencias: situação dos créditos na própria tela (CA-14, CA-15, CA-19; revisão B3)", () => {
+  const base = pendenciasCompletas.situacao.creditos;
+  const com = (o: Partial<typeof base>): Pendencias => ({ ...pendenciasCompletas, situacao: { creditos: { ...base, ...o } } });
+
+  it("mostra a data da última atualização (ultimaAceitaEm) e o intervalo das notas, só de créditos", async () => {
+    abrir(`/e/${EMPRESA_A.id}/pendencias`, pendenciasCompletas);
+    expect(await screen.findByText(/Créditos: última consulta que entrou nos indicadores em 26\/11\/2026 às 12:05/)).toBeInTheDocument();
+    expect(screen.queryByText(/Débitos:/)).not.toBeInTheDocument();
+  });
+
+  it("créditos desatualizados: o aviso aparece", async () => {
+    abrir(`/e/${EMPRESA_A.id}/pendencias`, com({ desatualizado: true, diasSemAtualizacao: 10, ultimaAceitaEm: "2026-11-16T15:05:00.000Z" }));
+    expect(await screen.findByText(/Créditos sem atualização há 10 dias\./)).toBeInTheDocument();
+  });
+
+  it("falha de credencial: o título e a ação aparecem, e os números anteriores continuam", async () => {
+    abrir(`/e/${EMPRESA_A.id}/pendencias`, com({ falha: { em: "2026-11-27T13:00:00.000Z", tipo: "credencial" } }));
+    expect(await screen.findByText("A atualização dos créditos falhou em 27/11/2026 às 10:00.")).toBeInTheDocument();
+    expect(screen.getByText(/Fale com a equipe CreditoGov para informá-la\./)).toBeInTheDocument();
+    expect(screen.getAllByRole("table").length).toBeGreaterThan(0);
+  });
+});
+
+describe("Pendencias: créditos com dados e nenhum pendente (revisão B3)", () => {
+  it("diz que não há crédito a apropriar, e não que não há crédito no período", async () => {
+    abrir(`/e/${EMPRESA_A.id}/pendencias`, { ...pendenciasCompletas, grupos: [], totalAApropriar: "0.00", percentualNaoIdentificado: null });
+    expect(await screen.findByText("Não há crédito a apropriar neste recorte.")).toBeInTheDocument();
+    expect(screen.queryByText(/Nenhum crédito neste período/)).not.toBeInTheDocument();
+    expect(simples(document.body.textContent ?? "")).not.toMatch(/a receber|disponivel/);
+  });
+});

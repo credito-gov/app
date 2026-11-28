@@ -115,8 +115,9 @@ describe("CA-18 e CA-19: um serviço por vez, falha com e sem números anteriore
     expect(creditos()).toHaveTextContent("R$ 10.000,00");
     expect(await within(debitos()).findByText("Os débitos ainda não foram consultados na Receita.")).toBeInTheDocument();
     expect(debitos().textContent).not.toContain("R$");
-    expect(screen.getByText("A atualização dos débitos falhou em 27/11/2026 às 09:00.")).toBeInTheDocument();
-    expect(screen.getByText("Isso não depende de você.")).toBeInTheDocument();
+    // O texto da falha aparece no topo e também dentro do bloco de débitos (revisão B2): são duas ocorrências.
+    expect(screen.getAllByText("A atualização dos débitos falhou em 27/11/2026 às 09:00.")).toHaveLength(2);
+    expect(screen.getAllByText("Isso não depende de você.")).toHaveLength(2);
     expect(screen.queryByText(/credencial de acesso/)).not.toBeInTheDocument();
   });
 
@@ -214,6 +215,28 @@ describe("ajuste de 2026-11-28: a data e o aviso de desatualizado usam só o ace
     };
     await abrir(p);
     expect(await screen.findByText("Os números abaixo são da consulta de 20/11/2026 às 12:05 e não estão atualizados.")).toBeInTheDocument();
+  });
+});
+
+describe("CA-18 e CA-19: com falha, o bloco sem números mostra a falha e a ação (revisão B2)", () => {
+  it("débitos ainda não consultados e com falha: o próprio bloco traz o título da falha e a ação", async () => {
+    await abrir(painelParcial);
+    expect(await within(debitos()).findByText("A atualização dos débitos falhou em 27/11/2026 às 09:00.")).toBeInTheDocument();
+    expect(within(debitos()).getByText("Isso não depende de você.")).toBeInTheDocument();
+  });
+
+  it("falha de credencial em bloco vazio ou sem dados usáveis: título e ação de credencial dentro do bloco", async () => {
+    const falha = { em: "2026-11-27T13:00:00.000Z", tipo: "credencial" as const };
+    for (const p of [
+      { ...painelVazio, situacao: { ...painelVazio.situacao, creditos: { ...painelVazio.situacao.creditos, falha } } },
+      { ...painelSoRecusado, situacao: { ...painelSoRecusado.situacao, creditos: { ...painelSoRecusado.situacao.creditos, falha } } },
+      { ...painelSemConsulta, situacao: { ...painelSemConsulta.situacao, creditos: { ...painelSemConsulta.situacao.creditos, falha } } },
+    ] as Painel[]) {
+      await abrir(p);
+      expect(await within(creditos()).findByText("A atualização dos créditos falhou em 27/11/2026 às 10:00.")).toBeInTheDocument();
+      expect(within(creditos()).getByText(/Fale com a equipe CreditoGov para informá-la./)).toBeInTheDocument();
+      document.body.innerHTML = "";
+    }
   });
 });
 
