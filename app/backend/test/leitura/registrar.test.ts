@@ -21,7 +21,7 @@ import {
   NI14_OUTRA,
   RAIZ,
 } from "../apoio/construtores.js";
-import { cnpjInvalidoDe } from "../apoio/dv.js";
+import { cnpjInvalidoDe } from "../../src/ficticios/dv.js";
 import {
   VALOR_FORA_DO_LIMITE,
   VALOR_LONGO,

@@ -1,6 +1,6 @@
-// Origem: app/painel/test/apoio/dv.ts (commit 39e4fae da main).
-// Módulo 11 de CNPJ e CPF, só para provar que o dado de teste NÃO é real (CA-17, CA-18).
-// Não é regra do produto: o painel não confere o dígito verificador de CNPJ nem de CPF.
+// Origem: app/painel/test/apoio/dv.ts (commit 39e4fae da main), movido para src/ficticios na 033 (task 8).
+// Módulo 11 de CNPJ e CPF, para gerar CNPJ fictício com o DV errado de propósito e provar que o dado NÃO é real (CA-26).
+// Não é regra do produto: o sistema não confere o dígito verificador de CNPJ nem de CPF.
 
 function digitos(texto: string): number[] {
   return [...texto].map((c) => c.charCodeAt(0) - 48);
@@ -51,4 +51,16 @@ export function cpfInvalidoDe(base9: string): string {
   const d1 = dvCpf(d);
   const d2 = dvCpf([...d, d1]);
   return `${base9}${d1}${(d2 + 1) % 10}`;
+}
+
+/** Dígito verificador da chave de acesso: módulo 11, pesos 2 a 9 da direita para a esquerda, ASCII − 48. */
+export function dvChave(base43: string): string {
+  let soma = 0;
+  let peso = 2;
+  for (let i = base43.length - 1; i >= 0; i--) {
+    soma += (base43.charCodeAt(i) - 48) * peso;
+    peso = peso === 9 ? 2 : peso + 1;
+  }
+  const resto = soma % 11;
+  return String(resto < 2 ? 0 : 11 - resto);
 }

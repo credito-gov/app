@@ -4,9 +4,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 import { CENARIOS, montarCenario, type ConsultaDeCenario } from "../../src/ficticios/cenarios.js";
-import { cnpjValido, dvChave } from "../../src/ficticios/dv.js";
+import { cnpjValido } from "../../src/ficticios/dv.js";
 import { interpretarRetorno, type NotaInterpretada } from "../../src/leitura/registrar.js";
-import { RAIZ } from "../apoio/construtores.js";
+// dvChave do teste: implementação independente da do gerador.
+import { dvChave, RAIZ } from "../apoio/construtores.js";
 
 const AGORA = new Date("2026-11-27T15:00:00.000Z");
 const DIA = 24 * 60 * 60_000;
@@ -168,7 +169,7 @@ describe("dados fictícios (CA-26)", () => {
       for (const bloco of objeto.apuracao ?? []) {
         for (const lista of [bloco["creditos"], bloco["debitos"]]) {
           for (const nota of (lista as { chave: string; documento: number }[] | undefined) ?? []) {
-            if (nota.chave.length !== 44) continue;
+            if (nota.chave === undefined || nota.chave.length !== 44) continue; // sem chave: retorno inválido de propósito
             expect(nota.chave[43], `DV da chave em ${nome}`).toBe(dvChave(nota.chave.slice(0, 43)));
             expect(cnpjValido(nota.chave.slice(6, 20)), `emitente em ${nome}`).toBe(false);
             expect(nota.chave.slice(20, 22)).toBe(String(nota.documento));

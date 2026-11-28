@@ -1,6 +1,6 @@
 // Origem: app/painel/test/apoio/construtores.ts (commit 39e4fae da main).
 // Monta, nos testes, arquivos de retorno fictícios no formato oficial. Nada aqui é dado real.
-import { cnpjInvalidoDe } from "./dv.js";
+import { cnpjInvalidoDe } from "../../src/ficticios/dv.js";
 
 /** Número JSON escrito como texto, para controlar 0, 1 ou 2 casas decimais. */
 export class Num {
