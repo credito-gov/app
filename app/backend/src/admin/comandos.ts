@@ -9,7 +9,7 @@ import { criarConvite, linkConvite } from "../convites/criar.js";
 import { modeloConvite } from "../email/modelos.js";
 import type { EnvioEmail } from "../email/tipos.js";
 import { CENARIOS, montarCenario } from "../ficticios/cenarios.js";
-import { registrarLeitura } from "../leitura/registrar.js";
+import { registrarLeitura, type LogLeitura } from "../leitura/registrar.js";
 import { listarEmpresas, type EmpresaDto } from "../empresas/empresas.js";
 import { removerVinculo } from "../empresas/vinculos.js";
 
@@ -42,8 +42,11 @@ export function criarComandosAdmin(deps: {
   email: EnvioEmail;
   relogio: () => Date;
   config: Config;
+  /** Para a leitura dos cenários; sem ele, nada é registrado. */
+  log?: LogLeitura;
 }): ComandosAdmin {
   const { banco, email, relogio, config } = deps;
+  const log: LogLeitura = deps.log ?? { info() {}, warn() {} };
 
   const usuarioPorEmail = async (emailInformado: string): Promise<string> => {
     const normalizado = normalizarEmail(emailInformado);
@@ -179,6 +182,7 @@ export function criarComandosAdmin(deps: {
             servico: c.servico,
             conteudo: c.retorno,
             recebidoEm: c.finalizadaEm ?? c.criadaEm,
+            log,
           });
           arquivos++;
           if (c.servico === "creditos") notasDeCredito += lido.notas;

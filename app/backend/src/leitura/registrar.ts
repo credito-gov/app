@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 import type { Trx } from "../banco/transacao.js";
 import type { MotivoRecusa } from "../banco/esquema.js";
 import { raizDe } from "./empresa.js";
-import { criarValidador, MOTIVO_ILEGIVEL, type ServicoValidavel, type Validador } from "./validacao.js";
+import { criarValidador, MOTIVO_ILEGIVEL, type CausaDaRecusa, type ServicoValidavel, type Validador } from "./validacao.js";
 
 /** Versão do leitor, gravada em cada arquivo (AD-8). */
 export const VERSAO_LEITOR = "033.1";
@@ -33,6 +33,8 @@ export interface Interpretacao {
   geradoEm: string | null;
   versaoSchema: string | null;
   notas: NotaInterpretada[];
+  /** Só nas recusas: o que o log leva (sem texto do arquivo e sem valor). */
+  diagnostico?: { causa: CausaDaRecusa | "outra_empresa"; total: number; ocorrencias: string[] };
 }
 
 /** Campo de valor, caminho dentro de `cbs` e coluna do banco. */
@@ -111,22 +113,24 @@ function lerNotas(servico: ServicoLido, dados: Objeto): NotaInterpretada[] {
 export function interpretarRetorno(conteudo: Uint8Array, servico: ServicoLido, cnpjRaiz: string): Interpretacao {
   validadorPadrao ??= criarValidador();
   const r = validadorPadrao.validar(servico as ServicoValidavel, conteudo);
-  const recusa = (motivo: MotivoRecusa, geradoEm: string | null): Interpretacao => ({
+  const recusa = (motivo: MotivoRecusa, geradoEm: string | null, diagnostico: NonNullable<Interpretacao["diagnostico"]>): Interpretacao => ({
     situacao: "recusado",
     motivo,
     geradoEm,
     versaoSchema: motivo === "ilegivel" ? null : versaoDoSchema(servico),
     notas: [],
+    diagnostico,
   });
 
   if (r.situacao === "recusado") {
-    if (r.motivos[0] === MOTIVO_ILEGIVEL) return recusa("ilegivel", null);
-    return recusa(r.foraDoLimite ? "valor_fora_do_limite" : "fora_do_schema", null);
+    const diagnostico = { causa: r.causa ?? "fora_do_schema", total: r.total ?? r.motivos.length, ocorrencias: r.ocorrencias ?? [] };
+    if (r.motivos[0] === MOTIVO_ILEGIVEL) return recusa("ilegivel", null, diagnostico);
+    return recusa(r.foraDoLimite ? "valor_fora_do_limite" : "fora_do_schema", null, diagnostico);
   }
   const dados = r.dados as Objeto;
   const geradoEm = typeof dados["geradoEm"] === "string" ? dados["geradoEm"] : null;
   const ni = typeof dados["ni"] === "string" ? dados["ni"] : "";
-  if (raizDe(ni) !== cnpjRaiz) return recusa("outra_empresa", geradoEm);
+  if (raizDe(ni) !== cnpjRaiz) return recusa("outra_empresa", geradoEm, { causa: "outra_empresa", total: 1, ocorrencias: ["/ni#outra_empresa"] });
   return {
     situacao: r.situacao === "aceito" ? "aceito" : "aceito_com_divergencia",
     geradoEm,
@@ -137,6 +141,7 @@ export function interpretarRetorno(conteudo: Uint8Array, servico: ServicoLido, c
 
 export interface LogLeitura {
   info(objeto: object, mensagem?: string): void;
+  warn(objeto: object, mensagem?: string): void;
 }
 
 export interface DadosLeitura {
@@ -146,8 +151,11 @@ export interface DadosLeitura {
   recebidoEm: Date;
   /** Endereço no armazenamento de objetos (AD-8), a partir do coletor. */
   objeto?: string;
-  /** Só recebe consultaId, situação, motivo e quantidade. Nunca valor, chave, CNPJ ou trecho do conteúdo. */
-  log?: LogLeitura;
+  /**
+   * Obrigatório. Só recebe identificadores, situação, motivo, causa, quantidades e a lista de
+   * caminho#regra das divergências. Nunca valor, chave, CNPJ, mensagem do validador ou trecho do conteúdo.
+   */
+  log: LogLeitura;
 }
 
 export interface ResultadoLeitura {
@@ -213,10 +221,26 @@ export async function registrarLeitura(tx: Trx, dados: DadosLeitura): Promise<Re
     await tx.insertInto(tabela).values(linhas as never).execute();
   }
 
-  dados.log?.info(
+  dados.log.info(
     { evento: "leitura_registrada", consultaId, situacao: r.situacao, motivo: r.motivo ?? null, notas: r.notas.length },
     "leitura_registrada",
   );
+  if (r.situacao === "recusado" && r.diagnostico) {
+    // Retorno recusado é motivo de atenção do operador: warn, com a causa e onde divergiu, sem o conteúdo.
+    dados.log.warn(
+      {
+        evento: "leitura_recusada",
+        consultaId,
+        arquivoId: arquivo.id,
+        servico,
+        motivo: r.motivo ?? null,
+        causa: r.diagnostico.causa,
+        divergencias: r.diagnostico.total,
+        ocorrencias: r.diagnostico.ocorrencias,
+      },
+      "leitura_recusada",
+    );
+  }
   return {
     arquivoId: arquivo.id,
     situacao: r.situacao,

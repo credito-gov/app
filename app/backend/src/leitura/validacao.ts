@@ -44,7 +44,25 @@ export interface ResultadoValidacao {
   dados?: unknown;
   /** Recusado só porque algum valor tem mais de 18 dígitos inteiros (não cabe em numeric(20,2)). */
   foraDoLimite?: boolean;
+  /** Só recusado. O que deu a recusa, para o log: sem texto do arquivo e sem valor. */
+  causa?: CausaDaRecusa;
+  /** Só recusado. "caminho#regra" de cada divergência (até 20), sem a mensagem do ajv e sem valor. */
+  ocorrencias?: string[];
 }
+
+export type CausaDaRecusa = "ilegivel" | "aninhado" | "chave_repetida" | "fora_do_schema" | "valor_fora_do_limite";
+
+interface Divergencia {
+  caminho: string;
+  regra: string;
+  texto: string;
+}
+
+/** O caminho vem das chaves do arquivo: só letras, dígitos, _ e /, e no máximo 120 caracteres, para o log. */
+function caminhoSeguro(caminho: string): string {
+  return caminho.replace(/[^A-Za-z0-9_/]/g, "?").slice(0, 120) || "/";
+}
+const ocorrenciaDe = (d: Divergencia): string => `${caminhoSeguro(d.caminho)}#${d.regra}`;
 
 export interface Validador {
   validar(servico: ServicoValidavel, bytes: Uint8Array): ResultadoValidacao;
@@ -55,20 +73,20 @@ const MAXIMO_LISTADO = 20;
 const CAMPOS_INTEIROS = new Set(["origem", "documento", "tipo", "sequencial"]);
 
 /** Checagem exata no texto original: no máximo duas casas decimais, múltiplo de 0,01 (big.js) e sem notação exponencial. */
-function checarNumeros(valor: unknown, caminho: string, chave: string, saida: string[], limites: string[]): void {
+function checarNumeros(valor: unknown, caminho: string, chave: string, saida: Divergencia[], limites: Divergencia[]): void {
   if (isLosslessNumber(valor)) {
     const texto = valor.value;
     if (/[eE]/.test(texto)) {
-      saida.push(`${caminho}: número em notação exponencial; esperado decimal com até duas casas`);
+      saida.push({ caminho, regra: "notacao_exponencial", texto: `${caminho}: número em notação exponencial; esperado decimal com até duas casas` });
     } else if (!CAMPOS_INTEIROS.has(chave)) {
       const [inteiro = "", decimais] = texto.replace(/^-/, "").split(".");
       if (decimais !== undefined && decimais.length > 2) {
-        saida.push(`${caminho}: valor monetário com mais de duas casas decimais`);
+        saida.push({ caminho, regra: "mais_de_duas_casas", texto: `${caminho}: valor monetário com mais de duas casas decimais` });
       } else {
         const centavos = new Big(texto).times(100);
-        if (!centavos.eq(centavos.round(0))) saida.push(`${caminho}: valor monetário que não é múltiplo de 0,01`);
+        if (!centavos.eq(centavos.round(0))) saida.push({ caminho, regra: "nao_multiplo_de_centavo", texto: `${caminho}: valor monetário que não é múltiplo de 0,01` });
       }
-      if (inteiro.replace(/^0+(?=\d)/, "").length > DIGITOS_INTEIROS_MAXIMOS) limites.push(`${caminho}: ${MOTIVO_LIMITE}`);
+      if (inteiro.replace(/^0+(?=\d)/, "").length > DIGITOS_INTEIROS_MAXIMOS) limites.push({ caminho, regra: "fora_do_limite", texto: `${caminho}: ${MOTIVO_LIMITE}` });
     }
     return;
   }
@@ -83,10 +101,14 @@ function checarNumeros(valor: unknown, caminho: string, chave: string, saida: st
 const CAMPOS_DATA_HORA = new Set(["geradoEm", "atualizacao", "emissao", "registro"]);
 
 /** O schema aceita formas de data-hora que o painel não lê (fuso sem dois-pontos, t e z minúsculos, espaço no lugar do T...). */
-function checarDatas(valor: unknown, caminho: string, chave: string, saida: string[]): void {
+function checarDatas(valor: unknown, caminho: string, chave: string, saida: Divergencia[]): void {
   if (typeof valor === "string") {
     if (CAMPOS_DATA_HORA.has(chave) && analisarData(valor) === null) {
-      saida.push(`${caminho}: data que o painel não consegue ler (esperado aaaa-mm-ddThh:mm:ss, com fração opcional de até 9 dígitos, e Z ou ±hh:mm)`);
+      saida.push({
+        caminho,
+        regra: "data_ilegivel",
+        texto: `${caminho}: data que o painel não consegue ler (esperado aaaa-mm-ddThh:mm:ss, com fração opcional de até 9 dígitos, e Z ou ±hh:mm)`,
+      });
     }
     return;
   }
@@ -142,7 +164,7 @@ function retirarMultipleOf(no: unknown): void {
   }
 }
 
-const RECUSA_ANINHADO: ResultadoValidacao = { situacao: "recusado", motivos: [MOTIVO_ANINHADO], total: 1 };
+const RECUSA_ANINHADO: ResultadoValidacao = { situacao: "recusado", motivos: [MOTIVO_ANINHADO], total: 1, causa: "aninhado", ocorrencias: ["/#aninhado"] };
 
 export function criarValidador(): Validador {
   const ajv = new Ajv2020({ allErrors: true });
@@ -169,7 +191,7 @@ export function criarValidador(): Validador {
         objeto = JSON.parse(texto);
       } catch (e) {
         if (e instanceof RangeError) return RECUSA_ANINHADO;
-        return { situacao: "recusado", motivos: [MOTIVO_ILEGIVEL], total: 1 };
+        return { situacao: "recusado", motivos: [MOTIVO_ILEGIVEL], total: 1, causa: "ilegivel", ocorrencias: ["/#ilegivel"] };
       }
       if (profundidadeDe(texto) > PROFUNDIDADE_MAXIMA) return RECUSA_ANINHADO;
 
@@ -179,7 +201,13 @@ export function criarValidador(): Validador {
         sem = parseLossless(texto);
       } catch (e) {
         const repetida = e instanceof SyntaxError && e.message.startsWith("Duplicate key");
-        return { situacao: "recusado", motivos: [repetida ? MOTIVO_CHAVE_REPETIDA : MOTIVO_ILEGIVEL], total: 1 };
+        return {
+          situacao: "recusado",
+          motivos: [repetida ? MOTIVO_CHAVE_REPETIDA : MOTIVO_ILEGIVEL],
+          total: 1,
+          causa: repetida ? "chave_repetida" : "ilegivel",
+          ocorrencias: [repetida ? "/#chave_repetida" : "/#ilegivel"],
+        };
       }
 
       const validar = doServico(servico);
@@ -189,16 +217,29 @@ export function criarValidador(): Validador {
       const tolerado = (e: { instancePath: string; keyword: string }) =>
         e.instancePath === "/ni" && e.keyword === "pattern" && typeof ni === "string" && /^\d{14}$/.test(ni);
       const naoTolerados = erros.filter((e) => !tolerado(e));
-      const divergencias: string[] = naoTolerados.map((e) => `${e.instancePath || "/"}: ${e.message ?? "divergência do schema"}`);
-      const limites: string[] = [];
+      const divergencias: Divergencia[] = naoTolerados.map((e) => ({
+        caminho: e.instancePath || "/",
+        regra: e.keyword,
+        texto: `${e.instancePath || "/"}: ${e.message ?? "divergência do schema"}`,
+      }));
+      const limites: Divergencia[] = [];
       checarNumeros(sem, "", "", divergencias, limites);
       checarDatas(objeto, "", "", divergencias);
 
       if (divergencias.length === 0 && limites.length > 0) {
-        return { situacao: "recusado", motivos: limites.slice(0, MAXIMO_LISTADO), total: limites.length, foraDoLimite: true };
+        const lista = limites.slice(0, MAXIMO_LISTADO);
+        return {
+          situacao: "recusado",
+          motivos: lista.map((d) => d.texto),
+          total: limites.length,
+          foraDoLimite: true,
+          causa: "valor_fora_do_limite",
+          ocorrencias: lista.map(ocorrenciaDe),
+        };
       }
       if (divergencias.length > 0) {
-        return { situacao: "recusado", motivos: divergencias.slice(0, MAXIMO_LISTADO), total: divergencias.length };
+        const lista = divergencias.slice(0, MAXIMO_LISTADO);
+        return { situacao: "recusado", motivos: lista.map((d) => d.texto), total: divergencias.length, causa: "fora_do_schema", ocorrencias: lista.map(ocorrenciaDe) };
       }
       const dados = numerosComoTexto(sem);
       return erros.length > 0 ? { situacao: "aceito-com-divergencia", motivos: [MOTIVO_NI], dados } : { situacao: "aceito", motivos: [], dados };

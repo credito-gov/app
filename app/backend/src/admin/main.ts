@@ -61,6 +61,8 @@ const admin = criarComandosAdmin({
   email: criarEnvioEmail(config.email, { pastaArquivo: join(process.cwd(), ".local", "emails") }),
   relogio: () => new Date(),
   config,
+  // O terminal do operador vê só o aviso de retorno recusado (identificadores e caminhos, nunca o conteúdo).
+  log: { info() {}, warn: (objeto) => console.error(JSON.stringify({ nivel: "aviso", ...objeto })) },
 });
 
 const exigir = (nome: keyof typeof values): string => {
