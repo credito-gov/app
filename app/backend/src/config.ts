@@ -20,7 +20,8 @@ export interface Config {
   webOrigem: string;
   email: AdaptadorEmail;
   apiPorta: number;
-  confiarProxy: boolean;
+  /** Número de saltos de proxy confiáveis (0 = não confia em X-Forwarded-For). */
+  confiarProxy: number;
 }
 
 export type Env = Record<string, string | undefined>;
@@ -79,13 +80,13 @@ export function carregarConfig(env: Env): Config {
     }
   }
 
-  let confiarProxy = false;
+  let confiarProxy = 0;
   const proxy = env["CREDITOGOV_CONFIAR_PROXY"];
   if (proxy !== undefined && proxy !== "") {
-    if (proxy !== "true" && proxy !== "false") {
-      throw new ErroConfig("CREDITOGOV_CONFIAR_PROXY deve ser true ou false");
+    if (!/^[0-9]{1,3}$/.test(proxy)) {
+      throw new ErroConfig("CREDITOGOV_CONFIAR_PROXY deve ser um inteiro maior ou igual a 0 (número de proxies confiáveis)");
     }
-    confiarProxy = proxy === "true";
+    confiarProxy = Number(proxy);
   }
 
   return {
