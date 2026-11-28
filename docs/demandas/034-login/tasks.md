@@ -473,4 +473,4 @@ O Developer roda o roteiro e registra o resultado no commit. A conferência visu
 
 ## Perguntas em aberto
 
-- **P-S3 (valores dos cartões do painel da marca):** a Spec tem os títulos, subtítulos e selos do artboard "Login", mas não o valor fictício do cartão 1, os CNPJs e valores fictícios do cartão 2 (quantas linhas) nem a data do cartão 3. Alternativas: (a) a sessão principal lê esses valores no artboard e os passa ao Developer antes da task 29; (b) o Developer usa valores fictícios fixos e visivelmente de exemplo: no cartão 1, R$ 12.345,67; no cartão 2, três linhas (`11.111.111/0001-11`, `22.222.222/0001-22` e "Emitente não identificado"), com valores redondos; no cartão 3, a data 25/11/2026, a da aprovação do design. Recomendação: (a), para ficar igual ao design aprovado; (b) só se o artifact não estiver à mão, com conferência do responsável na task 34. A task 29 é a única que depende desta resposta.
+- **P-S3 (valores dos cartões do painel da marca): resolvida em 2026-11-28.** A sessão principal leu os valores fictícios no artboard "Login" aprovado da 032 (opção (a)). Eles estão no `spec.md`, DT-13.

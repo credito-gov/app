@@ -37,7 +37,7 @@ Nesta demanda não há papel com `BYPASSRLS` nem função `SECURITY DEFINER`. O 
 
 #### Migrações (CA-2)
 
-Migrações do Kysely (`Migrator` com `FileMigrationProvider`), em TypeScript, em `src/banco/migracoes/`, numeradas (`0001_...`). `npm run migrar` conecta por `CREDITOGOV_BANCO_MIGRACAO_URL`. A migração inicial:
+Migrações do Kysely (`Migrator` com `FileMigrationProvider`; na implementação, provedor estático, ver DT-14), em TypeScript, em `src/banco/migracoes/`, numeradas (`0001_...`). `npm run migrar` conecta por `CREDITOGOV_BANCO_MIGRACAO_URL`. A migração inicial:
 
 1. cria as funções `app_usuario()` e `app_empresas()`, que leem `current_setting('app.usuario_id', true)` e `current_setting('app.empresas', true)` e devolvem `uuid` e `uuid[]`. Sem valor fixado, devolvem `NULL` e `'{}'`, e as regras não deixam passar nenhuma linha;
 2. cria as tabelas do modelo de dados (abaixo);
@@ -98,7 +98,7 @@ app/backend/
 #### Senha (CA-14, P-4)
 
 - `argon2id` pela biblioteca `argon2` (node-argon2), com os parâmetros padrão dela. Nos testes, o custo cai por configuração, para não deixar a suíte lenta.
-- Regra: de 12 a 128 caracteres, contados em pontos de código Unicode depois de normalizar em NFC, sem exigência de tipos de caractere, e fora da lista de senhas comuns. A lista fica em `src/autenticacao/senhasComuns.ts`, tirada de uma lista pública com licença que permita o uso (o Developer registra a origem, a licença e o filtro no cabeçalho do arquivo). A comparação ignora maiúsculas e minúsculas. A resposta de recusa diz qual regra falhou: tamanho mínimo, tamanho máximo ou senha comum.
+- Regra: de 12 a 128 caracteres, contados em pontos de código Unicode depois de normalizar em NFC, sem exigência de tipos de caractere, e fora da lista de senhas comuns. A lista vem da dependência `@zxcvbn-ts/language-common` (MIT), filtrada em tempo de execução por `src/autenticacao/senhasComuns.ts`, sem consulta a serviço externo (DT-17). A comparação ignora maiúsculas e minúsculas. A resposta de recusa diz qual regra falhou: tamanho mínimo, tamanho máximo ou senha comum.
 
 #### Tokens (CA-6, CA-19, CA-23)
 
@@ -138,7 +138,7 @@ A API também responde com `Referrer-Policy: no-referrer`, `X-Content-Type-Optio
 
 `src/autenticacao/limite.ts`, com relógio injetável para os testes.
 
-- **Chaves:** `HMAC(e-mail normalizado)` e `HMAC(endereço de origem)`, contadas em separado e por tipo (`login` ou `recuperacao`). O endereço de origem é `request.ip`. `CREDITOGOV_CONFIAR_PROXY` (desligada por padrão) liga o `trustProxy` do Fastify, para quando houver proxy à frente.
+- **Chaves:** `HMAC(e-mail normalizado)` e `HMAC(endereço de origem)`, contadas em separado e por tipo (`login` ou `recuperacao`). O endereço de origem é `request.ip`. `CREDITOGOV_CONFIAR_PROXY` é o número de saltos de proxy confiáveis (padrão 0), passado ao `trustProxy` do Fastify (DT-18).
 - **Login:** antes de verificar a senha, se alguma das duas chaves tem `bloqueio_acesso.ate > agora`, a resposta é `429 muitas_tentativas` ("Muitas tentativas. Tente de novo em alguns minutos."), sem verificar a senha. Cada falha grava uma linha em `falha_acesso` para as duas chaves. Ao chegar a 5 falhas nos últimos 15 minutos numa chave, ela fica bloqueada por 15 minutos (`ate = agora + 15 min`). O login certo apaga as falhas da chave do e-mail. As tentativas feitas durante o bloqueio não o prolongam.
 - **Recuperação:** cada pedido conta como uma ocorrência, exista ou não a conta, com a mesma regra de 5 em 15 minutos e bloqueio de 15 minutos. Como a contagem não depende de a conta existir, o limite não revela nada.
 - **Limpeza:** as linhas de `falha_acesso` com mais de 24 h são apagadas durante a própria gravação. Não há tarefa agendada.
@@ -242,7 +242,7 @@ Um `401` com `sessao_expirada` ou `sem_sessao` em rota logada leva a `/entrar?mo
   | 2 | "Saiba o que ainda está a apropriar e de quem vem." | "O crédito que a Receita ainda não liberou, agrupado pelo emitente de cada nota." | "A apropriar, por emitente", com CNPJs fictícios do tipo `11.111.111/0001-11`, a linha "Emitente não identificado" e o selo "Exemplo fictício" |
   | 3 | "Saiba até quando cada número está atualizado." | "Os dados vêm da API de apuração da CBS da Receita Federal. O IBS ainda não está nessa fonte." | "Créditos atualizados em <data>", "Consulta à API de apuração da CBS da Receita" e o selo "Só CBS" |
 
-  Os valores e a data dos cartões são fictícios, fixos no código e iguais aos do artboard (P-S3). A troca é a cada 6 segundos. Ela pausa sob o ponteiro e com o foco, e não acontece sozinha com `prefers-reduced-motion: reduce`. Os pontos são `button` com `aria-label` "Mensagem N de 3" e `aria-current` na mensagem atual. O texto fica numa região `aria-live="polite"`.
+  Os valores e a data dos cartões são fictícios, fixos no código e iguais aos do artboard (P-S3, resolvida em 2026-11-28; valores em DT-13). A troca é a cada 6 segundos. Ela pausa sob o ponteiro e com o foco, e não acontece sozinha com `prefers-reduced-motion: reduce`. Os pontos são `button` com `aria-label` "Mensagem N de 3" e `aria-current` na mensagem atual. O texto fica numa região `aria-live="polite"`.
 - **Formulário de login** (P-S1): os textos seguem o artboard: "Entrar", "E-mail", "Senha", "Mostrar senha", "Esqueci a senha" e "Ainda não tem acesso? Fale com a equipe CreditoGov ou com o seu contador.". **Ajuste decorrente de D-1:**
   - o subtítulo do artboard, "Use a conta da sua empresa ou o e-mail cadastrado no CreditoGov.", fala dos provedores que saíram e passa a ser "Use o e-mail cadastrado no CreditoGov.";
   - o divisor "ou com e-mail" sai junto com os botões de Google e Microsoft.
@@ -305,7 +305,7 @@ Qualquer rota com empresa sem vínculo ativo, inexistente ou com `:empresaId` qu
 ### O que a 033 consome
 
 - **Sessão e empresas:** `GET /api/sessao` e `GET /api/empresas`, nas formas acima. `papel` vem em cada empresa, e a carteira do contador (CA-C1 da 033) parte dessa lista.
-- **Rotas de dado de empresa:** sempre sob `/api/empresas/:empresaId/...`, com o auxiliar `rotaDeEmpresa`. É um `preHandler` do Fastify que exige sessão, valida o `uuid` e expõe `request.naEmpresa(fn)`, que chama `naEmpresa(usuarioId, empresaId, fn)`. A carteira fica sob `/api/carteira/...`, com `request.naCarteira(fn)`. Nenhuma rota recebe a instância do Kysely de outro jeito.
+- **Rotas de dado de empresa:** sempre sob `/api/empresas/:empresaId/...`, com o auxiliar `rotaDeEmpresa`. É um gancho do Fastify (`onRequest` na implementação, DT-16) que exige sessão, valida o `uuid` e expõe `request.naEmpresa(fn)`, que chama `naEmpresa(usuarioId, empresaId, fn)`. A carteira fica sob `/api/carteira/...`, com `request.naCarteira(fn)`. Nenhuma rota recebe a instância do Kysely de outro jeito.
 - **Tabelas novas com dado de empresa** (créditos, débitos, consultas): coluna `empresa_id`, `ENABLE` e `FORCE ROW LEVEL SECURITY`, e regra `empresa_id = ANY(app_empresas())`. O teste de CA-37 descobre sozinho, pelo catálogo, toda tabela com coluna `empresa_id` e falha se faltar `FORCE` ou regra. As tabelas novas já entram na verificação.
 - **Web:** `LayoutEmpresa` em `/e/:empresaId/*`, com `BarraTopo`, a troca de empresa e o `useEmpresaEmFoco()` (a `Empresa` atual, carregada de `GET /api/empresas/:empresaId`). A 033 troca a página inicial provisória pelo dashboard em `/e/:empresaId`, acrescenta os itens do menu do design (Visão geral, Créditos, Pendências, Débitos, Consultas à Receita) e troca `/empresas` pela carteira com valores. O cliente `api/cliente.ts` e os estados `sem_conexao` e `sessao_expirada` valem para as telas dela.
 
@@ -335,6 +335,35 @@ Riscos:
 - **R-5. Lista de senhas comuns.** Ela depende de fonte pública e licença. Se o Developer não achar fonte com licença clara, a task para e pergunta.
 - **R-6. Texto do painel da marca fora do repositório.** As três mensagens aprovadas vêm do artifact privado da 032 e foram transcritas nesta Spec (P-S1). A task de documentação as registra também em `docs/design/design-system.md`, para o repositório não depender do artifact.
 
+### Notas de implementação (2026-11-28)
+
+Desvios técnicos registrados depois da implementação e da rodada de correção 1, a pedido do Reviewer. Não mudam nenhum CA nem o que foi aprovado em DT-1 a DT-12.
+
+- **DT-13 — Valores dos cartões do painel da marca (P-S3).** A sessão principal os leu no artboard "Login" aprovado da 032:
+  - cartão 1: "R$ 52.121,58" e "896 notas de compra";
+  - cartão 2: `11.111.111/0001-11` com R$ 14.320,10, `22.222.222/0001-22` com R$ 9.870,45 e "Emitente não identificado" com R$ 7.950,30;
+  - cartão 3: "Créditos atualizados em 24/11/2026, 08:12".
+
+  São todos fictícios, com o selo da Spec.
+- **DT-14 — Provedor de migrações estático.** Um provedor que importa as migrações explicitamente substitui o `FileMigrationProvider`, porque funciona igual em `src` (testes) e em `dist` (build), sem depender de caminho de arquivo. O `Migrator` é importado de `kysely/migration`.
+- **DT-15 — `naEmpresaFixada` em `transacao.ts`.** É uma função a mais, que fixa uma empresa sem conferir vínculo. Só dois pontos a usam: a consulta e a aceitação de convite pelo token (DT-6) e o `npm run admin` (DT-7). Nenhuma rota com sessão a usa; essas passam por `naEmpresa`.
+- **DT-16 — `rotaDeEmpresa` como `onRequest`**, não `preHandler`. A conferência de sessão e de empresa acontece antes da leitura do corpo. O contrato para a 033 não muda: `request.naEmpresa(fn)` e `request.naCarteira(fn)`.
+- **DT-17 — Lista de senhas comuns por dependência.** O responsável decidiu em 2026-11-27 usar `@zxcvbn-ts/language-common` 4.2.0 (licença MIT). A lista é filtrada em tempo de execução: 12 caracteres ou mais, depois de NFC, em minúsculas, o que dá 308 senhas. A lista é local, sem consulta a serviço externo. É assim que se lê o "guardada no próprio código" de CA-14 e de P-4.
+- **DT-18 — `CREDITOGOV_CONFIAR_PROXY` como número de saltos.** Era um booleano e passou a ser um inteiro maior ou igual a 0 (padrão 0). A API confia só nos N saltos mais próximos para obter o endereço de origem do limite de tentativas. No desenvolvimento, o proxy do Vite usa `xfwd: true` e o backend usa o valor 1.
+- **DT-19 — Falhas de envio de e-mail e de sessão:**
+  - **recuperação:** a resposta continua o mesmo `202`, e o log registra `email_falhou` sem e-mail. Assim a falha não revela se a conta existe (CA-23);
+  - **convite:** responde `502 email_nao_enviado`, e quem convida sabe que o convite não chegou;
+  - **aceite de convite:** se a gravação foi confirmada e a abertura da sessão falhou, responde `500 convite_aceito_sem_sessao`, e a web orienta a entrar pelo login;
+  - **web:** um estado `servidor_indisponivel` cobre 502, 503 e 504 sem corpo de erro tipado, separado de `sem_conexao`.
+- **DT-20 — Um só convite pendente por empresa e e-mail.** A migração `0001` cria o índice único parcial `convite_pendente_unico`, e `criarConvite` usa `pg_advisory_xact_lock` por empresa e e-mail, para dois convites simultâneos não ficarem pendentes juntos (CA-9).
+- **DT-21 — Recusa de papel com privilégio.** A API e o `npm run admin` conferem o papel conectado ao iniciar. Não sobem se ele for superusuário, tiver `BYPASSRLS` ou for dono de alguma tabela (AD-6, CA-2, CA-37).
+- **DT-22 — Raiz fictícia `22222222`** acrescentada às de teste, para casos com três empresas.
+
+Riscos novos:
+
+- **R-7. Número de saltos de proxy.** Atrás de proxy, `CREDITOGOV_CONFIAR_PROXY` precisa ser o número exato de saltos. Com um valor menor, todos os acessos parecem vir do proxy, e a chave de origem do limite fica compartilhada, de modo que um usuário bloqueia os outros. Com um valor maior, o cliente consegue forjar o endereço pelo `X-Forwarded-For` e escapar do limite por origem.
+- **R-8. A raiz `00000000` não é fictícia.** Ela foi adotada como fictícia no design (032) e na US, mas é a raiz real de um CNPJ (Banco do Brasil). Fica nesta demanda para não divergir do design aprovado. A troca nos testes, nos dados de exemplo e no design é de uma demanda futura.
+
 ## Implantação
 
 **Não há deploy nesta demanda:** o provedor de nuvem depende da PD-1 (AD-7), e não há provedor de e-mail (P-7). Tudo roda na máquina local. O que segue serve para quem for colocar no ar na demanda de hospedagem.
@@ -350,17 +379,18 @@ Riscos:
   - `CREDITOGOV_WEB_URL`: origem pública da web, usada nos links e na conferência de `Origin`;
   - `CREDITOGOV_EMAIL`: `arquivo` ou `memoria`;
   - `CREDITOGOV_API_PORTA`: padrão `3000`. A API escuta em `127.0.0.1`;
-  - `CREDITOGOV_CONFIAR_PROXY`: padrão desligado.
+  - `CREDITOGOV_CONFIAR_PROXY`: número de saltos de proxy confiáveis, inteiro maior ou igual a 0, padrão 0 (DT-18).
 
   A `app/web` não tem variável: chama `/api` na mesma origem.
 - **Outros efeitos:** Docker Compose local com volume `creditogov-banco` e porta `127.0.0.1:5433`. E-mails locais em `app/backend/.local/emails/`. Sem cron, DNS, Keycloak ou serviço externo.
 - **Para ir ao ar** (demanda futura):
   - web e API na mesma origem, atrás de HTTPS, com `/api` encaminhado à API;
-  - `CREDITOGOV_CONFIAR_PROXY` ligada só se houver proxy confiável;
+  - `CREDITOGOV_CONFIAR_PROXY` com o número exato de proxies confiáveis à frente da API (DT-18 e R-7);
   - papéis com senha e sem `trust`;
   - segredo gerado e guardado no gerenciador de segredos;
   - um adaptador de e-mail real. Sem ele, a API recusa iniciar em `producao`.
 - **Antes:** `npm run banco:subir` e `npm run migrar`. **Depois:** `npm run admin -- criar-empresa` e `convidar` para o primeiro acesso, com dados fictícios no ambiente local.
+- **Riscos para ir ao ar:** R-7 (número de saltos de proxy) e R-8 (a raiz `00000000` é real e deve ser trocada nos dados de exemplo).
 - **Como voltar:** localmente, `npm run banco:apagar` apaga o volume. Não há nada publicado para desfazer.
 
 ## Estratégia de verificação
@@ -370,7 +400,7 @@ Riscos:
 - **`app/backend`:** `npm run banco:subir`, depois `npm test`, `npm run lint` e `npm run build`.
 - **`app/web`:** `npm test`, `npm run lint` e `npm run build`.
 
-Nenhum teste lê `.env`, chama serviço externo ou usa dado real. Os e-mails dos testes são de `exemplo.com.br` ou `example.com`, e os CNPJs são `00000000` e `11111111`.
+Nenhum teste lê `.env`, chama serviço externo ou usa dado real. Os e-mails dos testes são de `exemplo.com.br` ou `example.com`, e as raízes de CNPJ são `00000000`, `11111111` e `22222222` (DT-22; ver R-8 sobre a `00000000`).
 
 **Banco de teste:** o `globalSetup` do vitest do backend conecta como superusuário do contêiner local, só para apagar e recriar o banco `creditogov_teste` (dono `creditogov_migracao`), e roda as migrações com o papel de migração. Os testes usam o papel `creditogov_app`, e cada arquivo de teste limpa as tabelas com o papel de migração antes de começar. As URLs de teste são fixas no código, apontando para `127.0.0.1:5433` sem senha, e podem ser trocadas por `CREDITOGOV_BANCO_TESTE_URL` se a porta mudar.
 
@@ -425,4 +455,4 @@ Respondidas em 2026-11-27, na aprovação da Spec:
 
 - **P-S1 (texto): resolvida.** Valem os textos aprovados do artboard "Login" (`project/Main.dc.html`) do canvas da 032 (<https://claude.ai/artifact/Xj5Mwa2tH2hRGDX7bZWbRg>), lidos pela sessão principal e transcritos em "Telas e rotas" (`PainelMarca` e formulário de login). A proposta que estava nesta Spec foi descartada. O subtítulo do formulário muda por causa de D-1, e o divisor "ou com e-mail" sai.
 - **P-S2 (tema): resolvida.** Só o tema claro nesta demanda, sem seletor. O seletor fica para uma demanda própria ou para a 033.
-- **P-S3 (valores dos cartões): aberta.** O valor do cartão 1, os CNPJs e valores do cartão 2 e a data do cartão 3 não foram transcritos. Ver o `tasks.md`.
+- **P-S3 (valores dos cartões): resolvida em 2026-11-28.** A sessão principal leu os valores fictícios no artboard "Login" aprovado da 032. Eles estão em DT-13.
