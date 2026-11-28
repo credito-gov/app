@@ -108,7 +108,7 @@ Cópia revisada de `app/painel/src/nucleo/` (`json.ts`, `validacao.ts`, `dinheir
 4. **Múltiplo de 0,01 sem ponto flutuante** (AD-13, ponto de atenção herdado do painel). Ao carregar o schema, a validação de `multipleOf` sai do `ajv`, só em memória, e passa a ser feita sobre o texto de cada valor monetário com `big.js` (`valor × 100` tem de ser inteiro). O resultado é o mesmo do schema, sem o limite do `multipleOfPrecision`. Valor que não cabe em `numeric(20,2)` dá `recusado` com `valor_fora_do_limite`.
 5. Confere a empresa: a raiz do `ni` (8 primeiros dígitos) tem de ser igual à `cnpj_raiz` da empresa fixada. Se não for, dá `recusado` com `outra_empresa` (CA-20). Notas de outros estabelecimentos da mesma raiz são da mesma empresa (CA-24, O-24).
 6. Grava a linha de `arquivo_bruto`. Se o arquivo foi aceito, grava também as notas em `credito_lido` ou `debito_lido`, em lotes de 500, com os valores como texto decimal. Campo ausente fica nulo.
-7. Registra no log só o `consultaId`, a situação, o motivo e a quantidade de notas. Nunca valor, chave, CNPJ ou trecho do arquivo (seção 8 da arquitetura).
+7. Registra no log só o `consultaId`, a situação, o motivo e a quantidade de notas (`leitura_registrada`, nível `info`). Arquivo recusado gera também `leitura_recusada`, nível `warn`, descrito no ajuste da revisão de 2026-11-28, no fim. Nunca valor, chave, CNPJ ou trecho do arquivo (seção 8 da arquitetura).
 
 A função não muda o estado da consulta: isso é do coletor, ou do carregador de cenários nesta demanda. `versao_leitor` é uma constante (`"033.1"`), gravada no arquivo e nas notas (AD-8).
 
@@ -196,7 +196,9 @@ O emitente é calculado na hora da consulta, a partir da chave guardada, e não 
 
 - a prioridade é `falhou`, depois `sem_consulta`, depois `desatualizado`, depois `atualizado`;
 - a data é a mais antiga das duas `ultimaAceitaEm` (créditos e débitos); consulta com arquivo recusado não conta;
-- sem nenhuma consulta com arquivo aceito num dos serviços, a data é nula e o resumo, se não houver falha, é `sem_consulta`.
+- sem nenhuma consulta com arquivo aceito num dos serviços, a data é nula e o resumo, se não houver falha, é `sem_consulta`;
+- com um dos serviços em `sem_dados_usaveis`, o resumo, se não houver falha, também é `sem_consulta`, mesmo que haja um retorno aceito vazio anterior. Nesse caso a data continua sendo a mais antiga das duas `ultimaAceitaEm` (ajuste na revisão de 2026-11-28, no fim);
+- a linha leva `recusados` de cada serviço, e, se algum não for nulo, mostra o aviso "Há retornos da Receita que não entraram nos indicadores." (CA-20, CA-C2).
 
 Os valores só aparecem com créditos em `com_dados`. Nos outros estados, a linha leva o estado no lugar dos valores. Não existe função que some valores de empresas diferentes (CA-C4).
 
@@ -409,7 +411,7 @@ Valores em texto decimal com duas casas (`"1234.50"`). Instantes em ISO 8601 UTC
 
 ### `GET /api/carteira`
 
-`200 { empresas: [{ id, nome, cnpjRaizFormatado, papel, creditos: { estado, aApropriar, apropriado, utilizado }, situacao: { resumo: "atualizado" | "falhou" | "desatualizado" | "sem_consulta", ultimaAceitaEm, diasSemAtualizacao } }] }`, ordenadas por nome. `ultimaAceitaEm` é a mais antiga das `ultimaAceitaEm` dos dois serviços (DT-8). Os três valores são `null` fora de `com_dados`. A resposta não tem campo de total. CA-C1 a CA-C4.
+`200 { empresas: [{ id, nome, cnpjRaizFormatado, papel, creditos: { estado, aApropriar, apropriado, utilizado }, situacao: { resumo: "atualizado" | "falhou" | "desatualizado" | "sem_consulta", ultimaAceitaEm, diasSemAtualizacao, recusados: { creditos, debitos } } }] }`, ordenadas por nome. `ultimaAceitaEm` é a mais antiga das `ultimaAceitaEm` dos dois serviços (DT-8). `recusados.creditos` e `recusados.debitos` têm a mesma forma de `situacao.<servico>.recusados` do painel: `null` ou `{ "quantidade": n, "ultimoEm": "<instante>" }` (CA-20, CA-C2). Os três valores de `creditos` são `null` fora de `com_dados`. A resposta não tem campo de total. CA-C1 a CA-C4.
 
 ### Função de leitura (contrato com o coletor)
 
@@ -542,3 +544,9 @@ Decisão do responsável durante a revisão: **o aviso de desatualizado (CA-15),
 - Textos de CA-14, CA-15 e da carteira ajustados na seção "Textos". Os de CA-17, CA-19 e CA-20 mantêm a redação, com a data de `ultimaAceitaEm` onde mostram data de consulta.
 - Tabela "CA por teste": CA-14, CA-15, CA-19 e CA-C2 ganham o caso que motivou o ajuste.
 - Tasks 39 e 40 em `tasks.md`.
+
+**Registros feitos na revisão (2026-11-28), sem regra nova:** o código já fazia o que segue, e a Spec não dizia.
+
+- **DT-8, resumo `sem_consulta`:** além do caso sem nenhuma consulta com arquivo aceito, o resumo da carteira é `sem_consulta` (se não houver falha) quando um dos serviços está em `sem_dados_usaveis`, inclusive quando há um retorno aceito vazio anterior. A data da linha continua a mais antiga das duas `ultimaAceitaEm`. Atualizado na seção "Carteira".
+- **`GET /api/carteira`:** `situacao` ganhou `recusados: { creditos, debitos }`, cada um `null` ou `{ quantidade, ultimoEm }` (a forma de `recusados` do painel). Com algum não nulo, a linha mostra "Há retornos da Receita que não entraram nos indicadores." (CA-20, CA-C2). Atualizado nas seções "Carteira" e "Contratos".
+- **Log `leitura_recusada`:** arquivo recusado gera, além de `leitura_registrada` (`info`), um registro `leitura_recusada` de nível `warn` com `servico`, `consultaId`, `arquivoId`, `motivo`, `causa` (`ilegivel`, `aninhado`, `chave_repetida`, `fora_do_schema`, `valor_fora_do_limite` ou `outra_empresa`), `divergencias` (o total) e `ocorrencias` (até 20, no formato `caminho#regra`, com cada sequência de dígitos do caminho trocada por `#`). Não leva a `message` do ajv nem nenhum valor, chave, CNPJ ou trecho do arquivo. Atualizado no item 7 da seção "Leitura".
