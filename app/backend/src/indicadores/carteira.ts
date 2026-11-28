@@ -57,7 +57,7 @@ export function linhaDaCarteira(empresa: EmpresaDaCarteira, dados: DadosParaCart
   const resumo: ResumoDaSituacao =
     sCreditos.falha !== null || sDebitos.falha !== null
       ? "falhou"
-      : semAceita
+      : semAceita || sCreditos.estado === "sem_dados_usaveis" || sDebitos.estado === "sem_dados_usaveis"
         ? "sem_consulta"
         : sCreditos.desatualizado || sDebitos.desatualizado
           ? "desatualizado"

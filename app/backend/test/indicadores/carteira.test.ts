@@ -175,6 +175,18 @@ describe("CA-C2 e DT-8: resumo da situação", () => {
     expect(linha.creditos.estado).toBe("sem_dados_usaveis");
   });
 
+  it("créditos sem_dados_usaveis (aceito vazio e depois só recusado) nunca dá Atualizado: o resumo é sem_consulta (revisão, item 4)", () => {
+    const aceita = lida("creditos", antes(2 * DIA));
+    const recusada = lida("creditos", antes(DIA));
+    const arquivos: ArquivoResumo[] = [
+      { id: id(), consultaId: aceita.id, servico: "creditos", situacao: "aceito", recebidoEm: antes(2 * DIA) },
+      { id: id(), consultaId: recusada.id, servico: "creditos", situacao: "recusado", recebidoEm: antes(DIA) },
+    ];
+    const linha = linhaDaCarteira(EMPRESA, dados([aceita, recusada, lida("debitos", antes(DIA))], { arquivos }), AGORA);
+    expect(linha.creditos.estado).toBe("sem_dados_usaveis");
+    expect(linha.situacao.resumo).toBe("sem_consulta");
+  });
+
   it("recusados de créditos e de débitos vão para a linha (CA-20)", () => {
     const c = lida("creditos", antes(DIA));
     const d = lida("debitos", antes(DIA));
