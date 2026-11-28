@@ -46,19 +46,32 @@ const sit = (
 ) => situacaoDoServico(servico, { consultas, arquivos, notas }, agora);
 
 describe("CA-14: última consulta concluída e intervalo de atualização", () => {
-  it("ultimaConcluidaEm é o maior concluida_em entre as consultas lidas, em ISO UTC", () => {
+  it("ultimaAceitaEm é o maior concluida_em entre as consultas lidas, em ISO UTC", () => {
     const a = lida("creditos", antes(5 * DIA));
     const b = lida("creditos", antes(2 * DIA));
     const c = lida("creditos", antes(3 * DIA));
     const r = sit("creditos", [a, b, c], [arquivo(a, "aceito"), arquivo(b, "aceito"), arquivo(c, "aceito")], [N1]);
-    expect(r.ultimaConcluidaEm).toBe(antes(2 * DIA).toISOString());
+    expect(r.ultimaAceitaEm).toBe(antes(2 * DIA).toISOString());
   });
 
-  it("a consulta lida com arquivo recusado também conta como concluída", () => {
+  // Teste trocado de propósito: a versão anterior afirmava que o recusado contava; a Spec foi ajustada em 2026-11-28.
+  it("a consulta lida com arquivo recusado não conta: vale a última com arquivo aceito (ajuste de 2026-11-28)", () => {
     const a = lida("creditos", antes(5 * DIA));
     const b = lida("creditos", antes(1 * DIA));
     const r = sit("creditos", [a, b], [arquivo(a, "aceito"), arquivo(b, "recusado")], [N1]);
-    expect(r.ultimaConcluidaEm).toBe(antes(1 * DIA).toISOString());
+    expect(r.ultimaAceitaEm).toBe(antes(5 * DIA).toISOString());
+  });
+
+  it("aceito_com_divergencia conta", () => {
+    const a = lida("creditos", antes(2 * DIA));
+    const r = sit("creditos", [a], [arquivo(a, "aceito_com_divergencia")], [N1]);
+    expect(r.ultimaAceitaEm).toBe(antes(2 * DIA).toISOString());
+  });
+
+  it("retorno aceito com apuração vazia (nenhuma nota) conta", () => {
+    const a = lida("creditos", antes(2 * DIA));
+    const r = sit("creditos", [a], [arquivo(a, "aceito")], []);
+    expect(r).toMatchObject({ estado: "vazio", ultimaAceitaEm: antes(2 * DIA).toISOString(), diasSemAtualizacao: 2 });
   });
 
   it("atualizacao.de e .ate são a menor e a maior data das notas, em AAAA-MM-DD do texto do arquivo", () => {
@@ -80,7 +93,7 @@ describe("CA-14: última consulta concluída e intervalo de atualização", () =
   it("o resultado é por serviço: débitos não usam as consultas de créditos", () => {
     const a = lida("creditos", antes(DIA));
     const r = sit("debitos", [a], [arquivo(a, "aceito")], []);
-    expect(r.ultimaConcluidaEm).toBeNull();
+    expect(r.ultimaAceitaEm).toBeNull();
   });
 });
 
@@ -89,21 +102,21 @@ describe("CA-15: desatualizado depois de mais de 8 dias", () => {
     const a = lida("creditos", antes(8 * DIA));
     const r = sit("creditos", [a], [arquivo(a, "aceito")], [N1]);
     expect(r.desatualizado).toBe(false);
-    expect(r.diasSemConsulta).toBe(8);
+    expect(r.diasSemAtualizacao).toBe(8);
   });
 
   it("8 × 24 h e 1 s depois, está desatualizado", () => {
     const a = lida("creditos", antes(8 * DIA + 1000));
     const r = sit("creditos", [a], [arquivo(a, "aceito")], [N1]);
     expect(r.desatualizado).toBe(true);
-    expect(r.diasSemConsulta).toBe(8);
+    expect(r.diasSemAtualizacao).toBe(8);
   });
 
-  it("diasSemConsulta é em dias inteiros", () => {
+  it("diasSemAtualizacao é em dias inteiros", () => {
     const a = lida("creditos", antes(2 * DIA + 23 * 60 * MIN));
-    expect(sit("creditos", [a], [arquivo(a, "aceito")], [N1]).diasSemConsulta).toBe(2);
+    expect(sit("creditos", [a], [arquivo(a, "aceito")], [N1]).diasSemAtualizacao).toBe(2);
     const b = lida("creditos", antes(30 * MIN));
-    expect(sit("creditos", [b], [arquivo(b, "aceito")], [N1]).diasSemConsulta).toBe(0);
+    expect(sit("creditos", [b], [arquivo(b, "aceito")], [N1]).diasSemAtualizacao).toBe(0);
   });
 
   it("créditos desatualizados e débitos não, e o contrário", () => {
@@ -122,7 +135,34 @@ describe("CA-15: desatualizado depois de mais de 8 dias", () => {
 
   it("sem consulta lida, não há data e não está desatualizado", () => {
     const r = sit("creditos", []);
-    expect(r).toMatchObject({ diasSemConsulta: null, desatualizado: false, ultimaConcluidaEm: null });
+    expect(r).toMatchObject({ diasSemAtualizacao: null, desatualizado: false, ultimaAceitaEm: null });
+  });
+});
+
+describe("ajuste de 2026-11-28: recusados não escondem a falta de atualização (CA-15, CA-19)", () => {
+  it("aceito há 10 dias e um recusado por dia desde então: a data é a do aceito e está desatualizado", () => {
+    const aceita = lida("creditos", antes(10 * DIA));
+    const recusadas = Array.from({ length: 10 }, (_, i) => lida("creditos", antes((9 - i) * DIA + 2 * 60 * MIN)));
+    const arquivos = [arquivo(aceita, "aceito"), ...recusadas.map((c) => arquivo(c, "recusado"))];
+    const r = sit("creditos", [aceita, ...recusadas], arquivos, [N1]);
+    expect(r.ultimaAceitaEm).toBe(antes(10 * DIA).toISOString());
+    expect(r.diasSemAtualizacao).toBe(10);
+    expect(r.desatualizado).toBe(true);
+    expect(r.recusados?.quantidade).toBe(10);
+    expect(r.estado).toBe("com_dados");
+  });
+
+  it("só retornos recusados: sem_dados_usaveis, sem data nem dias, e não desatualizado", () => {
+    const a = lida("creditos", antes(20 * DIA));
+    const b = lida("creditos", antes(DIA));
+    const r = sit("creditos", [a, b], [arquivo(a, "recusado"), arquivo(b, "recusado")], []);
+    expect(r).toMatchObject({ estado: "sem_dados_usaveis", ultimaAceitaEm: null, diasSemAtualizacao: null, desatualizado: false });
+  });
+
+  it("débitos tem o mesmo comportamento (CA-20)", () => {
+    const a = lida("debitos", antes(DIA));
+    const r = sit("debitos", [a], [arquivo(a, "recusado")], []);
+    expect(r).toMatchObject({ estado: "sem_dados_usaveis", ultimaAceitaEm: null, recusados: { quantidade: 1 } });
   });
 });
 
@@ -255,7 +295,7 @@ describe("o relógio é parâmetro", () => {
     const a = lida("creditos", new Date("2026-11-01T12:00:00Z"));
     const cedo = sit("creditos", [a], [arquivo(a, "aceito")], [N1], new Date("2026-11-05T12:00:00Z"));
     const tarde = sit("creditos", [a], [arquivo(a, "aceito")], [N1], new Date("2026-11-20T12:00:00Z"));
-    expect(cedo).toMatchObject({ diasSemConsulta: 4, desatualizado: false });
-    expect(tarde).toMatchObject({ diasSemConsulta: 19, desatualizado: true });
+    expect(cedo).toMatchObject({ diasSemAtualizacao: 4, desatualizado: false });
+    expect(tarde).toMatchObject({ diasSemAtualizacao: 19, desatualizado: true });
   });
 });

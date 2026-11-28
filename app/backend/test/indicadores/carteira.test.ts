@@ -43,7 +43,13 @@ function dados(consultas: ConsultaResumo[], opcoes: { creditos?: ReturnType<type
   return {
     raiz: RAIZ,
     consultas,
-    arquivos: opcoes.arquivos ?? [],
+    // Toda consulta lida ganha um arquivo aceito, salvo se o teste informou o arquivo dela.
+    arquivos: [
+      ...consultas
+        .filter((c) => c.estado === "lida" && !(opcoes.arquivos ?? []).some((a) => a.consultaId === c.id))
+        .map((c): ArquivoResumo => ({ id: id(), consultaId: c.id, servico: c.servico as "creditos" | "debitos", situacao: "aceito", recebidoEm: c.finalizadaEm! })),
+      ...(opcoes.arquivos ?? []),
+    ],
     creditos: opcoes.creditos ?? [],
     debitos: opcoes.debitos ?? [],
   };
@@ -74,7 +80,7 @@ describe("CA-C1: valores da linha", () => {
     expect(linha).toMatchObject(EMPRESA);
     expect(Object.keys(linha).sort()).toEqual(["cnpjRaizFormatado", "creditos", "id", "nome", "papel", "situacao"]);
     expect(Object.keys(linha.creditos).sort()).toEqual(["aApropriar", "apropriado", "estado", "utilizado"]);
-    expect(Object.keys(linha.situacao).sort()).toEqual(["diasSemConsulta", "resumo", "ultimaConcluidaEm"]);
+    expect(Object.keys(linha.situacao).sort()).toEqual(["diasSemAtualizacao", "recusados", "resumo", "ultimaAceitaEm"]);
   });
 
   it("sem consulta lida os valores são null e o estado vem no lugar", () => {
@@ -139,13 +145,46 @@ describe("CA-C2 e DT-8: resumo da situação", () => {
     const creditos = lida("creditos", antes(2 * DIA));
     const debitos = lida("debitos", antes(5 * DIA + 3 * 60 * MIN));
     const linha = linhaDaCarteira(EMPRESA, dados([creditos, debitos], { creditos: creditosDe() }), AGORA);
-    expect(linha.situacao.ultimaConcluidaEm).toBe(debitos.concluidaEm!.toISOString());
-    expect(linha.situacao.diasSemConsulta).toBe(5);
+    expect(linha.situacao.ultimaAceitaEm).toBe(debitos.concluidaEm!.toISOString());
+    expect(linha.situacao.diasSemAtualizacao).toBe(5);
   });
 
   it("sem concluída num dos serviços, a data e os dias são null", () => {
     const linha = linhaDaCarteira(EMPRESA, dados([lida("creditos", antes(DIA))], { creditos: creditosDe() }), AGORA);
-    expect(linha.situacao).toEqual({ resumo: "sem_consulta", ultimaConcluidaEm: null, diasSemConsulta: null });
+    expect(linha.situacao).toMatchObject({ resumo: "sem_consulta", ultimaAceitaEm: null, diasSemAtualizacao: null });
+  });
+
+  it("aceito há 10 dias e um recusado por dia desde então: desatualizado, com a data do aceito (ajuste de 2026-11-28)", () => {
+    const aceita = lida("creditos", antes(10 * DIA));
+    const recusadas = Array.from({ length: 10 }, (_, i) => lida("creditos", antes((9 - i) * DIA + 2 * 60 * MIN)));
+    const arquivos: ArquivoResumo[] = [
+      { id: id(), consultaId: aceita.id, servico: "creditos", situacao: "aceito", recebidoEm: antes(10 * DIA) },
+      ...recusadas.map((c): ArquivoResumo => ({ id: id(), consultaId: c.id, servico: "creditos", situacao: "recusado", recebidoEm: c.finalizadaEm! })),
+    ];
+    const linha = linhaDaCarteira(EMPRESA, dados([aceita, ...recusadas, lida("debitos", antes(DIA))], { creditos: creditosDe(), arquivos }), AGORA);
+    expect(linha.situacao).toMatchObject({ resumo: "desatualizado", ultimaAceitaEm: aceita.concluidaEm!.toISOString(), diasSemAtualizacao: 10 });
+    expect(linha.situacao.recusados.creditos?.quantidade).toBe(10);
+    expect(linha.situacao.recusados.debitos).toBeNull();
+  });
+
+  it("um serviço só com retornos recusados: sem_consulta e data nula, sem falha", () => {
+    const c = lida("creditos", antes(DIA));
+    const arquivos: ArquivoResumo[] = [{ id: id(), consultaId: c.id, servico: "creditos", situacao: "recusado", recebidoEm: antes(DIA) }];
+    const linha = linhaDaCarteira(EMPRESA, dados([c, lida("debitos", antes(DIA))], { arquivos }), AGORA);
+    expect(linha.situacao).toMatchObject({ resumo: "sem_consulta", ultimaAceitaEm: null, diasSemAtualizacao: null });
+    expect(linha.creditos.estado).toBe("sem_dados_usaveis");
+  });
+
+  it("recusados de créditos e de débitos vão para a linha (CA-20)", () => {
+    const c = lida("creditos", antes(DIA));
+    const d = lida("debitos", antes(DIA));
+    const arquivos: ArquivoResumo[] = [
+      { id: id(), consultaId: c.id, servico: "creditos", situacao: "recusado", recebidoEm: antes(DIA) },
+      { id: id(), consultaId: d.id, servico: "debitos", situacao: "recusado", recebidoEm: antes(DIA) },
+    ];
+    const linha = linhaDaCarteira(EMPRESA, dados([c, d], { arquivos }), AGORA);
+    expect(linha.situacao.recusados.creditos?.quantidade).toBe(1);
+    expect(linha.situacao.recusados.debitos?.quantidade).toBe(1);
   });
 });
 

@@ -8,6 +8,7 @@ import { criarComandosAdmin } from "../../src/admin/comandos.js";
 import { indicadoresDeCredito, agruparPendentes } from "../../src/indicadores/creditos.js";
 import { indicadoresDeDebito } from "../../src/indicadores/debitos.js";
 import { periodosDisponiveis } from "../../src/indicadores/comum.js";
+import { registrarLeitura } from "../../src/leitura/registrar.js";
 import { semear } from "../banco/limpar.js";
 import { notasDoCenario } from "../apoio/notas.js";
 import { criarContexto, type Contexto, type Resposta } from "./ajudas.js";
@@ -88,7 +89,7 @@ describe("GET /api/empresas/:id/painel no cenário completo (CA-1, CA-2, CA-5, C
     expect(Object.keys(r.corpo.recorte).sort()).toEqual(["periodo", "periodos"]);
     expect(Object.keys(r.corpo.situacao).sort()).toEqual(["creditos", "debitos"]);
     expect(Object.keys(r.corpo.situacao.creditos).sort()).toEqual(
-      ["atualizacao", "desatualizado", "diasSemConsulta", "emAndamento", "estado", "falha", "recusados", "ultimaConcluidaEm"].sort(),
+      ["atualizacao", "desatualizado", "diasSemAtualizacao", "emAndamento", "estado", "falha", "recusados", "ultimaAceitaEm"].sort(),
     );
     expect(Object.keys(r.corpo.creditos).sort()).toEqual(
       ["origens", "outros", "pendentes", "porPeriodo", "quantidadeComAApropriar", "quantidadeNotas", "semNotasNoRecorte", "totais"].sort(),
@@ -99,8 +100,8 @@ describe("GET /api/empresas/:id/painel no cenário completo (CA-1, CA-2, CA-5, C
   test("a situação traz a última consulta concluída, os dias e o intervalo de atualização", async () => {
     const r = await painel("completo");
     const s = r.corpo.situacao.creditos;
-    expect(s).toMatchObject({ estado: "com_dados", emAndamento: false, desatualizado: false, diasSemConsulta: 1, falha: null, recusados: null });
-    expect(s.ultimaConcluidaEm).toBe(new Date(ctx.relogio.agora().getTime() - 24 * 60 * 60_000).toISOString());
+    expect(s).toMatchObject({ estado: "com_dados", emAndamento: false, desatualizado: false, diasSemAtualizacao: 1, falha: null, recusados: null });
+    expect(s.ultimaAceitaEm).toBe(new Date(ctx.relogio.agora().getTime() - 24 * 60 * 60_000).toISOString());
     expect(s.atualizacao.de).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(s.atualizacao.ate >= s.atualizacao.de).toBe(true);
   });
@@ -125,7 +126,7 @@ describe("estados dos dados na resposta (CA-14 a CA-20)", () => {
     const r = await painel("sem-consulta");
     expect(r.corpo.creditos).toBeNull();
     expect(r.corpo.debitos).toBeNull();
-    expect(r.corpo.situacao.creditos).toMatchObject({ estado: "sem_consulta", ultimaConcluidaEm: null, diasSemConsulta: null });
+    expect(r.corpo.situacao.creditos).toMatchObject({ estado: "sem_consulta", ultimaAceitaEm: null, diasSemAtualizacao: null });
     expect(r.corpo.recorte).toEqual({ periodo: null, periodos: [] });
   });
 
@@ -139,7 +140,7 @@ describe("estados dos dados na resposta (CA-14 a CA-20)", () => {
   test("vazio: estado vazio e blocos nulos, com a data da última consulta", async () => {
     const r = await painel("vazio");
     expect(r.corpo.situacao.creditos.estado).toBe("vazio");
-    expect(r.corpo.situacao.creditos.ultimaConcluidaEm).not.toBeNull();
+    expect(r.corpo.situacao.creditos.ultimaAceitaEm).not.toBeNull();
     expect(r.corpo.creditos).toBeNull();
     expect(r.corpo.debitos).toBeNull();
   });
@@ -154,14 +155,14 @@ describe("estados dos dados na resposta (CA-14 a CA-20)", () => {
 
   test("falha-com-anteriores: números continuam, com a falha de credencial", async () => {
     const r = await painel("falha-com-anteriores");
-    expect(r.corpo.situacao.creditos).toMatchObject({ estado: "com_dados", falha: { tipo: "credencial" }, diasSemConsulta: 3, desatualizado: false });
+    expect(r.corpo.situacao.creditos).toMatchObject({ estado: "com_dados", falha: { tipo: "credencial" }, diasSemAtualizacao: 3, desatualizado: false });
     expect(r.corpo.creditos.semNotasNoRecorte).toBe(false);
     expect(r.corpo.situacao.debitos.falha).toBeNull();
   });
 
   test("desatualizado: os dois serviços com 9 dias", async () => {
     const r = await painel("desatualizado");
-    for (const s of ["creditos", "debitos"]) expect(r.corpo.situacao[s]).toMatchObject({ desatualizado: true, diasSemConsulta: 9 });
+    for (const s of ["creditos", "debitos"]) expect(r.corpo.situacao[s]).toMatchObject({ desatualizado: true, diasSemAtualizacao: 9 });
   });
 
   test("recusado: créditos com dados e os dois retornos recusados avisados", async () => {
@@ -169,6 +170,49 @@ describe("estados dos dados na resposta (CA-14 a CA-20)", () => {
     expect(r.corpo.situacao.creditos.estado).toBe("com_dados");
     expect(r.corpo.situacao.creditos.recusados).toMatchObject({ quantidade: 2 });
     expect(r.corpo.situacao.creditos.recusados.ultimoEm).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  test("recusado: a data de créditos é a do último arquivo aceito, não a do recusado (ajuste de 2026-11-28)", async () => {
+    const r = await painel("recusado");
+    const s = r.corpo.situacao.creditos;
+    expect(s.ultimaAceitaEm).toBe(new Date(ctx.relogio.agora().getTime() - 2 * 24 * 60 * 60_000).toISOString());
+    expect(s.diasSemAtualizacao).toBe(2);
+  });
+
+  test("os nomes antigos da situação não existem mais", async () => {
+    const r = await painel("completo");
+    for (const s of ["creditos", "debitos"]) {
+      expect(r.corpo.situacao[s]).not.toHaveProperty("ultimaConcluidaEm");
+      expect(r.corpo.situacao[s]).not.toHaveProperty("diasSemConsulta");
+    }
+  });
+
+  test("retorno de débitos recusado: débitos em sem_dados_usaveis, com o aviso, e créditos intactos (CA-20)", async () => {
+    const id = await ctx.criarEmpresa("Empresa debitos recusados Exemplo", "31000099");
+    await ctx.vincular(id, usuarioDeTodas, "titular");
+    const admin = criarComandosAdmin({ banco: ctx.banco, email: ctx.email, relogio: () => ctx.relogio.agora(), config: ctx.config });
+    await admin.carregarCenario({ empresaId: id, cenario: "vazio" });
+    await ctx.banco.naEmpresaFixada(id, async (trx) => {
+      const c = await trx
+        .insertInto("consulta")
+        .values({
+          empresa_id: id,
+          servico: "debitos",
+          estado: "lida",
+          criada_em: new Date(ctx.relogio.agora().getTime() - 60_000),
+          concluida_em: new Date(ctx.relogio.agora().getTime() - 50_000),
+          finalizada_em: new Date(ctx.relogio.agora().getTime() - 40_000),
+        })
+        .returning("id")
+        .executeTakeFirstOrThrow();
+      await registrarLeitura(trx, { consultaId: c.id, servico: "debitos", conteudo: new TextEncoder().encode("isto não é json"), recebidoEm: ctx.relogio.agora() });
+    });
+    const r = await get(`/api/empresas/${id}/painel`);
+    expect(r.status).toBe(200);
+    expect(r.corpo.situacao.debitos.estado).toBe("sem_dados_usaveis");
+    expect(r.corpo.situacao.debitos.recusados).toMatchObject({ quantidade: 1 });
+    expect(r.corpo.situacao.creditos.recusados).toBeNull();
+    expect(r.corpo.debitos).toBeNull();
   });
 
   test("outros-valores: só os campos diferentes de zero e as origens 20 e 30 (CA-3, CA-25)", async () => {

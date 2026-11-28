@@ -36,8 +36,8 @@ export const CPF_C = cpfFicticio("123456789");
 const sem = (o: Partial<SituacaoDoServico> = {}): SituacaoDoServico => ({
   estado: "sem_consulta",
   emAndamento: false,
-  ultimaConcluidaEm: null,
-  diasSemConsulta: null,
+  ultimaAceitaEm: null,
+  diasSemAtualizacao: null,
   desatualizado: false,
   falha: null,
   atualizacao: null,
@@ -47,8 +47,8 @@ const sem = (o: Partial<SituacaoDoServico> = {}): SituacaoDoServico => ({
 const comDados = (o: Partial<SituacaoDoServico> = {}): SituacaoDoServico =>
   sem({
     estado: "com_dados",
-    ultimaConcluidaEm: "2026-11-26T15:05:00.000Z",
-    diasSemConsulta: 1,
+    ultimaAceitaEm: "2026-11-26T15:05:00.000Z",
+    diasSemAtualizacao: 1,
     atualizacao: { de: "2026-11-01", ate: "2026-11-21" },
     ...o,
   });
@@ -108,8 +108,8 @@ export const painelEmAndamento: Painel = { ...painelSemConsulta, situacao: { cre
 export const painelVazio: Painel = {
   recorte: { periodo: null, periodos: [] },
   situacao: {
-    creditos: sem({ estado: "vazio", ultimaConcluidaEm: "2026-11-26T15:05:00.000Z", diasSemConsulta: 1 }),
-    debitos: sem({ estado: "vazio", ultimaConcluidaEm: "2026-11-26T15:05:00.000Z", diasSemConsulta: 1 }),
+    creditos: sem({ estado: "vazio", ultimaAceitaEm: "2026-11-26T15:05:00.000Z", diasSemAtualizacao: 1 }),
+    debitos: sem({ estado: "vazio", ultimaAceitaEm: "2026-11-26T15:05:00.000Z", diasSemAtualizacao: 1 }),
   },
   creditos: null,
   debitos: null,
@@ -125,8 +125,8 @@ export const painelParcial: Painel = {
 export const painelFalhaComAnteriores: Painel = {
   recorte: RECORTE,
   situacao: {
-    creditos: comDados({ ultimaConcluidaEm: "2026-11-24T15:05:00.000Z", diasSemConsulta: 3, falha: { em: "2026-11-27T13:00:00.000Z", tipo: "credencial" } }),
-    debitos: comDados({ ultimaConcluidaEm: "2026-11-24T15:05:00.000Z", diasSemConsulta: 3 }),
+    creditos: comDados({ ultimaAceitaEm: "2026-11-24T15:05:00.000Z", diasSemAtualizacao: 3, falha: { em: "2026-11-27T13:00:00.000Z", tipo: "credencial" } }),
+    debitos: comDados({ ultimaAceitaEm: "2026-11-24T15:05:00.000Z", diasSemAtualizacao: 3 }),
   },
   creditos: CREDITOS,
   debitos: DEBITOS,
@@ -135,8 +135,8 @@ export const painelFalhaComAnteriores: Painel = {
 export const painelDesatualizado: Painel = {
   recorte: RECORTE,
   situacao: {
-    creditos: comDados({ ultimaConcluidaEm: "2026-11-18T15:05:00.000Z", diasSemConsulta: 9, desatualizado: true }),
-    debitos: comDados({ ultimaConcluidaEm: "2026-11-18T15:05:00.000Z", diasSemConsulta: 9, desatualizado: true }),
+    creditos: comDados({ ultimaAceitaEm: "2026-11-18T15:05:00.000Z", diasSemAtualizacao: 9, desatualizado: true }),
+    debitos: comDados({ ultimaAceitaEm: "2026-11-18T15:05:00.000Z", diasSemAtualizacao: 9, desatualizado: true }),
   },
   creditos: CREDITOS,
   debitos: DEBITOS,
@@ -152,7 +152,7 @@ export const painelRecusado: Painel = {
 export const painelSoRecusado: Painel = {
   recorte: { periodo: null, periodos: [] },
   situacao: {
-    creditos: sem({ estado: "sem_dados_usaveis", ultimaConcluidaEm: "2026-11-26T15:05:00.000Z", diasSemConsulta: 1, recusados: { quantidade: 1, ultimoEm: "2026-11-26T15:05:00.000Z" } }),
+    creditos: sem({ estado: "sem_dados_usaveis", recusados: { quantidade: 1, ultimoEm: "2026-11-26T15:05:00.000Z" } }),
     debitos: sem(),
   },
   creditos: null,
@@ -212,4 +212,39 @@ export const notasDoGrupo: NotasDoGrupo = {
     { periodo: "2026-11", chave: "1".repeat(50), documento: 91, documentoNome: "NFS-e", emissao: "2026-11-05", aApropriar: "120.00" },
     { periodo: "2026-10", chave: "2".repeat(50), documento: 91, documentoNome: "NFS-e", emissao: "2026-10-20", aApropriar: "80.50" },
   ],
+};
+
+/** Créditos aceitos há 10 dias e um recusado por dia desde então (ajuste de 2026-11-28). */
+export const painelRecusadoDesatualizado: Painel = {
+  recorte: RECORTE,
+  situacao: {
+    creditos: comDados({
+      ultimaAceitaEm: "2026-11-16T15:05:00.000Z",
+      diasSemAtualizacao: 10,
+      desatualizado: true,
+      recusados: { quantidade: 10, ultimoEm: "2026-11-26T12:00:00.000Z" },
+    }),
+    debitos: comDados(),
+  },
+  creditos: CREDITOS,
+  debitos: DEBITOS,
+};
+
+/** Retorno de débitos recusado e nenhum débito usável; créditos com números (CA-20). */
+export const painelDebitosSoRecusado: Painel = {
+  recorte: RECORTE,
+  situacao: {
+    creditos: comDados(),
+    debitos: sem({ estado: "sem_dados_usaveis", recusados: { quantidade: 1, ultimoEm: "2026-11-26T15:05:00.000Z" } }),
+  },
+  creditos: CREDITOS,
+  debitos: null,
+};
+
+/** Débitos com números e retorno de débitos recusado (CA-20). */
+export const painelDebitosRecusado: Painel = {
+  recorte: RECORTE,
+  situacao: { creditos: comDados(), debitos: comDados({ recusados: { quantidade: 2, ultimoEm: "2026-11-25T12:00:00.000Z" } }) },
+  creditos: CREDITOS,
+  debitos: DEBITOS,
 };

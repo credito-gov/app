@@ -116,7 +116,7 @@ describe("escolha de empresa (CA-30)", () => {
     const linha = {
       ...dela,
       creditos: { estado: "sem_consulta", aApropriar: null, apropriado: null, utilizado: null },
-      situacao: { resumo: "sem_consulta", ultimaConcluidaEm: null, diasSemConsulta: null },
+      situacao: { resumo: "sem_consulta", ultimaAceitaEm: null, diasSemAtualizacao: null, recusados: { creditos: null, debitos: null } },
     };
     simularFetch((c) => {
       if (c.url === "/api/sessao") return json(200, { usuario: USUARIO, empresas: [EMPRESA_A, EMPRESA_B] });

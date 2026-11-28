@@ -12,6 +12,9 @@ import {
   painelFalhaComAnteriores,
   painelOutrosValores,
   painelParcial,
+  painelDebitosRecusado,
+  painelDebitosSoRecusado,
+  painelRecusadoDesatualizado,
   painelRecusado,
   painelSemConsulta,
   painelSoRecusado,
@@ -28,6 +31,9 @@ const TODOS: Array<[string, Painel]> = [
   ["desatualizado", painelDesatualizado],
   ["recusado", painelRecusado],
   ["so-recusado", painelSoRecusado],
+  ["debitos-recusado", painelDebitosRecusado],
+  ["debitos-so-recusado", painelDebitosSoRecusado],
+  ["recusado-desatualizado", painelRecusadoDesatualizado],
   ["outros-valores", painelOutrosValores],
 ];
 
@@ -48,11 +54,11 @@ const debitos = () => screen.getByRole("region", { name: "Débitos de CBS (venda
 const FRASE_CA14 =
   "Os números são os das consultas feitas pelo CreditoGov à API de apuração da CBS da Receita Federal. A Receita não fornece histórico anterior a essas consultas.";
 
-describe("CA-14: última consulta concluída e intervalo de atualização", () => {
+describe("CA-14: última consulta que entrou nos indicadores e intervalo de atualização", () => {
   it("por serviço, a data e hora da última consulta concluída e o intervalo das notas, mais a frase fixa", async () => {
     await abrir(painelCompleto);
-    expect(await screen.findByText("Créditos: última consulta concluída em 26/11/2026 às 12:05. Notas atualizadas de 01/11/2026 a 21/11/2026.")).toBeInTheDocument();
-    expect(screen.getByText("Débitos: última consulta concluída em 26/11/2026 às 12:05. Notas atualizadas de 01/11/2026 a 21/11/2026.")).toBeInTheDocument();
+    expect(await screen.findByText("Créditos: última consulta que entrou nos indicadores em 26/11/2026 às 12:05. Notas atualizadas de 01/11/2026 a 21/11/2026.")).toBeInTheDocument();
+    expect(screen.getByText("Débitos: última consulta que entrou nos indicadores em 26/11/2026 às 12:05. Notas atualizadas de 01/11/2026 a 21/11/2026.")).toBeInTheDocument();
     expect(screen.getByText(FRASE_CA14)).toBeInTheDocument();
   });
 });
@@ -60,15 +66,15 @@ describe("CA-14: última consulta concluída e intervalo de atualização", () =
 describe("CA-15: alerta de dados desatualizados, por serviço, no topo", () => {
   it("com desatualizado, o alerta traz os dias, e vem antes dos blocos", async () => {
     await abrir(painelDesatualizado);
-    const c = await screen.findByText("Créditos sem consulta concluída há 9 dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida.");
-    const d = screen.getByText("Débitos sem consulta concluída há 9 dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida.");
+    const c = await screen.findByText("Créditos sem atualização há 9 dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida.");
+    const d = screen.getByText("Débitos sem atualização há 9 dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida.");
     expect(c.compareDocumentPosition(creditos()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(d).toBeInTheDocument();
   });
 
   it("sem desatualizado, o alerta não aparece", async () => {
     await abrir(painelCompleto);
-    expect(screen.queryByText(/sem consulta concluída há/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/sem atualização há/)).not.toBeInTheDocument();
   });
 });
 
@@ -183,5 +189,47 @@ describe("a página não quebra com o painel ainda carregando", () => {
     });
     renderizar(rotasApp, `/e/${EMPRESA_A.id}`);
     await waitFor(() => expect(screen.getAllByText("Carregando…").length).toBeGreaterThan(0));
+  });
+});
+
+describe("ajuste de 2026-11-28: a data e o aviso de desatualizado usam só o aceito (CA-14, CA-15, CA-19)", () => {
+  it("aceito há 10 dias e recusados desde então: aviso de 10 dias, data do aceito e aviso de recusados", async () => {
+    await abrir(painelRecusadoDesatualizado);
+    expect(
+      await screen.findByText(
+        "Créditos sem atualização há 10 dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Créditos: última consulta que entrou nos indicadores em 16\/11\/2026 às 12:05/)).toBeInTheDocument();
+    expect(screen.getByText(/10 de créditos/)).toBeInTheDocument();
+  });
+
+  it("os números anteriores citam a data do último aceito", async () => {
+    const p: Painel = {
+      ...painelFalhaComAnteriores,
+      situacao: {
+        ...painelFalhaComAnteriores.situacao,
+        creditos: { ...painelFalhaComAnteriores.situacao.creditos, ultimaAceitaEm: "2026-11-20T15:05:00.000Z" },
+      },
+    };
+    await abrir(p);
+    expect(await screen.findByText("Os números abaixo são da consulta de 20/11/2026 às 12:05 e não estão atualizados.")).toBeInTheDocument();
+  });
+});
+
+describe("CA-20 em débitos: retorno de débitos recusado", () => {
+  it("com débitos aceitos, o aviso aparece no bloco de débitos e não no de créditos", async () => {
+    await abrir(painelDebitosRecusado);
+    expect(
+      await within(debitos()).findByText("Há retornos da Receita que não entraram nos indicadores: 2 de débitos, o mais recente em 25/11/2026. Os números não incluem esses retornos."),
+    ).toBeInTheDocument();
+    expect(within(creditos()).queryByText(/não entraram nos indicadores/)).not.toBeInTheDocument();
+  });
+
+  it("sem_dados_usaveis em débitos: Nenhum retorno de débitos pôde ser usado, sem R$, e créditos com números", async () => {
+    await abrir(painelDebitosSoRecusado);
+    expect(await within(debitos()).findByText("Nenhum retorno de débitos pôde ser usado.")).toBeInTheDocument();
+    expect(debitos().textContent).not.toContain("R$");
+    expect(creditos()).toHaveTextContent("R$ 10.000,00");
   });
 });

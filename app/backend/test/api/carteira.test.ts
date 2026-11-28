@@ -83,7 +83,7 @@ describe("CA-C1: a carteira do usuário", () => {
     });
     for (const v of [completo.creditos.aApropriar, completo.creditos.apropriado, completo.creditos.utilizado]) expect(typeof v).toBe("string");
     expect(completo).toMatchObject({ nome: "Beta Exemplo Ltda.", papel: "contador", cnpjRaizFormatado: "31.000.001" });
-    expect(completo.situacao).toMatchObject({ resumo: "atualizado", diasSemConsulta: 1 });
+    expect(completo.situacao).toMatchObject({ resumo: "atualizado", diasSemAtualizacao: 1 });
 
     const vazio = porId[empresa["vazio"]!.id];
     expect(vazio.creditos).toEqual({ estado: "vazio", aApropriar: null, apropriado: null, utilizado: null });
@@ -97,7 +97,7 @@ describe("CA-C1: a carteira do usuário", () => {
 
     const semConsulta = porId[empresa["sem-consulta"]!.id];
     expect(semConsulta.creditos).toEqual({ estado: "sem_consulta", aApropriar: null, apropriado: null, utilizado: null });
-    expect(semConsulta.situacao).toEqual({ resumo: "sem_consulta", ultimaConcluidaEm: null, diasSemConsulta: null });
+    expect(semConsulta.situacao).toEqual({ resumo: "sem_consulta", ultimaAceitaEm: null, diasSemAtualizacao: null, recusados: { creditos: null, debitos: null } });
   });
 
   test("uma empresa sem vínculo dele não aparece, e quem não tem vínculo recebe lista vazia", async () => {
@@ -148,7 +148,7 @@ describe("CA-C4: sem total", () => {
     for (const e of r.corpo.empresas) {
       expect(Object.keys(e).sort()).toEqual(["cnpjRaizFormatado", "creditos", "id", "nome", "papel", "situacao"]);
       expect(Object.keys(e.creditos).sort()).toEqual(["aApropriar", "apropriado", "estado", "utilizado"]);
-      expect(Object.keys(e.situacao).sort()).toEqual(["diasSemConsulta", "resumo", "ultimaConcluidaEm"]);
+      expect(Object.keys(e.situacao).sort()).toEqual(["diasSemAtualizacao", "recusados", "resumo", "ultimaAceitaEm"]);
     }
   });
 });

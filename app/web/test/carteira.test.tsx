@@ -11,7 +11,9 @@ import { SEM_SESSAO, USUARIO, json, renderizar, simularFetch } from "./auxiliar"
 import {
   carteira,
   LINHA_ATUALIZADA,
+  LINHA_COM_RECUSADOS,
   LINHA_FALHOU,
+  LINHA_SO_RECUSADOS,
 } from "./fixtures/carteira";
 import { painelCompleto, painelOutrosValores } from "./fixtures/painel";
 import type { Carteira } from "../src/paineis/tipos";
@@ -104,13 +106,13 @@ describe("CA-C1: uma linha por empresa", () => {
 });
 
 describe("CA-C2: selos, datas e ordenação", () => {
-  it("os selos: Atualizado, Consulta falhou, N dias sem consulta e Sem consulta concluída", async () => {
+  it("os selos: Atualizado, Consulta falhou, N dias sem atualização e Sem dados nos indicadores", async () => {
     abrir();
     await screen.findByRole("table", { name: "Empresas" });
     expect(linhaDe("Alfa Exemplo")).toHaveTextContent("Atualizado");
     expect(linhaDe("Beta Exemplo")).toHaveTextContent("Consulta falhou");
-    expect(linhaDe("Gama Exemplo")).toHaveTextContent("9 dias sem consulta");
-    expect(linhaDe("Delta Exemplo")).toHaveTextContent("Sem consulta concluída");
+    expect(linhaDe("Gama Exemplo")).toHaveTextContent("9 dias sem atualização");
+    expect(linhaDe("Delta Exemplo")).toHaveTextContent("Sem dados nos indicadores");
     expect(linhaDe("Beta Exemplo")).toHaveTextContent("24/11/2026 às 09:00");
   });
 
@@ -139,10 +141,10 @@ describe("CA-C2: selos, datas e ordenação", () => {
     expect(screen.getByRole("columnheader", { name: /A apropriar/ })).toHaveAttribute("aria-sort", "ascending");
   });
 
-  it("pela última consulta concluída: a mais antiga primeiro, e as sem consulta concluída antes de todas", async () => {
+  it("pela última atualização (ultimaAceitaEm): a mais antiga primeiro, e as sem data antes de todas", async () => {
     abrir();
     await screen.findByRole("table", { name: "Empresas" });
-    await userEvent.click(cabecalho(/Última consulta/));
+    await userEvent.click(cabecalho(/Última atualização/));
     expect(nomesNaOrdem()).toEqual(["Delta", "Gama", "Beta", "Épsilon", "Alfa"]);
   });
 });
@@ -239,5 +241,35 @@ describe("estados da página e palavras proibidas (CA-2)", () => {
 
   it("as cinco linhas da fixture cobrem os quatro resumos", () => {
     expect(new Set(carteira.empresas.map((e) => e.situacao.resumo))).toEqual(new Set(["atualizado", "falhou", "desatualizado", "sem_consulta"]));
+  });
+});
+
+describe("ajuste de 2026-11-28 e CA-20: retornos recusados na carteira", () => {
+  const comRecusados: Carteira = { empresas: [LINHA_COM_RECUSADOS, LINHA_SO_RECUSADOS] };
+
+  it("aceito há 10 dias com recusados desde então: 10 dias sem atualização, data do aceito e aviso de retornos não usados", async () => {
+    abrir(comRecusados);
+    await screen.findByRole("table", { name: "Empresas" });
+    const l = linhaDe("Zeta Exemplo");
+    expect(l).toHaveTextContent("10 dias sem atualização");
+    expect(l).not.toHaveTextContent("Atualizado");
+    expect(l).toHaveTextContent("16/11/2026");
+    expect(l).toHaveTextContent("Há retornos da Receita que não entraram nos indicadores");
+  });
+
+  it("só retornos recusados (créditos e débitos): selo neutro 'Sem dados nos indicadores', nunca 'Atualizado', com o aviso", async () => {
+    abrir(comRecusados);
+    await screen.findByRole("table", { name: "Empresas" });
+    const l = linhaDe("Ômega Exemplo");
+    expect(l).toHaveTextContent("Sem dados nos indicadores");
+    expect(l).not.toHaveTextContent("Atualizado");
+    expect(l).toHaveTextContent("Há retornos da Receita que não entraram nos indicadores");
+    expect(l.textContent).not.toContain("R$");
+  });
+
+  it("empresa sem recusados não mostra o aviso", async () => {
+    abrir();
+    await screen.findByRole("table", { name: "Empresas" });
+    expect(screen.queryByText(/não entraram nos indicadores/)).toBeNull();
   });
 });
