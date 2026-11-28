@@ -7,18 +7,9 @@ import { describe, expect, it } from "vitest";
 import { formatarReais } from "../src/formatacao/dinheiro";
 import type { Painel } from "../src/paineis/tipos";
 import { rotasApp } from "../src/rotas";
+import { PROIBIDAS, PROIBIDAS_RECOLHIMENTO, simples } from "./apoio/palavras";
 import { EMPRESA_A, USUARIO, json, renderizar, simularFetch } from "./auxiliar";
 import { CNPJ_A, CPF_C, painelCompleto, painelOutrosValores, painelSemNotasNoPeriodo } from "./fixtures/painel";
-
-export const PROIBIDAS = ["disponivel", "pode usar", "confirmado", "a receber", "garantido"];
-export const PROIBIDAS_RECOLHIMENTO = ["nao recolheu", "deixou de recolher", "inadimplente"];
-
-/** Minúsculas e sem acento, para a busca de palavras proibidas. */
-export const simples = (t: string): string =>
-  t
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase();
 
 function abrir(painel: Painel | ((periodo: string | null) => Painel), rota = `/e/${EMPRESA_A.id}`) {
   const chamadas = simularFetch((c) => {
