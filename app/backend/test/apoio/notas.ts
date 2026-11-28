@@ -14,7 +14,7 @@ let sequencia = 0;
 export function notaDoBanco(extra: Partial<NotaDoBanco> = {}): NotaDoBanco {
   sequencia++;
   return {
-    arquivoId: `00000000-0000-4000-8000-${String(sequencia).padStart(12, "0")}`,
+    arquivoId: `aaaaaaaa-0000-4000-8000-${String(sequencia).padStart(12, "0")}`,
     situacaoArquivo: "aceito",
     geradoEm: "2026-11-20T10:00:00.000-03:00",
     recebidoEm: new Date("2026-11-20T13:05:00.000Z"),
@@ -39,7 +39,7 @@ export function notasBrutasDe(consultas: ConsultaDeCenario[], servico: "creditos
     if (r.situacao === "recusado") return;
     for (const n of r.notas) {
       saida.push({
-        arquivoId: `00000000-0000-4000-8000-${String(i + 1).padStart(12, "0")}`,
+        arquivoId: `aaaaaaaa-0000-4000-8000-${String(i + 1).padStart(12, "0")}`,
         situacaoArquivo: r.situacao,
         geradoEm: r.geradoEm,
         recebidoEm: c.finalizadaEm ?? c.criadaEm,

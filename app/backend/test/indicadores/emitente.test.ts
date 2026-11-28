@@ -153,8 +153,8 @@ describe("própria empresa (CA-8)", () => {
 // o helper dvChave nem o código de src/: soma de (caractere ASCII - 48) x peso (2 a 9, da direita para a esquerda, voltando a 2 depois do 9),
 // resto da divisão por 11, DV = 0 se o resto for 0 ou 1, senão 11 - resto.
 describe("dígito verificador da chave, com vetores literais (rodada 1, F1)", () => {
-  // Chave de 43 posições: UF 99, AAMM 2611, emitente, modelo 55, série 001, número 000000001, tpEmis 1 e código de 8 posições.
-  const base = (emitente: string, codigo: string) => ["99", "2611", emitente, "55", "001", "000000001", "1", codigo].join("");
+  // Chave de 43 posições: UF 99, AAMM 2611, emitente, modelo 55, série 001, número 1 com 9 posições, tpEmis 1 e código de 8 posições.
+  const base = (emitente: string, codigo: string) => ["99", "2611", emitente, "55", "001", "0".repeat(8) + "1", "1", codigo].join("");
   const CNPJ_NUM = ["11223344", "000155"].join("");
   const VETORES: Array<{ nome: string; base: string; soma: number; resto: number; dv: string; emitente: string }> = [
     { nome: "só dígitos, resto 9", base: base(CNPJ_NUM, "10000000"), soma: 405, resto: 9, dv: "2", emitente: CNPJ_NUM },

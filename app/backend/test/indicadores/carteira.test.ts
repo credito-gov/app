@@ -15,7 +15,7 @@ const AGORA = new Date("2026-11-27T15:00:00.000Z");
 const antes = (ms: number) => new Date(AGORA.getTime() - ms);
 
 let n = 0;
-const id = () => `00000000-0000-4000-8000-${String(++n).padStart(12, "0")}`;
+const id = () => `aaaaaaaa-0000-4000-8000-${String(++n).padStart(12, "0")}`;
 
 const EMPRESA = { id: id(), nome: "Comércio Exemplo Ltda.", cnpjRaizFormatado: "90.817.263", papel: "contador" as const };
 

@@ -29,8 +29,8 @@ export function cpfFicticio(base9: string): string {
   return `${base9}${d1}${(d2 + 1) % 10}`;
 }
 
-export const CNPJ_A = cnpjFicticio("11111111");
-export const CNPJ_B = cnpjFicticio("22222222");
+export const CNPJ_A = cnpjFicticio("16273849");
+export const CNPJ_B = cnpjFicticio("48392017");
 export const CPF_C = cpfFicticio("123456789");
 
 const sem = (o: Partial<SituacaoDoServico> = {}): SituacaoDoServico => ({

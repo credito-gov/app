@@ -6,7 +6,7 @@ let sequencia = 0;
 function nota(extra: Partial<NotaDoBanco> = {}): NotaDoBanco {
   sequencia++;
   return {
-    arquivoId: `00000000-0000-4000-8000-${String(sequencia).padStart(12, "0")}`,
+    arquivoId: `aaaaaaaa-0000-4000-8000-${String(sequencia).padStart(12, "0")}`,
     situacaoArquivo: "aceito",
     geradoEm: "2026-11-20T10:00:00.000-03:00",
     recebidoEm: new Date("2026-11-20T13:05:00.000Z"),
@@ -37,7 +37,7 @@ describe("a mesma nota em duas consultas conta uma vez (CA-24)", () => {
 
   it("o mesmo arquivo repetido não duplica nenhuma nota", () => {
     const a = [nota({ chave: "X" }), nota({ chave: "Y", valores: { aApropriar: "5.50" } })];
-    const b = a.map((n, i) => ({ ...n, arquivoId: `00000000-0000-4000-8000-${String(900 + i).padStart(12, "0")}` }));
+    const b = a.map((n, i) => ({ ...n, arquivoId: `aaaaaaaa-0000-4000-8000-${String(900 + i).padStart(12, "0")}` }));
     expect(consolidarNotas([...a, ...b])).toHaveLength(2);
   });
 

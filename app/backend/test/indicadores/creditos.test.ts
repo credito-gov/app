@@ -112,9 +112,9 @@ describe("CA-5: quantidades", () => {
 
 describe("CA-6: emitentes", () => {
   it("em ordem decrescente de total, com empate pelo identificador, CNPJ sem formatação", () => {
-    const a = emit("11111111");
-    const b = emit("22222222");
-    const c = emit("33333333");
+    const a = emit("16273849");
+    const b = emit("48392017");
+    const c = emit("72615839");
     const notas = [compra(c, "5.00"), compra(a, "5.00"), compra(b, "9.00"), compra(a, "0.50")];
     const r = indicadoresDeCredito(notas, RAIZ, null);
     if (r.semNotasNoRecorte) throw new Error("era esperado haver notas");
@@ -127,7 +127,7 @@ describe("CA-6: emitentes", () => {
   });
 
   it("só entram notas com valor a apropriar maior que zero", () => {
-    const e = emit("11111111");
+    const e = emit("16273849");
     const notas = [compra(e, "5.00"), notaDoBanco({ chave: montarChave({ emitente: e, numero: "000000777" }), valores: { apurado: "9.00" } })];
     const r = indicadoresDeCredito(notas, RAIZ, null);
     if (r.semNotasNoRecorte) throw new Error("era esperado haver notas");
@@ -146,7 +146,7 @@ describe("CA-6: emitentes", () => {
 
 describe("CA-8: nota da própria empresa", () => {
   it("emitente com a raiz da empresa, de qualquer estabelecimento, vai para própria empresa", () => {
-    const notas = [compra(emit(RAIZ, "0002"), "3.00"), compra(emit(RAIZ, "0007"), "2.00"), compra(emit("11111111"), "1.00")];
+    const notas = [compra(emit(RAIZ, "0002"), "3.00"), compra(emit(RAIZ, "0007"), "2.00"), compra(emit("16273849"), "1.00")];
     const r = indicadoresDeCredito(notas, RAIZ, null);
     if (r.semNotasNoRecorte) throw new Error("era esperado haver notas");
     expect(r.pendentes.propriaEmpresa).toEqual({ quantidade: 2, total: "5.00" });
@@ -182,7 +182,7 @@ describe("CA-9: a soma dos grupos fecha com I-2", () => {
     ["1,00 de 8,00", "7.00", "1.00", "12.5"],
     ["1,00 de 16,00, meio para cima", "15.00", "1.00", "6.3"],
   ])("percentual não identificado, %s, é %s%%", (_nome, deEmitente, naoIdentificado, esperado) => {
-    const notas = [compra(emit("11111111"), deEmitente), notaDoBanco({ chave: "NFSE-1", documento: 91, valores: { apurado: naoIdentificado, aApropriar: naoIdentificado } })];
+    const notas = [compra(emit("16273849"), deEmitente), notaDoBanco({ chave: "NFSE-1", documento: 91, valores: { apurado: naoIdentificado, aApropriar: naoIdentificado } })];
     const r = indicadoresDeCredito(notas, RAIZ, null);
     if (r.semNotasNoRecorte) throw new Error("era esperado haver notas");
     expect(r.pendentes.naoIdentificado).toEqual({ quantidade: 1, total: naoIdentificado });
@@ -196,7 +196,7 @@ describe("CA-9: a soma dos grupos fecha com I-2", () => {
   });
 
   it("o documento 91, a chave de 50 posições e a de DV errado ficam em não identificado", () => {
-    const certa = montarChave({ emitente: emit("11111111") });
+    const certa = montarChave({ emitente: emit("16273849") });
     const dvErrado = `${certa.slice(0, 43)}${(Number(certa[43]) + 1) % 10}`;
     const notas = [
       notaDoBanco({ chave: "9".repeat(50), documento: 91, valores: { aApropriar: "1.00" } }),
@@ -226,7 +226,7 @@ describe("CA-10: limite do bloco e demais emitentes", () => {
   });
 
   it("com o limite ou menos emitentes, não há demais", () => {
-    const notas = [compra(emit("11111111"), "1.00"), compra(emit("22222222"), "2.00")];
+    const notas = [compra(emit("16273849"), "1.00"), compra(emit("48392017"), "2.00")];
     const r = indicadoresDeCredito(notas, RAIZ, null);
     if (r.semNotasNoRecorte) throw new Error("era esperado haver notas");
     expect(r.pendentes.demais).toBeNull();
@@ -263,8 +263,8 @@ describe("CA-11: evolução por período", () => {
 
 describe("CA-12: recorte por período", () => {
   const notas = [
-    compra(emit("11111111"), "5.00", { pa: "11/2026" }),
-    compra(emit("22222222"), "7.00", { pa: "10/2026" }),
+    compra(emit("16273849"), "5.00", { pa: "11/2026" }),
+    compra(emit("48392017"), "7.00", { pa: "10/2026" }),
     notaDoBanco({ pa: "10/2026", valores: { apurado: "2.00", suspenso: "1.00" }, origem: 20 }),
   ];
 

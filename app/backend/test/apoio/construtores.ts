@@ -211,7 +211,7 @@ export function montarChave(o: ChaveOpts, dv?: string): string {
     o.emitente +
     (o.modelo ?? "55") +
     (o.serie ?? "001") +
-    (o.numero ?? "000000001") +
+    (o.numero ?? "0".repeat(8) + "1") +
     (o.tpEmis ?? "1") +
     (o.codigo ?? "12345678");
   if (base.length !== 43) throw new Error(`chave com ${base.length + 1} posições`);
