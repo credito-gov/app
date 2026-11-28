@@ -77,6 +77,13 @@ export const TEXTOS = {
   semPendentes: "Não há crédito a apropriar neste recorte.",
   semNotasDebitos: "Nenhum débito neste período nas consultas feitas.",
 
+  // Erro inesperado numa tela da área logada
+  erroDeTela: {
+    titulo: "Não conseguimos mostrar esta página.",
+    orientacao: "Algo saiu errado do nosso lado. Volte à lista de empresas e tente de novo. Se continuar, avise a equipe CreditoGov.",
+    voltar: "Voltar às empresas",
+  },
+
   // Carteira (CA-C1 a CA-C4)
   carteira: {
     titulo: "Empresas",

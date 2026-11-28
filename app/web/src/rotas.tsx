@@ -1,4 +1,5 @@
 import { Navigate, type RouteObject } from "react-router";
+import { ErroDeTela } from "./componentes/ErroDeTela";
 import { LayoutEmpresa } from "./componentes/LayoutEmpresa";
 import { AceitarConvite } from "./paginas/AceitarConvite";
 import { Carteira } from "./paginas/Carteira";
@@ -26,6 +27,7 @@ export const rotasApp: RouteObject[] = [
   { path: "/convite", element: <AceitarConvite /> },
   {
     element: <RequerSessao />,
+    errorElement: <ErroDeTela />,
     children: [
       { path: "/", element: <Raiz /> },
       { path: "/empresas", element: <Carteira /> },
