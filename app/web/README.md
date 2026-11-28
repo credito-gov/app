@@ -13,7 +13,7 @@ npm run lint
 npm run build
 ```
 
-Para usar a interface de verdade, suba também a API (veja o [README do backend](../backend/README.md)). O proxy do Vite repassa `/api` para a porta 3000 da API.
+Para usar a interface de verdade, suba também a API (veja o [README do backend](../backend/README.md)). O proxy do Vite repassa `/api` para a porta 3000 da API e acrescenta `X-Forwarded-For` (`xfwd`); no backend use `CREDITOGOV_CONFIAR_PROXY=1` no desenvolvimento, para o limite por origem enxergar cada pessoa.
 
 ## Conferência no navegador
 

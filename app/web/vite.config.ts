@@ -6,7 +6,8 @@ export default defineConfig({
   server: {
     host: "localhost",
     port: 5173,
-    proxy: { "/api": "http://127.0.0.1:3000" },
+    // xfwd: a API enxerga o endereço de quem usa o navegador (X-Forwarded-For), não 127.0.0.1.
+    proxy: { "/api": { target: "http://127.0.0.1:3000", xfwd: true } },
   },
   test: {
     environment: "jsdom",

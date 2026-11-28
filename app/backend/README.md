@@ -52,7 +52,7 @@ O `.env.example` traz só os nomes. Copie para `.env` (ignorado pelo git) e pree
 | `CREDITOGOV_WEB_URL` | URL da web, para os links dos e-mails e para a verificação de origem. |
 | `CREDITOGOV_EMAIL` | Adaptador de e-mail: `arquivo` ou `memoria`. |
 | `CREDITOGOV_API_PORTA` | Porta da API (opcional; padrão 3000). |
-| `CREDITOGOV_CONFIAR_PROXY` | `true` ou `false` (opcional; padrão `false`). Só `true` atrás de proxy confiável. |
+| `CREDITOGOV_CONFIAR_PROXY` | Inteiro >= 0 (opcional; padrão `0`): quantos proxies à frente da API são confiáveis. Com `0`, o cabeçalho `X-Forwarded-For` é ignorado e o limite por origem usa o endereço da conexão. Com `1`, a origem é o endereço que o proxy acrescentou (o mais à direita). **No desenvolvimento use `1`**: o proxy do Vite (`xfwd`) acrescenta o endereço de quem usa o navegador; sem isso tudo chega de 127.0.0.1 e 5 erros de qualquer pessoa bloqueiam todos. Não use valor maior que o número real de proxies, nem exponha a API sem proxy com valor maior que 0. |
 
 ## E-mails locais
 
