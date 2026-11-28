@@ -82,8 +82,8 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 36 | Testes da tela `Carteira` | Web › Rotas; Componentes (`LinhaCarteira`); Textos | CA-C1 a CA-C4 | falham | ☑ |
 | 37 | Implementar `Carteira` em `/empresas` | idem 36 | idem 36 | testes da task 36 passam | ☑ |
 | 38 | Documentação e verificação final da carteira | Documentação; Estratégia de verificação | CA-C1 a CA-C4 | os seis comandos passam; roteiro da carteira rodado | ☑ (roteiro no navegador fica para o responsável) |
-| 39 | Testes do ajuste da revisão: situação pela última consulta com arquivo aceito | Situação de cada serviço; Carteira; Contratos; Textos; Ajuste na revisão (2026-11-28) | CA-14, CA-15, CA-19, CA-C2 | falham (campos com nome novo e caso aceito-depois-recusados) | ☐ |
-| 40 | Implementar o ajuste: `ultimaAceitaEm` e `diasSemAtualizacao` no backend e na web, e os textos | idem 39 | idem 39 | testes da task 39 passam; os seis comandos passam | ☐ |
+| 39 | Testes do ajuste da revisão: situação pela última consulta com arquivo aceito | Situação de cada serviço; Carteira; Contratos; Textos; Ajuste na revisão (2026-11-28) | CA-14, CA-15, CA-19, CA-C2 | falham (campos com nome novo e caso aceito-depois-recusados) | ☑ |
+| 40 | Implementar o ajuste: `ultimaAceitaEm` e `diasSemAtualizacao` no backend e na web, e os textos | idem 39 | idem 39 | testes da task 39 passam; os seis comandos passam | ☑ |
 
 ## Detalhe das tasks
 
