@@ -74,6 +74,7 @@ export const TEXTOS = {
     `Há retornos da Receita que não entraram nos indicadores: ${n} de ${plural}, o mais recente em ${data}. Os números não incluem esses retornos.`,
   nenhumRetornoUsavel: (plural: string) => `Nenhum retorno de ${plural} pôde ser usado.`,
   semNotasCreditos: "Nenhum crédito neste período nas consultas feitas.",
+  semPendentes: "Não há crédito a apropriar neste recorte.",
   semNotasDebitos: "Nenhum débito neste período nas consultas feitas.",
 
   // Carteira (CA-C1 a CA-C4)

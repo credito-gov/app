@@ -16,20 +16,17 @@ const NOMES = {
 const SERVICOS: Servico[] = ["creditos", "debitos"];
 
 /** Alertas do topo (CA-15, CA-19) e o resumo de cada serviço (CA-14). */
-export function SituacaoDosDados({ situacao }: { situacao: Painel["situacao"] }) {
+export function SituacaoDosDados({ situacao, servicos = SERVICOS }: { situacao: Partial<Painel["situacao"]>; servicos?: readonly Servico[] }) {
   return (
     <div className="painel-situacao">
-      {SERVICOS.map((servico) => {
+      {servicos.map((servico) => {
         const s = situacao[servico];
+        if (!s) return null;
         const n = NOMES[servico];
         return (
           <div key={servico} className="painel-situacao-servico">
             {s.desatualizado && s.diasSemAtualizacao !== null ? <Alerta tipo="warning" titulo={TEXTOS.desatualizado(n.Titulo, s.diasSemAtualizacao)} /> : null}
-            {s.falha ? (
-              <Alerta tipo="error" titulo={TEXTOS.falhou(n.plural, formatarInstante(s.falha.em))}>
-                {s.falha.tipo === "credencial" ? TEXTOS.falhaDeCredencial : TEXTOS.falhaSemCulpa}
-              </Alerta>
-            ) : null}
+            <AlertaDeFalha servico={servico} falha={s.falha} />
             {s.ultimaAceitaEm !== null ? (
               <p className="cg-help">{TEXTOS.ultimaConsulta(n.Titulo, formatarInstante(s.ultimaAceitaEm), s.atualizacao ? formatarData(s.atualizacao.de) : null, s.atualizacao ? formatarData(s.atualizacao.ate) : null)}</p>
             ) : null}
@@ -38,6 +35,16 @@ export function SituacaoDosDados({ situacao }: { situacao: Painel["situacao"] })
       })}
       <p className="cg-help">{TEXTOS.fraseDasConsultas}</p>
     </div>
+  );
+}
+
+/** O título da falha e a ação: credencial recusada pede uma nova; outro erro não depende do usuário (CA-19). */
+function AlertaDeFalha({ servico, falha }: { servico: Servico; falha: SituacaoDoServico["falha"] }) {
+  if (!falha) return null;
+  return (
+    <Alerta tipo="error" titulo={TEXTOS.falhou(NOMES[servico].plural, formatarInstante(falha.em))}>
+      {falha.tipo === "credencial" ? TEXTOS.falhaDeCredencial : TEXTOS.falhaSemCulpa}
+    </Alerta>
   );
 }
 
@@ -54,20 +61,26 @@ export function EstadoDoBloco({
   servico,
   situacao,
   semNotas,
+  textoSemNotas,
   children,
 }: {
   servico: Servico;
   situacao: SituacaoDoServico;
   semNotas: boolean;
+  /** Troca o texto de "sem notas" onde ele diria outra coisa (Pendências: não há crédito a apropriar). */
+  textoSemNotas?: string;
   children: ReactNode;
 }) {
   const n = NOMES[servico];
   const andamento = situacao.emAndamento ? <p className="cg-help">{TEXTOS.emAndamento}</p> : null;
+  // Sem números o bloco não pode dizer só "ainda não consultados" quando a última tentativa falhou (CA-18, CA-19).
+  const falha = <AlertaDeFalha servico={servico} falha={situacao.falha} />;
 
   if (situacao.estado === "sem_consulta") {
     return (
       <>
         <Vazio>{TEXTOS.aindaNaoConsultados(n.plural)}</Vazio>
+        {falha}
         {andamento}
       </>
     );
@@ -76,6 +89,7 @@ export function EstadoDoBloco({
     return (
       <>
         <Vazio>{TEXTOS.vazio(n.plural, situacao.ultimaAceitaEm === null ? "" : formatarInstante(situacao.ultimaAceitaEm))}</Vazio>
+        {falha}
         {andamento}
       </>
     );
@@ -84,6 +98,7 @@ export function EstadoDoBloco({
     return (
       <>
         <Vazio>{TEXTOS.nenhumRetornoUsavel(n.plural)}</Vazio>
+        {falha}
         {andamento}
       </>
     );
@@ -97,7 +112,7 @@ export function EstadoDoBloco({
       {situacao.falha && situacao.ultimaAceitaEm !== null ? (
         <p className="cg-inline-note">{TEXTOS.numerosAnteriores(formatarInstante(situacao.ultimaAceitaEm))}</p>
       ) : null}
-      {semNotas ? <Vazio>{servico === "creditos" ? TEXTOS.semNotasCreditos : TEXTOS.semNotasDebitos}</Vazio> : children}
+      {semNotas ? <Vazio>{textoSemNotas ?? (servico === "creditos" ? TEXTOS.semNotasCreditos : TEXTOS.semNotasDebitos)}</Vazio> : children}
     </>
   );
 }

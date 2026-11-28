@@ -7,7 +7,7 @@ import { formatarCnpj, formatarCpf } from "../formatacao/documento";
 import { formatarPeriodo } from "../formatacao/datas";
 import { Dinheiro } from "../paineis/blocos";
 import { ResultadoDaBusca, usePendencias } from "../paineis/busca";
-import { EstadoDoBloco } from "../paineis/situacao";
+import { EstadoDoBloco, SituacaoDosDados } from "../paineis/situacao";
 import { TEXTOS } from "../paineis/textos";
 import type { GrupoDePendencia } from "../paineis/tipos";
 
@@ -36,7 +36,8 @@ export function Pendencias() {
             <Link className="cg-link" to={`/e/${empresa.id}${comRecorte(periodo)}`}>
               Voltar à Visão geral
             </Link>
-            <EstadoDoBloco servico="creditos" situacao={r.situacao.creditos} semNotas={r.grupos !== null && r.grupos.length === 0}>
+            <SituacaoDosDados situacao={r.situacao} servicos={["creditos"]} />
+            <EstadoDoBloco servico="creditos" situacao={r.situacao.creditos} semNotas={r.grupos !== null && r.grupos.length === 0} textoSemNotas={TEXTOS.semPendentes}>
               {r.grupos !== null ? (
                 <section className="cg-card" aria-label="Pendente por emitente (lista)">
                   <div className="cg-card-body">
