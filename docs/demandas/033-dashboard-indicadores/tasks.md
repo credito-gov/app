@@ -82,6 +82,8 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 36 | Testes da tela `Carteira` | Web › Rotas; Componentes (`LinhaCarteira`); Textos | CA-C1 a CA-C4 | falham | ☑ |
 | 37 | Implementar `Carteira` em `/empresas` | idem 36 | idem 36 | testes da task 36 passam | ☑ |
 | 38 | Documentação e verificação final da carteira | Documentação; Estratégia de verificação | CA-C1 a CA-C4 | os seis comandos passam; roteiro da carteira rodado | ☑ (roteiro no navegador fica para o responsável) |
+| 39 | Testes do ajuste da revisão: situação pela última consulta com arquivo aceito | Situação de cada serviço; Carteira; Contratos; Textos; Ajuste na revisão (2026-11-28) | CA-14, CA-15, CA-19, CA-C2 | falham (campos com nome novo e caso aceito-depois-recusados) | ☐ |
+| 40 | Implementar o ajuste: `ultimaAceitaEm` e `diasSemAtualizacao` no backend e na web, e os textos | idem 39 | idem 39 | testes da task 39 passam; os seis comandos passam | ☐ |
 
 ## Detalhe das tasks
 
@@ -204,7 +206,7 @@ Em `src/indicadores/`, copiados de `app/painel/src/nucleo/` com o cabeçalho de 
 
 Com relógio falso e listas de consultas e arquivos montadas no teste:
 
-- **CA-14:** `ultimaConcluidaEm` é o maior `concluida_em` entre as consultas `lida`, inclusive a de arquivo recusado; `atualizacao.de` e `.ate` são a menor e a maior data das notas consolidadas, em `AAAA-MM-DD` do texto do arquivo.
+- **CA-14:** `ultimaConcluidaEm` é o maior `concluida_em` entre as consultas `lida`, inclusive a de arquivo recusado (**substituído pelo ajuste da revisão de 2026-11-28: ver tasks 39 e 40**); `atualizacao.de` e `.ate` são a menor e a maior data das notas consolidadas, em `AAAA-MM-DD` do texto do arquivo.
 - **CA-15:** 8 × 24 h exatas depois da última concluída, `desatualizado` é falso; 8 × 24 h e 1 s, verdadeiro. `diasSemConsulta` em dias inteiros. Créditos desatualizados e débitos não, e o contrário.
 - **CA-16:** sem consulta `lida`, `estado = 'sem_consulta'`; com uma em `abrindo`, `aberta`, `concluida` ou `baixada`, `emAndamento` verdadeiro; com só `agendada`, falso.
 - **CA-17:** consulta lida, nenhuma nota e nenhum recusado dá `vazio`.
@@ -421,7 +423,7 @@ Como em "Documentação" da Spec, sem a carteira (ela entra na task 38):
 Em `test/indicadores/`, sem banco:
 
 - **CA-C1:** a linha traz I-2, I-3 e I-4 de todos os períodos, iguais aos de `indicadoresDeCredito` sem recorte, só com créditos em `com_dados`; nos outros estados, os valores são `null` e o estado vem no lugar.
-- **CA-C2 e DT-8:** o resumo segue a prioridade `falhou`, `sem_consulta`, `desatualizado`, `atualizado`, juntando créditos e débitos (créditos atualizados e débitos com falha dão `falhou`); a data é a mais antiga das duas últimas concluídas; sem concluída num dos serviços, `null`.
+- **CA-C2 e DT-8:** o resumo segue a prioridade `falhou`, `sem_consulta`, `desatualizado`, `atualizado`, juntando créditos e débitos (créditos atualizados e débitos com falha dão `falhou`); a data é a mais antiga das duas últimas concluídas; sem concluída num dos serviços, `null` (após a revisão de 2026-11-28, só conta consulta com arquivo aceito: tasks 39 e 40).
 - **CA-C4:** o módulo não exporta função que receba mais de uma empresa e devolva valor somado (conferência da lista de exportações).
 
 **Verificação:** falham.
@@ -474,6 +476,27 @@ Fixture fictícia de `GET /api/carteira` com empresas em cada resumo:
 - Os seis comandos passam, e as varreduras da task 31 são repetidas.
 
 **Verificação:** comandos e varreduras; roteiro rodado; `git status` limpo.
+
+### 39. Testes do ajuste da revisão (2026-11-28)
+
+Seção "Ajuste na revisão (2026-11-28)" da Spec. Os testes existentes que usam `ultimaConcluidaEm` e `diasSemConsulta` passam a usar `ultimaAceitaEm` e `diasSemAtualizacao`, e entram os casos novos:
+
+- **`test/indicadores/situacao.test.ts`:** consulta lida com arquivo `recusado` depois de uma lida com arquivo aceito não muda `ultimaAceitaEm`; `aceito_com_divergencia` e `apuracao` vazia aceita contam; aceito há 10 dias e um recusado por dia desde então dá `ultimaAceitaEm` de 10 dias atrás, `diasSemAtualizacao = 10`, `desatualizado` verdadeiro e `recusados.quantidade = 10`; só recusados dá `sem_dados_usaveis`, `ultimaAceitaEm` e `diasSemAtualizacao` nulos e `desatualizado` falso.
+- **`test/indicadores/carteira.test.ts`:** o mesmo caso de 10 dias dá resumo `desatualizado` com a data do aceito; um serviço só com recusados dá `sem_consulta` e data nula (sem falha).
+- **`test/api/painel.test.ts` e `test/api/carteira.test.ts`:** a lista fechada de chaves de `situacao` tem os nomes novos e não tem os antigos.
+- **Web** (`test/fixtures/painel.ts`, `test/fixtures/carteira.ts` e os testes de estados e da carteira): fixtures com os nomes novos; a data de `SituacaoDados`, o texto de números anteriores e a coluna da carteira mostram `ultimaAceitaEm`; os textos novos de CA-14, CA-15 e dos selos.
+
+**Verificação:** falham (nomes e comportamento novos).
+
+### 40. Implementar o ajuste da revisão
+
+- `app/backend/src/indicadores/situacao.ts`: `ultimaAceitaEm` a partir das consultas `lida` com arquivo `aceito` ou `aceito_com_divergencia` (pelo `consultaId` de `ArquivoResumo`); `diasSemAtualizacao` e `desatualizado` a partir dela. `estado`, `falha`, `emAndamento` e `recusados` sem mudança.
+- `app/backend/src/indicadores/carteira.ts`: data e resumo a partir das `ultimaAceitaEm`; campos de saída renomeados.
+- `app/web/src/paineis/tipos.ts`, `situacao.tsx`, `LinhaCarteira.tsx`, `paginas/Carteira.tsx`: nomes novos.
+- `app/web/src/paineis/textos.ts`: `ultimaConsulta`, `desatualizado`, `carteira.colunaConsulta` e `carteira.selos` conforme a seção "Textos" da Spec.
+- Documentação que cite os nomes antigos (`app/backend/README.md`, `app/web/README.md`), se citar.
+
+**Verificação:** testes da task 39 passam; os seis comandos passam; uma busca por `ultimaConcluidaEm` e `diasSemConsulta` em `app/` não encontra nada.
 
 ## Mapa CA → tasks
 

@@ -152,10 +152,10 @@ O emitente é calculado na hora da consulta, a partir da chave guardada, e não 
 
 `situacaoDoServico(consultas, arquivos, notasConsolidadas, agora)` devolve, para créditos e para débitos:
 
-- **`ultimaConcluidaEm`**: o maior `concluida_em` entre as consultas `lida`. Uma consulta lida com arquivo recusado também conta: o retorno foi recebido, só não entrou nos números (o aviso de CA-20 cuida disso);
+- **`ultimaAceitaEm`**: o maior `concluida_em` entre as consultas `lida` cujo `arquivo_bruto` tem situação `aceito` ou `aceito_com_divergencia`. **Consulta lida com arquivo `recusado` não conta**, nem consulta lida sem arquivo: o retorno não entrou nos números, então não atualiza nada (ajuste na revisão de 2026-11-28, no fim). Um retorno aceito com `apuracao` vazia conta, porque é uma resposta válida da Receita (CA-17). O último retorno recusado continua informado em `recusados.ultimoEm` (CA-20);
 - **`emAndamento`**: se há consulta em `abrindo`, `aberta`, `concluida` ou `baixada`;
 - **`falha`**: se a consulta mais recente entre as finalizadas (`lida` ou estado de erro, pela `criada_em`) terminou em erro. Traz o horário (`finalizada_em`) e o tipo: `credencial` para `credencial_invalida`, `outra` para `erro`, `expirada`, `servico_indisponivel` e `aberta_sem_tiquete`;
-- **`diasSemConsulta`** e **`desatualizado`**: dias inteiros desde `ultimaConcluidaEm`, e se passaram mais de 8 × 24 horas (CA-15, P-9);
+- **`diasSemAtualizacao`** e **`desatualizado`**: dias inteiros desde `ultimaAceitaEm`, e se passaram mais de 8 × 24 horas (CA-15, P-9). Com `ultimaAceitaEm` nulo, `diasSemAtualizacao` é nulo e `desatualizado` é falso: o estado (`sem_consulta` ou `sem_dados_usaveis`) já diz que não há números. Exemplo que motivou o ajuste: créditos aceitos há 10 dias e retornos recusados todos os dias desde então dão `ultimaAceitaEm` de 10 dias atrás, `desatualizado` verdadeiro e o aviso de recusados;
 - **`atualizacao`**: a menor e a maior data de `atualizacao` entre as notas consolidadas de todos os períodos (CA-14), com a data como veio no arquivo;
 - **`recusados`**: a quantidade de arquivos `recusado` do serviço e o `recebido_em` do mais recente (CA-20);
 - **`estado`** do bloco:
@@ -195,8 +195,8 @@ O emitente é calculado na hora da consulta, a partir da chave guardada, e não 
 `linhaDaCarteira(empresa, dadosDaEmpresa, agora)` traz I-2, I-3 e I-4 de todos os períodos e um **resumo da situação** que junta créditos e débitos (DT-8):
 
 - a prioridade é `falhou`, depois `sem_consulta`, depois `desatualizado`, depois `atualizado`;
-- a data é a mais antiga das duas últimas consultas concluídas;
-- sem nenhuma consulta concluída num dos serviços, a data é nula.
+- a data é a mais antiga das duas `ultimaAceitaEm` (créditos e débitos); consulta com arquivo recusado não conta;
+- sem nenhuma consulta com arquivo aceito num dos serviços, a data é nula e o resumo, se não houver falha, é `sem_consulta`.
 
 Os valores só aparecem com créditos em `com_dados`. Nos outros estados, a linha leva o estado no lugar dos valores. Não existe função que some valores de empresas diferentes (CA-C4).
 
@@ -246,7 +246,7 @@ Os CNPJs dos emitentes são fictícios, com dígito verificador do CNPJ proposit
 | `vazio` | Consultas lidas com `apuracao` vazia nos dois serviços | CA-17 |
 | `parcial` | Créditos com dados; débitos só com uma consulta em `erro` | CA-18, CA-19 |
 | `falha-com-anteriores` | Dados de 3 dias atrás; a última tentativa de créditos em `credencial_invalida`, hoje | CA-19 |
-| `desatualizado` | Última consulta concluída há 9 dias nos dois serviços | CA-15 |
+| `desatualizado` | Última consulta concluída, com arquivo aceito, há 9 dias nos dois serviços | CA-15 |
 | `recusado` | Dados aceitos, mais um retorno de outra raiz e um fora do schema | CA-20 |
 | `outros-valores` | Notas com `suspenso`, `prescrito` e `pedidoRessarcimento` diferentes de zero, origens 20 e 30, e uma nota com `aApropriar` negativo | CA-3, CA-9, CA-25 |
 
@@ -289,7 +289,7 @@ O mesmo gerador alimenta os testes.
 | Componente | Conteúdo | CA |
 |---|---|---|
 | `SeletorRecorte` | `cg-select` com "Todos os períodos coletados" e cada `MM/AAAA` disponível, em ordem cronológica. Mostra o recorte atual no título da página | CA-12 |
-| `SituacaoDados` | Para créditos e para débitos: a última consulta concluída e o intervalo de `atualizacao`, mais a frase fixa de CA-14. Os alertas de CA-15, CA-19 e CA-20 aparecem por serviço, no topo da página, enquanto durar a situação | CA-14, CA-15, CA-19, CA-20 |
+| `SituacaoDados` | Para créditos e para débitos: a última consulta com arquivo aceito (`ultimaAceitaEm`) e o intervalo de `atualizacao`, mais a frase fixa de CA-14. Os alertas de CA-15, CA-19 e CA-20 aparecem por serviço, no topo da página, enquanto durar a situação | CA-14, CA-15, CA-19, CA-20 |
 | `CartaoApurado` | `cg-total is-xl` "Crédito apurado nas compras" (`apurado`), com a quantidade de notas e a frase de que os valores abaixo vêm de campos separados e não se somam | CA-1, CA-2, CA-5 |
 | `CartaoTotal` × 4 | `cg-total`: rótulo, valor, nome oficial em `cg-total-field` e a nota do design 3.3. No "A apropriar (pendente)": cor `pending`, ícone de relógio, a nota de CA-4 e "N de M notas com valor a apropriar" | CA-1, CA-2, CA-4, CA-5 |
 | `OutrosValores` | Só existe se a API mandar algum campo. Uma linha por campo, com rótulo, nome oficial e valor | CA-3 |
@@ -301,7 +301,7 @@ O mesmo gerador alimenta os testes.
 | `EstadoServico` | `cg-empty` no lugar dos números de um serviço em `sem_consulta`, `vazio` ou `sem_dados_usaveis`, ou em período sem nota | CA-16 a CA-18, CA-20 |
 | `LinhaCarteira` | Nome e CNPJ raiz, A apropriar (pendente), Apropriado e Já utilizado (cada coluna com o nome oficial no cabeçalho), selo de situação (design 3.4) e data. A linha leva a `/e/:empresaId` | CA-C1 a CA-C3 |
 
-A carteira ordena por nome (padrão), por I-2 (as empresas sem valor vão para o fim) e pela data da última consulta concluída (as sem consulta concluída vão primeiro), com `cg-sort`. Não há linha, cartão nem rodapé de total (CA-C4).
+A carteira ordena por nome (padrão), por I-2 (as empresas sem valor vão para o fim) e pela data da última consulta com arquivo aceito, `situacao.ultimaAceitaEm` (as sem essa data vão primeiro), com `cg-sort`. Não há linha, cartão nem rodapé de total (CA-C4).
 
 Dashboard em largura de desktop, como o design (D-6 da 032). Em tela estreita, os blocos se empilham, sem desenho próprio para celular.
 
@@ -317,16 +317,16 @@ Todos os textos fixos do dashboard e da carteira ficam em `src/paineis/textos.ts
 | Outros valores (I-6) | Rótulos "Suspenso", "Inapropriável", "Prescrito", "Restabelecido", "Inutilizável", "Pedido de ressarcimento" (e "Excedente", P-S2), cada um com a nota "Valor que a Receita informa neste campo. O significado prático está em análise." |
 | Percentual (CA-9) | "N% do valor a apropriar está em notas de emitente não identificado, como as NFS-e, cuja chave não traz o emitente num leiaute conhecido." |
 | Débitos (CA-13) | "Imposto das vendas registrado pela Receita. O CreditoGov não calcula saldo líquido entre crédito e débito nesta versão." |
-| Situação (CA-14) | "Os números são os das consultas feitas pelo CreditoGov à API de apuração da CBS da Receita Federal. A Receita não fornece histórico anterior a essas consultas." |
-| Desatualizado (CA-15) | "Créditos sem consulta concluída há N dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida." (e o mesmo para débitos) |
+| Situação (CA-14) | "Os números são os das consultas feitas pelo CreditoGov à API de apuração da CBS da Receita Federal. A Receita não fornece histórico anterior a essas consultas." Por serviço: "Créditos: última consulta que entrou nos indicadores em DD/MM/AAAA às HH:MM.", seguido do intervalo de atualização das notas |
+| Desatualizado (CA-15) | "Créditos sem atualização há N dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida." (e o mesmo para débitos) |
 | Sem consulta (CA-16) | "Os créditos ainda não foram consultados na Receita." e, com consulta em andamento, "Há uma consulta em andamento." |
 | Vazio (CA-17) | "A Receita não devolveu créditos nas consultas feitas até DD/MM/AAAA às HH:MM. Isto não é um saldo de R$ 0,00." |
 | Período sem nota (CA-12) | "Nenhum crédito neste período nas consultas feitas." |
-| Falha (CA-19) | Título "A atualização dos créditos falhou em DD/MM/AAAA às HH:MM." Credencial: "A Receita recusou a credencial de acesso da empresa. É preciso gerar uma nova no portal da Receita. Fale com a equipe CreditoGov para informá-la." Outros: "Isso não depende de você." Com números anteriores: "Os números abaixo são da consulta de DD/MM/AAAA às HH:MM e não estão atualizados." |
+| Falha (CA-19) | Título "A atualização dos créditos falhou em DD/MM/AAAA às HH:MM." Credencial: "A Receita recusou a credencial de acesso da empresa. É preciso gerar uma nova no portal da Receita. Fale com a equipe CreditoGov para informá-la." Outros: "Isso não depende de você." Com números anteriores: "Os números abaixo são da consulta de DD/MM/AAAA às HH:MM e não estão atualizados.", com a data de `ultimaAceitaEm` |
 | Recusado (CA-20) | "Há retornos da Receita que não entraram nos indicadores: N de créditos, o mais recente em DD/MM/AAAA. Os números não incluem esses retornos." Em `sem_dados_usaveis`: "Nenhum retorno de créditos pôde ser usado." |
 | Só CBS (CA-22) | "Só CBS. Os dados vêm da API de apuração da CBS da Receita Federal; o IBS ainda não está nessa fonte." |
 | Origens (CA-25) | "Há notas com origem diferente de normal neste recorte. Os valores entram nos totais como a Receita informou: CANCELAMENTO_CREDITO (30): 2 notas." |
-| Carteira (CA-C4) | Título "Empresas". Subtítulo "Valores de cada empresa como a Receita informou. Valores de empresas diferentes não se somam." Selos: "Atualizado", "Consulta falhou", "N dias sem consulta", "Sem consulta concluída" |
+| Carteira (CA-C4) | Título "Empresas". Subtítulo "Valores de cada empresa como a Receita informou. Valores de empresas diferentes não se somam." Coluna da data: "Última atualização". Selos: "Atualizado", "Consulta falhou", "N dias sem atualização", "Sem dados nos indicadores" |
 
 Nenhum texto usa "disponível", "indisponível", "pode usar", "confirmado", "a receber", "garantido", "não recolheu", "deixou de recolher" ou "inadimplente". "Indisponível" também fica de fora porque contém "disponível", e o teste de CA-2 procura a palavra.
 
@@ -361,14 +361,14 @@ Valores em texto decimal com duas casas (`"1234.50"`). Instantes em ISO 8601 UTC
     "creditos": {
       "estado": "com_dados",
       "emAndamento": false,
-      "ultimaConcluidaEm": "2026-11-26T12:00:00.000Z",
-      "diasSemConsulta": 1,
+      "ultimaAceitaEm": "2026-11-26T12:00:00.000Z",
+      "diasSemAtualizacao": 1,
       "desatualizado": false,
       "falha": null,
       "atualizacao": { "de": "2026-11-01", "ate": "2026-11-21" },
       "recusados": null
     },
-    "debitos": { "estado": "sem_consulta", "emAndamento": true, "ultimaConcluidaEm": null, "diasSemConsulta": null, "desatualizado": false, "falha": null, "atualizacao": null, "recusados": null }
+    "debitos": { "estado": "sem_consulta", "emAndamento": true, "ultimaAceitaEm": null, "diasSemAtualizacao": null, "desatualizado": false, "falha": null, "atualizacao": null, "recusados": null }
   },
   "creditos": {
     "semNotasNoRecorte": false,
@@ -391,6 +391,7 @@ Valores em texto decimal com duas casas (`"1234.50"`). Instantes em ISO 8601 UTC
 }
 ```
 
+- `situacao.<servico>.ultimaAceitaEm`: instante da última consulta lida com arquivo aceito, ou `null`. Não há campo para o último retorno recusado além de `recusados.ultimoEm`. `diasSemAtualizacao` conta a partir de `ultimaAceitaEm`.
 - `situacao.<servico>.falha`: `null` ou `{ "em": "<instante>", "tipo": "credencial" | "outra" }`. `recusados`: `null` ou `{ "quantidade": n, "ultimoEm": "<instante>" }`.
 - `creditos` e `debitos` são `null` quando o estado do serviço não é `com_dados`. Com `semNotasNoRecorte: true`, os demais campos do bloco não vêm.
 - `debitos`, quando há dados: `{ semNotasNoRecorte, quantidadeNotas, totais: { apurado, extinto, saldoDevedor }, origens }`.
@@ -408,7 +409,7 @@ Valores em texto decimal com duas casas (`"1234.50"`). Instantes em ISO 8601 UTC
 
 ### `GET /api/carteira`
 
-`200 { empresas: [{ id, nome, cnpjRaizFormatado, papel, creditos: { estado, aApropriar, apropriado, utilizado }, situacao: { resumo: "atualizado" | "falhou" | "desatualizado" | "sem_consulta", ultimaConcluidaEm, diasSemConsulta } }] }`, ordenadas por nome. Os três valores são `null` fora de `com_dados`. A resposta não tem campo de total. CA-C1 a CA-C4.
+`200 { empresas: [{ id, nome, cnpjRaizFormatado, papel, creditos: { estado, aApropriar, apropriado, utilizado }, situacao: { resumo: "atualizado" | "falhou" | "desatualizado" | "sem_consulta", ultimaAceitaEm, diasSemAtualizacao } }] }`, ordenadas por nome. `ultimaAceitaEm` é a mais antiga das `ultimaAceitaEm` dos dois serviços (DT-8). Os três valores são `null` fora de `com_dados`. A resposta não tem campo de total. CA-C1 a CA-C4.
 
 ### Função de leitura (contrato com o coletor)
 
@@ -435,7 +436,7 @@ Decisões técnicas desta Spec (DT-N), para aprovação junto com ela:
 - **DT-5 — `@tanstack/react-query` para a busca de dados**, que cumpre o critério da AD-3 (cache por empresa e recorte, sem estado global). A alternativa, um cache próprio num contexto React, reescreveria invalidação, estados de carregamento e nova tentativa.
 - **DT-6 — Validação do múltiplo de 0,01 fora do `ajv`**, com `big.js` sobre o texto. Trata o ponto de atenção da AD-13 sem mudar o arquivo do schema oficial.
 - **DT-7 — Texto de credencial recusada aponta para a equipe CreditoGov** enquanto não houver cadastro de credencial. Nunca pede que a credencial seja mandada por e-mail ou mensagem.
-- **DT-8 — Situação única por empresa na carteira:** a pior entre créditos e débitos, com a data mais antiga. Uma linha por empresa, como no design, sem esconder um serviço com problema.
+- **DT-8 — Situação única por empresa na carteira:** a pior entre créditos e débitos, com a mais antiga das duas `ultimaAceitaEm` (só consulta com arquivo aceito conta). Uma linha por empresa, como no design, sem esconder um serviço com problema.
 - **DT-9 — A carteira aparece para qualquer usuário com mais de uma empresa**, porque os três papéis veem os mesmos dados (034, CA-29). Ver P-S5.
 - **DT-10 — Linha "Notas com valor a apropriar negativo"** em I-7, só quando existir, para CA-6 e CA-9 valerem juntos. Mesma solução da DT-9 da 030.
 - **DT-11 — Evolução por período como tabela**, sem gráfico. A US não pede gráfico, e a tabela mostra o valor exato com o nome oficial. Se o artboard tiver gráfico, a P-S3 decide.
@@ -494,12 +495,12 @@ Nenhum teste lê `.env`, chama a Receita ou usa dado real. Os retornos vêm do g
 | CA-11 | Teste: os períodos em ordem cronológica (inclusive a virada de ano), só os que têm nota, e a soma de cada coluna igual ao total |
 | CA-12 | Teste da API: com `periodo`, todos os blocos (créditos, pendentes, evolução, débitos) só têm notas daquele `pa`; período sem débito dá `semNotasNoRecorte`; `periodo` malformado dá `400`. Teste da web: o seletor muda a URL e o título mostra o recorte |
 | CA-13 | Teste: o bloco de débitos tem os três rótulos com o nome oficial e a frase de saldo líquido; a resposta não tem campo que combine crédito e débito |
-| CA-14 | Teste de `situacaoDoServico`: `ultimaConcluidaEm` e o intervalo de `atualizacao` por serviço. Teste da web: a frase de CA-14 está presente |
-| CA-15 | Testes com relógio falso: 8 dias exatos não avisam; 8 dias e 1 segundo avisam; o aviso é por serviço |
+| CA-14 | Teste de `situacaoDoServico`: `ultimaAceitaEm` é a da última consulta lida com arquivo aceito (inclusive `aceito_com_divergencia` e `apuracao` vazia), e uma lida posterior com arquivo recusado não a muda; o intervalo de `atualizacao` por serviço. Teste da web: a frase de CA-14 e a data de `ultimaAceitaEm` estão presentes |
+| CA-15 | Testes com relógio falso: 8 dias exatos não avisam; 8 dias e 1 segundo avisam; o aviso é por serviço; aceito há 10 dias e recusados todos os dias desde então dá `desatualizado` verdadeiro e `diasSemAtualizacao = 10`; só recusados dá `diasSemAtualizacao` nulo e nenhum aviso de desatualizado |
 | CA-16 | Testes: `sem-consulta` e `em-andamento` não renderizam nenhum `R$` nos blocos; a mensagem de em andamento aparece só no segundo |
 | CA-17 | Teste: `vazio` mostra a mensagem com a data e nenhum `R$ 0,00` fora da própria frase |
 | CA-18 | Teste: `parcial` mostra os números de créditos e o estado de débitos, sem zero |
-| CA-19 | Testes: `parcial` (falha sem dados anteriores) e `falha-com-anteriores` (números visíveis, data e aviso de desatualizado); o texto de credencial só no tipo `credencial`; nenhum código HTTP ou nome de estado interno na tela |
+| CA-19 | Testes: `parcial` (falha sem dados anteriores) e `falha-com-anteriores` (números visíveis, data de `ultimaAceitaEm` e aviso de desatualizado); o texto de credencial só no tipo `credencial`; nenhum código HTTP ou nome de estado interno na tela |
 | CA-20 | Testes de leitura: ilegível, fora do schema, outra raiz e valor fora do limite gravam `recusado` com o motivo e nenhuma nota. Teste de tela: `recusado` mostra o aviso com a quantidade; um retorno recusado sozinho dá `sem_dados_usaveis` |
 | CA-21 | Teste: consultas de `recolhimentos` e `pagamentos` gravadas no banco não mudam nenhuma resposta; a web não tem texto sobre elas |
 | CA-22 | Teste da web: o aviso de só CBS aparece em todos os estados |
@@ -508,7 +509,7 @@ Nenhum teste lê `.env`, chama a Receita ou usa dado real. Os retornos vêm do g
 | CA-25 | Teste: `outros-valores` lista as origens 20 e 30 com o nome oficial e a quantidade, e os valores entram com o sinal como veio |
 | CA-26 | Revisão e teste: nenhum teste lê `.env` nem abre conexão fora de `127.0.0.1`; todo CNPJ de 14 dígitos gerado tem DV inválido; `carregar-cenario` recusa ambiente diferente de `local` e empresa com consulta; não há comando de importação de arquivo |
 | CA-C1 | Teste da API: a carteira de um usuário com três empresas (cenários `completo`, `vazio` e `falha-com-anteriores`) tem as três, cada uma com os próprios valores e situação; uma empresa sem vínculo não aparece |
-| CA-C2 | Testes da web: ordenação por I-2 e por data, com as sem valor e as sem consulta nos lugares definidos; os selos de falha, sem consulta e dias sem consulta |
+| CA-C2 | Teste de `linhaDaCarteira`: com créditos aceitos há 10 dias e recusados desde então, o resumo é `desatualizado` e a data é a do aceito; com só recusados num serviço, `sem_consulta` e data nula. Testes da web: ordenação por I-2 e por `ultimaAceitaEm`, com as sem valor e as sem data nos lugares definidos; os selos de falha, sem dados e dias sem atualização |
 | CA-C3 | Teste da web: o clique na linha leva a `/e/:empresaId`, e o dashboard mostra os mesmos valores da API para aquela empresa |
 | CA-C4 | Teste: a resposta não tem campo de total; a página não tem linha nem texto de total |
 | Isolamento (AD-6) | Teste de banco: com as empresas A e B carregadas, o painel de A não traz nada de B; `INSERT` em `credito_lido` com `empresa_id` de B, com A fixada, falha; a chave estrangeira composta recusa arquivo de A ligado a consulta de B; `naEmpresaInterna` não é importada por `src/api/` |
@@ -526,3 +527,18 @@ Para o responsável, na aprovação desta Spec:
 Continuam abertas para o tributarista, sem bloquear a Spec, com as recomendações aprovadas na US: P-1 (qual valor é o crédito utilizável), P-2 (saldo líquido), P-3 (quando o a apropriar passa a apropriado) e P-4 (significado do saldo credor e do pedido de ressarcimento). As respostas vão para `docs/produto/hipoteses.md`. Nenhuma regra de CBS/IBS nova foi escrita nesta Spec.
 
 **Aprovação (2026-11-27):** o responsável aprovou a Spec com as recomendações de P-S1 a P-S5. P-S3 segue com os valores provisórios (5 emitentes, textos desta Spec, evolução em tabela) até a transcrição das telas da 032.
+
+## Ajuste na revisão (2026-11-28)
+
+Decisão do responsável durante a revisão: **o aviso de desatualizado (CA-15), a data mostrada como última consulta, o selo e a data da carteira (DT-8) e o texto "Os números abaixo são da consulta de ..." (CA-19) usam só a última consulta lida com arquivo aceito** (`aceito` ou `aceito_com_divergencia`). Consulta lida com arquivo recusado deixa de contar para isso. Isto substitui a frase anterior da seção "Situação de cada serviço", que dizia "Uma consulta lida com arquivo recusado também conta".
+
+**Motivo:** com créditos aceitos há 10 dias e retornos recusados todos os dias desde então, a tela diria "consultado hoje", não mostraria o aviso de 8 dias e a carteira mostraria "Atualizado". Como cada consulta só traz os últimos 8 dias, alterações poderiam se perder sem aviso.
+
+**O que muda:**
+
+- `situacaoDoServico`: `ultimaConcluidaEm` passa a se chamar `ultimaAceitaEm`, e `diasSemConsulta` passa a `diasSemAtualizacao`, com o sentido novo. A troca de nome é proposital: o compilador aponta todo uso do sentido antigo. `estado`, `emAndamento`, `falha` e `recusados` não mudam. O último retorno recusado continua em `recusados.ultimoEm`, sem campo novo.
+- `linhaDaCarteira` e `GET /api/carteira`: `situacao.ultimaConcluidaEm` e `situacao.diasSemConsulta` passam a `ultimaAceitaEm` e `diasSemAtualizacao`, calculados a partir das `ultimaAceitaEm` dos dois serviços.
+- `GET /api/empresas/:empresaId/painel` e `/pendencias`: os mesmos nomes novos em `situacao.<servico>`.
+- Textos de CA-14, CA-15 e da carteira ajustados na seção "Textos". Os de CA-17, CA-19 e CA-20 mantêm a redação, com a data de `ultimaAceitaEm` onde mostram data de consulta.
+- Tabela "CA por teste": CA-14, CA-15, CA-19 e CA-C2 ganham o caso que motivou o ajuste.
+- Tasks 39 e 40 em `tasks.md`.
