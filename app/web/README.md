@@ -1,0 +1,34 @@
+# app/web
+
+Interface do CreditoGov (demanda 034: login e escolha de empresa). React, Vite e TypeScript.
+
+## Comandos
+
+```bash
+cd app/web
+npm install
+npm run dev     # Vite em http://localhost:5173, com proxy de /api para http://127.0.0.1:3000
+npm test        # vitest com jsdom; sem rede (o fetch é simulado)
+npm run lint
+npm run build
+```
+
+Para usar a interface de verdade, suba também a API (veja o [README do backend](../backend/README.md)). O proxy do Vite repassa `/api` para a porta 3000 da API.
+
+## Conferência no navegador
+
+Roteiro para o **responsável** executar antes do PR (P-9). Só dados fictícios: e-mails de `exemplo.com.br` e raízes de CNPJ `00000000` e `11111111`. A conferência ainda **não foi feita**; o resultado fica registrado no PR.
+
+1. Subir o banco e migrar, em `app/backend`: `npm run banco:subir` e `npm run migrar`.
+2. Com `npm run admin`, criar duas empresas fictícias e convidar um titular e um contador (exemplos em `app/backend/README.md`).
+3. Subir a API (`npm run dev` em `app/backend`) e a web (`npm run dev` em `app/web`). Abrir o convite pelo arquivo em `app/backend/.local/emails/`.
+4. Conferir:
+   - login com sucesso;
+   - login com erro (a mensagem não revela se o e-mail existe);
+   - sem conexão (parar a API e tentar entrar);
+   - muitas tentativas seguidas (aviso de bloqueio temporário);
+   - recuperação de senha ("Esqueci a senha" e o link do e-mail em `.local/emails/`);
+   - aceitar convite sem conta (criar a senha) e com conta (entrar e aceitar);
+   - escolha de empresa e troca de empresa;
+   - lista de pessoas, remoção de vínculo e sair.
+5. Repetir em largura de celular (por volta de 375 px) e de desktop, e com `prefers-reduced-motion` ligado.

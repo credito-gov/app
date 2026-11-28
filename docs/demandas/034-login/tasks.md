@@ -57,7 +57,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 31 | Implementar `EsqueciSenha`, `RedefinirSenha` e `AceitarConvite` | idem 30 | idem 30 | testes da task 30 passam | ☑ |
 | 32 | Testes de `/`, `EscolherEmpresa`, `LayoutEmpresa`, `BarraTopo`, `TrocaEmpresa`, `Inicio` e `Pessoas` | Web › Telas e rotas; O que a 033 consome | CA-8, CA-9, CA-31 a CA-34 | falham | ☐ |
 | 33 | Implementar essas telas e a rota `/` | idem 32 | idem 32 | testes da task 32 passam | ☑ |
-| 34 | Roteiro de conferência no navegador | Estratégia › CA-18; P-9 | CA-18, CA-31, CA-32 | roteiro escrito; conferência feita pelo responsável | ☐ |
+| 34 | Roteiro de conferência no navegador | Estratégia › CA-18; P-9 | CA-18, CA-31, CA-32 | roteiro escrito; conferência pelo responsável pendente (antes do PR) | ☑ |
 | 35 | READMEs de `app/backend` e `app/web` | Documentação | CA-1, CA-40 | revisão; comandos do README rodados | ☐ |
 | 36 | `AGENTS.md` e `docs/PROJECT_CONTEXT.md` | Documentação | CA-1, CA-40 | revisão; links abrem | ☐ |
 | 37 | Design, arquitetura §13 e `hipoteses.md` | Documentação; R-6 | CA-40 | revisão; links abrem | ☐ |
