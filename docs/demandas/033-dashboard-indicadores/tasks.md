@@ -74,7 +74,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 28 | Implementar `Pendencias` e `NotasDoGrupo` | idem 27 | idem 27 | testes da task 27 passam | ☑ |
 | 29 | README do backend (cenários) e roteiro de conferência no navegador | Documentação; Estratégia › Conferência visual | CA-16 a CA-22, CA-26 | roteiro rodado pelo Developer; conferência do responsável pedida pela sessão principal | ☐ (README feito; roteiro no navegador fica para o responsável) |
 | 30 | `PROJECT_CONTEXT.md`, `AGENTS.md`, arquitetura §13 e `hipoteses.md` | Documentação | — | revisão; links abrem | ☑ |
-| 31 | Verificação final do dashboard | Estratégia de verificação | CA-1 a CA-26 | os seis comandos passam; varreduras limpas | ☐ |
+| 31 | Verificação final do dashboard | Estratégia de verificação | CA-1 a CA-26 | os seis comandos passam; varreduras limpas | ☑ |
 | 32 | Testes de `linhaDaCarteira` | Indicadores › Carteira; DT-8 | CA-C1, CA-C2, CA-C4 | falham | ☐ |
 | 33 | Implementar `carteira.ts` | idem 32 | idem 32 | testes da task 32 passam | ☐ |
 | 34 | Testes de `GET /api/carteira` | API; Contratos › `GET /api/carteira`; DT-9 | CA-C1, CA-C4; AD-6 | falham | ☐ |
