@@ -60,8 +60,8 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 14 | Implementar `creditos.ts` e `debitos.ts` | idem 13 | idem 13 | testes da task 13 passam | ☑ |
 | 15 | Testes de `npm run admin -- carregar-cenario` | Cenários fictícios › Comando; DT-13 | CA-16 a CA-20, CA-26 | falham | ☑ |
 | 16 | Implementar `carregar-cenario` | idem 15 | idem 15 | testes da task 15 passam | ☑ |
-| 17 | Testes das rotas de painel, pendências e notas | API; Contratos | CA-1 a CA-25; AD-6 | falham | ☐ |
-| 18 | Implementar `paineis/dados.ts` e as três rotas | idem 17 | idem 17 | testes da task 17 passam | ☐ |
+| 17 | Testes das rotas de painel, pendências e notas | API; Contratos | CA-1 a CA-25; AD-6 | falham | ☑ |
+| 18 | Implementar `paineis/dados.ts` e as três rotas | idem 17 | idem 17 | testes da task 17 passam | ☑ |
 | 19 | Testes da formatação de valores e datas na web | Web › Valores e datas | CA-23 | falham | ☐ |
 | 20 | Implementar `src/formatacao/` | idem 19 | idem 19 | testes da task 19 passam | ☐ |
 | 21 | Testes da busca de dados | Web › Busca de dados; DT-5 | CA-12; AD-3 | falham | ☐ |

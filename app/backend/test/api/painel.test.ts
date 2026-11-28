@@ -302,7 +302,7 @@ describe("GET /api/empresas/:id/pendencias/:grupo/notas (CA-10, P-8)", () => {
   });
 
   test("grupo sem nota no recorte e grupo fora do formato dão 404 grupo_nao_encontrado", async () => {
-    for (const g of ["negativos", "99999999999999", "abc", "1234567890"]) {
+    for (const g of ["negativos", "9".repeat(14), "abc", "1234567890"]) {
       const r = await get(notasUrl("completo", g));
       expect(r.status, g).toBe(404);
       expect(r.corpo.erro, g).toBe("grupo_nao_encontrado");

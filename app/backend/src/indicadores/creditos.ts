@@ -99,8 +99,8 @@ export function agruparPendentes(notas: readonly NotaDoBanco[], raiz: string): {
     .sort(([ga, a], [gb, b]) => b.total.cmp(a.total) || (ga < gb ? -1 : ga > gb ? 1 : 0))
     .map(([grupo, g]) => ({ grupo, tipo: "emitente" as const, documento: g.documento, quantidade: g.quantidade, total: texto(g.total) }));
   const grupos = [...emitentes];
-  grupos.push({ ...doGrupo("nao-identificado"), tipo: "nao_identificado" });
-  grupos.push({ ...doGrupo("propria-empresa"), tipo: "propria_empresa" });
+  if (acumulado.has("nao-identificado")) grupos.push({ ...doGrupo("nao-identificado"), tipo: "nao_identificado" });
+  if (acumulado.has("propria-empresa")) grupos.push({ ...doGrupo("propria-empresa"), tipo: "propria_empresa" });
   if (acumulado.has("negativos")) grupos.push({ ...doGrupo("negativos"), tipo: "negativos" });
 
   const naoIdentificado = acumulado.get("nao-identificado")?.total ?? Big(0);
