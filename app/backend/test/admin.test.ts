@@ -81,7 +81,7 @@ describe("criar-empresa (CA-5)", () => {
 
   test("recusa raiz repetida, dizendo o motivo", async () => {
     await admin.criarEmpresa({ cnpjRaiz: "00000000", nome: "Comércio Exemplo Ltda." });
-    expect(await motivo(admin.criarEmpresa({ cnpjRaiz: "00.000.000", nome: "Outra" }))).toMatch(/já existe/);
+    expect(await motivo(admin.criarEmpresa({ cnpjRaiz: "00.000.000", nome: "Outra" }))).toMatch(/já existe/i);
   });
 });
 

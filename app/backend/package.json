@@ -12,7 +12,7 @@
     "test": "vitest run",
     "dev": "npm run build && node --env-file-if-exists=.env dist/api/main.js",
     "migrar": "npm run build && node --env-file-if-exists=.env dist/banco/migrar-main.js",
-    "admin": "node scripts/naoImplementado.mjs admin",
+    "admin": "npm run build --silent && node --env-file-if-exists=.env dist/admin/main.js",
     "banco:subir": "docker compose up -d --wait",
     "banco:parar": "docker compose stop",
     "banco:apagar": "docker compose down -v"
