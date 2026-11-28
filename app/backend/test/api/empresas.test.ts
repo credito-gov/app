@@ -22,8 +22,8 @@ async function entrar(chave: string, empresas: [string, "titular" | "contador" |
 beforeEach(async () => {
   ctx = await criarContexto();
   // A: titular, contador e colaborador. B: um titular. "multi" tem vínculo em A e B.
-  A = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
-  B = await ctx.criarEmpresa("Indústria Exemplo S.A.", "11111111");
+  A = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "11111111");
+  B = await ctx.criarEmpresa("Indústria Exemplo S.A.", "22222222");
   await entrar("titular", [[A, "titular"]], "Maria Titular");
   await entrar("contador", [[A, "contador"]], "Carlos Contador");
   await entrar("colaborador", [[A, "colaborador"]], "Carla Colaboradora");
@@ -43,8 +43,8 @@ describe("empresas do usuário (CA-29, CA-30)", () => {
     const r = await get("/api/empresas", "multi");
     expect(r.status).toBe(200);
     expect(r.corpo).toEqual([
-      { id: A, nome: "Comércio Exemplo Ltda.", cnpjRaiz: "00000000", cnpjRaizFormatado: "00.000.000", papel: "colaborador" },
-      { id: B, nome: "Indústria Exemplo S.A.", cnpjRaiz: "11111111", cnpjRaizFormatado: "11.111.111", papel: "contador" },
+      { id: A, nome: "Comércio Exemplo Ltda.", cnpjRaiz: "11111111", cnpjRaizFormatado: "11.111.111", papel: "colaborador" },
+      { id: B, nome: "Indústria Exemplo S.A.", cnpjRaiz: "22222222", cnpjRaizFormatado: "22.222.222", papel: "contador" },
     ]);
   });
 
@@ -74,8 +74,8 @@ describe("empresa em foco (CA-33)", () => {
     expect(r.corpo).toEqual({
       id: A,
       nome: "Comércio Exemplo Ltda.",
-      cnpjRaiz: "00000000",
-      cnpjRaizFormatado: "00.000.000",
+      cnpjRaiz: "11111111",
+      cnpjRaizFormatado: "11.111.111",
       papel: "titular",
     });
   });
@@ -231,7 +231,7 @@ describe("remoção de vínculo (CA-34)", () => {
   });
 
   test("remoção simultânea dos dois únicos titulares: a segunda espera a primeira e é recusada", async () => {
-    const C = await ctx.criarEmpresa("Serviços Exemplo ME", "22222222");
+    const C = await ctx.criarEmpresa("Serviços Exemplo ME", "33333333");
     await entrar("x", [[C, "titular"]]);
     await entrar("y", [[C, "titular"]]);
     const agora = ctx.relogio.agora();
