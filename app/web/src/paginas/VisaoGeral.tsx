@@ -49,7 +49,7 @@ export function VisaoGeral() {
           const recorte = painel.recorte.periodo === null ? TEXTOS.todosOsPeriodos : formatarPeriodo(painel.recorte.periodo);
           return (
             <>
-              <h2 className="painel-recorte-titulo">Recorte: {recorte}</h2>
+              <h2 className="painel-recorte-titulo">{TEXTOS.tela.recorte} {recorte}</h2>
               <SeletorRecorte painel={painel} aoEscolher={escolher} />
               <SituacaoDosDados situacao={painel.situacao} />
               <section className="painel-bloco" aria-label={TEXTOS.creditos}>

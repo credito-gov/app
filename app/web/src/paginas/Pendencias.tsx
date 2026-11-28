@@ -28,26 +28,26 @@ export function Pendencias() {
   const consulta = usePendencias(empresa.id, periodo);
   return (
     <div className="painel">
-      <h1 className="heading">Pendências</h1>
+      <h1 className="heading">{TEXTOS.tela.pendencias}</h1>
       <ResultadoDaBusca consulta={consulta}>
         {(r) => (
           <>
-            <h2 className="painel-recorte-titulo">Recorte: {r.recorte.periodo === null ? TEXTOS.todosOsPeriodos : formatarPeriodo(r.recorte.periodo)}</h2>
+            <h2 className="painel-recorte-titulo">{TEXTOS.tela.recorte} {r.recorte.periodo === null ? TEXTOS.todosOsPeriodos : formatarPeriodo(r.recorte.periodo)}</h2>
             <Link className="cg-link" to={`/e/${empresa.id}${comRecorte(periodo)}`}>
-              Voltar à Visão geral
+              {TEXTOS.tela.voltarVisaoGeral}
             </Link>
             <SituacaoDosDados situacao={r.situacao} servicos={["creditos"]} />
             <EstadoDoBloco servico="creditos" situacao={r.situacao.creditos} semNotas={r.grupos !== null && r.grupos.length === 0} textoSemNotas={TEXTOS.semPendentes}>
               {r.grupos !== null ? (
-                <section className="cg-card" aria-label="Pendente por emitente (lista)">
+                <section className="cg-card" aria-label={TEXTOS.tela.pendenteLista}>
                   <div className="cg-card-body">
                     <div className="cg-table-wrap">
                       <table className="cg-table" aria-label={TEXTOS.pendentePorEmitente}>
                         <thead>
                           <tr>
-                            <th>Emitente</th>
-                            <th>Notas</th>
-                            <th>Total a apropriar</th>
+                            <th>{TEXTOS.tela.colunaEmitente}</th>
+                            <th>{TEXTOS.tela.colunaNotas}</th>
+                            <th>{TEXTOS.tela.colunaTotalAApropriar}</th>
                           </tr>
                         </thead>
                         <tbody>

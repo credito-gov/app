@@ -28,13 +28,13 @@ export function NotasDoGrupo() {
   const paraPagina = (n: number) => `?${periodo === null ? "" : `periodo=${encodeURIComponent(periodo)}&`}pagina=${n}`;
 
   const erro = consulta.isError && consulta.error instanceof ErroDeBusca ? consulta.error : null;
-  const mensagem = erro?.codigo === "grupo_nao_encontrado" ? "Não há notas neste grupo." : erro?.codigo === "pagina_invalida" ? "A página pedida não existe." : null;
+  const mensagem = erro?.codigo === "grupo_nao_encontrado" ? TEXTOS.tela.semNotasNoGrupo : erro?.codigo === "pagina_invalida" ? TEXTOS.tela.paginaInvalida : null;
 
   return (
     <div className="painel">
       <h1 className="heading">{tituloDoGrupo(grupo)}</h1>
       <Link className="cg-link" to={voltar}>
-        Voltar às pendências
+        {TEXTOS.tela.voltarPendencias}
       </Link>
       {mensagem !== null ? (
         <div className="cg-empty">
@@ -43,16 +43,16 @@ export function NotasDoGrupo() {
       ) : (
         <ResultadoDaBusca consulta={consulta}>
           {(r) => (
-            <section className="cg-card" aria-label="Notas do grupo (bloco)">
+            <section className="cg-card" aria-label={TEXTOS.tela.notasDoGrupoBloco}>
               <div className="cg-card-body">
                 <div className="cg-table-wrap">
-                  <table className="cg-table" aria-label="Notas do grupo">
+                  <table className="cg-table" aria-label={TEXTOS.tela.notasDoGrupo}>
                     <thead>
                       <tr>
-                        <th>Período</th>
-                        <th>Chave</th>
-                        <th>Emissão</th>
-                        <th>Tipo de documento</th>
+                        <th>{TEXTOS.tela.colunaPeriodo}</th>
+                        <th>{TEXTOS.tela.colunaChave}</th>
+                        <th>{TEXTOS.tela.colunaEmissao}</th>
+                        <th>{TEXTOS.tela.colunaTipoDocumento}</th>
                         <th>{TEXTOS.aApropriar.rotulo}</th>
                       </tr>
                     </thead>
@@ -76,10 +76,10 @@ export function NotasDoGrupo() {
                     </tbody>
                   </table>
                 </div>
-                <nav className="cg-pager" aria-label="Paginação">
-                  {r.pagina > 1 ? <Link to={paraPagina(r.pagina - 1)}>Anterior</Link> : null}
+                <nav className="cg-pager" aria-label={TEXTOS.tela.paginacao}>
+                  {r.pagina > 1 ? <Link to={paraPagina(r.pagina - 1)}>{TEXTOS.tela.anterior}</Link> : null}
                   <span>{`Página ${r.pagina} de ${r.paginas}`}</span>
-                  {r.pagina < r.paginas ? <Link to={paraPagina(r.pagina + 1)}>Próxima</Link> : null}
+                  {r.pagina < r.paginas ? <Link to={paraPagina(r.pagina + 1)}>{TEXTOS.tela.proxima}</Link> : null}
                 </nav>
               </div>
             </section>

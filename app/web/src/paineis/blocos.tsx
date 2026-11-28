@@ -96,7 +96,7 @@ const consulta = (periodo: string | null): string => (periodo === null ? "" : `?
 export function PendentePorEmitente({ pendentes, empresaId, periodo }: { pendentes: Creditos["pendentes"]; empresaId: string; periodo: string | null }) {
   const para = (grupo: string) => `/e/${empresaId}/pendencias/${encodeURIComponent(grupo)}${consulta(periodo)}`;
   return (
-    <section className="cg-card" aria-label="Pendente por emitente (bloco)">
+    <section className="cg-card" aria-label={TEXTOS.tela.pendenteBloco}>
       <div className="cg-card-head">
         <h3 className="cg-card-title">{TEXTOS.pendentePorEmitente}</h3>
         <Link className="cg-link" to={`/e/${empresaId}/pendencias${consulta(periodo)}`}>
@@ -108,9 +108,9 @@ export function PendentePorEmitente({ pendentes, empresaId, periodo }: { pendent
           <table className="cg-table" aria-label={TEXTOS.pendentePorEmitente}>
             <thead>
               <tr>
-                <th>Emitente</th>
-                <th>Notas</th>
-                <th>Total a apropriar</th>
+                <th>{TEXTOS.tela.colunaEmitente}</th>
+                <th>{TEXTOS.tela.colunaNotas}</th>
+                <th>{TEXTOS.tela.colunaTotalAApropriar}</th>
               </tr>
             </thead>
             <tbody>
@@ -198,7 +198,7 @@ const CAMPOS_DA_EVOLUCAO: Array<[keyof TotaisDeCredito, { rotulo: string; campo:
 
 export function EvolucaoPorPeriodo({ creditos }: { creditos: Creditos }) {
   return (
-    <section className="cg-card" aria-label="Evolução por período (bloco)">
+    <section className="cg-card" aria-label={TEXTOS.tela.evolucaoBloco}>
       <div className="cg-card-head">
         <h3 className="cg-card-title">{TEXTOS.evolucao}</h3>
       </div>
@@ -251,11 +251,11 @@ export function AvisoOrigens({ origens }: { origens: Origem[] }) {
 export function BlocoDebitos({ debitos }: { debitos: Debitos }) {
   return (
     <div className="painel-cartoes">
-      <CartaoTotal {...TEXTOS.debitoApurado} nota="Imposto das vendas no período." valor={debitos.totais.apurado} grande>
+      <CartaoTotal {...TEXTOS.debitoApurado} nota={TEXTOS.tela.notaApuradoDebitos} valor={debitos.totais.apurado} grande>
         <span className="cg-help">{TEXTOS.notas(debitos.quantidadeNotas)}</span>
       </CartaoTotal>
-      <CartaoTotal {...TEXTOS.jaExtinto} nota="Parte do débito que a Receita informa como extinta." valor={debitos.totais.extinto} />
-      <CartaoTotal {...TEXTOS.emAberto} nota="Saldo devedor informado pela Receita." valor={debitos.totais.saldoDevedor} />
+      <CartaoTotal {...TEXTOS.jaExtinto} nota={TEXTOS.tela.notaExtintoDebitos} valor={debitos.totais.extinto} />
+      <CartaoTotal {...TEXTOS.emAberto} nota={TEXTOS.tela.notaEmAbertoDebitos} valor={debitos.totais.saldoDevedor} />
     </div>
   );
 }

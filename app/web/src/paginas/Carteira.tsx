@@ -88,7 +88,7 @@ export function Carteira() {
     <main className="pagina-carteira">
       <div className="pagina-carteira-corpo">
         <img className="pagina-cartao-logo" src="/logo.png" alt="CreditoGov" />
-        {erroSaida ? <Alerta tipo="error" titulo="Não conseguimos encerrar a sessão no servidor. Tente de novo." /> : null}
+        {erroSaida ? <Alerta tipo="error" titulo={T.erroAoSair} /> : null}
         <ResultadoDaBusca consulta={consulta}>
           {(r) =>
             r.empresas.length === 0 ? (
@@ -97,14 +97,14 @@ export function Carteira() {
                   <Icone nome="predio" grande />
                 </span>
                 <p className="cg-empty-text">
-                  Você ainda não tem acesso a nenhuma empresa. Peça um convite à equipe CreditoGov ou ao seu contador.
+                  {T.semAcesso}
                 </p>
               </div>
             ) : (
               <>
                 <h1 className="heading">{T.titulo}</h1>
                 <p className="cg-help">{T.subtitulo}</p>
-                <section className="cg-card" aria-label="Carteira de empresas">
+                <section className="cg-card" aria-label={T.carteiraBloco}>
                   <div className="cg-table-wrap">
                     <table className="cg-table" aria-label={T.titulo}>
                       <thead>
