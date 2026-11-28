@@ -49,9 +49,18 @@ describe("cliente da API", () => {
     expect(await requisitar("GET", "/api/x")).toEqual({ tipo: "sem_conexao" });
   });
 
-  it.each([502, 503, 504])("resposta %i vira servidor_indisponivel", async (status) => {
+  it.each([502, 503, 504])("resposta %i sem corpo vira sem_conexao", async (status) => {
     simularFetch(() => json(status));
-    expect(await requisitar("GET", "/api/x")).toEqual({ tipo: "servidor_indisponivel" });
+    expect(await requisitar("GET", "/api/x")).toEqual({ tipo: "sem_conexao" });
+  });
+
+  it("502 com corpo de erro da API segue como erro tipado", async () => {
+    simularFetch(() => json(502, { erro: "email_nao_enviado", mensagem: "x" }));
+    expect(await requisitar("POST", "/api/x", { corpo: {} })).toMatchObject({
+      tipo: "erro",
+      status: 502,
+      codigo: "email_nao_enviado",
+    });
   });
 
   it("resposta ok com JSON ilegível vira erro resposta_invalida", async () => {

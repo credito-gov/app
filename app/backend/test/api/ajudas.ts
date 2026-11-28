@@ -67,7 +67,7 @@ export interface Contexto {
 }
 
 export async function criarContexto(
-  opcoes: { log?: { stream: Writable }; confiarProxy?: number } = {},
+  opcoes: { log?: { stream: Writable }; confiarProxy?: string } = {},
 ): Promise<Contexto> {
   const migracao = abrirComoMigracao();
   await limparTabelas(migracao);
@@ -79,7 +79,7 @@ export async function criarContexto(
     CREDITOGOV_SESSAO_SEGREDO: SEGREDO,
     CREDITOGOV_WEB_URL: WEB_URL,
     CREDITOGOV_EMAIL: "memoria",
-    ...(opcoes.confiarProxy === undefined ? {} : { CREDITOGOV_CONFIAR_PROXY: String(opcoes.confiarProxy) }),
+    ...(opcoes.confiarProxy === undefined ? {} : { CREDITOGOV_CONFIAR_PROXY: opcoes.confiarProxy }),
   });
   const email = criarEmailMemoria();
   let agora = new Date("2026-12-01T12:00:00Z");

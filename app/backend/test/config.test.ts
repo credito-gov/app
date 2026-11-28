@@ -27,7 +27,7 @@ describe("config: valores válidos", () => {
     expect(c.ambiente).toBe("local");
     expect(c.email).toBe("memoria");
     expect(c.apiPorta).toBe(3000);
-    expect(c.confiarProxy).toBe(0);
+    expect(c.confiarProxy).toEqual([]);
     expect(c.webOrigem).toBe("http://localhost:5173");
   });
 
@@ -35,10 +35,10 @@ describe("config: valores válidos", () => {
     const c = carregarConfig({
       ...base(),
       CREDITOGOV_API_PORTA: "4000",
-      CREDITOGOV_CONFIAR_PROXY: "1",
+      CREDITOGOV_CONFIAR_PROXY: "loopback, 10.0.0.0/8",
     });
     expect(c.apiPorta).toBe(4000);
-    expect(c.confiarProxy).toBe(1);
+    expect(c.confiarProxy).toEqual(["loopback", "10.0.0.0/8"]);
   });
 
   test("aceita homologacao e o adaptador arquivo", () => {
@@ -116,14 +116,16 @@ describe("config: validações", () => {
     );
   });
 
-  test("proxy aceita só um inteiro maior ou igual a 0 (número de saltos)", () => {
-    for (const ruim of ["talvez", "true", "false", "-1", "1.5", "1e2"]) {
+  test("proxy aceita só lista de IPs, CIDRs e loopback, linklocal, uniquelocal", () => {
+    for (const ruim of ["1", "0", "talvez", "true", "300.1.1.1", "10.0.0.0/33", "::1/129", "10.0.0.0/x", "loopback,,1", "10.0.0.1/", "a b"]) {
       expect(mensagemDoErro({ ...base(), CREDITOGOV_CONFIAR_PROXY: ruim })).toContain(
         "CREDITOGOV_CONFIAR_PROXY",
       );
     }
-    expect(carregarConfig({ ...base(), CREDITOGOV_CONFIAR_PROXY: "0" }).confiarProxy).toBe(0);
-    expect(carregarConfig({ ...base(), CREDITOGOV_CONFIAR_PROXY: "2" }).confiarProxy).toBe(2);
+    expect(carregarConfig({ ...base(), CREDITOGOV_CONFIAR_PROXY: "" }).confiarProxy).toEqual([]);
+    expect(carregarConfig({ ...base(), CREDITOGOV_CONFIAR_PROXY: "::1, fd00::/8, linklocal, uniquelocal, 192.168.0.1" }).confiarProxy).toEqual(
+      ["::1", "fd00::/8", "linklocal", "uniquelocal", "192.168.0.1"],
+    );
   });
 
   test("URL da web inválida é recusada", () => {
