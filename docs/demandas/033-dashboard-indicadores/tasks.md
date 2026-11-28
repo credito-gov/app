@@ -44,7 +44,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 
 | # | Task | Spec | CA | Verificação | Status |
 |---|---|---|---|---|---|
-| 1 | Conferir a 034 na `main` e ajustar as referências | Dependências › Da demanda 034; R-1 | — (pré-requisito de todas) | tabela de conferência preenchida; os seis comandos da 034 passam na branch | ☐ |
+| 1 | Conferir a 034 na `main` e ajustar as referências | Dependências › Da demanda 034; R-1 | — (pré-requisito de todas) | tabela de conferência preenchida; os seis comandos da 034 passam na branch | ☑ |
 | 2 | Testes da migração `0002` e da transação interna | Banco; Estratégia › Isolamento | CA-20, CA-24, CA-26; AD-6 | falham (não há migração) | ☐ |
 | 3 | Migração `0002_dados_fiscais`, tipos do esquema e `naEmpresaInterna` | Banco › Migração `0002`; Transação sem usuário | idem 2 | testes da task 2 passam; `npm run migrar` sobe e o `down` desfaz | ☐ |
 | 4 | Dependências do backend e cópia do núcleo e dos schemas do painel | Leitura (AD-14); Implantação › Dependências | CA-23 | testes copiados passam; `app/painel` sem alteração | ☐ |
@@ -527,6 +527,19 @@ Preenchida pelo Developer na task 1.
 
 | Item da Spec | Nome esperado | Nome e arquivo reais | Bate? |
 |---|---|---|---|
-| | | | |
+| Transação por empresa e carteira | `naEmpresa`, `naCarteira`, `naSessaoDoUsuario`, `semUsuario`, `EmpresaNaoEncontrada` | Iguais, em `src/banco/transacao.ts` (interface `Banco`, criada por `criarBanco`) | Sim |
+| Fixação de empresa por `id`, sem usuário | `naEmpresaInterna(empresaId, fn)` (só se a 034 não tivesse) | **`naEmpresaFixada(empresaId, fn)`** em `transacao.ts`: fixa só `app.empresas`, sem usuário; usada por `admin/comandos.ts` e `convites/servico.ts`. A task 3 **não cria** `naEmpresaInterna`; onde a lista diz `naEmpresaInterna`, vale `naEmpresaFixada`. O teste de "nenhum módulo de `src/api/` importa" passa a olhar `naEmpresaFixada` fora de `src/convites/` (ver desvio no relatório) | Nome mudou, sentido igual |
+| Migração `0001` | `empresa` (`cnpj_raiz`), `vinculo_empresa`, `app_empresas()`, `app_usuario()`, papéis `creditogov_migracao` e `creditogov_app` | `src/banco/migracoes/0001_inicial.ts` (nome `0001_inicial`); tabelas e funções como na Spec; papéis em `banco/init/01-papeis.sql`. Provedor estático em `src/banco/migrar.ts`: a `0002` entra lá | Sim |
+| `rotaDeEmpresa`, `request.naEmpresa`, `request.naCarteira`, erro 404 | idem | `app.rotaDeEmpresa` (hook `onRequest`) em `src/api/servidor.ts`; `request.naEmpresa(fn)` com `(trx, ctx)`, `request.naCarteira(fn)`; erro `404 empresa_nao_encontrada` com `{erro, mensagem}` | Sim |
+| Relógio injetável e configuração em código | relógio na fábrica e no `admin`; testes montam a configuração | `criarServidor({config, banco, email, relogio})`; `criarComandosAdmin({banco, email, relogio, config})`; `carregarConfig(env)` recebe objeto; `test/api/ajudas.ts` (`criarContexto`) monta tudo com relógio falso. `CREDITOGOV_AMBIENTE=producao` já é recusado pela configuração; `homologacao` é aceito | Sim |
+| `npm run admin`: registrar comando novo | método em `ComandosAdmin` | Método em `criarComandosAdmin` (`src/admin/comandos.ts`), mais `case` e opção em `src/admin/main.ts` (`parseArgs`) e linha em `USO` | Sim |
+| Banco de teste | `preparar.ts`, `limpar.ts`, teste de catálogo CA-37 | `test/banco/preparar.ts` (recria o banco e migra), `limpar.ts` com **lista fixa** `TABELAS` (a task 3 acrescenta as quatro novas) e `semear`; `test/banco/isolamento.test.ts` tem o catálogo, que descobre tabelas por `empresa_id` sozinho | Sim (lista fixa em `limpar.ts`) |
+| Varredura de literais longos | exceção só de `12345678901234.56` | `test/varredura.test.ts`: recusa `\d{11,}` em `src/` e `test/`, com a exceção `12345678901234.56` **só** em `test/banco/isolamento.test.ts`. A 033 monta o valor por função auxiliar, sem pedir exceção nova | Sim |
+| `app/web`: layout e hooks | `LayoutEmpresa`, `BarraTopo`, `useEmpresaEmFoco()`, `ProvedorSessao.sair` | Iguais (`componentes/`, `sessao/`). `BarraTopo` tem `NavLink` "Início" (`/e/:id`, `end`) e "Pessoas" no `cg-topnav`. `sair()` devolve `Promise<boolean>` | Sim |
+| `api/cliente.ts` | resultado tipado, `sem_conexao`, `401` | `requisitar<T>(metodo, caminho, {corpo, logada})` devolve `ok`, `erro` ou `sem_conexao`; `401` com `logada` chama `definirAoPerderSessao`. `AlertaDeRede` mostra "Sem conexão" e "Tentar de novo" | Sim |
+| `rotas.tsx`, `Inicio`, `EscolherEmpresa` | idem | `rotasApp`; `/empresas` = `EscolherEmpresa` (lista com nome, CNPJ raiz formatado e papel, CA-31); `/e/:empresaId` = `LayoutEmpresa` com `Inicio` (índice) e `Pessoas`. Testes da 034 em `test/areaLogada.test.tsx` | Sim |
+| Textos da 034 dentro do layout e palavras de CA-2 | nenhuma palavra proibida na barra e no menu | Barra e menu ("Início", "Pessoas", "Sair", "Trocar empresa", "Carregando…", "Empresa não encontrada ou sem acesso") não têm as palavras. Fora do layout do dashboard: `Inicio.tsx` ("disponível", substituída pela 033) e `Pessoas.tsx` ("indisponível", tela da 034 que a 033 não toca; o teste de CA-2 da 033 não a renderiza) | Sim |
+
+Comandos na branch (antes de qualquer alteração): `app/backend` com `npm run banco:subir`, `npm test` (216 passam), `npm run lint` e `npm run build`; `app/web` com `npm test` (113 passam), `npm run lint` e `npm run build`. Todos passam.
 
 **Aprovação (2026-11-27):** o responsável aprovou as Tasks com a recomendação de P-T1 (o papel aparece como texto secundário abaixo do nome na linha da carteira). A implementação espera a 034 na `main`.
