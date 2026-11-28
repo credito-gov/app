@@ -68,8 +68,8 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 22 | Implementar o cliente de cache e os ganchos de busca | idem 21 | idem 21 | testes da task 21 passam | ☑ |
 | 23 | Testes da Visão geral com dados | Web › Rotas e menu; Componentes; Textos | CA-1 a CA-13, CA-22, CA-25 | falham | ☑ |
 | 24 | Implementar `textos.ts`, os componentes de indicadores, `VisaoGeral`, a rota e o menu | idem 23; DT-11, DT-12 | idem 23 | testes da task 23 passam | ☑ |
-| 25 | Testes dos estados dos dados | Web › Componentes (`SituacaoDados`, `EstadoServico`); Textos | CA-14 a CA-22 | falham | ☐ |
-| 26 | Implementar `SituacaoDados`, `EstadoServico` e os alertas | idem 25; DT-7 | idem 25 | testes da task 25 passam | ☐ |
+| 25 | Testes dos estados dos dados | Web › Componentes (`SituacaoDados`, `EstadoServico`); Textos | CA-14 a CA-22 | falham | ☑ |
+| 26 | Implementar `SituacaoDados`, `EstadoServico` e os alertas | idem 25; DT-7 | idem 25 | testes da task 25 passam | ☑ |
 | 27 | Testes de `Pendencias` e `NotasDoGrupo` | Web › Rotas; Componentes (`PendentePorEmitente`); P-8 | CA-9, CA-10 | falham | ☐ |
 | 28 | Implementar `Pendencias` e `NotasDoGrupo` | idem 27 | idem 27 | testes da task 27 passam | ☐ |
 | 29 | README do backend (cenários) e roteiro de conferência no navegador | Documentação; Estratégia › Conferência visual | CA-16 a CA-22, CA-26 | roteiro rodado pelo Developer; conferência do responsável pedida pela sessão principal | ☐ |

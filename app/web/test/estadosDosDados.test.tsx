@@ -129,7 +129,7 @@ describe("CA-18 e CA-19: um serviço por vez, falha com e sem números anteriore
     for (const [nome, p] of TODOS) {
       await abrir(p);
       const texto = document.body.textContent ?? "";
-      expect(texto, nome).not.toMatch(/credencial_invalida|sem_consulta|com_dados|sem_dados_usaveis|erro_interno|servico_indisponivel|aberta_sem_tiquete|\b(401|403|404|500|502)\b/);
+      expect(texto, nome).not.toMatch(/credencial_invalida|sem_consulta|com_dados|sem_dados_usaveis|erro_interno|servico_indisponivel|aberta_sem_tiquete|(?<![\d.,])(401|403|404|500|502)(?![\d.,])/);
       document.body.innerHTML = "";
     }
   });

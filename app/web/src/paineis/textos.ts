@@ -55,6 +55,24 @@ export const TEXTOS = {
   // Avisos
   soCbs: "Só CBS. Os dados vêm da API de apuração da CBS da Receita Federal; o IBS ainda não está nessa fonte.",
   origens: (itens: string) => `Há notas com origem diferente de normal neste recorte. Os valores entram nos totais como a Receita informou: ${itens}.`,
+  // Situação dos dados (CA-14 a CA-20)
+  fraseDasConsultas:
+    "Os números são os das consultas feitas pelo CreditoGov à API de apuração da CBS da Receita Federal. A Receita não fornece histórico anterior a essas consultas.",
+  ultimaConsulta: (servico: string, instante: string, de: string | null, ate: string | null) =>
+    `${servico}: última consulta concluída em ${instante}.${de !== null && ate !== null ? ` Notas atualizadas de ${de} a ${ate}.` : ""}`,
+  desatualizado: (servico: string, dias: number) =>
+    `${servico} sem consulta concluída há ${dias} dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida.`,
+  aindaNaoConsultados: (plural: string) => `Os ${plural} ainda não foram consultados na Receita.`,
+  emAndamento: "Há uma consulta em andamento.",
+  vazio: (plural: string, instante: string) => `A Receita não devolveu ${plural} nas consultas feitas até ${instante}. Isto não é um saldo de R$ 0,00.`,
+  falhou: (plural: string, instante: string) => `A atualização dos ${plural} falhou em ${instante}.`,
+  falhaDeCredencial:
+    "A Receita recusou a credencial de acesso da empresa. É preciso gerar uma nova no portal da Receita. Fale com a equipe CreditoGov para informá-la.",
+  falhaSemCulpa: "Isso não depende de você.",
+  numerosAnteriores: (instante: string) => `Os números abaixo são da consulta de ${instante} e não estão atualizados.`,
+  recusados: (n: number, plural: string, data: string) =>
+    `Há retornos da Receita que não entraram nos indicadores: ${n} de ${plural}, o mais recente em ${data}. Os números não incluem esses retornos.`,
+  nenhumRetornoUsavel: (plural: string) => `Nenhum retorno de ${plural} pôde ser usado.`,
   semNotasCreditos: "Nenhum crédito neste período nas consultas feitas.",
   semNotasDebitos: "Nenhum débito neste período nas consultas feitas.",
 } as const;
