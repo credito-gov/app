@@ -80,6 +80,7 @@ npm run build
 npm run migrar
 npm run dev
 npm run admin -- <criar-empresa|convidar|empresas-do-usuario|remover-vinculo> [opções]
+npm run admin -- carregar-cenario --empresa <id> --cenario <nome>   # dados fictícios do dashboard, só com CREDITOGOV_AMBIENTE=local
 
 # web (interface do login e da escolha de empresa)
 cd app/web
