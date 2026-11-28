@@ -58,3 +58,9 @@ Roteiro para o **responsável** executar antes do PR. Só dados fictícios. **Ai
    - Nenhuma tela usa "disponível", "pode usar", "confirmado", "a receber", "garantido" nem diz que alguém deixou de recolher.
 4. Repita com a **janela estreita** (por volta de 600 px): os blocos se empilham, sem desenho próprio para celular.
 5. Confira o menu: "Visão geral", "Pendências" e "Pessoas", e nada de "Créditos", "Débitos" ou "Consultas à Receita".
+6. **Carteira** (`/empresas`): com a mesma pessoa ligada a **todas** as empresas de cenário, abra `/empresas` e compare com o artboard "Carteira do contador" da 032, em largura de desktop e com a janela estreita:
+   - uma linha por empresa, com nome, CNPJ raiz e papel (texto secundário abaixo do nome), "A apropriar (pendente)", "Apropriado" e "Já utilizado" com o nome oficial do campo no cabeçalho, selo e data da última consulta;
+   - `completo`: valores e selo "Atualizado"; `falha-com-anteriores`: valores e selo "Consulta falhou"; `desatualizado`: "N dias sem consulta"; `sem-consulta` e `em-andamento`: "Sem consulta concluída" e o texto do estado no lugar dos valores, sem `R$ 0,00`; `vazio` e `recusado`: o texto do estado;
+   - ordene por nome (padrão), por "A apropriar (pendente)" (as sem valor no fim) e por "Última consulta" (as sem consulta concluída primeiro);
+   - o clique em qualquer parte da linha abre a Visão geral da empresa, com os valores dela;
+   - não há total, cartão de soma nem rodapé: o subtítulo lembra que valores de empresas diferentes não se somam.

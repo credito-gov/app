@@ -81,7 +81,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 35 | Implementar a rota da carteira | idem 34 | idem 34 | testes da task 34 passam | ☑ |
 | 36 | Testes da tela `Carteira` | Web › Rotas; Componentes (`LinhaCarteira`); Textos | CA-C1 a CA-C4 | falham | ☑ |
 | 37 | Implementar `Carteira` em `/empresas` | idem 36 | idem 36 | testes da task 36 passam | ☑ |
-| 38 | Documentação e verificação final da carteira | Documentação; Estratégia de verificação | CA-C1 a CA-C4 | os seis comandos passam; roteiro da carteira rodado | ☐ |
+| 38 | Documentação e verificação final da carteira | Documentação; Estratégia de verificação | CA-C1 a CA-C4 | os seis comandos passam; roteiro da carteira rodado | ☑ (roteiro no navegador fica para o responsável) |
 
 ## Detalhe das tasks
 
