@@ -205,7 +205,7 @@ describe("estados dos dados na resposta (CA-14 a CA-20)", () => {
         })
         .returning("id")
         .executeTakeFirstOrThrow();
-      await registrarLeitura(trx, { consultaId: c.id, servico: "debitos", conteudo: new TextEncoder().encode("isto não é json"), recebidoEm: ctx.relogio.agora() });
+      await registrarLeitura(trx, { consultaId: c.id, servico: "debitos", conteudo: new TextEncoder().encode("isto não é json"), recebidoEm: ctx.relogio.agora(), log: { info() {}, warn() {} } });
     });
     const r = await get(`/api/empresas/${id}/painel`);
     expect(r.status).toBe(200);
