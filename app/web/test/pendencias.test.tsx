@@ -1,13 +1,13 @@
 // Pendencias e NotasDoGrupo (CA-9, CA-10, P-8): todos os grupos de I-7 e as notas de cada um.
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { formatarReais } from "../src/formatacao/dinheiro";
 import type { NotasDoGrupo, Pendencias } from "../src/paineis/tipos";
 import { rotasApp } from "../src/rotas";
 import { PROIBIDAS, PROIBIDAS_RECOLHIMENTO, simples } from "./apoio/palavras";
 import { EMPRESA_A, USUARIO, json, renderizar, simularFetch, type RespostaSimulada } from "./auxiliar";
-import { CNPJ_A, CPF_C, notasDoGrupo, painelSemConsulta, pendenciasCompletas } from "./fixtures/painel";
+import { CNPJ_A, CPF_C, notasDeMesmaChave, notasDoGrupo, painelSemConsulta, pendenciasCompletas } from "./fixtures/painel";
 
 function abrir(rota: string, pendencias: Pendencias, notas?: (url: URL) => RespostaSimulada) {
   const chamadas = simularFetch((c) => {
@@ -76,6 +76,19 @@ describe("Pendencias: todos os grupos (CA-9, CA-10)", () => {
 });
 
 describe("NotasDoGrupo (P-8)", () => {
+  it("notas de mesma chave e período com origens diferentes: uma linha cada, sem key repetida, com a origem quando não é normal", async () => {
+    const erros = vi.spyOn(console, "error").mockImplementation(() => {});
+    abrir(`/e/${EMPRESA_A.id}/pendencias/nao-identificado`, pendenciasCompletas, () => json(200, notasDeMesmaChave));
+    const tabela = await screen.findByRole("table", { name: "Notas do grupo" });
+    const linhas = within(tabela).getAllByRole("row").slice(1);
+    expect(linhas).toHaveLength(3);
+    expect(linhas[0]).not.toHaveTextContent("NORMAL");
+    expect(linhas[1]).toHaveTextContent("DEVOLUCAO_POR_PCONT (20)");
+    expect(linhas[2]).toHaveTextContent("CANCELAMENTO_CREDITO (30)");
+    expect(erros.mock.calls.flat().join(" ")).not.toMatch(/same key|mesma chave|unique "key"/i);
+    erros.mockRestore();
+  });
+
   const servirNotas = (u: URL) => json(200, { ...notasDoGrupo, pagina: Number(u.searchParams.get("pagina") ?? "1") } satisfies NotasDoGrupo);
 
   it("mostra período MM/AAAA, chave, emissão DD/MM/AAAA, tipo de documento com o código e o valor", async () => {

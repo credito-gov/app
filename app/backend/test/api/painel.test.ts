@@ -310,7 +310,7 @@ describe("GET /api/empresas/:id/pendencias/:grupo/notas (CA-10, P-8)", () => {
     expect(p1.corpo).toMatchObject({ grupo: "nao-identificado", pagina: 1 });
     expect(p1.corpo.paginas).toBeGreaterThan(1);
     expect(p1.corpo.notas).toHaveLength(100);
-    expect(Object.keys(p1.corpo.notas[0]).sort()).toEqual(["aApropriar", "chave", "documento", "documentoNome", "emissao", "periodo"]);
+    expect(Object.keys(p1.corpo.notas[0]).sort()).toEqual(["aApropriar", "chave", "documento", "documentoNome", "emissao", "origem", "origemNome", "periodo"]);
     expect(p1.corpo.notas[0]).toMatchObject({ documento: 91, documentoNome: "NFS-e" });
     expect(p1.corpo.notas[0].emissao).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(p1.corpo.notas[0].periodo).toMatch(/^\d{4}-\d{2}$/);

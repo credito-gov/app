@@ -209,8 +209,8 @@ export const notasDoGrupo: NotasDoGrupo = {
   pagina: 1,
   paginas: 2,
   notas: [
-    { periodo: "2026-11", chave: "1".repeat(50), documento: 91, documentoNome: "NFS-e", emissao: "2026-11-05", aApropriar: "120.00" },
-    { periodo: "2026-10", chave: "2".repeat(50), documento: 91, documentoNome: "NFS-e", emissao: "2026-10-20", aApropriar: "80.50" },
+    { periodo: "2026-11", chave: "1".repeat(50), documento: 91, documentoNome: "NFS-e", origem: 0, origemNome: "NORMAL", emissao: "2026-11-05", aApropriar: "120.00" },
+    { periodo: "2026-10", chave: "2".repeat(50), documento: 91, documentoNome: "NFS-e", origem: 0, origemNome: "NORMAL", emissao: "2026-10-20", aApropriar: "80.50" },
   ],
 };
 
@@ -247,4 +247,18 @@ export const painelDebitosRecusado: Painel = {
   situacao: { creditos: comDados(), debitos: comDados({ recusados: { quantidade: 2, ultimoEm: "2026-11-25T12:00:00.000Z" } }) },
   creditos: CREDITOS,
   debitos: DEBITOS,
+};
+
+/** Três notas de mesma chave e período, distintas só pela origem (a identidade inclui documento e origem). */
+export const notasDeMesmaChave: NotasDoGrupo = {
+  grupo: "nao-identificado",
+  quantidade: 3,
+  total: "22.00",
+  pagina: 1,
+  paginas: 1,
+  notas: [
+    { periodo: "2026-11", chave: "3".repeat(50), documento: 91, documentoNome: "NFS-e", origem: 0, origemNome: "NORMAL", emissao: "2026-11-05", aApropriar: "10.00" },
+    { periodo: "2026-11", chave: "3".repeat(50), documento: 91, documentoNome: "NFS-e", origem: 20, origemNome: "DEVOLUCAO_POR_PCONT", emissao: "2026-11-05", aApropriar: "7.00" },
+    { periodo: "2026-11", chave: "3".repeat(50), documento: 91, documentoNome: "NFS-e", origem: 30, origemNome: "CANCELAMENTO_CREDITO", emissao: "2026-11-05", aApropriar: "5.00" },
+  ],
 };
