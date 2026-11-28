@@ -10,7 +10,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 **Regras para o Developer em todas as tasks:**
 
 - Trabalhar só em `app/backend/`, `app/web/` e nos documentos citados nas tasks 36 e 37. **Nenhuma task altera** `app/landing-page`, `app/apuracao-cbs` nem `app/painel`. De `docs/design/` só se **copia** (tokens, `bundle.css`, logo); ele só muda na task 37.
-- **Nenhum dado real:** e-mails só de `exemplo.com.br` ou `example.com`, raízes de CNPJ `00000000` e `11111111`, nomes como "Comércio Exemplo Ltda.". Isso vale para código, teste, documento e mensagem de commit.
+- **Nenhum dado real:** e-mails só de `exemplo.com.br` ou `example.com`, raízes de CNPJ `00000000`, `11111111` e `22222222`, nomes como "Comércio Exemplo Ltda.". Isso vale para código, teste, documento e mensagem de commit.
 - **Sem segredo:** não criar `.env` nem pedir credencial. O `.env.example` só traz nomes. Os testes montam a configuração em código, com valores fictícios. O backend só aponta para o PostgreSQL local do Compose.
 - **Rede:** o `test/setup.ts` das duas aplicações bloqueia `fetch` para fora; o único destino de rede permitido é o banco de teste em `127.0.0.1:5433`. A web não abre socket nos testes: o `fetch` é simulado.
 - **Comandos de verificação**, sempre na pasta da aplicação:
@@ -49,13 +49,13 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 23 | Testes de logs e varredura de segredos | API › Logs; Estratégia › CA-39 | CA-14, CA-39 | falham, ou passam com falha provocada registrada | ☑ |
 | 24 | Ajustar a redação dos logs e o script `dev` | idem 23 | idem 23 | testes da task 23 passam; `npm run dev` sobe | ☑ |
 | 25 | Estrutura do `app/web` | Web › Estrutura e ferramentas; DT-10, DT-11 | CA-1, CA-3 | `npm install`; `npm test` (1 teste passa); lint; build | ☑ |
-| 26 | Testes do cliente da API e do `ProvedorSessao` | Web › Cliente da API | CA-18, CA-20 | falham | ☐ |
+| 26 | Testes do cliente da API e do `ProvedorSessao` | Web › Cliente da API | CA-18, CA-20 | falham | ☑ |
 | 27 | Implementar `api/cliente.ts` e `sessao/ProvedorSessao.tsx` | idem 26 | idem 26 | testes da task 26 passam | ☑ |
-| 28 | Testes de `Entrar`, `PainelMarca` e `CampoSenha` | Web › Telas e rotas (`/entrar`, `PainelMarca`, formulário de login) | CA-7, CA-15 a CA-18, CA-20 | falham | ☐ |
+| 28 | Testes de `Entrar`, `PainelMarca` e `CampoSenha` | Web › Telas e rotas (`/entrar`, `PainelMarca`, formulário de login) | CA-7, CA-15 a CA-18, CA-20 | falham | ☑ |
 | 29 | Implementar `Entrar`, `PainelMarca`, `CampoSenha` e `Alerta` | idem 28 | idem 28 | testes da task 28 passam | ☑ |
-| 30 | Testes de `EsqueciSenha`, `RedefinirSenha` e `AceitarConvite` | Web › Telas e rotas; API › Tokens (fragmento) | CA-11 a CA-14, CA-23 a CA-25 | falham | ☐ |
+| 30 | Testes de `EsqueciSenha`, `RedefinirSenha` e `AceitarConvite` | Web › Telas e rotas; API › Tokens (fragmento) | CA-11 a CA-14, CA-23 a CA-25 | falham | ☑ |
 | 31 | Implementar `EsqueciSenha`, `RedefinirSenha` e `AceitarConvite` | idem 30 | idem 30 | testes da task 30 passam | ☑ |
-| 32 | Testes de `/`, `EscolherEmpresa`, `LayoutEmpresa`, `BarraTopo`, `TrocaEmpresa`, `Inicio` e `Pessoas` | Web › Telas e rotas; O que a 033 consome | CA-8, CA-9, CA-31 a CA-34 | falham | ☐ |
+| 32 | Testes de `/`, `EscolherEmpresa`, `LayoutEmpresa`, `BarraTopo`, `TrocaEmpresa`, `Inicio` e `Pessoas` | Web › Telas e rotas; O que a 033 consome | CA-8, CA-9, CA-31 a CA-34 | falham | ☑ |
 | 33 | Implementar essas telas e a rota `/` | idem 32 | idem 32 | testes da task 32 passam | ☑ |
 | 34 | Roteiro de conferência no navegador | Estratégia › CA-18; P-9 | CA-18, CA-31, CA-32 | roteiro escrito; conferência pelo responsável pendente (antes do PR) | ☑ |
 | 35 | READMEs de `app/backend` e `app/web` | Documentação | CA-1, CA-40 | revisão; comandos do README rodados | ☑ |

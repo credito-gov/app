@@ -233,6 +233,8 @@ Todas com dados fictícios, em largura de desktop; o login também no celular. L
 ## 7. Em aberto
 
 - Login com provedor externo (Google e Microsoft): saiu do login na demanda 034 (decisão de 2026-11-27, D-1) e volta em demanda própria; a arquitetura já o aceita (AD-12).
+- Qual valor é o saldo utilizável fica em aberto para tributarista (D-3 da demanda 030); por isso nenhum valor de crédito usa verde.
+- A landing mantém o tema próprio e ainda usa `#10b981`; alinhar a landing a estes tokens é outra demanda.
 
 ### Painel da marca do login: os três textos
 
@@ -241,5 +243,3 @@ Registrados aqui para o repositório não depender do artifact. Cada mensagem te
 1. **"Veja o crédito de CBS das suas compras, nota a nota."** Subtítulo: "Quanto a Receita registrou nas notas de compra da sua empresa, num só lugar." Cartão: "Crédito apurado nas compras", valor fictício, "896 notas de compra" e o selo "Exemplo fictício".
 2. **"Saiba o que ainda está a apropriar e de quem vem."** Subtítulo: "O crédito que a Receita ainda não liberou, agrupado pelo emitente de cada nota." Cartão: "A apropriar, por emitente", com CNPJs fictícios, a linha "Emitente não identificado" e o selo "Exemplo fictício".
 3. **"Saiba até quando cada número está atualizado."** Subtítulo: "Os dados vêm da API de apuração da CBS da Receita Federal. O IBS ainda não está nessa fonte." Cartão: "Créditos atualizados em <data>", "Consulta à API de apuração da CBS da Receita" e o selo "Só CBS".
-- Qual valor é o saldo utilizável fica em aberto para tributarista (D-3 da demanda 030); por isso nenhum valor de crédito usa verde.
-- A landing mantém o tema próprio e ainda usa `#10b981`; alinhar a landing a estes tokens é outra demanda.

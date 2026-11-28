@@ -54,6 +54,21 @@ O `.env.example` traz só os nomes. Copie para `.env` (ignorado pelo git) e pree
 | `CREDITOGOV_API_PORTA` | Porta da API (opcional; padrão 3000). |
 | `CREDITOGOV_CONFIAR_PROXY` | Inteiro >= 0 (opcional; padrão `0`): quantos proxies à frente da API são confiáveis. Com `0`, o cabeçalho `X-Forwarded-For` é ignorado e o limite por origem usa o endereço da conexão. Com `1`, a origem é o endereço que o proxy acrescentou (o mais à direita). **No desenvolvimento use `1`**: o proxy do Vite (`xfwd`) acrescenta o endereço de quem usa o navegador; sem isso tudo chega de 127.0.0.1 e 5 erros de qualquer pessoa bloqueiam todos. Não use valor maior que o número real de proxies, nem exponha a API sem proxy com valor maior que 0. |
 
+## Subida e falhas
+
+- **Papel do banco:** a API e o `admin` conferem, ao subir, que o papel de `CREDITOGOV_BANCO_URL` não é superusuário, não tem `BYPASSRLS` e não é dono de tabela. Se for, não iniciam (a mensagem não mostra a URL).
+- **Terminal do operador:** `npm run admin`, `npm run migrar` e a subida da API imprimem `tipo`, `codigo` e `mensagem` do erro inesperado; o `migrar` também diz qual migração falhou. Isso vai só para o terminal, nunca para o log da API.
+- **Log do erro 500:** registra `tipo`, `codigo`, `restricao`, `rota` e `stack` (sem a mensagem); nunca `detail`, corpo ou parâmetros.
+
+## Códigos de erro novos da API
+
+| Código | Status | Quando |
+|---|---|---|
+| `email_nao_enviado` | 502 | O convite foi criado, mas o e-mail não saiu (`"O convite foi criado, mas o e-mail não saiu. Tente reenviar."`). O evento `email_falhou` entra no log, com `conviteId`, `empresaId` e `usuarioId`. |
+| `convite_aceito_sem_sessao` | 500 | O aceite do convite foi gravado, mas a sessão não abriu (`"Convite aceito. Entre com seu e-mail e senha."`). A web leva a `/entrar` com esse aviso. |
+
+Na recuperação de senha, se o e-mail não sair, a resposta continua a mesma `202` (não revela se a conta existe); o evento `email_falhou` entra no log, com `usuarioId`. Erros 4xx do framework (413, 415...) mantêm o status; JSON malformado continua `400 entrada_invalida`.
+
 ## E-mails locais
 
 Com `CREDITOGOV_EMAIL=arquivo`, cada e-mail (convite, recuperação de senha) vira um arquivo em `app/backend/.local/emails/`, ignorado pelo git. É de lá que se pega o link para a conferência no navegador.
