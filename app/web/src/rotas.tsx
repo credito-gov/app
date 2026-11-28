@@ -4,6 +4,8 @@ import { AceitarConvite } from "./paginas/AceitarConvite";
 import { EscolherEmpresa } from "./paginas/EscolherEmpresa";
 import { EsqueciSenha } from "./paginas/EsqueciSenha";
 import { Entrar } from "./paginas/Entrar";
+import { NotasDoGrupo } from "./paginas/NotasDoGrupo";
+import { Pendencias } from "./paginas/Pendencias";
 import { Pessoas } from "./paginas/Pessoas";
 import { VisaoGeral } from "./paginas/VisaoGeral";
 import { RedefinirSenha } from "./paginas/RedefinirSenha";
@@ -32,6 +34,8 @@ export const rotasApp: RouteObject[] = [
         element: <LayoutEmpresa />,
         children: [
           { index: true, element: <VisaoGeral /> },
+          { path: "pendencias", element: <Pendencias /> },
+          { path: "pendencias/:grupo", element: <NotasDoGrupo /> },
           { path: "pessoas", element: <Pessoas /> },
         ],
       },
