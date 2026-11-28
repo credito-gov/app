@@ -172,6 +172,13 @@ export function montarPendencias(c: Consolidado, periodo: string | null) {
   };
 }
 
+/** Inteiro de um texto de dígitos já conferido, sem conversão por Number. */
+function inteiroDe(texto: string): number {
+  let n = 0;
+  for (const c of texto) n = n * 10 + (c.charCodeAt(0) - 48);
+  return n;
+}
+
 export const NOTAS_POR_PAGINA = 100;
 const GRUPO = /^([0-9A-Z]{12}[0-9]{2}|[0-9]{11}|propria-empresa|nao-identificado|negativos)$/;
 
@@ -184,7 +191,7 @@ export function montarNotasDoGrupo(c: Consolidado, periodo: string | null, grupo
   if (!GRUPO.test(grupo) || c.situacao.creditos.estado !== "com_dados") return { tipo: "grupo_nao_encontrado" };
   const todas = notasDoGrupo(c.creditos, c.raiz, periodo, grupo);
   if (todas.length === 0) return { tipo: "grupo_nao_encontrado" };
-  const pagina = paginaTexto === undefined ? 1 : typeof paginaTexto === "string" && /^[1-9][0-9]{0,6}$/.test(paginaTexto) ? Number(paginaTexto) : 0;
+  const pagina = paginaTexto === undefined ? 1 : typeof paginaTexto === "string" && /^[1-9][0-9]{0,6}$/.test(paginaTexto) ? inteiroDe(paginaTexto) : 0;
   const paginas = Math.ceil(todas.length / NOTAS_POR_PAGINA);
   if (pagina < 1 || pagina > paginas) return { tipo: "pagina_invalida" };
   const total = todas.reduce((t, n) => t.plus(n.valores["aApropriar"] ?? "0"), Big(0));

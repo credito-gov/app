@@ -64,18 +64,19 @@ export function lerChave(chave: string, documento: number, raizEmpresa?: string)
   if (chave.slice(20, 22) !== String(documento)) return naoIdentificado(MOTIVOS.modelo);
   if (chave[43] !== digitoDaChave(chave.slice(0, 43))) return naoIdentificado(MOTIVOS.digito);
 
-  const serie = parseInt(chave.slice(22, 25), 10);
+  // Série de três dígitos (o formato já foi conferido): comparada como texto, sem converter para número.
+  const serie = chave.slice(22, 25);
   const posicoes7a20 = chave.slice(6, 20);
   if (documento === 55) {
-    if (serie >= 890 && serie <= 899) return naoIdentificado(MOTIVOS.avulsa);
-    if (serie >= 910) {
+    if (serie >= "890" && serie <= "899") return naoIdentificado(MOTIVOS.avulsa);
+    if (serie >= "910") {
       if (posicoes7a20.startsWith("000") && /^\d{11}$/.test(posicoes7a20.slice(3))) {
         return { tipo: "identificado", documento: "cpf", numero: posicoes7a20.slice(3), fonte: "chave", rotulo: ROTULO_CPF_CHAVE };
       }
       return naoIdentificado(MOTIVOS.serieCpf);
     }
   }
-  if (documento === 65 && serie >= 890) return naoIdentificado(MOTIVOS.serieNfce);
+  if (documento === 65 && serie >= "890") return naoIdentificado(MOTIVOS.serieNfce);
   if (documento === 57 && posicoes7a20.startsWith("000")) return naoIdentificado(MOTIVOS.cte);
   return cnpj(posicoes7a20, "chave", raizEmpresa);
 }
