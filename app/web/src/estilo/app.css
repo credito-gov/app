@@ -55,3 +55,14 @@ html[data-theme="claro"] { --font-sans: "Inter Variable", Inter, ui-sans-serif, 
 .pessoas { display: flex; flex-direction: column; gap: var(--space-6); }
 .pessoas .heading { margin: 0; }
 .pessoas-convidar { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-end; }
+
+/* Dashboard (033) */
+.painel { display: flex; flex-direction: column; gap: var(--space-6); }
+.painel .heading { margin: 0; }
+.painel-recorte { display: flex; align-items: center; gap: var(--space-3); }
+.painel-bloco { display: flex; flex-direction: column; gap: var(--space-4); }
+.painel-bloco > h3, .painel-recorte-titulo { margin: 0; }
+.painel-cartoes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+.painel-cartoes > .is-xl { grid-column: 1 / -1; }
+.cg-total-pendente .cg-total-value { color: var(--pending); }
+@media (max-width: 880px) { .painel-cartoes { grid-template-columns: minmax(0, 1fr); } }

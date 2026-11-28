@@ -33,7 +33,10 @@ export function BarraTopo({ empresa, outras }: { empresa: Empresa; outras: Empre
       <img className="cg-appbar-logo" src="/logo.png" alt="CreditoGov" />
       <nav className="cg-topnav" aria-label="Principal">
         <NavLink className="cg-topnav-item" to={`/e/${empresa.id}`} end>
-          Início
+          Visão geral
+        </NavLink>
+        <NavLink className="cg-topnav-item" to={`/e/${empresa.id}/pendencias`}>
+          Pendências
         </NavLink>
         <NavLink className="cg-topnav-item" to={`/e/${empresa.id}/pessoas`}>
           Pessoas

@@ -4,8 +4,8 @@ import { AceitarConvite } from "./paginas/AceitarConvite";
 import { EscolherEmpresa } from "./paginas/EscolherEmpresa";
 import { EsqueciSenha } from "./paginas/EsqueciSenha";
 import { Entrar } from "./paginas/Entrar";
-import { Inicio } from "./paginas/Inicio";
 import { Pessoas } from "./paginas/Pessoas";
+import { VisaoGeral } from "./paginas/VisaoGeral";
 import { RedefinirSenha } from "./paginas/RedefinirSenha";
 import { RequerSessao, useSessao } from "./sessao/ProvedorSessao";
 import { destinoPosLogin } from "./sessao/destino";
@@ -31,7 +31,7 @@ export const rotasApp: RouteObject[] = [
         path: "/e/:empresaId",
         element: <LayoutEmpresa />,
         children: [
-          { index: true, element: <Inicio /> },
+          { index: true, element: <VisaoGeral /> },
           { path: "pessoas", element: <Pessoas /> },
         ],
       },

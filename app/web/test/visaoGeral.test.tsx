@@ -63,7 +63,7 @@ describe("cartões de I-1 a I-5 (CA-1)", () => {
   it("nenhum total é derivado: não há cartão de soma, diferença ou proporção", async () => {
     abrir(painelCompleto);
     await screen.findByRole("group", { name: "Apropriado" });
-    expect(screen.getAllByRole("group").filter((g) => g.classList.contains("cg-total"))).toHaveLength(5);
+    expect(within(screen.getByRole("region", { name: "Créditos de CBS" })).getAllByRole("group")).toHaveLength(5);
   });
 });
 

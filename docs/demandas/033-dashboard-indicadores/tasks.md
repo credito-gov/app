@@ -66,8 +66,8 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 20 | Implementar `src/formatacao/` | idem 19 | idem 19 | testes da task 19 passam | ☑ |
 | 21 | Testes da busca de dados | Web › Busca de dados; DT-5 | CA-12; AD-3 | falham | ☑ |
 | 22 | Implementar o cliente de cache e os ganchos de busca | idem 21 | idem 21 | testes da task 21 passam | ☑ |
-| 23 | Testes da Visão geral com dados | Web › Rotas e menu; Componentes; Textos | CA-1 a CA-13, CA-22, CA-25 | falham | ☐ |
-| 24 | Implementar `textos.ts`, os componentes de indicadores, `VisaoGeral`, a rota e o menu | idem 23; DT-11, DT-12 | idem 23 | testes da task 23 passam | ☐ |
+| 23 | Testes da Visão geral com dados | Web › Rotas e menu; Componentes; Textos | CA-1 a CA-13, CA-22, CA-25 | falham | ☑ |
+| 24 | Implementar `textos.ts`, os componentes de indicadores, `VisaoGeral`, a rota e o menu | idem 23; DT-11, DT-12 | idem 23 | testes da task 23 passam | ☑ |
 | 25 | Testes dos estados dos dados | Web › Componentes (`SituacaoDados`, `EstadoServico`); Textos | CA-14 a CA-22 | falham | ☐ |
 | 26 | Implementar `SituacaoDados`, `EstadoServico` e os alertas | idem 25; DT-7 | idem 25 | testes da task 25 passam | ☐ |
 | 27 | Testes de `Pendencias` e `NotasDoGrupo` | Web › Rotas; Componentes (`PendentePorEmitente`); P-8 | CA-9, CA-10 | falham | ☐ |
