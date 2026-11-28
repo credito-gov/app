@@ -33,7 +33,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 7 | Testes de senha e tokens | API › Senha; Tokens; DT-3, DT-8 | CA-14, CA-19 | falham | ☑ |
 | 8 | Implementar `senha.ts`, `senhasComuns.ts` e `tokens.ts` | idem 7 | idem 7 | testes da task 7 passam | ☑ |
 | 9 | Testes do limite de tentativas | API › Limite de tentativas; DT-9 | CA-17, CA-26 | falham | ☑ |
-| 10 | Implementar `limite.ts` | idem 9 | idem 9 | testes da task 9 passam | ☐ |
+| 10 | Implementar `limite.ts` | idem 9 | idem 9 | testes da task 9 passam | ☑ |
 | 11 | Testes do e-mail (adaptadores e modelos) | API › E-mail | CA-27, CA-28 | falham | ☑ |
 | 12 | Implementar `email/` | idem 11 | idem 11 | testes da task 11 passam | ☑ |
 | 13 | Testes do servidor, da sessão e do login | API › Sessão; Proteção contra requisição de outro site; Login sem revelar o e-mail; Contratos › Sem sessão e Com sessão | CA-7, CA-15 a CA-17, CA-19 a CA-22 | falham | ☐ |
