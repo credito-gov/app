@@ -40,7 +40,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 14 | Implementar o servidor Fastify, o plugin de sessão, a proteção de origem, os cabeçalhos, `registro.ts` e as rotas `/api/sessao` | idem 13; DT-2, DT-4 | idem 13 | testes da task 13 passam | ☑ |
 | 15 | Testes do `npm run admin` | API › Comando administrativo; DT-7 | CA-5, CA-6, CA-34 | falham | ☑ |
 | 16 | Implementar `admin/` | idem 15 | idem 15 | testes da task 15 passam | ☑ |
-| 17 | Testes de convites | API › Convites; Contratos; DT-6 | CA-8 a CA-14 | falham | ☐ |
+| 17 | Testes de convites | API › Convites; Contratos; DT-6 | CA-8 a CA-14 | falham | ☑ |
 | 18 | Implementar `convites/` e as rotas de convite | idem 17 | idem 17 | testes da task 17 passam | ☐ |
 | 19 | Testes de empresas, pessoas, remoção e empresa em foco | API › Remoção de vínculo; Transação; Contratos › Com sessão; O que a 033 consome; DT-1 | CA-29, CA-30, CA-33, CA-34 | falham | ☐ |
 | 20 | Implementar `empresas/`, o `rotaDeEmpresa` e as rotas de empresa | idem 19 | idem 19 | testes da task 19 passam | ☐ |
