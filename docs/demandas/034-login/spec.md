@@ -357,7 +357,7 @@ Desvios técnicos registrados depois da implementação e da rodada de correçã
   - **web:** vale o que foi aprovado em "Cliente da API". 502, 503 e 504 sem corpo de erro tipado da API viram `sem_conexao` ("Sem conexão"). Um 502 com corpo `{erro}`, como `email_nao_enviado`, continua erro tipado. O estado `servidor_indisponivel`, criado na rodada de correção 1, foi removido na rodada 2 (2026-11-28).
 - **DT-20 — Um só convite pendente por empresa e e-mail.** A migração `0001` cria o índice único parcial `convite_pendente_unico`, e `criarConvite` usa `pg_advisory_xact_lock` por empresa e e-mail, para dois convites simultâneos não ficarem pendentes juntos (CA-9).
 - **DT-21 — Recusa de papel com privilégio.** A API e o `npm run admin` conferem o papel conectado ao iniciar. Não sobem se ele for superusuário, tiver `BYPASSRLS` ou for dono de alguma tabela (AD-6, CA-2, CA-37).
-- **DT-22 — Raiz fictícia `22222222`** acrescentada às de teste, para casos com três empresas. (Hoje, pelo mapeamento da 035, as três são `11111111`, `22222222` e `33333333`; esta é a terceira.)
+- **DT-22 — Raiz fictícia `33333333`** (na 034 era `22222222`, antes do mapeamento da 035) acrescentada às de teste, para casos com três empresas. As três são `11111111`, `22222222` e `33333333`.
 
 Riscos novos:
 
