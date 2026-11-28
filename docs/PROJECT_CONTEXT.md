@@ -31,7 +31,7 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 | Prova de conceito da API de apuração da CBS (`app/apuracao-cbs`) | Demanda 029. Aplicação de linha de comando, só leitura, com as quatro consultas; implementada e testada com respostas simuladas. **Chamada real feita em 2026-11-24:** o ciclo funcionou para créditos e débitos, que vieram vazios; recolhimentos e pagamentos responderam HTTP 404. Não é o backend do produto |
 | Painel local (`app/painel`) | Demanda 030. Web local, sem login, em Node/TypeScript: lê a pasta de arquivos que a `apuracao-cbs` baixa e mostra saldo de crédito (quatro totais separados), débitos à parte, lista de créditos, detalhe da nota, pendências por emitente e a lista de arquivos. Só CBS. Testado com arquivos fictícios; não chama a API. Aceita, com marca, o `ni` de 14 dígitos que os arquivos reais trazem e o schema 1.0.0 não aceita. **Ferramenta interna de validação dos dados, não a primeira versão do produto para o usuário final;** o dashboard do usuário será feito do zero (demanda 033) |
 | Design system do produto (`docs/design/`) | Demanda 032. Aprovado pelo responsável em 2026-11-25: tokens (tema claro principal e escuro), componentes e telas de login, dashboard e carteira do contador, com dados fictícios. Registro em [`design/`](design/README.md), sem código de aplicação; a stack é da demanda 031 |
-| Backend, banco, autenticação | **Arquitetura decidida (demanda 031, [`arquitetura/README.md`](arquitetura/README.md)); nada construído.** As tasks 001–005 foram escritas e estão suspensas (ver §5) |
+| Backend, banco, autenticação | Arquitetura decidida na demanda 031 ([`arquitetura/README.md`](arquitetura/README.md)). **O login foi construído (demanda 034):** `app/backend` (API, PostgreSQL, convites, empresas, recuperação de senha) e `app/web` (login e escolha de empresa), só com e-mail e senha. **Não existem ainda coletor, credencial da Receita nem dados fiscais.** As tasks 001–005 antigas seguem suspensas (ver §5) |
 | Validação de mercado (entrevistas, contadores, tributarista) | Sem registro no repositório |
 
 ---
@@ -60,6 +60,8 @@ Visão de produto e negócio: [`produto/visao.md`](produto/visao.md).
 | 2026-11-25 | Demanda 031: integração com ERP não é o modelo; o ERP é, no máximo, uma possível fonte de dados |
 | 2026-11-25 | Demanda 031: `app/painel` é ferramenta interna de validação dos dados, não a primeira versão do produto; o dashboard do usuário é feito do zero |
 | 2026-11-25 | Demanda 031: AD-1 a AD-14 em [`arquitetura/README.md`](arquitetura/README.md). Node 24 + TypeScript (AD-1); `app/backend` (api + coletor) e `app/web`, Fastify (AD-2); React 19 + Vite, página única (AD-3); PostgreSQL (AD-4); Kysely (AD-5); tabelas compartilhadas com segurança por linha (AD-6); nuvem gerenciada, provedor pendente da PD-1 (AD-7); arquivo bruto imutável em armazenamento de objetos (AD-8); coletor contínuo com fila no banco (AD-9); cifra de envelope com KMS para a credencial (AD-10); cenário A construído, modelo aceita o B (AD-11); autenticação própria com entidade `identidade` (AD-12); decimal exato do banco à tela (AD-13); PoC e painel seguem como ferramentas, leitor copiado (AD-14) |
+| 2026-11-27 | Demanda 034 (D-1): o login entrega só e-mail e senha; **Google e Microsoft ficam para demanda própria**. Revê o momento da decisão da 032 de 2026-11-25 (login com provedor externo), que por sua vez revia a de 2026-08-25. O login federado continua previsto e a entidade `identidade` está pronta para ele (AD-12) |
+| 2026-11-27 | Demanda 034 (D-2): **a conta nasce por convite**, sem cadastro aberto. A equipe CreditoGov cria a empresa e convida (`npm run admin`); quem tem vínculo convida outras pessoas. Papéis por vínculo: titular, contador e colaborador; o contador tem acesso próprio em cada empresa que o convidou |
 
 ---
 
@@ -107,9 +109,32 @@ npm run gerar-ficticios
 npm start -- [--pasta <caminho>] [--porta <n>]   # http://127.0.0.1:5180/, fictícios por padrão
 ```
 
-### Produto (backend, coletor e aplicação web) — decidido, não construído
+### Backend e web do login (`app/backend`, `app/web`) — o que existe
 
-Decidido em 2026-11-25 (demanda 031); nada foi construído. Detalhes, alternativas e fontes em [`arquitetura/README.md`](arquitetura/README.md).
+Demanda 034 (decisões de 2026-11-27). Node 24 e TypeScript; API em Fastify, PostgreSQL 18.7 local pelo Docker Compose (porta 5433, só em `127.0.0.1`, autenticação `trust` só local), Kysely, senha com `argon2id`, sessão no servidor com cookie `HttpOnly`. Só e-mail e senha; conta por convite; recuperação de senha; escolha e troca de empresa; pessoas e remoção de vínculo; isolamento por linha confirmado com teste. E-mail só em adaptadores de arquivo e memória (sem provedor). A web é React 19 + Vite, com `react-router`. Os testes não usam `.env` nem rede externa. Detalhes nos READMEs de cada pasta.
+
+```bash
+cd app/backend
+npm install
+npm run banco:subir   # antes dos testes
+npm test
+npm run lint
+npm run build
+npm run migrar
+npm run dev
+npm run admin -- <criar-empresa|convidar|empresas-do-usuario|remover-vinculo> [opções]
+
+cd app/web
+npm install
+npm run dev
+npm test
+npm run lint
+npm run build
+```
+
+### Produto (coletor e demais partes) — decidido, não construído
+
+Decidido em 2026-11-25 (demanda 031); só o login foi construído (acima). Detalhes, alternativas e fontes em [`arquitetura/README.md`](arquitetura/README.md).
 
 - **Backend:** Node 24 + TypeScript, em `app/backend` com dois processos, API (Fastify) e coletor agendado.
 - **Web:** `app/web`, React 19 + Vite + TypeScript, página única que consome a API.
@@ -180,7 +205,9 @@ credito-gov/
 ├── app/
 │   ├── landing-page/          # landing page
 │   ├── apuracao-cbs/          # prova de conceito da API de apuração da CBS (linha de comando)
-│   └── painel/                # painel local: lê os arquivos da apuracao-cbs (sem login, só CBS)
+│   ├── painel/                # painel local: lê os arquivos da apuracao-cbs (sem login, só CBS)
+│   ├── backend/               # API do produto: login, convites, empresas (034); coletor ainda não existe
+│   └── web/                   # interface do produto: login e escolha de empresa (034)
 └── docs/
     ├── PROJECT_CONTEXT.md     # este arquivo
     ├── README.md              # índice da documentação
@@ -262,3 +289,4 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | 2026-11-24 | Demanda 030: criado `app/painel`, painel local sem login que lê os arquivos da `apuracao-cbs` (saldo em quatro totais separados, débitos à parte, lista de créditos, detalhe, pendências por emitente, arquivos). Segunda chamada real (outra credencial) trouxe dados: o `ni` vem com 14 dígitos e o schema 1.0.0 exige 8, tratado no painel como divergência conhecida. Leiaute da chave dos documentos fiscais registrado em `referencias/documentos-fiscais/`. Stack do painel local: Node/TypeScript com HTML no servidor |
 | 2026-11-25 | Demanda 032: design system do produto aprovado e registrado em `docs/design/` (tokens claro e escuro, componentes, telas de login, dashboard e carteira do contador, com dados fictícios). Login com provedor externo revê a decisão de autenticação de 2026-08-25. O wireframe da concepção fica superado |
 | 2026-11-25 | Demanda 031: arquitetura do produto decidida em `docs/arquitetura/` (AD-1 a AD-14; nada construído). SaaS multi-inquilino; cada cliente informa a própria credencial da Receita; login federado não bloqueado; `app/painel` é ferramenta interna. Stack do backend e hospedagem resolvidas em `hipoteses.md`, com o provedor pendente da PD-1 |
+| 2026-11-27 | Demanda 034: construído o login do produto. `app/backend` (Fastify, PostgreSQL local no Compose, Kysely) e `app/web` (React + Vite), só com e-mail e senha; conta por convite; papéis titular, contador e colaborador. Google e Microsoft ficam para demanda própria (D-1). Isolamento por linha e `numeric` como texto confirmados com Kysely (R-3). Lista de senhas comuns: `@zxcvbn-ts/language-common` 4.2.0, decidida pelo responsável |
