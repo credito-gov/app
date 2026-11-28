@@ -4,7 +4,7 @@ import { AceitarConvite } from "../src/paginas/AceitarConvite";
 import { Entrar } from "../src/paginas/Entrar";
 import { EsqueciSenha } from "../src/paginas/EsqueciSenha";
 import { RedefinirSenha } from "../src/paginas/RedefinirSenha";
-import { EMPRESA_A, SEM_SESSAO, USUARIO, json, renderizar, simularFetch, type Chamada, type RespostaSimulada } from "./auxiliar";
+import { EMPRESA_A, SEM_SESSAO, USUARIO, json, renderizar, renderizarNavegador, simularFetch, type Chamada, type RespostaSimulada } from "./auxiliar";
 
 const TOKEN = "token-de-exemplo-abcdefghijklmnopqrstuvwxyz0123456789";
 const SENHA = "uma-senha-longa-de-exemplo";
@@ -67,11 +67,9 @@ describe("EsqueciSenha (CA-23, CA-26)", () => {
 describe("RedefinirSenha (CA-14, CA-24, CA-25)", () => {
   it("lê #t=, tira o fragmento do endereço e manda o token só no corpo", async () => {
     fragmento("/redefinir-senha", `#t=${TOKEN}`);
-    const espiao = vi.spyOn(window.history, "replaceState");
     const chamadas = simular(() => json(204));
-    renderizar(rotas, "/redefinir-senha");
-    expect(espiao).toHaveBeenCalled();
-    expect(window.location.hash).toBe("");
+    renderizarNavegador(rotas);
+    await waitFor(() => expect(window.location.hash).toBe(""));
     await userEvent.type(screen.getByLabelText("Nova senha"), SENHA);
     await userEvent.type(screen.getByLabelText("Confirmar nova senha"), SENHA);
     await userEvent.click(screen.getByRole("button", { name: "Salvar nova senha" }));
@@ -80,7 +78,6 @@ describe("RedefinirSenha (CA-14, CA-24, CA-25)", () => {
     expect(post.url).toBe("/api/recuperacao/confirmar");
     expect(post.corpo).toEqual({ token: TOKEN, senha: SENHA });
     semTokenNaUrl(chamadas);
-    espiao.mockRestore();
   });
 
   it("204 leva a /entrar com o aviso de senha alterada", async () => {
@@ -169,7 +166,7 @@ describe("AceitarConvite (CA-11 a CA-14)", () => {
   it("lê #e=&t=, tira o fragmento e consulta com o token só no corpo", async () => {
     fragmento("/convite", HASH_CONVITE);
     const chamadas = simularConvite(CONSULTA_SEM_CONTA);
-    renderizar(rotas, "/convite");
+    renderizarNavegador(rotas);
     await screen.findByText(EMPRESA_A.nome);
     expect(window.location.hash).toBe("");
     const consulta = chamadas.find((c) => c.url === "/api/convites/consultar")!;

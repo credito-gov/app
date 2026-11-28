@@ -49,9 +49,20 @@ describe("cliente da API", () => {
     expect(await requisitar("GET", "/api/x")).toEqual({ tipo: "sem_conexao" });
   });
 
-  it.each([502, 503, 504])("resposta %i vira sem_conexao", async (status) => {
+  it.each([502, 503, 504])("resposta %i vira servidor_indisponivel", async (status) => {
     simularFetch(() => json(status));
-    expect(await requisitar("GET", "/api/x")).toEqual({ tipo: "sem_conexao" });
+    expect(await requisitar("GET", "/api/x")).toEqual({ tipo: "servidor_indisponivel" });
+  });
+
+  it("resposta ok com JSON ilegível vira erro resposta_invalida", async () => {
+    globalThis.fetch = vi.fn(async () => new Response("<html>não é json</html>", { status: 200 })) as unknown as typeof fetch;
+    const r = await requisitar("GET", "/api/x");
+    expect(r).toMatchObject({ tipo: "erro", status: 200, codigo: "resposta_invalida" });
+  });
+
+  it("204 sem corpo continua ok", async () => {
+    simularFetch(() => json(204));
+    expect(await requisitar("DELETE", "/api/x")).toMatchObject({ tipo: "ok", status: 204 });
   });
 
   it("401 sessao_expirada em rota logada avisa a perda da sessão como expirada", async () => {

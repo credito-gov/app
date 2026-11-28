@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { vi } from "vitest";
-import { createMemoryRouter, RouterProvider, type RouteObject } from "react-router";
+import { createBrowserRouter, createMemoryRouter, RouterProvider, type RouteObject } from "react-router";
 import { ProvedorSessao } from "../src/sessao/ProvedorSessao";
 
 export type RespostaSimulada = { status: number; corpo?: unknown } | "rejeitar";
@@ -54,6 +54,17 @@ export const EMPRESA_B = {
 export const USUARIO = { id: "33333333-3333-4333-8333-333333333333", nome: "Maria Exemplo" };
 
 export const SEM_SESSAO = json(401, { erro: "sem_sessao", mensagem: "Entre para continuar." });
+
+// Roteador do navegador (usa window.location e window.history, como em produção).
+export function renderizarNavegador(rotas: RouteObject[]) {
+  const router = createBrowserRouter(rotas);
+  render(
+    <ProvedorSessao>
+      <RouterProvider router={router} />
+    </ProvedorSessao>,
+  );
+  return router;
+}
 
 export function renderizar(rotas: RouteObject[], rota: string) {
   const router = createMemoryRouter(rotas, { initialEntries: [rota] });
