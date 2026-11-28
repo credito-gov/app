@@ -25,12 +25,13 @@ Também existem `npm run banco:parar` e `npm run banco:apagar` (apaga o volume).
 
 ### `npm run admin`
 
-Os quatro comandos (não há tela de administração):
+Os cinco comandos (não há tela de administração):
 
 - `criar-empresa --cnpj-raiz <8 dígitos> --nome <nome>`
 - `convidar --empresa <id> --email <e-mail> --papel <titular|contador>`
 - `empresas-do-usuario --email <e-mail>`
 - `remover-vinculo --empresa <id> --email <e-mail>`
+- `carregar-cenario --empresa <id> --cenario <nome>` (demanda 033; só com `CREDITOGOV_AMBIENTE=local`, ver abaixo)
 
 Exemplo, só com dados fictícios:
 
@@ -38,6 +39,31 @@ Exemplo, só com dados fictícios:
 npm run admin -- criar-empresa --cnpj-raiz 00000000 --nome "Comércio Exemplo Ltda."
 npm run admin -- convidar --empresa <id> --email titular@exemplo.com.br --papel titular
 ```
+
+### Cenários fictícios do dashboard (`carregar-cenario`)
+
+O dashboard lê consultas e notas do banco, mas ainda não há coletor: os dados vêm de cenários fictícios, no formato oficial da Receita, passados pela mesma leitura que o coletor vai usar. Nenhum dado real; os CNPJs gerados têm o dígito verificador errado de propósito. O comando só roda com `CREDITOGOV_AMBIENTE=local`, só em empresa que ainda não tem consulta, e **não existe comando que leia arquivo do disco**.
+
+Para ver cada estado, crie uma empresa por cenário (raízes fictícias diferentes), convide a mesma pessoa para todas, aceite o convite pelo e-mail local (`.local/emails/`) e carregue o cenário:
+
+```bash
+npm run admin -- criar-empresa --cnpj-raiz 31000001 --nome "Empresa completo Exemplo"
+npm run admin -- convidar --empresa <id> --email titular@exemplo.com.br --papel titular
+# aceitar o convite pelo e-mail em .local/emails/, depois:
+npm run admin -- carregar-cenario --empresa <id> --cenario completo
+```
+
+| Cenário | O que grava | Estado que mostra |
+|---|---|---|
+| `completo` | Créditos e débitos de volume (cerca de 900 créditos em 9 períodos), em duas consultas por serviço; a segunda traz versões novas de algumas notas e foi concluída ontem | Todos os indicadores |
+| `sem-consulta` | Nada | "Os créditos ainda não foram consultados na Receita." |
+| `em-andamento` | Uma consulta de créditos `aberta` e nenhuma concluída | Sem consulta, com "Há uma consulta em andamento." |
+| `vazio` | Consultas lidas com `apuracao` vazia nos dois serviços | "A Receita não devolveu créditos..." sem R$ 0,00 |
+| `parcial` | Créditos com dados; débitos só com uma consulta em `erro` | Créditos com números e débitos com a falha |
+| `falha-com-anteriores` | Dados de 3 dias atrás; a última tentativa de créditos em `credencial_invalida` | Números anteriores, aviso de não atualizados e texto de credencial |
+| `desatualizado` | Última consulta concluída há 9 dias nos dois serviços | Alerta de mais de 8 dias sem consulta |
+| `recusado` | Dados aceitos, mais um retorno de outra raiz e um fora do schema | Aviso de retornos recusados |
+| `outros-valores` | Suspenso, prescrito e pedido de ressarcimento diferentes de zero, origens 20 e 30 e uma nota com valor a apropriar negativo | Outros valores, aviso de origens e linha de negativos |
 
 ## Variáveis de ambiente
 

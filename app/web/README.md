@@ -44,3 +44,17 @@ Roteiro para o **responsável** executar antes do PR (P-9). Só dados fictícios
    - escolha de empresa e troca de empresa;
    - lista de pessoas, remoção de vínculo e sair.
 5. Repetir em largura de celular (por volta de 375 px) e de desktop, e com `prefers-reduced-motion` ligado.
+
+## Conferência no navegador: dashboard (demanda 033)
+
+Roteiro para o **responsável** executar antes do PR. Só dados fictícios. **Ainda não foi feita**; o resultado fica registrado no PR. O Developer não abriu o navegador: rodou só os testes (`npm test`) e o build.
+
+1. Em `app/backend`: `npm run banco:subir`, `npm run migrar` (aplica a `0002`), e crie uma empresa por cenário com `npm run admin -- criar-empresa` (raízes fictícias diferentes, por exemplo `31000001` a `31000009`), convide a mesma pessoa para todas e aceite os convites pelo e-mail local. Carregue um cenário em cada empresa com `npm run admin -- carregar-cenario --empresa <id> --cenario <nome>` (ver `app/backend/README.md`).
+2. Suba a API e a web (`npm run dev` nas duas pastas) e entre com essa pessoa.
+3. Em **largura de desktop**, abra cada empresa e compare com os artboards "Dashboard" e "Dashboard — estados dos dados" da 032:
+   - `completo`: os cinco cartões (apurado, a apropriar, apropriado, já utilizado, saldo credor), cada um com o nome oficial do campo; "Pendente por emitente" com "Demais emitentes", "Emitente não identificado" e a frase do percentual; evolução por período em tabela; bloco de débitos separado e abaixo; aviso de só CBS. Troque o período no seletor e confira a URL (`?periodo=AAAA-MM`) e que todos os blocos acompanham.
+   - `sem-consulta`, `em-andamento`, `vazio`, `parcial`, `falha-com-anteriores`, `desatualizado`, `recusado` e `outros-valores`: o estado de cada um, como na tabela do `app/backend/README.md`. Nenhum `R$ 0,00` no lugar de dado que não existe.
+   - "Ver todos os emitentes", e o clique em cada linha, levam à lista e às notas do grupo (100 por página, com o período preservado).
+   - Nenhuma tela usa "disponível", "pode usar", "confirmado", "a receber", "garantido" nem diz que alguém deixou de recolher.
+4. Repita com a **janela estreita** (por volta de 600 px): os blocos se empilham, sem desenho próprio para celular.
+5. Confira o menu: "Visão geral", "Pendências" e "Pessoas", e nada de "Créditos", "Débitos" ou "Consultas à Receita".
