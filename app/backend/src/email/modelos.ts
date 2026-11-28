@@ -19,7 +19,7 @@ export function formatarValidade(data: Date): string {
 }
 
 const APRESENTACAO =
-  "O CreditoGov mostra o crédito de CBS gerado pelas compras da empresa.";
+  "O CreditoGov é a plataforma para acompanhar o crédito de CBS das compras da empresa.";
 
 export function modeloConvite(d: {
   para: string;
