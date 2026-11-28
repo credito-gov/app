@@ -45,7 +45,7 @@ export interface DadosDaEmpresa {
 
 type Linha = Record<string, unknown>;
 
-function valoresDe(linha: Linha, colunas: ReadonlyArray<readonly [string, string]>): Record<string, string> {
+export function valoresDe(linha: Linha, colunas: ReadonlyArray<readonly [string, string]>): Record<string, string> {
   const valores: Record<string, string> = {};
   for (const [coluna, campo] of colunas) {
     const v = linha[coluna];
