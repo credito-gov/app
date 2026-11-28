@@ -172,7 +172,9 @@ describe("os nove cenários gravam as consultas no estado da tabela da Spec", ()
     for (const a of recusas) {
       expect(a).toMatchObject({ servico: "creditos" });
       expect(typeof a["arquivoId"]).toBe("string");
-      expect(JSON.stringify(a)).not.toMatch(/must have|CHAVE|d{8}/);
+      // os identificadores (UUID) são tirados antes: oito dígitos seguidos num UUID aleatório não são vazamento
+      const semIds = JSON.stringify(a).replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, "");
+      expect(semIds).not.toMatch(/must have|CHAVE|\d{8}/);
     }
   });
 
