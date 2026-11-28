@@ -13,7 +13,7 @@ npm run lint
 npm run build
 ```
 
-Para usar a interface de verdade, suba também a API (veja o [README do backend](../backend/README.md)). O proxy do Vite repassa `/api` para a porta 3000 da API e acrescenta `X-Forwarded-For` (`xfwd`); no backend use `CREDITOGOV_CONFIAR_PROXY=1` no desenvolvimento, para o limite por origem enxergar cada pessoa.
+Para usar a interface de verdade, suba também a API (veja o [README do backend](../backend/README.md)). O proxy do Vite repassa `/api` para a porta 3000 da API e acrescenta `X-Forwarded-For` (`xfwd`); no backend use `CREDITOGOV_CONFIAR_PROXY=loopback` no desenvolvimento (a API só confia no proxy que fala por 127.0.0.1), para o limite por origem enxergar cada pessoa.
 
 ## Estados de falha da API
 
@@ -21,8 +21,7 @@ O cliente (`src/api/cliente.ts`) devolve estados tipados; as telas tratam cada u
 
 | Estado | Quando | O que a pessoa vê |
 |---|---|---|
-| `sem_conexao` | O `fetch` falhou (sem rede, API parada) | "Sem conexão", com "Tentar de novo" |
-| `servidor_indisponivel` | 502, 503 ou 504 sem o corpo de erro da API (proxy ou servidor fora do ar) | "O serviço está indisponível no momento. Tente em alguns minutos." |
+| `sem_conexao` | O `fetch` falhou (sem rede) ou o proxy respondeu 502, 503 ou 504 sem o corpo de erro da API (API parada) | "Sem conexão", com "Tentar de novo" |
 | `erro` com código `resposta_invalida` | Resposta de sucesso que não é JSON (exceto 204) | Erro genérico da tela |
 | `erro` com código da API | Por exemplo `email_nao_enviado` (502, convite criado e e-mail não enviado) e `convite_aceito_sem_sessao` (500, aceite gravado e sessão não aberta; leva a `/entrar` com o aviso) | A mensagem de cada tela |
 
@@ -30,7 +29,7 @@ Só `401` na leitura inicial da sessão vira "sem sessão"; os demais erros most
 
 ## Conferência no navegador
 
-Roteiro para o **responsável** executar antes do PR (P-9). Só dados fictícios: e-mails de `exemplo.com.br` e raízes de CNPJ `00000000` e `11111111`. A conferência ainda **não foi feita**; o resultado fica registrado no PR.
+Roteiro para o **responsável** executar antes do PR (P-9). Só dados fictícios: e-mails de `exemplo.com.br` e raízes de CNPJ `00000000`, `11111111` e `22222222`. A conferência ainda **não foi feita**; o resultado fica registrado no PR.
 
 1. Subir o banco e migrar, em `app/backend`: `npm run banco:subir` e `npm run migrar`.
 2. Com `npm run admin`, criar duas empresas fictícias e convidar um titular e um contador (exemplos em `app/backend/README.md`).

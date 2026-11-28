@@ -649,7 +649,7 @@ Os nomes são a proposta deste documento; a primeira demanda de backend pode aju
 | `CREDITOGOV_SESSAO_SEGREDO` | Segredo da sessão (AD-12) |
 | `APURACAO_URL_TOKEN` e `APURACAO_URL_BASE` | Endereços da API da Receita; os mesmos nomes da PoC |
 | `CREDITOGOV_AMBIENTE` | local, homologação ou produção |
-| `CREDITOGOV_BANCO_MIGRACAO_URL`, `CREDITOGOV_WEB_URL`, `CREDITOGOV_EMAIL`, `CREDITOGOV_API_PORTA`, `CREDITOGOV_CONFIAR_PROXY` | Acrescentadas pela demanda 034: papel de migração, URL da web, adaptador de e-mail (`arquivo` ou `memoria`), porta da API e número de proxies confiáveis (inteiro, padrão 0) |
+| `CREDITOGOV_BANCO_MIGRACAO_URL`, `CREDITOGOV_WEB_URL`, `CREDITOGOV_EMAIL`, `CREDITOGOV_API_PORTA`, `CREDITOGOV_CONFIAR_PROXY` | Acrescentadas pela demanda 034: papel de migração, URL da web, adaptador de e-mail (`arquivo` ou `memoria`), porta da API e proxies confiáveis (lista de endereços IP, CIDRs ou `loopback`/`linklocal`/`uniquelocal`; padrão vazio, não confia em proxy) |
 
 **A credencial de cada cliente não é variável de ambiente:** fica no banco, cifrada (AD-10). Os valores de cada ambiente ficam no gerenciador de segredos do provedor, nunca no repositório (regra de [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §6).
 

@@ -1,9 +1,9 @@
 import { Alerta } from "./Alerta";
 
-export type FalhaDeRede = "sem_conexao" | "servidor_indisponivel";
+export type FalhaDeRede = "sem_conexao";
 
-// Falha de rede (sem conexão) ou serviço fora do ar (502, 503, 504), com o botão de tentar de novo.
-export function AlertaDeRede({ tipo, aoTentar }: { tipo: FalhaDeRede; aoTentar?: () => void }) {
+// Falha de rede ou API fora do ar (502, 503, 504 do proxy), com o botão de tentar de novo.
+export function AlertaDeRede({ aoTentar }: { tipo?: FalhaDeRede; aoTentar?: () => void }) {
   const acao = aoTentar ? (
     <div>
       <button type="button" className="cg-btn cg-btn-secondary cg-btn-sm" onClick={aoTentar}>
@@ -11,13 +11,6 @@ export function AlertaDeRede({ tipo, aoTentar }: { tipo: FalhaDeRede; aoTentar?:
       </button>
     </div>
   ) : undefined;
-  if (tipo === "servidor_indisponivel") {
-    return (
-      <Alerta tipo="error" titulo="Serviço indisponível" acao={acao}>
-        O serviço está indisponível no momento. Tente em alguns minutos.
-      </Alerta>
-    );
-  }
   return (
     <Alerta tipo="error" titulo="Sem conexão" acao={acao}>
       Não conseguimos falar com o servidor. Verifique a internet.
@@ -26,5 +19,5 @@ export function AlertaDeRede({ tipo, aoTentar }: { tipo: FalhaDeRede; aoTentar?:
 }
 
 export function ehFalhaDeRede(r: { tipo: string }): r is { tipo: FalhaDeRede } {
-  return r.tipo === "sem_conexao" || r.tipo === "servidor_indisponivel";
+  return r.tipo === "sem_conexao";
 }

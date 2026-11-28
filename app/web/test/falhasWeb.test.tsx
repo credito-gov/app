@@ -12,7 +12,7 @@ import { EMPRESA_A, EMPRESA_B, SEM_SESSAO, USUARIO, json, renderizar, renderizar
 const TOKEN = "token-de-exemplo-abcdefghijklmnopqrstuvwxyz0123456789";
 const SENHA = "uma-senha-longa-de-exemplo";
 const OUTRO = "44444444-4444-4444-8444-444444444444";
-const INDISPONIVEL = /O serviço está indisponível no momento\. Tente em alguns minutos\./;
+const SEM_CONEXAO = /Não conseguimos falar com o servidor. Verifique a internet./;
 
 type Pessoas = {
   vinculos: { usuarioId: string; nome: string; email: string; papel: string; desde: string }[];
@@ -80,10 +80,10 @@ describe("sessão inicial (CA-19, CA-20)", () => {
     expect(router.state.location.pathname).toBe("/empresas");
   });
 
-  it("503 no GET inicial mostra que o serviço está indisponível", async () => {
+  it("503 no GET inicial mostra sem conexão (proxy sem corpo)", async () => {
     simularFetch(() => json(503));
     renderizar(rotasApp, "/empresas");
-    expect(await screen.findByText(INDISPONIVEL)).toBeInTheDocument();
+    expect(await screen.findByText(SEM_CONEXAO)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Tentar de novo" })).toBeInTheDocument();
   });
 });
@@ -133,10 +133,10 @@ describe("LayoutEmpresa (CA-32, CA-33)", () => {
     expect(await screen.findByText("CNPJ raiz 00.000.000")).toBeInTheDocument();
   });
 
-  it("503 mostra que o serviço está indisponível", async () => {
+  it("503 mostra sem conexão (proxy sem corpo)", async () => {
     servir({ extra: (c) => (c.url === `/api/empresas/${EMPRESA_A.id}` ? json(503) : undefined) });
     renderizar(rotasApp, `/e/${EMPRESA_A.id}`);
-    expect(await screen.findByText(INDISPONIVEL)).toBeInTheDocument();
+    expect(await screen.findByText(SEM_CONEXAO)).toBeInTheDocument();
   });
 
   it("se GET /api/empresas falha, registra console.error e segue só com a empresa em foco", async () => {
@@ -260,12 +260,12 @@ describe("EsqueciSenha (CA-23)", () => {
     expect(await screen.findByText(/Se houver uma conta com esse e-mail/)).toBeInTheDocument();
   });
 
-  it("503 mostra que o serviço está indisponível", async () => {
+  it("503 mostra sem conexão (proxy sem corpo)", async () => {
     simular(() => json(503));
     renderizar(rotas, "/esqueci-senha");
     await userEvent.type(screen.getByLabelText("E-mail"), "maria@exemplo.com.br");
     await userEvent.click(screen.getByRole("button", { name: "Enviar link" }));
-    expect(await screen.findByText(INDISPONIVEL)).toBeInTheDocument();
+    expect(await screen.findByText(SEM_CONEXAO)).toBeInTheDocument();
   });
 });
 
@@ -313,11 +313,11 @@ describe("AceitarConvite (CA-11 a CA-14)", () => {
     expect(await screen.findByText(EMPRESA_A.nome)).toBeInTheDocument();
   });
 
-  it("503 na consulta mostra que o serviço está indisponível", async () => {
+  it("503 na consulta mostra sem conexão (proxy sem corpo)", async () => {
     fragmento("/convite", HASH);
     simular(json(503));
     renderizar([{ path: "/convite", element: <AceitarConvite /> }], "/convite");
-    expect(await screen.findByText(INDISPONIVEL)).toBeInTheDocument();
+    expect(await screen.findByText(SEM_CONEXAO)).toBeInTheDocument();
   });
 
   it("convite_aceito_sem_sessao leva a /entrar com o aviso de convite aceito", async () => {

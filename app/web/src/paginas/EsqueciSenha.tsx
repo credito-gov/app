@@ -47,7 +47,7 @@ export function EsqueciSenha() {
       {estado === "muitas_tentativas" ? (
         <Alerta tipo="warning" titulo="Muitas tentativas. Tente de novo em alguns minutos." />
       ) : null}
-      {estado === "sem_conexao" || estado === "servidor_indisponivel" ? (
+      {estado === "sem_conexao" ? (
         <AlertaDeRede tipo={estado} aoTentar={() => void enviar()} />
       ) : null}
       {estado === "erro" ? (

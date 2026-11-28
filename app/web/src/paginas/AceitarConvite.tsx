@@ -151,7 +151,7 @@ export function AceitarConvite() {
       {aviso === "muitas_tentativas" ? (
         <Alerta tipo="warning" titulo="Muitas tentativas. Tente de novo em alguns minutos." />
       ) : null}
-      {aviso === "sem_conexao" || aviso === "servidor_indisponivel" ? <AlertaDeRede tipo={aviso} /> : null}
+      {aviso === "sem_conexao" ? <AlertaDeRede tipo={aviso} /> : null}
       {aviso === "outro" ? <Alerta tipo="error" titulo="Não foi possível aceitar o convite" /> : null}
       <form className="entrar-cartao" onSubmit={enviar} noValidate>
         {convite.contaExistente ? (

@@ -81,7 +81,7 @@ export function Entrar() {
               Tente de novo em alguns instantes.
             </Alerta>
           ) : null}
-          {falha === "sem_conexao" || falha === "servidor_indisponivel" ? (
+          {falha === "sem_conexao" ? (
             <AlertaDeRede tipo={falha} aoTentar={() => void enviar()} />
           ) : null}
 

@@ -53,9 +53,9 @@ export async function criarServidor(deps: DepsServidor): Promise<Servidor> {
 
   const app = Fastify({
     logger: deps.log === false ? false : opcoesDeLog(deps.log ?? {}),
-    // Confia só nos N saltos mais próximos (o Fastify trata número como "não confia";
-    // por isso a função). Com 0, X-Forwarded-For é ignorado e a origem não se forja.
-    trustProxy: config.confiarProxy > 0 ? (_endereco: string, salto: number) => salto < config.confiarProxy : false,
+    // Confia pelo endereço do proxy (lista de IPs, CIDRs ou loopback/linklocal/uniquelocal).
+    // O Fastify recusa contagem de saltos de propósito. Lista vazia: X-Forwarded-For é ignorado.
+    trustProxy: config.confiarProxy.length > 0 ? config.confiarProxy : false,
     bodyLimit: 16 * 1024,
     ajv: { customOptions: { allErrors: true } },
   });

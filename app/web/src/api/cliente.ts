@@ -27,9 +27,8 @@ export type Resultado<T> =
       campos?: CampoInvalido[];
       regra?: string;
     }
-  | { tipo: "sem_conexao" }
-  // 502, 503 e 504: o servidor ou o proxy não está respondendo.
-  | { tipo: "servidor_indisponivel" };
+  // fetch que lança erro de rede, ou 502, 503 e 504 do proxy (sem o corpo de erro da API).
+  | { tipo: "sem_conexao" };
 
 export type MotivoPerda = "expirada" | "sem_sessao";
 
@@ -78,13 +77,13 @@ export async function requisitar<T = unknown>(
     ilegivel = true;
   }
 
-  // 502, 503 e 504 sem o corpo de erro da API vêm do proxy ou do servidor fora do ar. A API
+  // 502, 503 e 504 sem o corpo de erro da API vêm do proxy (API parada): sem conexão. A API
   // também responde 502 (email_nao_enviado), e esse segue como erro tipado.
   if (
     (resposta.status === 502 || resposta.status === 503 || resposta.status === 504) &&
     typeof (corpo as { erro?: unknown } | undefined)?.erro !== "string"
   ) {
-    return { tipo: "servidor_indisponivel" };
+    return { tipo: "sem_conexao" };
   }
 
   if (resposta.ok) {

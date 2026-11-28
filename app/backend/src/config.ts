@@ -1,3 +1,4 @@
+import { isIP } from "node:net";
 // Leitura e validação das variáveis de ambiente (CA-4, CA-27).
 // Recebe o objeto de ambiente: process.env só entra no ponto de entrada.
 // As mensagens de erro citam o nome da variável, nunca o valor.
@@ -20,8 +21,21 @@ export interface Config {
   webOrigem: string;
   email: AdaptadorEmail;
   apiPorta: number;
-  /** Número de saltos de proxy confiáveis (0 = não confia em X-Forwarded-For). */
-  confiarProxy: number;
+  /** Endereços, CIDRs ou palavras do proxy-addr (loopback, linklocal, uniquelocal) dos proxies confiáveis. Vazio = não confia em X-Forwarded-For. */
+  confiarProxy: string[];
+}
+
+const PALAVRAS_PROXY: readonly string[] = ["loopback", "linklocal", "uniquelocal"];
+
+function enderecoDeProxyValido(x: string): boolean {
+  if (PALAVRAS_PROXY.includes(x)) return true;
+  const partes = x.split("/");
+  if (partes.length > 2) return false;
+  const versao = isIP(partes[0] ?? "");
+  if (versao === 0) return false;
+  if (partes.length === 1) return true;
+  const prefixo = partes[1] ?? "";
+  return /^[0-9]{1,3}$/.test(prefixo) && Number(prefixo) <= (versao === 4 ? 32 : 128);
 }
 
 export type Env = Record<string, string | undefined>;
@@ -80,13 +94,16 @@ export function carregarConfig(env: Env): Config {
     }
   }
 
-  let confiarProxy = 0;
+  let confiarProxy: string[] = [];
   const proxy = env["CREDITOGOV_CONFIAR_PROXY"];
-  if (proxy !== undefined && proxy !== "") {
-    if (!/^[0-9]{1,3}$/.test(proxy)) {
-      throw new ErroConfig("CREDITOGOV_CONFIAR_PROXY deve ser um inteiro maior ou igual a 0 (número de proxies confiáveis)");
+  if (proxy !== undefined && proxy.trim() !== "") {
+    confiarProxy = proxy.split(",").map((x) => x.trim());
+    const ruim = confiarProxy.find((x) => !enderecoDeProxyValido(x));
+    if (ruim !== undefined) {
+      throw new ErroConfig(
+        "CREDITOGOV_CONFIAR_PROXY deve ser uma lista, separada por vírgula, de endereços IP, CIDRs ou loopback, linklocal, uniquelocal",
+      );
     }
-    confiarProxy = Number(proxy);
   }
 
   return {
