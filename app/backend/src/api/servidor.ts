@@ -15,6 +15,7 @@ import type { Contexto } from "./contexto.js";
 import { camposDoErro, enviarErro } from "./erros.js";
 import { registrarRotasConvites } from "./rotasConvites.js";
 import { registrarRotasEmpresas } from "./rotasEmpresas.js";
+import { registrarRotasRecuperacao } from "./rotasRecuperacao.js";
 import { registrarRotasSessao } from "./rotasSessao.js";
 import { ehUuid, EmpresaNaoEncontrada } from "../banco/transacao.js";
 import { lerCookie, vencerCookie } from "./sessaoHttp.js";
@@ -148,6 +149,7 @@ export async function criarServidor(deps: DepsServidor): Promise<Servidor> {
   registrarRotasSessao(app, ctx);
   registrarRotasConvites(app, ctx);
   registrarRotasEmpresas(app, ctx);
+  registrarRotasRecuperacao(app, ctx);
 
   await app.ready();
   return app;
