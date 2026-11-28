@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useNavigate } from "react-router";
 import { requisitar, type Papel } from "../api/cliente";
 import { ROTULO_PAPEL } from "../api/papeis";
 import { Alerta } from "../componentes/Alerta";
+import { AlertaDeRede, ehFalhaDeRede, type FalhaDeRede } from "../componentes/AlertaDeRede";
 import { CampoTexto, Campo } from "../componentes/Campo";
 import { useEmpresaEmFoco } from "../componentes/LayoutEmpresa";
+import { useSessao } from "../sessao/ProvedorSessao";
 
 type Pessoas = {
   vinculos: { usuarioId: string; nome: string; email: string; papel: Papel; desde: string }[];
@@ -16,6 +19,10 @@ type Retorno = { tipo: "sucesso" | "aviso" | "erro"; texto: string } | null;
 
 const MOTIVO_ULTIMO_TITULAR = "Não é possível remover o último titular.";
 
+function textoDeRede(tipo: FalhaDeRede): string {
+  return tipo === "sem_conexao" ? "Sem conexão" : "O serviço está indisponível no momento. Tente em alguns minutos.";
+}
+
 function data(iso: string): string {
   return new Date(iso).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
 }
@@ -24,7 +31,9 @@ export function Pessoas() {
   const empresa = useEmpresaEmFoco();
   const base = `/api/empresas/${empresa.id}`;
   const [dados, setDados] = useState<Pessoas | null>(null);
-  const [falha, setFalha] = useState<"sem_conexao" | "outro" | null>(null);
+  const [falha, setFalha] = useState<FalhaDeRede | "outro" | null>(null);
+  const { estado, atualizarEmpresas } = useSessao();
+  const navegar = useNavigate();
 
   const [email, setEmail] = useState("");
   const [papel, setPapel] = useState<Papel | "">("");
@@ -37,7 +46,7 @@ export function Pessoas() {
     if (r.tipo === "ok") {
       setDados(r.dados);
       setFalha(null);
-    } else if (r.tipo === "sem_conexao") setFalha("sem_conexao");
+    } else if (ehFalhaDeRede(r)) setFalha(r.tipo);
     else if (r.status !== 401) setFalha("outro");
   }, [base]);
 
@@ -46,10 +55,19 @@ export function Pessoas() {
   }, [carregar]);
 
   if (falha && !dados) {
+    if (falha !== "outro") return <AlertaDeRede tipo={falha} aoTentar={() => void carregar()} />;
     return (
-      <Alerta tipo="error" titulo={falha === "sem_conexao" ? "Sem conexão" : "Não foi possível carregar as pessoas"}>
-        {falha === "sem_conexao" ? "Não conseguimos falar com o servidor. Verifique a internet." : undefined}
-      </Alerta>
+      <Alerta
+        tipo="error"
+        titulo="Não foi possível carregar as pessoas"
+        acao={
+          <div>
+            <button type="button" className="cg-btn cg-btn-secondary cg-btn-sm" onClick={() => void carregar()}>
+              Tentar de novo
+            </button>
+          </div>
+        }
+      />
     );
   }
   if (!dados) {
@@ -78,18 +96,28 @@ export function Pessoas() {
       setRetorno({ tipo: "sucesso", texto: "Convite enviado" });
       setEmail("");
       void carregar();
-    } else if (r.tipo === "sem_conexao") setRetorno({ tipo: "erro", texto: "Sem conexão" });
-    else if (r.status === 409) setRetorno({ tipo: "aviso", texto: "Esta pessoa já tem acesso a esta empresa." });
+    } else if (ehFalhaDeRede(r)) setRetorno({ tipo: "erro", texto: textoDeRede(r.tipo) });
+    else if (r.status === 502 && r.codigo === "email_nao_enviado") {
+      // O convite foi gravado; só o e-mail não saiu. A lista recarrega para mostrá-lo como pendente.
+      setRetorno({ tipo: "erro", texto: r.mensagem || "O convite foi criado, mas o e-mail não saiu. Tente reenviar." });
+      setEmail("");
+      void carregar();
+    } else if (r.status === 409) setRetorno({ tipo: "aviso", texto: "Esta pessoa já tem acesso a esta empresa." });
     else if (r.status === 403) setRetorno({ tipo: "erro", texto: "Você não pode convidar para este papel." });
-    else if (r.status === 400) setErroEmail("Informe um e-mail válido.");
+    else if (r.status === 400) setErroEmail(r.campos?.find((c) => c.campo === "email")?.mensagem || "Informe um e-mail válido.");
     else if (r.status !== 401) setRetorno({ tipo: "erro", texto: "Não foi possível enviar o convite." });
   }
 
   async function remover(usuarioId: string) {
     setRetorno(null);
     const r = await requisitar("DELETE", `${base}/vinculos/${usuarioId}`, { logada: true });
-    if (r.tipo === "ok") void carregar();
-    else if (r.tipo === "sem_conexao") setRetorno({ tipo: "erro", texto: "Sem conexão" });
+    if (r.tipo === "ok") {
+      if (estado.status === "logada" && usuarioId === estado.usuario.id) {
+        // Saiu da própria empresa: não há mais o que mostrar aqui.
+        atualizarEmpresas(estado.empresas.filter((e) => e.id !== empresa.id));
+        navegar("/empresas");
+      } else void carregar();
+    } else if (ehFalhaDeRede(r)) setRetorno({ tipo: "erro", texto: textoDeRede(r.tipo) });
     else if (r.status === 409) setRetorno({ tipo: "erro", texto: MOTIVO_ULTIMO_TITULAR });
     else if (r.status === 403) setRetorno({ tipo: "erro", texto: "Só o titular pode remover pessoas." });
     else if (r.status !== 401) setRetorno({ tipo: "erro", texto: "Não foi possível remover o acesso." });

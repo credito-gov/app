@@ -27,7 +27,9 @@ export type Resultado<T> =
       campos?: CampoInvalido[];
       regra?: string;
     }
-  | { tipo: "sem_conexao" };
+  | { tipo: "sem_conexao" }
+  // 502, 503 e 504: o servidor ou o proxy não está respondendo.
+  | { tipo: "servidor_indisponivel" };
 
 export type MotivoPerda = "expirada" | "sem_sessao";
 
@@ -66,19 +68,32 @@ export async function requisitar<T = unknown>(
   } catch {
     return { tipo: "sem_conexao" };
   }
-  if (resposta.status === 502 || resposta.status === 503 || resposta.status === 504) {
-    return { tipo: "sem_conexao" };
-  }
-
   let corpo: unknown = undefined;
+  let ilegivel = false;
   try {
     const texto = await resposta.text();
     if (texto) corpo = JSON.parse(texto);
   } catch {
     corpo = undefined;
+    ilegivel = true;
   }
 
-  if (resposta.ok) return { tipo: "ok", status: resposta.status, dados: corpo as T };
+  // 502, 503 e 504 sem o corpo de erro da API vêm do proxy ou do servidor fora do ar. A API
+  // também responde 502 (email_nao_enviado), e esse segue como erro tipado.
+  if (
+    (resposta.status === 502 || resposta.status === 503 || resposta.status === 504) &&
+    typeof (corpo as { erro?: unknown } | undefined)?.erro !== "string"
+  ) {
+    return { tipo: "servidor_indisponivel" };
+  }
+
+  if (resposta.ok) {
+    // Resposta de sucesso que não é JSON (página de erro de proxy, por exemplo) não é sucesso.
+    if (ilegivel && resposta.status !== 204) {
+      return { tipo: "erro", status: resposta.status, codigo: "resposta_invalida", mensagem: "" };
+    }
+    return { tipo: "ok", status: resposta.status, dados: corpo as T };
+  }
 
   const erro = (corpo ?? {}) as Record<string, unknown>;
   const codigo = typeof erro.erro === "string" ? erro.erro : "erro_desconhecido";

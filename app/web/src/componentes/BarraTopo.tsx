@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 import type { Empresa } from "../api/cliente";
 import { useSessao } from "../sessao/ProvedorSessao";
+import { Alerta } from "./Alerta";
 import { TrocaEmpresa } from "./TrocaEmpresa";
 
 function iniciais(nome: string): string {
@@ -16,12 +18,17 @@ export function BarraTopo({ empresa, outras }: { empresa: Empresa; outras: Empre
   const navegar = useNavigate();
   const nomeUsuario = estado.status === "logada" ? estado.usuario.nome : "";
 
+  const [erroSaida, setErroSaida] = useState(false);
+
   async function aoSair() {
-    await sair();
-    navegar("/entrar", { replace: true });
+    setErroSaida(false);
+    // Só sai da tela se o servidor encerrou a sessão; senão ela continuaria aberta.
+    if (await sair()) navegar("/entrar", { replace: true });
+    else setErroSaida(true);
   }
 
   return (
+    <>
     <header className="cg-appbar">
       <img className="cg-appbar-logo" src="/logo.png" alt="CreditoGov" />
       <nav className="cg-topnav" aria-label="Principal">
@@ -49,5 +56,7 @@ export function BarraTopo({ empresa, outras }: { empresa: Empresa; outras: Empre
         </button>
       </div>
     </header>
+    {erroSaida ? <Alerta tipo="error" titulo="Não conseguimos encerrar a sessão no servidor. Tente de novo." /> : null}
+    </>
   );
 }

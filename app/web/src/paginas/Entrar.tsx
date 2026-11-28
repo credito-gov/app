@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import type { Resultado, DadosSessao } from "../api/cliente";
 import { Alerta } from "../componentes/Alerta";
+import { AlertaDeRede, ehFalhaDeRede, type FalhaDeRede } from "../componentes/AlertaDeRede";
 import { CampoTexto } from "../componentes/Campo";
 import { CampoSenha } from "../componentes/CampoSenha";
 import { Icone } from "../componentes/Icone";
@@ -9,7 +10,7 @@ import { PainelMarca } from "../componentes/PainelMarca";
 import { useSessao } from "../sessao/ProvedorSessao";
 import { destinoPosLogin } from "../sessao/destino";
 
-type Falha = "credencial" | "muitas_tentativas" | "sem_conexao" | "outro" | null;
+type Falha = "credencial" | "muitas_tentativas" | FalhaDeRede | "outro" | null;
 
 export function Entrar() {
   const { entrar } = useSessao();
@@ -38,8 +39,8 @@ export function Entrar() {
 
     if (r.tipo === "ok") {
       navegar(destinoPosLogin(r.dados.empresas), { replace: true });
-    } else if (r.tipo === "sem_conexao") {
-      setFalha("sem_conexao");
+    } else if (ehFalhaDeRede(r)) {
+      setFalha(r.tipo);
     } else if (r.status === 401) {
       setFalha("credencial");
     } else if (r.status === 429) {
@@ -65,6 +66,9 @@ export function Entrar() {
           <p className="entrar-subtitulo">Use o e-mail cadastrado no CreditoGov.</p>
 
           {motivo === "expirada" ? <Alerta tipo="info" titulo="Sua sessão expirou. Entre de novo." /> : null}
+          {motivo === "convite_aceito" ? (
+            <Alerta tipo="success" titulo="Convite aceito. Entre com seu e-mail e senha." />
+          ) : null}
           {motivo === "senha_alterada" ? (
             <Alerta tipo="success" titulo="Senha alterada. Entre com a nova senha." />
           ) : null}
@@ -77,20 +81,8 @@ export function Entrar() {
               Tente de novo em alguns instantes.
             </Alerta>
           ) : null}
-          {falha === "sem_conexao" ? (
-            <Alerta
-              tipo="error"
-              titulo="Sem conexão"
-              acao={
-                <div>
-                  <button type="button" className="cg-btn cg-btn-secondary cg-btn-sm" onClick={() => void enviar()}>
-                    Tentar de novo
-                  </button>
-                </div>
-              }
-            >
-              Não conseguimos falar com o servidor. Verifique a internet.
-            </Alerta>
+          {falha === "sem_conexao" || falha === "servidor_indisponivel" ? (
+            <AlertaDeRede tipo={falha} aoTentar={() => void enviar()} />
           ) : null}
 
           <CampoTexto

@@ -2,11 +2,12 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
 import { requisitar } from "../api/cliente";
 import { Alerta } from "../componentes/Alerta";
+import { AlertaDeRede, ehFalhaDeRede, type FalhaDeRede } from "../componentes/AlertaDeRede";
 import { CampoTexto } from "../componentes/Campo";
 import { Icone } from "../componentes/Icone";
 import { PaginaCartao } from "../componentes/PaginaCartao";
 
-type Estado = "formulario" | "enviado" | "muitas_tentativas" | "sem_conexao";
+type Estado = "formulario" | "enviado" | "muitas_tentativas" | "erro" | FalhaDeRede;
 
 export function EsqueciSenha() {
   const [email, setEmail] = useState("");
@@ -14,8 +15,8 @@ export function EsqueciSenha() {
   const [estado, setEstado] = useState<Estado>("formulario");
   const [enviando, setEnviando] = useState(false);
 
-  async function enviar(evento: FormEvent) {
-    evento.preventDefault();
+  async function enviar(evento?: FormEvent) {
+    evento?.preventDefault();
     if (email.trim() === "") {
       setErro("Informe o e-mail.");
       return;
@@ -24,9 +25,10 @@ export function EsqueciSenha() {
     setEnviando(true);
     const r = await requisitar("POST", "/api/recuperacao", { corpo: { email: email.trim() } });
     setEnviando(false);
-    if (r.tipo === "sem_conexao") setEstado("sem_conexao");
+    if (ehFalhaDeRede(r)) setEstado(r.tipo);
     else if (r.tipo === "erro" && r.status === 429) setEstado("muitas_tentativas");
-    else setEstado("enviado");
+    else if (r.tipo === "ok" && r.status === 202) setEstado("enviado");
+    else setEstado("erro");
   }
 
   if (estado === "enviado") {
@@ -45,10 +47,21 @@ export function EsqueciSenha() {
       {estado === "muitas_tentativas" ? (
         <Alerta tipo="warning" titulo="Muitas tentativas. Tente de novo em alguns minutos." />
       ) : null}
-      {estado === "sem_conexao" ? (
-        <Alerta tipo="error" titulo="Sem conexão">
-          Não conseguimos falar com o servidor. Verifique a internet.
-        </Alerta>
+      {estado === "sem_conexao" || estado === "servidor_indisponivel" ? (
+        <AlertaDeRede tipo={estado} aoTentar={() => void enviar()} />
+      ) : null}
+      {estado === "erro" ? (
+        <Alerta
+          tipo="error"
+          titulo="Não foi possível enviar o link. Tente de novo."
+          acao={
+            <div>
+              <button type="button" className="cg-btn cg-btn-secondary cg-btn-sm" onClick={() => void enviar()}>
+                Tentar de novo
+              </button>
+            </div>
+          }
+        />
       ) : null}
       <form className="entrar-cartao" onSubmit={enviar} noValidate>
         <CampoTexto id="email" rotulo="E-mail" tipo="email" autoComplete="username" valor={email} aoMudar={setEmail} erro={erro} desabilitado={enviando} />

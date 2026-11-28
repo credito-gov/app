@@ -3,13 +3,14 @@ import { useNavigate } from "react-router";
 import { requisitar, type DadosSessao, type Papel } from "../api/cliente";
 import { ROTULO_PAPEL } from "../api/papeis";
 import { Alerta } from "../componentes/Alerta";
+import { AlertaDeRede, ehFalhaDeRede, type FalhaDeRede } from "../componentes/AlertaDeRede";
 import { CampoTexto } from "../componentes/Campo";
 import { CampoSenha } from "../componentes/CampoSenha";
 import { Icone } from "../componentes/Icone";
 import { PaginaCartao, REGRA_SENHA } from "../componentes/PaginaCartao";
 import { useSessao } from "../sessao/ProvedorSessao";
 import { destinoPosLogin } from "../sessao/destino";
-import { apagarFragmento, lerFragmento } from "../sessao/fragmento";
+import { lerFragmento, useApagarFragmento } from "../sessao/fragmento";
 
 type Convite = {
   empresa: { nome: string; cnpjRaizFormatado: string };
@@ -18,7 +19,12 @@ type Convite = {
   contaExistente: boolean;
 };
 
-type Carga = { tipo: "carregando" } | { tipo: "invalido" } | { tipo: "sem_conexao" } | { tipo: "ok"; convite: Convite };
+type Carga =
+  | { tipo: "carregando" }
+  | { tipo: "invalido" }
+  | { tipo: "erro" }
+  | { tipo: "rede"; falha: FalhaDeRede }
+  | { tipo: "ok"; convite: Convite };
 type Erros = { nome?: string; senha?: string; confirmacao?: string };
 
 export function AceitarConvite() {
@@ -35,12 +41,10 @@ export function AceitarConvite() {
   const [senha, setSenha] = useState("");
   const [confirmacao, setConfirmacao] = useState("");
   const [erros, setErros] = useState<Erros>({});
-  const [aviso, setAviso] = useState<"credencial" | "muitas_tentativas" | "sem_conexao" | "outro" | null>(null);
+  const [aviso, setAviso] = useState<"credencial" | "muitas_tentativas" | FalhaDeRede | "outro" | null>(null);
   const [enviando, setEnviando] = useState(false);
 
-  useEffect(() => {
-    apagarFragmento();
-  }, []);
+  useApagarFragmento();
 
   useEffect(() => {
     if (!empresaId || !token) return;
@@ -48,8 +52,9 @@ export function AceitarConvite() {
     void requisitar<Convite>("POST", "/api/convites/consultar", { corpo: { empresaId, token } }).then((r) => {
       if (!ativo) return;
       if (r.tipo === "ok") setCarga({ tipo: "ok", convite: r.dados });
-      else if (r.tipo === "sem_conexao") setCarga({ tipo: "sem_conexao" });
-      else setCarga({ tipo: "invalido" });
+      else if (ehFalhaDeRede(r)) setCarga({ tipo: "rede", falha: r.tipo });
+      else if (r.status === 410) setCarga({ tipo: "invalido" });
+      else setCarga({ tipo: "erro" });
     });
     return () => {
       ativo = false;
@@ -72,29 +77,28 @@ export function AceitarConvite() {
       </PaginaCartao>
     );
   }
-  if (carga.tipo === "sem_conexao") {
+  if (carga.tipo === "rede" || carga.tipo === "erro") {
+    const tentarDeNovo = () => {
+      setCarga({ tipo: "carregando" });
+      setTentativa((t) => t + 1);
+    };
     return (
       <PaginaCartao titulo="Convite">
-        <Alerta
-          tipo="error"
-          titulo="Sem conexão"
-          acao={
-            <div>
-              <button
-                type="button"
-                className="cg-btn cg-btn-secondary cg-btn-sm"
-                onClick={() => {
-                  setCarga({ tipo: "carregando" });
-                  setTentativa((t) => t + 1);
-                }}
-              >
-                Tentar de novo
-              </button>
-            </div>
-          }
-        >
-          Não conseguimos falar com o servidor. Verifique a internet.
-        </Alerta>
+        {carga.tipo === "rede" ? (
+          <AlertaDeRede tipo={carga.falha} aoTentar={tentarDeNovo} />
+        ) : (
+          <Alerta
+            tipo="error"
+            titulo="Não foi possível carregar o convite"
+            acao={
+              <div>
+                <button type="button" className="cg-btn cg-btn-secondary cg-btn-sm" onClick={tentarDeNovo}>
+                  Tentar de novo
+                </button>
+              </div>
+            }
+          />
+        )}
       </PaginaCartao>
     );
   }
@@ -124,8 +128,11 @@ export function AceitarConvite() {
     if (r.tipo === "ok") {
       iniciarSessao(r.dados);
       navegar(destinoPosLogin(r.dados.empresas), { replace: true });
-    } else if (r.tipo === "sem_conexao") setAviso("sem_conexao");
-    else if (r.status === 410) setCarga({ tipo: "invalido" });
+    } else if (ehFalhaDeRede(r)) setAviso(r.tipo);
+    else if (r.codigo === "convite_aceito_sem_sessao") {
+      // O aceite foi gravado, mas a sessão não abriu: entrar com a senha escolhida.
+      navegar("/entrar?motivo=convite_aceito", { replace: true });
+    } else if (r.status === 410) setCarga({ tipo: "invalido" });
     else if (r.status === 401) setAviso("credencial");
     else if (r.status === 429) setAviso("muitas_tentativas");
     else if (r.status === 400 && r.codigo === "senha_invalida") setErros({ senha: r.mensagem || REGRA_SENHA });
@@ -144,11 +151,7 @@ export function AceitarConvite() {
       {aviso === "muitas_tentativas" ? (
         <Alerta tipo="warning" titulo="Muitas tentativas. Tente de novo em alguns minutos." />
       ) : null}
-      {aviso === "sem_conexao" ? (
-        <Alerta tipo="error" titulo="Sem conexão">
-          Não conseguimos falar com o servidor. Verifique a internet.
-        </Alerta>
-      ) : null}
+      {aviso === "sem_conexao" || aviso === "servidor_indisponivel" ? <AlertaDeRede tipo={aviso} /> : null}
       {aviso === "outro" ? <Alerta tipo="error" titulo="Não foi possível aceitar o convite" /> : null}
       <form className="entrar-cartao" onSubmit={enviar} noValidate>
         {convite.contaExistente ? (

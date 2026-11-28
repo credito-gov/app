@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { Link, Outlet, useParams } from "react-router";
 import { requisitar, type Empresa } from "../api/cliente";
 import { Alerta } from "./Alerta";
+import { AlertaDeRede, ehFalhaDeRede, type FalhaDeRede } from "./AlertaDeRede";
 import { BarraTopo } from "./BarraTopo";
 
 const ContextoEmpresa = createContext<Empresa | null>(null);
@@ -16,7 +17,8 @@ export function useEmpresaEmFoco(): Empresa {
 type Carga =
   | { tipo: "carregando" }
   | { tipo: "nao_encontrada" }
-  | { tipo: "sem_conexao" }
+  | { tipo: "rede"; falha: FalhaDeRede }
+  | { tipo: "erro" }
   | { tipo: "ok"; empresa: Empresa; todas: Empresa[] };
 
 export function LayoutEmpresa() {
@@ -33,11 +35,16 @@ export function LayoutEmpresa() {
     ]).then(([empresa, todas]) => {
       if (!ativo) return;
       if (empresa.tipo === "ok") {
+        // A lista serve só para trocar de empresa. Se falhar, a página segue com a empresa em
+        // foco (sem a troca) e a falha fica registrada no console.
+        if (todas.tipo !== "ok") console.error("Falha ao carregar GET /api/empresas; a troca de empresa fica indisponível.", todas);
         setCarga({ tipo: "ok", empresa: empresa.dados, todas: todas.tipo === "ok" ? todas.dados : [empresa.dados] });
-      } else if (empresa.tipo === "sem_conexao") {
-        setCarga({ tipo: "sem_conexao" });
-      } else if (empresa.status !== 401) {
+      } else if (ehFalhaDeRede(empresa)) {
+        setCarga({ tipo: "rede", falha: empresa.tipo });
+      } else if (empresa.status === 404) {
         setCarga({ tipo: "nao_encontrada" });
+      } else if (empresa.status !== 401) {
+        setCarga({ tipo: "erro" });
       }
     });
     return () => {
@@ -62,22 +69,25 @@ export function LayoutEmpresa() {
       </main>
     );
   }
-  if (carga.tipo === "sem_conexao") {
+  if (carga.tipo === "rede" || carga.tipo === "erro") {
+    const tentarDeNovo = () => setTentativa((t) => t + 1);
     return (
       <main className="conteudo">
-        <Alerta
-          tipo="error"
-          titulo="Sem conexão"
-          acao={
-            <div>
-              <button type="button" className="cg-btn cg-btn-secondary cg-btn-sm" onClick={() => setTentativa((t) => t + 1)}>
-                Tentar de novo
-              </button>
-            </div>
-          }
-        >
-          Não conseguimos falar com o servidor. Verifique a internet.
-        </Alerta>
+        {carga.tipo === "rede" ? (
+          <AlertaDeRede tipo={carga.falha} aoTentar={tentarDeNovo} />
+        ) : (
+          <Alerta
+            tipo="error"
+            titulo="Não foi possível carregar a empresa"
+            acao={
+              <div>
+                <button type="button" className="cg-btn cg-btn-secondary cg-btn-sm" onClick={tentarDeNovo}>
+                  Tentar de novo
+                </button>
+              </div>
+            }
+          />
+        )}
       </main>
     );
   }

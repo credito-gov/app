@@ -1,11 +1,12 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { requisitar } from "../api/cliente";
 import { Alerta } from "../componentes/Alerta";
+import { AlertaDeRede, ehFalhaDeRede, type FalhaDeRede } from "../componentes/AlertaDeRede";
 import { CampoSenha } from "../componentes/CampoSenha";
 import { Icone } from "../componentes/Icone";
 import { PaginaCartao, REGRA_SENHA } from "../componentes/PaginaCartao";
-import { apagarFragmento, lerFragmento } from "../sessao/fragmento";
+import { lerFragmento, useApagarFragmento } from "../sessao/fragmento";
 
 export function RedefinirSenha() {
   const navegar = useNavigate();
@@ -15,12 +16,10 @@ export function RedefinirSenha() {
   const [confirmacao, setConfirmacao] = useState("");
   const [erroSenha, setErroSenha] = useState<string | undefined>();
   const [erroConfirmacao, setErroConfirmacao] = useState<string | undefined>();
-  const [aviso, setAviso] = useState<"muitas_tentativas" | "sem_conexao" | "outro" | null>(null);
+  const [aviso, setAviso] = useState<"muitas_tentativas" | FalhaDeRede | "outro" | null>(null);
   const [enviando, setEnviando] = useState(false);
 
-  useEffect(() => {
-    apagarFragmento();
-  }, []);
+  useApagarFragmento();
 
   if (linkInvalido) {
     return (
@@ -50,7 +49,7 @@ export function RedefinirSenha() {
     const r = await requisitar("POST", "/api/recuperacao/confirmar", { corpo: { token, senha } });
     setEnviando(false);
     if (r.tipo === "ok") navegar("/entrar?motivo=senha_alterada", { replace: true });
-    else if (r.tipo === "sem_conexao") setAviso("sem_conexao");
+    else if (ehFalhaDeRede(r)) setAviso(r.tipo);
     else if (r.status === 410) setLinkInvalido(true);
     else if (r.status === 400 && r.codigo === "senha_invalida") setErroSenha(r.mensagem || REGRA_SENHA);
     else if (r.status === 429) setAviso("muitas_tentativas");
@@ -59,11 +58,7 @@ export function RedefinirSenha() {
 
   return (
     <PaginaCartao titulo="Nova senha">
-      {aviso === "sem_conexao" ? (
-        <Alerta tipo="error" titulo="Sem conexão">
-          Não conseguimos falar com o servidor. Verifique a internet.
-        </Alerta>
-      ) : null}
+      {aviso === "sem_conexao" || aviso === "servidor_indisponivel" ? <AlertaDeRede tipo={aviso} /> : null}
       {aviso === "muitas_tentativas" ? (
         <Alerta tipo="warning" titulo="Muitas tentativas. Tente de novo em alguns minutos." />
       ) : null}
