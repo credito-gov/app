@@ -355,7 +355,7 @@ describe("log de retorno recusado (revisão B8)", () => {
     expect(e["level"]).toBe(40);
     expect(e).toMatchObject({ servico: "creditos", consultaId: r.consultaId, motivo: "fora_do_schema", causa: "fora_do_schema", divergencias: 1 });
     expect(e["arquivoId"]).toBe(r.arquivoId);
-    expect(e["ocorrencias"]).toEqual(["/apuracao/0/creditos/0#required"]);
+    expect(e["ocorrencias"]).toEqual(["/apuracao/#/creditos/##required"]);
     const tudo = linhas.join("");
     for (const proibido of ["must have required property", "CHAVE-SIGILOSA", "4321.09", RAIZ, NI14]) expect(tudo, proibido).not.toContain(proibido);
   });
