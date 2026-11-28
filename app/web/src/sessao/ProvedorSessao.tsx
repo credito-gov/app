@@ -1,3 +1,4 @@
+import { QueryClientContext } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Navigate, Outlet } from "react-router";
 import {
@@ -36,13 +37,16 @@ const Contexto = createContext<ContextoSessao | null>(null);
 export function ProvedorSessao({ children }: { children: ReactNode }) {
   const [estado, setEstado] = useState<EstadoSessao>({ status: "carregando" });
   const [tentativa, setTentativa] = useState(0);
+  // O cache de busca do dashboard (AD-3), se houver: os dados de uma pessoa não ficam na aba quando outra entrar.
+  const cache = useContext(QueryClientContext);
 
   useEffect(() => {
-    definirAoPerderSessao((motivo) =>
-      setEstado(motivo === "expirada" ? { status: "anonima", motivo: "expirada" } : { status: "anonima" }),
-    );
+    definirAoPerderSessao((motivo) => {
+      cache?.clear();
+      setEstado(motivo === "expirada" ? { status: "anonima", motivo: "expirada" } : { status: "anonima" });
+    });
     return () => definirAoPerderSessao(null);
-  }, []);
+  }, [cache]);
 
   useEffect(() => {
     let ativo = true;
@@ -84,9 +88,10 @@ export function ProvedorSessao({ children }: { children: ReactNode }) {
   const sair = useCallback(async () => {
     const r = await requisitar("DELETE", "/api/sessao");
     if (r.tipo !== "ok") return false;
+    cache?.clear();
     setEstado({ status: "anonima" });
     return true;
-  }, []);
+  }, [cache]);
 
   const valor = useMemo(
     () => ({ estado, entrar, iniciarSessao, recarregar, atualizarEmpresas, sair }),

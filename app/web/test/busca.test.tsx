@@ -1,5 +1,5 @@
 // Busca de dados do dashboard (AD-3, DT-5; CA-12): cache por empresa e recorte, sem estado global.
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider, type UseQueryResult } from "@tanstack/react-query";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
@@ -30,7 +30,7 @@ function servir(extra: (c: Chamada) => RespostaSimulada | undefined = () => unde
 
 function Painel({ empresa, periodo = null }: { empresa: string; periodo?: string | null }) {
   const q = usePainel(empresa, periodo);
-  return <ResultadoDaBusca consulta={q}>{(d: { rotulo: string }) => <p>dados {d.rotulo}</p>}</ResultadoDaBusca>;
+  return <ResultadoDaBusca consulta={q as unknown as UseQueryResult<{ rotulo: string }, Error>}>{(d) => <p>dados {d.rotulo}</p>}</ResultadoDaBusca>;
 }
 
 function montar(filho: React.ReactNode, cliente = criarClienteDeCache()) {
