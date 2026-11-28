@@ -107,6 +107,13 @@ describe("CA-17: consulta lida sem nenhum crédito", () => {
     const resto = (creditos().textContent ?? "").replace(frase, "");
     expect(resto).not.toContain("R$");
   });
+
+  it("sem data da última consulta aceita, a mensagem não tem data nem ponto solto", async () => {
+    await abrir({ ...painelVazio, situacao: { ...painelVazio.situacao, creditos: { ...painelVazio.situacao.creditos, ultimaAceitaEm: null } } });
+    const frase = "A Receita não devolveu créditos nas consultas feitas. Isto não é um saldo de R$ 0,00.";
+    expect(await screen.findByText(frase)).toBeInTheDocument();
+    expect(creditos().textContent).not.toContain("até .");
+  });
 });
 
 describe("CA-18 e CA-19: um serviço por vez, falha com e sem números anteriores", () => {
