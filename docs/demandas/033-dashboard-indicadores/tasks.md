@@ -52,8 +52,8 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 6 | Validação revisada (múltiplo de 0,01 com `big.js`) e `registrarLeitura` | Leitura; DT-6 | idem 5 | testes da task 5 passam | ☑ |
 | 7 | Testes do gerador fictício | Cenários fictícios › Gerador | CA-26 | falham | ☑ |
 | 8 | Implementar o gerador e os nove cenários | idem 7 | idem 7 | testes da task 7 passam | ☑ |
-| 9 | Testes de consolidação e de emitente | Indicadores › Consolidação; Emitente; P-S1 | CA-6, CA-7, CA-8, CA-24 | falham | ☐ |
-| 10 | Implementar `consolidacao.ts` e `emitente.ts` | idem 9; DT-4 | idem 9 | testes da task 9 passam | ☐ |
+| 9 | Testes de consolidação e de emitente | Indicadores › Consolidação; Emitente; P-S1 | CA-6, CA-7, CA-8, CA-24 | falham | ☑ |
+| 10 | Implementar `consolidacao.ts` e `emitente.ts` | idem 9; DT-4 | idem 9 | testes da task 9 passam | ☑ |
 | 11 | Testes de `situacaoDoServico` | Indicadores › Situação de cada serviço | CA-14 a CA-21 | falham | ☐ |
 | 12 | Implementar `situacao.ts` | idem 11 | idem 11 | testes da task 11 passam | ☐ |
 | 13 | Testes de `indicadoresDeCredito` e `indicadoresDeDebito` | Indicadores › Créditos; Débitos; DT-10; P-S2; P-S3 | CA-1 a CA-13, CA-23, CA-25 | falham | ☐ |
