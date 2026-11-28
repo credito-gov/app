@@ -82,7 +82,7 @@ A API não está nos manuais do Split Payment, que tratam de outra plataforma (e
 ## Outras decisões em aberto
 
 - **Vários CNPJs por cliente:** cadastros separados ou agrupados?
-- **Papel do contador no sistema:** tem acesso próprio à carteira dele?
+- **Papel do contador no sistema:** **resolvida em 2026-11-27** (demanda 034): o contador tem acesso próprio, por vínculo, em cada empresa que o convidou. A carteira com valores é da demanda 033.
 - **Stack do backend e hospedagem:** **resolvida em 2026-11-25** (demanda 031), em [`../arquitetura/README.md`](../arquitetura/README.md). Tipo de hospedagem escolhido (nuvem gerenciada); o provedor fica pendente da PD-1 (preço sem fonte).
 - **Login do gov.br:** um software privado pode usar? Em que condições? **Efeito:** a autenticação própria com a entidade `identidade` aceita o gov.br como mais uma forma de login se for possível; se não, nada muda (AD-12). **Como obter:** documentação oficial do gov.br para integradores, a trazer para `docs/referencias/`. Sem fonte hoje.
 - **LGPD:** perguntas para advogado, sem afirmar regra ([`../arquitetura/README.md`](../arquitetura/README.md), seção 8): base legal para tratar os dados da empresa e de quem gerou a credencial; prazo de guarda depois da saída do cliente; se a hospedagem fora do Brasil seria transferência internacional e o que ela exige; o tratamento do `niConsumidor` quando for CPF.

@@ -649,6 +649,7 @@ Os nomes são a proposta deste documento; a primeira demanda de backend pode aju
 | `CREDITOGOV_SESSAO_SEGREDO` | Segredo da sessão (AD-12) |
 | `APURACAO_URL_TOKEN` e `APURACAO_URL_BASE` | Endereços da API da Receita; os mesmos nomes da PoC |
 | `CREDITOGOV_AMBIENTE` | local, homologação ou produção |
+| `CREDITOGOV_BANCO_MIGRACAO_URL`, `CREDITOGOV_WEB_URL`, `CREDITOGOV_EMAIL`, `CREDITOGOV_API_PORTA`, `CREDITOGOV_CONFIAR_PROXY` | Acrescentadas pela demanda 034: papel de migração, URL da web, adaptador de e-mail (`arquivo` ou `memoria`), porta da API e proxies confiáveis (lista de endereços IP, CIDRs ou `loopback`/`linklocal`/`uniquelocal`; padrão vazio, não confia em proxy) |
 
 **A credencial de cada cliente não é variável de ambiente:** fica no banco, cifrada (AD-10). Os valores de cada ambiente ficam no gerenciador de segredos do provedor, nunca no repositório (regra de [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md) §6).
 
@@ -713,3 +714,6 @@ Sem fonte em `docs/referencias/`. Registradas em [`hipoteses.md`](../produto/hip
 |---|---|---|
 | 2026-11-25 | AD-1 a AD-14 | Decididas pelo responsável ao aprovar a Spec da demanda 031, com as recomendações; na AD-7, provedor pendente da PD-1. Nada construído |
 | 2026-11-26 | AD-6 | Papel de agendamento do coletor (opção (a)) dentro da escolha A: visão ou função `SECURITY DEFINER` de um papel próprio, sem login, com `BYPASSRLS`, que devolve só empresa, serviço, estado e horário; o papel de agendamento só executa a função. Decidido na revisão da demanda 031 |
+| 2026-11-27 | AD-12 | Demanda 034 (D-1): a lista de provedores de login é só a senha por ora. Google e Microsoft ficam para demanda própria; a entidade `identidade` segue pronta para eles |
+| 2026-11-27 | Seção 9 | Demanda 034: variáveis novas (`CREDITOGOV_BANCO_MIGRACAO_URL`, `CREDITOGOV_WEB_URL`, `CREDITOGOV_EMAIL`, `CREDITOGOV_API_PORTA`, `CREDITOGOV_CONFIAR_PROXY`). `CREDITOGOV_SESSAO_SEGREDO` também é a chave de HMAC dos tokens |
+| 2026-11-27 | R-3 | Demanda 034: com PostgreSQL 18.7, o isolamento por linha e o `numeric` como texto passaram com **Kysely**; não houve troca para o Drizzle. O item 3 do teste de isolamento (papel de agendamento do coletor) fica com a demanda do coletor |
