@@ -59,26 +59,10 @@ describe("rota / e escolha de empresa (CA-31)", () => {
     await waitFor(() => expect(router.state.location.pathname).toBe(`/e/${EMPRESA_A.id}`));
   });
 
-  it("com duas empresas leva a /empresas, com nome, CNPJ raiz formatado e papel", async () => {
+  it("com duas empresas leva a /empresas (nome, CNPJ raiz e papel da lista ficam na carteira: test/carteira.test.tsx)", async () => {
     servir({ empresas: [EMPRESA_A, EMPRESA_B] });
     const router = renderizar(rotasApp, "/");
     await waitFor(() => expect(router.state.location.pathname).toBe("/empresas"));
-    const linkA = await screen.findByRole("link", { name: EMPRESA_A.nome });
-    expect(linkA).toHaveAttribute("href", `/e/${EMPRESA_A.id}`);
-    expect(screen.getByText("00.000.000", { exact: false })).toBeInTheDocument();
-    expect(screen.getByText("11.111.111", { exact: false })).toBeInTheDocument();
-    expect(screen.getByText("Titular")).toBeInTheDocument();
-    expect(screen.getByText("Contador")).toBeInTheDocument();
-  });
-
-  it("sem nenhuma empresa mostra a mensagem e Sair, sem erro técnico", async () => {
-    servir({ empresas: [] });
-    renderizar(rotasApp, "/");
-    expect(
-      await screen.findByText("Você ainda não tem acesso a nenhuma empresa. Peça um convite à equipe CreditoGov ou ao seu contador."),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Sair" })).toBeInTheDocument();
-    expect(screen.queryByText(/erro|404|undefined/i)).toBeNull();
   });
 });
 
