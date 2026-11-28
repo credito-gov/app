@@ -58,4 +58,17 @@ describe("varredura do repositório", () => {
     }
     expect(achados).toEqual([]);
   });
+
+  test("a raiz de CNPJ 00000000 (de empresa real) não aparece em src/, test/ nem README.md (035)", () => {
+    const uuid = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+    const proibida = /00000000|00\.000\.000/;
+    const achados: string[] = [];
+    for (const c of todos) {
+      const r = rel(c);
+      if (!r.startsWith("src/") && !r.startsWith("test/") && r !== "README.md") continue;
+      if (r === "test/varredura.test.ts") continue;
+      if (proibida.test(readFileSync(c, "utf8").replace(uuid, ""))) achados.push(r);
+    }
+    expect(achados).toEqual([]);
+  });
 });
