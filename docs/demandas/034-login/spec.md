@@ -138,7 +138,7 @@ A API também responde com `Referrer-Policy: no-referrer`, `X-Content-Type-Optio
 
 `src/autenticacao/limite.ts`, com relógio injetável para os testes.
 
-- **Chaves:** `HMAC(e-mail normalizado)` e `HMAC(endereço de origem)`, contadas em separado e por tipo (`login` ou `recuperacao`). O endereço de origem é `request.ip`. `CREDITOGOV_CONFIAR_PROXY` é o número de saltos de proxy confiáveis (padrão 0), passado ao `trustProxy` do Fastify (DT-18).
+- **Chaves:** `HMAC(e-mail normalizado)` e `HMAC(endereço de origem)`, contadas em separado e por tipo (`login` ou `recuperacao`). O endereço de origem é `request.ip`. `CREDITOGOV_CONFIAR_PROXY` é a lista dos endereços de proxy confiáveis, passada ao `trustProxy` do Fastify. Vazia ou ausente, a API não confia em proxy nenhum (DT-18).
 - **Login:** antes de verificar a senha, se alguma das duas chaves tem `bloqueio_acesso.ate > agora`, a resposta é `429 muitas_tentativas` ("Muitas tentativas. Tente de novo em alguns minutos."), sem verificar a senha. Cada falha grava uma linha em `falha_acesso` para as duas chaves. Ao chegar a 5 falhas nos últimos 15 minutos numa chave, ela fica bloqueada por 15 minutos (`ate = agora + 15 min`). O login certo apaga as falhas da chave do e-mail. As tentativas feitas durante o bloqueio não o prolongam.
 - **Recuperação:** cada pedido conta como uma ocorrência, exista ou não a conta, com a mesma regra de 5 em 15 minutos e bloqueio de 15 minutos. Como a contagem não depende de a conta existir, o limite não revela nada.
 - **Limpeza:** as linhas de `falha_acesso` com mais de 24 h são apagadas durante a própria gravação. Não há tarefa agendada.
@@ -215,7 +215,7 @@ app/web/src/
 
 - `ok`;
 - `erro` com o código da API;
-- `sem_conexao`, quando o `fetch` lança erro de rede ou a resposta é 502, 503 ou 504 do proxy.
+- `sem_conexao`, quando o `fetch` lança erro de rede ou a resposta é 502, 503 ou 504 do proxy. Uma resposta 502 com corpo de erro tipado da API (`{erro}`, por exemplo `email_nao_enviado`) é erro tipado, não `sem_conexao` (DT-19).
 
 Um `401` com `sessao_expirada` ou `sem_sessao` em rota logada leva a `/entrar?motivo=expirada` ou a `/entrar`. A 033 usa este cliente. A biblioteca de cache por empresa (AD-3) é decisão da Spec dela.
 
@@ -349,19 +349,19 @@ Desvios técnicos registrados depois da implementação e da rodada de correçã
 - **DT-15 — `naEmpresaFixada` em `transacao.ts`.** É uma função a mais, que fixa uma empresa sem conferir vínculo. Só dois pontos a usam: a consulta e a aceitação de convite pelo token (DT-6) e o `npm run admin` (DT-7). Nenhuma rota com sessão a usa; essas passam por `naEmpresa`.
 - **DT-16 — `rotaDeEmpresa` como `onRequest`**, não `preHandler`. A conferência de sessão e de empresa acontece antes da leitura do corpo. O contrato para a 033 não muda: `request.naEmpresa(fn)` e `request.naCarteira(fn)`.
 - **DT-17 — Lista de senhas comuns por dependência.** O responsável decidiu em 2026-11-27 usar `@zxcvbn-ts/language-common` 4.2.0 (licença MIT). A lista é filtrada em tempo de execução: 12 caracteres ou mais, depois de NFC, em minúsculas, o que dá 308 senhas. A lista é local, sem consulta a serviço externo. É assim que se lê o "guardada no próprio código" de CA-14 e de P-4.
-- **DT-18 — `CREDITOGOV_CONFIAR_PROXY` como número de saltos.** Era um booleano e passou a ser um inteiro maior ou igual a 0 (padrão 0). A API confia só nos N saltos mais próximos para obter o endereço de origem do limite de tentativas. No desenvolvimento, o proxy do Vite usa `xfwd: true` e o backend usa o valor 1.
+- **DT-18 — `CREDITOGOV_CONFIAR_PROXY` como lista de endereços.** Era um booleano. Na rodada de correção 1 passou a ser um número de saltos, e na rodada 2 (2026-11-28) passou a ser uma lista separada por vírgula de IPs, CIDRs ou dos nomes `loopback`, `linklocal` e `uniquelocal`, passada direto ao `trustProxy` do Fastify. Vazia ou ausente, que é o padrão, a API não confia em proxy nenhum e usa o endereço da conexão. No desenvolvimento, com o proxy do Vite (`xfwd: true`), o valor é `loopback`. **Motivo da troca:** com contagem de saltos, quem fala direto com a API consegue forjar a origem pelo `X-Forwarded-For` (o Fastify recusa a contagem de saltos por segurança). Com a lista, só o cabeçalho vindo de um proxy listado é considerado.
 - **DT-19 — Falhas de envio de e-mail e de sessão:**
   - **recuperação:** a resposta continua o mesmo `202`, e o log registra `email_falhou` sem e-mail. Assim a falha não revela se a conta existe (CA-23);
   - **convite:** responde `502 email_nao_enviado`, e quem convida sabe que o convite não chegou;
   - **aceite de convite:** se a gravação foi confirmada e a abertura da sessão falhou, responde `500 convite_aceito_sem_sessao`, e a web orienta a entrar pelo login;
-  - **web:** um estado `servidor_indisponivel` cobre 502, 503 e 504 sem corpo de erro tipado, separado de `sem_conexao`.
+  - **web:** vale o que foi aprovado em "Cliente da API". 502, 503 e 504 sem corpo de erro tipado da API viram `sem_conexao` ("Sem conexão"). Um 502 com corpo `{erro}`, como `email_nao_enviado`, continua erro tipado. O estado `servidor_indisponivel`, criado na rodada de correção 1, foi removido na rodada 2 (2026-11-28).
 - **DT-20 — Um só convite pendente por empresa e e-mail.** A migração `0001` cria o índice único parcial `convite_pendente_unico`, e `criarConvite` usa `pg_advisory_xact_lock` por empresa e e-mail, para dois convites simultâneos não ficarem pendentes juntos (CA-9).
 - **DT-21 — Recusa de papel com privilégio.** A API e o `npm run admin` conferem o papel conectado ao iniciar. Não sobem se ele for superusuário, tiver `BYPASSRLS` ou for dono de alguma tabela (AD-6, CA-2, CA-37).
 - **DT-22 — Raiz fictícia `22222222`** acrescentada às de teste, para casos com três empresas.
 
 Riscos novos:
 
-- **R-7. Número de saltos de proxy.** Atrás de proxy, `CREDITOGOV_CONFIAR_PROXY` precisa ser o número exato de saltos. Com um valor menor, todos os acessos parecem vir do proxy, e a chave de origem do limite fica compartilhada, de modo que um usuário bloqueia os outros. Com um valor maior, o cliente consegue forjar o endereço pelo `X-Forwarded-For` e escapar do limite por origem.
+- **R-7. Lista de endereços do proxy errada.** Atrás de proxy, `CREDITOGOV_CONFIAR_PROXY` precisa listar exatamente os endereços dos proxies confiáveis. Se faltar o proxy, todos os acessos parecem vir dele, e a chave de origem do limite fica compartilhada, de modo que um usuário bloqueia os outros. Se a lista for ampla demais e incluir endereços de onde o cliente consegue falar direto com a API, ele forja a origem pelo `X-Forwarded-For` e escapa do limite por origem.
 - **R-8. A raiz `00000000` não é fictícia.** Ela foi adotada como fictícia no design (032) e na US, mas é a raiz real de um CNPJ (Banco do Brasil). Fica nesta demanda para não divergir do design aprovado. A troca nos testes, nos dados de exemplo e no design é de uma demanda futura.
 
 ## Implantação
@@ -379,18 +379,18 @@ Riscos novos:
   - `CREDITOGOV_WEB_URL`: origem pública da web, usada nos links e na conferência de `Origin`;
   - `CREDITOGOV_EMAIL`: `arquivo` ou `memoria`;
   - `CREDITOGOV_API_PORTA`: padrão `3000`. A API escuta em `127.0.0.1`;
-  - `CREDITOGOV_CONFIAR_PROXY`: número de saltos de proxy confiáveis, inteiro maior ou igual a 0, padrão 0 (DT-18).
+  - `CREDITOGOV_CONFIAR_PROXY`: lista separada por vírgula de IPs, CIDRs ou `loopback`, `linklocal` e `uniquelocal`; vazia por padrão, sem confiar em proxy nenhum (DT-18).
 
   A `app/web` não tem variável: chama `/api` na mesma origem.
 - **Outros efeitos:** Docker Compose local com volume `creditogov-banco` e porta `127.0.0.1:5433`. E-mails locais em `app/backend/.local/emails/`. Sem cron, DNS, Keycloak ou serviço externo.
 - **Para ir ao ar** (demanda futura):
   - web e API na mesma origem, atrás de HTTPS, com `/api` encaminhado à API;
-  - `CREDITOGOV_CONFIAR_PROXY` com o número exato de proxies confiáveis à frente da API (DT-18 e R-7);
+  - `CREDITOGOV_CONFIAR_PROXY` com os endereços exatos dos proxies confiáveis à frente da API (DT-18 e R-7);
   - papéis com senha e sem `trust`;
   - segredo gerado e guardado no gerenciador de segredos;
   - um adaptador de e-mail real. Sem ele, a API recusa iniciar em `producao`.
 - **Antes:** `npm run banco:subir` e `npm run migrar`. **Depois:** `npm run admin -- criar-empresa` e `convidar` para o primeiro acesso, com dados fictícios no ambiente local.
-- **Riscos para ir ao ar:** R-7 (número de saltos de proxy) e R-8 (a raiz `00000000` é real e deve ser trocada nos dados de exemplo).
+- **Riscos para ir ao ar:** R-7 (lista de endereços do proxy errada) e R-8 (a raiz `00000000` é real e deve ser trocada nos dados de exemplo).
 - **Como voltar:** localmente, `npm run banco:apagar` apaga o volume. Não há nada publicado para desfazer.
 
 ## Estratégia de verificação
