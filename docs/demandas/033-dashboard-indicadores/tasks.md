@@ -48,8 +48,8 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 2 | Testes da migração `0002` e da transação interna | Banco; Estratégia › Isolamento | CA-20, CA-24, CA-26; AD-6 | falham (não há migração) | ☑ |
 | 3 | Migração `0002_dados_fiscais`, tipos do esquema e `naEmpresaInterna` | Banco › Migração `0002`; Transação sem usuário | idem 2 | testes da task 2 passam; `npm run migrar` sobe e o `down` desfaz | ☑ |
 | 4 | Dependências do backend e cópia do núcleo e dos schemas do painel | Leitura (AD-14); Implantação › Dependências | CA-23 | testes copiados passam; `app/painel` sem alteração | ☑ |
-| 5 | Testes de `registrarLeitura` | Leitura; Contratos › Função de leitura | CA-20, CA-23, CA-24 | falham | ☐ |
-| 6 | Validação revisada (múltiplo de 0,01 com `big.js`) e `registrarLeitura` | Leitura; DT-6 | idem 5 | testes da task 5 passam | ☐ |
+| 5 | Testes de `registrarLeitura` | Leitura; Contratos › Função de leitura | CA-20, CA-23, CA-24 | falham | ☑ |
+| 6 | Validação revisada (múltiplo de 0,01 com `big.js`) e `registrarLeitura` | Leitura; DT-6 | idem 5 | testes da task 5 passam | ☑ |
 | 7 | Testes do gerador fictício | Cenários fictícios › Gerador | CA-26 | falham | ☐ |
 | 8 | Implementar o gerador e os nove cenários | idem 7 | idem 7 | testes da task 7 passam | ☐ |
 | 9 | Testes de consolidação e de emitente | Indicadores › Consolidação; Emitente; P-S1 | CA-6, CA-7, CA-8, CA-24 | falham | ☐ |

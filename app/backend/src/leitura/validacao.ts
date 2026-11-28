@@ -1,4 +1,8 @@
-// Origem: app/painel/src/nucleo/validacao.ts (commit 39e4fae da main; AD-14). Cópia revisada: só o cabeçalho muda.
+// Origem: app/painel/src/nucleo/validacao.ts (commit 39e4fae da main; AD-14).
+// Revisão da 033 (DT-6, AD-13): o `multipleOf` sai do schema carregado, só em memória, porque o ajv o confere por
+// divisão em ponto flutuante e recusa valores válidos de muitos dígitos (por exemplo 8708947796.12). O múltiplo de
+// 0,01 é conferido sobre o texto de cada valor, com big.js (valor × 100 inteiro), e o limite de numeric(20,2)
+// (18 dígitos inteiros) vira recusa própria. Os arquivos dos schemas não mudam.
 // Lógica copiada de app/apuracao-cbs/src/validacao.ts (commit c3d8c56, DT-2): ajv 2020-12 sobre as cópias dos
 // schemas oficiais e checagem, no texto original, de no máximo duas casas e sem notação exponencial.
 // Acrescenta a tolerância do `ni` (D-2) como filtro sobre os erros, sem tocar no schema.
@@ -6,6 +10,7 @@ import { readFileSync } from "node:fs";
 import { Ajv2020 } from "ajv/dist/2020.js";
 import formatosModulo, { type FormatsPlugin } from "ajv-formats";
 import { isLosslessNumber, parse as parseLossless } from "lossless-json";
+import Big from "big.js";
 import { analisarData } from "./datas.js";
 
 // ajv-formats é CommonJS: no ESM do Node o plugin útil vem em .default.
@@ -22,6 +27,11 @@ const ARQUIVO_SCHEMA: Readonly<Record<ServicoValidavel, string>> = {
 /** Texto da divergência tolerada (D-2). */
 export const MOTIVO_NI = "ni com 14 dígitos (o schema exige 8)";
 
+/** Texto do JSON ilegível, para quem precisa separar "ilegível" de "fora do schema". */
+export const MOTIVO_ILEGIVEL = "JSON inválido: o arquivo não pôde ser lido";
+export const MOTIVO_LIMITE = "valor com mais de 18 dígitos inteiros (não cabe em numeric(20,2))";
+const DIGITOS_INTEIROS_MAXIMOS = 18;
+
 export type SituacaoValidacao = "aceito" | "aceito-com-divergencia" | "recusado";
 
 export interface ResultadoValidacao {
@@ -32,6 +42,8 @@ export interface ResultadoValidacao {
   total?: number;
   /** Conteúdo com os números como texto original (só quando aceito). */
   dados?: unknown;
+  /** Recusado só porque algum valor tem mais de 18 dígitos inteiros (não cabe em numeric(20,2)). */
+  foraDoLimite?: boolean;
 }
 
 export interface Validador {
@@ -42,24 +54,28 @@ const MAXIMO_LISTADO = 20;
 /** Campos inteiros do schema; os demais números são valores monetários. */
 const CAMPOS_INTEIROS = new Set(["origem", "documento", "tipo", "sequencial"]);
 
-/** Checagem exata no texto original: no máximo duas casas decimais e sem notação exponencial. */
-function checarNumeros(valor: unknown, caminho: string, chave: string, saida: string[]): void {
+/** Checagem exata no texto original: no máximo duas casas decimais, múltiplo de 0,01 (big.js) e sem notação exponencial. */
+function checarNumeros(valor: unknown, caminho: string, chave: string, saida: string[], limites: string[]): void {
   if (isLosslessNumber(valor)) {
     const texto = valor.value;
     if (/[eE]/.test(texto)) {
       saida.push(`${caminho}: número em notação exponencial; esperado decimal com até duas casas`);
     } else if (!CAMPOS_INTEIROS.has(chave)) {
-      const decimais = texto.split(".")[1];
+      const [inteiro = "", decimais] = texto.replace(/^-/, "").split(".");
       if (decimais !== undefined && decimais.length > 2) {
         saida.push(`${caminho}: valor monetário com mais de duas casas decimais`);
+      } else {
+        const centavos = new Big(texto).times(100);
+        if (!centavos.eq(centavos.round(0))) saida.push(`${caminho}: valor monetário que não é múltiplo de 0,01`);
       }
+      if (inteiro.replace(/^0+(?=\d)/, "").length > DIGITOS_INTEIROS_MAXIMOS) limites.push(`${caminho}: ${MOTIVO_LIMITE}`);
     }
     return;
   }
   if (Array.isArray(valor)) {
-    valor.forEach((item, i) => checarNumeros(item, `${caminho}/${i}`, chave, saida));
+    valor.forEach((item, i) => checarNumeros(item, `${caminho}/${i}`, chave, saida, limites));
   } else if (valor !== null && typeof valor === "object") {
-    for (const [k, v] of Object.entries(valor)) checarNumeros(v, `${caminho}/${k}`, k, saida);
+    for (const [k, v] of Object.entries(valor)) checarNumeros(v, `${caminho}/${k}`, k, saida, limites);
   }
 }
 
@@ -117,10 +133,19 @@ function numerosComoTexto(valor: unknown): unknown {
   return valor;
 }
 
+/** Retira o `multipleOf` do schema em memória (o arquivo do schema não muda); ver DT-6. */
+function retirarMultipleOf(no: unknown): void {
+  if (Array.isArray(no)) no.forEach(retirarMultipleOf);
+  else if (no !== null && typeof no === "object") {
+    delete (no as Record<string, unknown>)["multipleOf"];
+    Object.values(no).forEach(retirarMultipleOf);
+  }
+}
+
 const RECUSA_ANINHADO: ResultadoValidacao = { situacao: "recusado", motivos: [MOTIVO_ANINHADO], total: 1 };
 
 export function criarValidador(): Validador {
-  const ajv = new Ajv2020({ allErrors: true, multipleOfPrecision: 4 });
+  const ajv = new Ajv2020({ allErrors: true });
   adicionarFormatos(ajv);
 
   const validadores = new Map<ServicoValidavel, ReturnType<typeof ajv.compile>>();
@@ -128,6 +153,7 @@ export function criarValidador(): Validador {
     let v = validadores.get(nome);
     if (!v) {
       const schema = JSON.parse(readFileSync(new URL(`../../schemas/oficiais/${ARQUIVO_SCHEMA[nome]}`, import.meta.url), "utf8")) as object;
+      retirarMultipleOf(schema);
       v = ajv.compile(schema);
       validadores.set(nome, v);
     }
@@ -143,7 +169,7 @@ export function criarValidador(): Validador {
         objeto = JSON.parse(texto);
       } catch (e) {
         if (e instanceof RangeError) return RECUSA_ANINHADO;
-        return { situacao: "recusado", motivos: ["JSON inválido: o arquivo não pôde ser lido"], total: 1 };
+        return { situacao: "recusado", motivos: [MOTIVO_ILEGIVEL], total: 1 };
       }
       if (profundidadeDe(texto) > PROFUNDIDADE_MAXIMA) return RECUSA_ANINHADO;
 
@@ -153,7 +179,7 @@ export function criarValidador(): Validador {
         sem = parseLossless(texto);
       } catch (e) {
         const repetida = e instanceof SyntaxError && e.message.startsWith("Duplicate key");
-        return { situacao: "recusado", motivos: [repetida ? MOTIVO_CHAVE_REPETIDA : "JSON inválido: o arquivo não pôde ser lido"], total: 1 };
+        return { situacao: "recusado", motivos: [repetida ? MOTIVO_CHAVE_REPETIDA : MOTIVO_ILEGIVEL], total: 1 };
       }
 
       const validar = doServico(servico);
@@ -164,9 +190,13 @@ export function criarValidador(): Validador {
         e.instancePath === "/ni" && e.keyword === "pattern" && typeof ni === "string" && /^\d{14}$/.test(ni);
       const naoTolerados = erros.filter((e) => !tolerado(e));
       const divergencias: string[] = naoTolerados.map((e) => `${e.instancePath || "/"}: ${e.message ?? "divergência do schema"}`);
-      checarNumeros(sem, "", "", divergencias);
+      const limites: string[] = [];
+      checarNumeros(sem, "", "", divergencias, limites);
       checarDatas(objeto, "", "", divergencias);
 
+      if (divergencias.length === 0 && limites.length > 0) {
+        return { situacao: "recusado", motivos: limites.slice(0, MAXIMO_LISTADO), total: limites.length, foraDoLimite: true };
+      }
       if (divergencias.length > 0) {
         return { situacao: "recusado", motivos: divergencias.slice(0, MAXIMO_LISTADO), total: divergencias.length };
       }
