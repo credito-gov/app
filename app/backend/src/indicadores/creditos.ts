@@ -139,7 +139,7 @@ export function notasDoGrupo(notas: readonly NotaDoBanco[], raiz: string, recort
       const valor = aApropriarDe(n);
       return valor !== null && !valor.eq(0) && classificar(n, raiz, valor).grupo === grupo;
     })
-    .sort((a, b) => aApropriarDe(b)!.cmp(aApropriarDe(a)!) || (a.chave < b.chave ? -1 : a.chave > b.chave ? 1 : 0));
+    .sort((a, b) => aApropriarDe(b)!.cmp(aApropriarDe(a)!) || (a.chave < b.chave ? -1 : a.chave > b.chave ? 1 : 0) || a.documento - b.documento || a.origem - b.origem);
 }
 
 /** `recorte` é `AAAA-MM` ou nulo (todos os períodos coletados). */

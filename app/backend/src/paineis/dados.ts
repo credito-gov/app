@@ -7,7 +7,7 @@ import { noRecorte, periodosDisponiveis } from "../indicadores/comum.js";
 import { agruparPendentes, indicadoresDeCredito, notasDoGrupo } from "../indicadores/creditos.js";
 import { indicadoresDeDebito } from "../indicadores/debitos.js";
 import { situacaoDoServico, type ArquivoResumo, type ConsultaResumo, type SituacaoDoServico } from "../indicadores/situacao.js";
-import { NOMES_DOCUMENTO } from "../leitura/tabelas.js";
+import { NOMES_DOCUMENTO, nomeOrigem } from "../leitura/tabelas.js";
 
 /** Coluna do banco e nome do campo na resposta, como em registrar.ts. */
 const COLUNAS_CREDITO = [
@@ -202,6 +202,8 @@ export function montarNotasDoGrupo(c: Consolidado, periodo: string | null, grupo
         chave: n.chave,
         documento: n.documento,
         documentoNome: NOMES_DOCUMENTO[n.documento] ?? `código ${n.documento}`,
+        origem: n.origem,
+        origemNome: nomeOrigem(n.origem) ?? `código ${n.origem}`,
         emissao: n.emissao === null ? null : n.emissao.slice(0, 10),
         aApropriar: n.valores["aApropriar"] ?? "0",
       })),

@@ -58,13 +58,16 @@ export function NotasDoGrupo() {
                     </thead>
                     <tbody>
                       {r.notas.map((n) => (
-                        <tr key={`${n.periodo}-${n.chave}`}>
+                        <tr key={`${n.periodo}|${n.chave}|${n.documento}|${n.origem}`}>
                           <td>{formatarPeriodo(n.periodo)}</td>
                           <td>
                             <span className="cg-key">{n.chave}</span>
                           </td>
                           <td>{n.emissao === null ? "" : formatarData(n.emissao)}</td>
-                          <td>{`${n.documentoNome} (${n.documento})`}</td>
+                          <td>
+                            {`${n.documentoNome} (${n.documento})`}
+                            {n.origem !== 0 ? <span className="cg-company-meta">{`${n.origemNome} (${n.origem})`}</span> : null}
+                          </td>
                           <td>
                             <Dinheiro valor={n.aApropriar} />
                           </td>

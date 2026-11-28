@@ -87,7 +87,7 @@ export type NotasDoGrupo = {
   total: string;
   pagina: number;
   paginas: number;
-  notas: Array<{ periodo: string; chave: string; documento: number; documentoNome: string; emissao: string | null; aApropriar: string }>;
+  notas: Array<{ periodo: string; chave: string; documento: number; documentoNome: string; origem: number; origemNome: string; emissao: string | null; aApropriar: string }>;
 };
 
 export type ResumoDaSituacao = "atualizado" | "falhou" | "desatualizado" | "sem_consulta";
