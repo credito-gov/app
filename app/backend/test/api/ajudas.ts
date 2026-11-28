@@ -66,7 +66,9 @@ export interface Contexto {
   encerrar(): Promise<void>;
 }
 
-export async function criarContexto(opcoes: { log?: { stream: Writable } } = {}): Promise<Contexto> {
+export async function criarContexto(
+  opcoes: { log?: { stream: Writable }; confiarProxy?: number } = {},
+): Promise<Contexto> {
   const migracao = abrirComoMigracao();
   await limparTabelas(migracao);
   const db = abrirKysely(URL_APP);
@@ -77,6 +79,7 @@ export async function criarContexto(opcoes: { log?: { stream: Writable } } = {})
     CREDITOGOV_SESSAO_SEGREDO: SEGREDO,
     CREDITOGOV_WEB_URL: WEB_URL,
     CREDITOGOV_EMAIL: "memoria",
+    ...(opcoes.confiarProxy === undefined ? {} : { CREDITOGOV_CONFIAR_PROXY: String(opcoes.confiarProxy) }),
   });
   const email = criarEmailMemoria();
   let agora = new Date("2026-12-01T12:00:00Z");
