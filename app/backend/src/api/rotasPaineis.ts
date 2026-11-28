@@ -1,7 +1,9 @@
-// Rotas do dashboard (CA-1 a CA-25): painel, pendências e notas de um grupo de pendentes.
+// Rotas do dashboard (CA-1 a CA-25): painel, pendências e notas de um grupo de pendentes, e a carteira (CA-C1 a CA-C4).
 // Todas com sessão e vínculo (rotaDeEmpresa) e a empresa fixada na transação (AD-6).
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { consolidar, lerDadosDaEmpresa, lerPeriodo, montarNotasDoGrupo, montarPainel, montarPendencias, type Consolidado } from "../paineis/dados.js";
+import { listarEmpresas } from "../empresas/empresas.js";
+import { linhaDaCarteira } from "../indicadores/carteira.js";
 import type { Contexto } from "./contexto.js";
 import { enviarErro } from "./erros.js";
 
@@ -50,4 +52,22 @@ export function registrarRotasPaineis(app: FastifyInstance, ctx: Contexto): void
       return r.corpo;
     },
   );
+
+  // Carteira: uma linha por empresa do usuário, sem total (CA-C4). Qualquer papel vê (DT-9).
+  app.get("/api/carteira", { onRequest: [app.exigirSessao, app.rotaDeEmpresa] }, async (request) => {
+    const inicio = Date.now();
+    const usuarioId = request.usuario!.id;
+    const agora = ctx.relogio();
+    const empresas = await request.naCarteira(async (trx) => {
+      const lista = await listarEmpresas(trx, usuarioId);
+      const linhas = [];
+      for (const e of lista) {
+        const dados = await lerDadosDaEmpresa(trx, e.id);
+        linhas.push(linhaDaCarteira({ id: e.id, nome: e.nome, cnpjRaizFormatado: e.cnpjRaizFormatado, papel: e.papel }, dados, agora));
+      }
+      return linhas;
+    });
+    request.log.info({ evento: "carteira_consultada", usuarioId, empresas: empresas.length, duracaoMs: Date.now() - inicio }, "carteira_consultada");
+    return { empresas };
+  });
 }
