@@ -64,6 +64,7 @@ export const TEXTOS = {
     `${servico} sem atualização há ${dias} dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida.`,
   aindaNaoConsultados: (plural: string) => `Os ${plural} ainda não foram consultados na Receita.`,
   emAndamento: "Há uma consulta em andamento.",
+  paginaDe: (pagina: number, paginas: number) => `Página ${pagina} de ${paginas}`,
   vazio: (plural: string, instante: string | null) =>
     `A Receita não devolveu ${plural} nas consultas feitas${instante === null ? "" : ` até ${instante}`}. Isto não é um saldo de R$ 0,00.`,
   falhou: (plural: string, instante: string) => `A atualização dos ${plural} falhou em ${instante}.`,

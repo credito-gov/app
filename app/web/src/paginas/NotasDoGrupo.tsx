@@ -78,7 +78,7 @@ export function NotasDoGrupo() {
                 </div>
                 <nav className="cg-pager" aria-label={TEXTOS.tela.paginacao}>
                   {r.pagina > 1 ? <Link to={paraPagina(r.pagina - 1)}>{TEXTOS.tela.anterior}</Link> : null}
-                  <span>{`Página ${r.pagina} de ${r.paginas}`}</span>
+                  <span>{TEXTOS.paginaDe(r.pagina, r.paginas)}</span>
                   {r.pagina < r.paginas ? <Link to={paraPagina(r.pagina + 1)}>{TEXTOS.tela.proxima}</Link> : null}
                 </nav>
               </div>
