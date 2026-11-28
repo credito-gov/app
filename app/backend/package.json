@@ -20,12 +20,17 @@
   "dependencies": {
     "@fastify/cookie": "^11.1.5",
     "@zxcvbn-ts/language-common": "^4.2.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "argon2": "^0.45.2",
+    "big.js": "^7.0.1",
     "fastify": "^5.12.8",
     "kysely": "^0.29.9",
+    "lossless-json": "^4.3.4",
     "pg": "^8.23.1"
   },
   "devDependencies": {
+    "@types/big.js": "^7.0.0",
     "@types/node": "^24.19.4",
     "@types/pg": "^8.23.1",
     "oxlint": "^1.95.0",
