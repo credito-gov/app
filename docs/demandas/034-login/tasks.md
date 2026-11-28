@@ -42,7 +42,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 16 | Implementar `admin/` | idem 15 | idem 15 | testes da task 15 passam | ☑ |
 | 17 | Testes de convites | API › Convites; Contratos; DT-6 | CA-8 a CA-14 | falham | ☑ |
 | 18 | Implementar `convites/` e as rotas de convite | idem 17 | idem 17 | testes da task 17 passam | ☑ |
-| 19 | Testes de empresas, pessoas, remoção e empresa em foco | API › Remoção de vínculo; Transação; Contratos › Com sessão; O que a 033 consome; DT-1 | CA-29, CA-30, CA-33, CA-34 | falham | ☐ |
+| 19 | Testes de empresas, pessoas, remoção e empresa em foco | API › Remoção de vínculo; Transação; Contratos › Com sessão; O que a 033 consome; DT-1 | CA-29, CA-30, CA-33, CA-34 | falham | ☑ |
 | 20 | Implementar `empresas/`, o `rotaDeEmpresa` e as rotas de empresa | idem 19 | idem 19 | testes da task 19 passam | ☐ |
 | 21 | Testes de recuperação de senha | API › Tokens; Sessão; Contratos › Sem sessão | CA-23 a CA-26 | falham | ☐ |
 | 22 | Implementar a recuperação de senha | idem 21 | idem 21 | testes da task 21 passam | ☐ |
