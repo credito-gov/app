@@ -49,7 +49,12 @@ export function valoresDe(linha: Linha, colunas: ReadonlyArray<readonly [string,
   const valores: Record<string, string> = {};
   for (const [coluna, campo] of colunas) {
     const v = linha[coluna];
-    if (typeof v === "string") valores[campo] = v;
+    if (v === null || v === undefined) continue;
+    // Só texto decimal ou null: outro tipo seria valor perdido em silêncio (vira zero na tela). Sem o valor no erro.
+    if (typeof v !== "string") {
+      throw new Error(`Tipo inesperado na coluna ${coluna} do arquivo ${String(linha["arquivo_id"])}: ${typeof v}.`);
+    }
+    valores[campo] = v;
   }
   return valores;
 }
