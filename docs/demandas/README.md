@@ -24,7 +24,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 | 031 | [stack-arquitetura](031-stack-arquitetura/us.md) | Stack e arquitetura do produto | concluída | [credito-gov/app#35](https://github.com/credito-gov/app/pull/35) |
 | 032 | [design-system-produto](032-design-system-produto/us.md) | Design system do produto | concluída | [credito-gov/app#33](https://github.com/credito-gov/app/pull/33) |
 | 034 | [login](034-login/us.md) | Login por e-mail e senha, convite e acesso por empresa | concluída | `feat/034-login` |
-| 035 | [correcoes-034](035-correcoes-034/bug.md) | Correções deixadas pela 034: raiz de CNPJ real nos dados fictícios e achados baixos | diagnóstico-em-revisão | `fix/035-correcoes-034` |
+| 035 | [correcoes-034](035-correcoes-034/bug.md) | Correções deixadas pela 034: raiz de CNPJ real nos dados fictícios e achados baixos | em-implementação | `fix/035-correcoes-034` |
 
 ## Backlog
 
