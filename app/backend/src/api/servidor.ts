@@ -13,13 +13,17 @@ import type { EnvioEmail } from "../email/tipos.js";
 import { opcoesDeLog } from "../registro.js";
 import type { Contexto } from "./contexto.js";
 import { camposDoErro, enviarErro } from "./erros.js";
+import { registrarRotasConvites } from "./rotasConvites.js";
 import { registrarRotasSessao } from "./rotasSessao.js";
+import { ehUuid, EmpresaNaoEncontrada } from "../banco/transacao.js";
 import { lerCookie, vencerCookie } from "./sessaoHttp.js";
 
 declare module "fastify" {
   interface FastifyInstance {
     /** `onRequest` das rotas que exigem sessão; preenche `request.usuario`. */
     exigirSessao: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    /** `onRequest` das rotas de empresa (depois de exigirSessao): valida o uuid e expõe request.naEmpresa e request.naCarteira. */
+    rotaDeEmpresa: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
     /** "MÉTODO /caminho" de toda rota registrada (usado pelos testes de CA-7). */
     rotas: string[];
   }
@@ -107,11 +111,26 @@ export async function criarServidor(deps: DepsServidor): Promise<Servidor> {
     return enviarErro(reply, 401, "sem_sessao", "Entre para continuar.");
   });
 
+  const erroEmpresa = (reply: FastifyReply) =>
+    enviarErro(reply, 404, "empresa_nao_encontrada", "Empresa não encontrada ou sem acesso.");
+
+  app.decorateRequest("naEmpresa", undefined as never);
+  app.decorateRequest("naCarteira", undefined as never);
+  app.decorate("rotaDeEmpresa", async (request: FastifyRequest, reply: FastifyReply) => {
+    const usuarioId = request.usuario!.id;
+    const { empresaId } = request.params as { empresaId?: string };
+    request.naCarteira = (fn) => banco.naCarteira(usuarioId, fn);
+    if (empresaId === undefined) return;
+    if (!ehUuid(empresaId)) return erroEmpresa(reply);
+    request.naEmpresa = (fn) => banco.naEmpresa(usuarioId, empresaId, fn);
+  });
+
   app.setNotFoundHandler((_request, reply) =>
     enviarErro(reply, 404, "nao_encontrado", "Recurso não encontrado."),
   );
 
   app.setErrorHandler((erro: FastifyError, request, reply) => {
+    if (erro instanceof EmpresaNaoEncontrada) return erroEmpresa(reply);
     if (erro.validation) {
       return enviarErro(reply, 400, "entrada_invalida", "Confira os campos informados.", {
         campos: camposDoErro(erro),
@@ -126,6 +145,7 @@ export async function criarServidor(deps: DepsServidor): Promise<Servidor> {
   });
 
   registrarRotasSessao(app, ctx);
+  registrarRotasConvites(app, ctx);
 
   await app.ready();
   return app;
