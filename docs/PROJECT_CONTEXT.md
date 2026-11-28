@@ -200,6 +200,7 @@ As tasks 001–005 do modelo antigo foram escritas sobre endpoints e tabelas que
 - **CNPJ completo de exemplo sempre com DV errado** (o certo para as raízes da lista, com `0001`, é `91`). O backend e a web têm varredura que recusa a raiz `00000000`, de empresa real.
 - **Nunca nomear o dono de uma raiz de CNPJ real**, em arquivo, mensagem de commit ou PR.
 - **Pendência (P-2 da 035, adiada):** as raízes do `app/painel` (`90817263`, `55443322`, `11223344`, `44556677`, `55667788` e `66778899`) e o `12.345.678` da Spec da 030 não foram conferidas.
+- **Pendência (033, estende a P-2, decidida pelo responsável em 2026-11-28):** as raízes fictícias da 033 também não foram conferidas: `31000001` a `31000009` (empresas de cenário, testes da carteira e roteiro dos README do `app/backend` e do `app/web`), `16273849`, `48392017` e `72615839` (emitentes nos testes) e as do painel copiadas para o `app/backend` (`90817263`, `55443322` em `src/ficticios/cenarios.ts`, `66778899`). Até a conferência, não criar raiz nova fora da lista.
 
 ---
 

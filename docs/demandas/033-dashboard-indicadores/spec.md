@@ -1,6 +1,6 @@
 # 033-dashboard-indicadores — Spec
 
-- **Status:** em-implementação
+- **Status:** em-review
 - **US:** [`us.md`](us.md), aprovada em 2026-11-25 com as recomendações de P-1 a P-9
 - **Base:** [`../../arquitetura/README.md`](../../arquitetura/README.md) (AD-1 a AD-14), [`../../design/design-system.md`](../../design/design-system.md) e a Spec aprovada da demanda 034 (login), que está no worktree `.claude/worktrees/034-login` e ainda não tem código na `main`
 
