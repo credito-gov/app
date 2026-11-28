@@ -1,0 +1,23 @@
+# PostgreSQL local de desenvolvimento e de teste (P-10).
+# Autenticação "trust" é aceitável só porque a porta está presa a 127.0.0.1:
+# não há senha em arquivo nenhum. Fora da máquina local, os papéis têm senha.
+services:
+  postgres:
+    image: postgres:18.7
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - creditogov-banco:/var/lib/postgresql
+      - ./banco/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  creditogov-banco:
+    name: creditogov-banco
