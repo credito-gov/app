@@ -36,7 +36,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 10 | Implementar `limite.ts` | idem 9 | idem 9 | testes da task 9 passam | ☑ |
 | 11 | Testes do e-mail (adaptadores e modelos) | API › E-mail | CA-27, CA-28 | falham | ☑ |
 | 12 | Implementar `email/` | idem 11 | idem 11 | testes da task 11 passam | ☑ |
-| 13 | Testes do servidor, da sessão e do login | API › Sessão; Proteção contra requisição de outro site; Login sem revelar o e-mail; Contratos › Sem sessão e Com sessão | CA-7, CA-15 a CA-17, CA-19 a CA-22 | falham | ☐ |
+| 13 | Testes do servidor, da sessão e do login | API › Sessão; Proteção contra requisição de outro site; Login sem revelar o e-mail; Contratos › Sem sessão e Com sessão | CA-7, CA-15 a CA-17, CA-19 a CA-22 | falham | ☑ |
 | 14 | Implementar o servidor Fastify, o plugin de sessão, a proteção de origem, os cabeçalhos, `registro.ts` e as rotas `/api/sessao` | idem 13; DT-2, DT-4 | idem 13 | testes da task 13 passam | ☐ |
 | 15 | Testes do `npm run admin` | API › Comando administrativo; DT-7 | CA-5, CA-6, CA-34 | falham | ☐ |
 | 16 | Implementar `admin/` | idem 15 | idem 15 | testes da task 15 passam | ☐ |
