@@ -58,9 +58,9 @@ interface Divergencia {
   texto: string;
 }
 
-/** O caminho vem das chaves do arquivo: só letras, dígitos, _ e /, e no máximo 120 caracteres, para o log. */
+/** O caminho vem das chaves do arquivo: só letras, _ e /, sequências de dígitos viram # (índice genérico, nenhuma chave com cara de CNPJ chega ao log) e no máximo 120 caracteres. */
 function caminhoSeguro(caminho: string): string {
-  return caminho.replace(/[^A-Za-z0-9_/]/g, "?").slice(0, 120) || "/";
+  return caminho.replace(/[0-9]+/g, "#").replace(/[^A-Za-z_/#]/g, "?").slice(0, 120) || "/";
 }
 const ocorrenciaDe = (d: Divergencia): string => `${caminhoSeguro(d.caminho)}#${d.regra}`;
 
