@@ -1,5 +1,7 @@
 // Formas das respostas da API do dashboard (Contratos da Spec da 033). Valores em texto decimal.
 
+import type { Papel } from "../api/cliente";
+
 export type EstadoDoServico = "sem_consulta" | "sem_dados_usaveis" | "vazio" | "com_dados";
 
 export type SituacaoDoServico = {
@@ -87,3 +89,17 @@ export type NotasDoGrupo = {
   paginas: number;
   notas: Array<{ periodo: string; chave: string; documento: number; documentoNome: string; emissao: string | null; aApropriar: string }>;
 };
+
+export type ResumoDaSituacao = "atualizado" | "falhou" | "desatualizado" | "sem_consulta";
+
+export type LinhaDaCarteira = {
+  id: string;
+  nome: string;
+  cnpjRaizFormatado: string;
+  papel: Papel;
+  creditos: { estado: EstadoDoServico; aApropriar: string | null; apropriado: string | null; utilizado: string | null };
+  situacao: { resumo: ResumoDaSituacao; ultimaConcluidaEm: string | null; diasSemConsulta: number | null };
+};
+
+/** Uma linha por empresa; a resposta não tem campo de total (CA-C4). */
+export type Carteira = { empresas: LinhaDaCarteira[] };

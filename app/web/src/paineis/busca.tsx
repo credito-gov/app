@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { requisitar } from "../api/cliente";
 import { Alerta } from "../componentes/Alerta";
 import { AlertaDeRede } from "../componentes/AlertaDeRede";
-import type { NotasDoGrupo, Painel, Pendencias } from "./tipos";
+import type { Carteira, NotasDoGrupo, Painel, Pendencias } from "./tipos";
 
 export class ErroDeBusca extends Error {
   constructor(
@@ -59,6 +59,11 @@ export function useNotasDoGrupo(empresaId: string, grupo: string, periodo: strin
     queryFn: () =>
       buscar<NotasDoGrupo>(comConsulta(`${base(empresaId)}/pendencias/${encodeURIComponent(grupo)}/notas`, recorteNaUrl(periodo), `pagina=${pagina}`)),
   });
+}
+
+/** A carteira do usuário: uma chave só, limpa como as outras ao sair (AD-3). */
+export function useCarteira(): UseQueryResult<Carteira, Error> {
+  return useQuery({ queryKey: ["carteira"], queryFn: () => buscar<Carteira>("/api/carteira") });
 }
 
 /** Carregando, alerta de falha com "Tentar de novo" ou os dados. */

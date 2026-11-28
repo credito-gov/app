@@ -75,4 +75,26 @@ export const TEXTOS = {
   nenhumRetornoUsavel: (plural: string) => `Nenhum retorno de ${plural} pôde ser usado.`,
   semNotasCreditos: "Nenhum crédito neste período nas consultas feitas.",
   semNotasDebitos: "Nenhum débito neste período nas consultas feitas.",
+
+  // Carteira (CA-C1 a CA-C4)
+  carteira: {
+    titulo: "Empresas",
+    subtitulo: "Valores de cada empresa como a Receita informou. Valores de empresas diferentes não se somam.",
+    colunaEmpresa: "Empresa",
+    colunaSituacao: "Situação",
+    colunaConsulta: "Última consulta",
+    cnpjRaiz: (formatado: string) => `CNPJ raiz ${formatado}`,
+    semData: "—",
+    estados: {
+      sem_consulta: "Ainda não consultado",
+      vazio: "Nenhum crédito nas consultas",
+      sem_dados_usaveis: "Nenhum retorno utilizado",
+    },
+    selos: {
+      atualizado: "Atualizado",
+      falhou: "Consulta falhou",
+      sem_consulta: "Sem consulta concluída",
+      desatualizado: (dias: number) => `${dias} dias sem consulta`,
+    },
+  },
 } as const;

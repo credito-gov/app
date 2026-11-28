@@ -65,6 +65,7 @@ describe("sessão inicial (CA-19, CA-20)", () => {
     let chamadas = 0;
     simularFetch((c) => {
       if (c.url === "/api/sessao") return ++chamadas === 1 ? ERRO_500 : json(200, { usuario: USUARIO, empresas: [] });
+      if (c.url === "/api/carteira") return json(200, { empresas: [] });
       return json(200, []);
     });
     const router = renderizar(rotasApp, "/empresas");
@@ -110,15 +111,21 @@ describe("sair (CA-21)", () => {
 });
 
 describe("escolha de empresa (CA-30)", () => {
-  it("recarrega GET /api/empresas ao abrir, em vez de usar só a lista do login", async () => {
+  it("busca GET /api/carteira ao abrir, em vez de usar só a lista do login", async () => {
+    const dela = { id: EMPRESA_B.id, nome: EMPRESA_B.nome, cnpjRaizFormatado: EMPRESA_B.cnpjRaizFormatado, papel: EMPRESA_B.papel };
+    const linha = {
+      ...dela,
+      creditos: { estado: "sem_consulta", aApropriar: null, apropriado: null, utilizado: null },
+      situacao: { resumo: "sem_consulta", ultimaConcluidaEm: null, diasSemConsulta: null },
+    };
     simularFetch((c) => {
       if (c.url === "/api/sessao") return json(200, { usuario: USUARIO, empresas: [EMPRESA_A, EMPRESA_B] });
-      if (c.url === "/api/empresas") return json(200, [EMPRESA_B]); // o vínculo com A foi removido depois do login
+      if (c.url === "/api/carteira") return json(200, { empresas: [linha] }); // o vínculo com A foi removido depois do login
       return json(404, {});
     });
     renderizar(rotasApp, "/empresas");
     expect(await screen.findByRole("link", { name: EMPRESA_B.nome })).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByRole("link", { name: EMPRESA_A.nome })).toBeNull());
+    expect(screen.queryByRole("link", { name: EMPRESA_A.nome })).toBeNull();
   });
 });
 
@@ -231,7 +238,7 @@ describe("Pessoas (CA-8, CA-9, CA-34)", () => {
           saiu = true;
           return json(204);
         }
-        if (saiu && c.url === "/api/empresas") return json(200, []);
+        if (saiu && c.url === "/api/carteira") return json(200, { empresas: [] });
         return undefined;
       },
     });

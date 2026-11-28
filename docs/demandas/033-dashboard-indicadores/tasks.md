@@ -79,8 +79,8 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 33 | Implementar `carteira.ts` | idem 32 | idem 32 | testes da task 32 passam | ☑ |
 | 34 | Testes de `GET /api/carteira` | API; Contratos › `GET /api/carteira`; DT-9 | CA-C1, CA-C4; AD-6 | falham | ☑ |
 | 35 | Implementar a rota da carteira | idem 34 | idem 34 | testes da task 34 passam | ☑ |
-| 36 | Testes da tela `Carteira` | Web › Rotas; Componentes (`LinhaCarteira`); Textos | CA-C1 a CA-C4 | falham | ☐ |
-| 37 | Implementar `Carteira` em `/empresas` | idem 36 | idem 36 | testes da task 36 passam | ☐ |
+| 36 | Testes da tela `Carteira` | Web › Rotas; Componentes (`LinhaCarteira`); Textos | CA-C1 a CA-C4 | falham | ☑ |
+| 37 | Implementar `Carteira` em `/empresas` | idem 36 | idem 36 | testes da task 36 passam | ☑ |
 | 38 | Documentação e verificação final da carteira | Documentação; Estratégia de verificação | CA-C1 a CA-C4 | os seis comandos passam; roteiro da carteira rodado | ☐ |
 
 ## Detalhe das tasks

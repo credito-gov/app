@@ -1,7 +1,7 @@
 import { Navigate, type RouteObject } from "react-router";
 import { LayoutEmpresa } from "./componentes/LayoutEmpresa";
 import { AceitarConvite } from "./paginas/AceitarConvite";
-import { EscolherEmpresa } from "./paginas/EscolherEmpresa";
+import { Carteira } from "./paginas/Carteira";
 import { EsqueciSenha } from "./paginas/EsqueciSenha";
 import { Entrar } from "./paginas/Entrar";
 import { NotasDoGrupo } from "./paginas/NotasDoGrupo";
@@ -28,7 +28,7 @@ export const rotasApp: RouteObject[] = [
     element: <RequerSessao />,
     children: [
       { path: "/", element: <Raiz /> },
-      { path: "/empresas", element: <EscolherEmpresa /> },
+      { path: "/empresas", element: <Carteira /> },
       {
         path: "/e/:empresaId",
         element: <LayoutEmpresa />,
