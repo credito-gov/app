@@ -43,7 +43,7 @@ Nenhum rótulo, badge ou texto de valor de crédito usa "confirmado", "disponív
 - Não prometer integração, sincronização, garantia ou funcionalidade que não exista.
 - Não publicar depoimento, logo de cliente nem número de resultado inventado.
 - Nenhuma regra de CBS/IBS sem fonte em [`referencias/`](../referencias/).
-- Mockups com dados fictícios, ditos na própria tela ("Exemplo fictício"). CNPJ de exemplo no formato `00.000.000/0001-00`, nunca um real. Sem credencial de ERP ou da Receita, sem nome de empresa real.
+- Mockups com dados fictícios, ditos na própria tela ("Exemplo fictício"). CNPJ de exemplo no formato `11.111.111/0001-00` (raiz conferida, DV errado de propósito), nunca um real. Sem credencial de ERP ou da Receita, sem nome de empresa real.
 
 ## 5. Ponto de partida visual
 

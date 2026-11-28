@@ -5,7 +5,7 @@ Design system do produto (login, dashboard e telas seguintes), aprovado pelo res
 - **Fonte dos valores:** [`tokens/tokens.json`](tokens/tokens.json) e [`tokens/tokens.css`](tokens/tokens.css), com os mesmos nomes e valores. Este documento cita os nomes e os valores deles; se divergirem, vale o arquivo de tokens.
 - **CSS de referência dos componentes:** [`tokens/bundle.css`](tokens/bundle.css), CSS puro, classes com prefixo `cg-`.
 - **Sem amarra de framework.** Nem os tokens nem o CSS dependem de biblioteca. A stack do produto é decisão da demanda 031: qualquer stack aplica as classes ou copia os valores. O `bundle.css` é referência, não é código de aplicação.
-- **Dados das telas são fictícios.** Toda tela de exemplo leva o selo "Exemplo fictício". O CNPJ da empresa de exemplo é `00.000.000/0001-00` ("Comércio Exemplo Ltda."); emitentes de exemplo têm números como `11.111.111/0001-11`.
+- **Dados das telas são fictícios.** Toda tela de exemplo leva o selo "Exemplo fictício". O CNPJ da empresa de exemplo é `11.111.111/0001-00` ("Comércio Exemplo Ltda."); emitentes de exemplo têm números como `22.222.222/0001-22`. As raízes vêm da lista conferida do `PROJECT_CONTEXT.md` §6, e o CNPJ completo de exemplo tem sempre DV errado.
 - **Marcas de provedores.** Os botões "Entrar com Google" e "Entrar com Microsoft" nas telas usam uma letra no lugar da marca. As marcas oficiais entram na implementação, conforme as regras de uso de cada provedor.
 
 Links dos artifacts e das telas: [`README.md`](README.md).
