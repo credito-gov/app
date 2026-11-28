@@ -23,7 +23,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 | 030 | [painel-primeira-versao](030-painel-primeira-versao/us.md) | Primeira versão do painel: saldo, origem e pendências | concluída | [credito-gov/app#31](https://github.com/credito-gov/app/pull/31) |
 | 031 | [stack-arquitetura](031-stack-arquitetura/us.md) | Stack e arquitetura do produto | concluída | [credito-gov/app#35](https://github.com/credito-gov/app/pull/35) |
 | 032 | [design-system-produto](032-design-system-produto/us.md) | Design system do produto | concluída | [credito-gov/app#33](https://github.com/credito-gov/app/pull/33) |
-| 033 | [dashboard-indicadores](033-dashboard-indicadores/us.md) | Primeiro dashboard do usuário final: indicadores do crédito de CBS | em-review | [credito-gov/app#41](https://github.com/credito-gov/app/pull/41) |
+| 033 | [dashboard-indicadores](033-dashboard-indicadores/us.md) | Primeiro dashboard do usuário final: indicadores do crédito de CBS | concluída | [credito-gov/app#41](https://github.com/credito-gov/app/pull/41) |
 | 034 | [login](034-login/us.md) | Login por e-mail e senha, convite e acesso por empresa | concluída | `feat/034-login` |
 | 035 | [correcoes-034](035-correcoes-034/bug.md) | Correções deixadas pela 034: raiz de CNPJ real nos dados fictícios e achados baixos | concluída | `fix/035-correcoes-034` |
 
