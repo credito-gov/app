@@ -2,6 +2,7 @@
 // (interpretarRetorno, depois consolidarNotas), para os testes de indicadores.
 import { montarCenario, type ConsultaDeCenario } from "../../src/ficticios/cenarios.js";
 import { consolidarNotas, type NotaDoBanco } from "../../src/indicadores/consolidacao.js";
+import { consolidar, type DadosDaEmpresa } from "../../src/paineis/dados.js";
 import { interpretarRetorno } from "../../src/leitura/registrar.js";
 import { RAIZ } from "./construtores.js";
 
@@ -66,3 +67,26 @@ export function notasDoCenario(
   const consultas = montarCenario(nome, { raiz, agora: opcoes.agora ?? AGORA_DOS_TESTES, semente: opcoes.semente ?? 7 });
   return consolidarNotas(notasBrutasDe(consultas, servico, raiz));
 }
+
+/** O que a API consolida para uma empresa com uma consulta lida de créditos aceita (sem banco). */
+export function consolidadoDeCreditos(notas: NotaDoBanco[], agora = AGORA_DOS_TESTES) {
+  const consulta = {
+    id: "00000000-0000-4000-8000-0000000000aa",
+    servico: "creditos" as const,
+    estado: "lida" as const,
+    criadaEm: new Date(agora.getTime() - 3_600_000),
+    concluidaEm: new Date(agora.getTime() - 3_000_000),
+    finalizadaEm: new Date(agora.getTime() - 2_900_000),
+  };
+  const dados: DadosDaEmpresa = {
+    raiz: RAIZ,
+    consultas: [consulta],
+    arquivos: [
+      ...new Set(notas.map((n) => n.arquivoId)),
+    ].map((id) => ({ id, consultaId: consulta.id, servico: "creditos" as const, situacao: "aceito" as const, recebidoEm: agora })),
+    creditos: notas,
+    debitos: [],
+  };
+  return consolidar(dados, agora);
+}
+

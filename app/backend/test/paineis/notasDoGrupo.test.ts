@@ -2,32 +2,8 @@
 // então a resposta traz o que distingue duas notas de mesma chave.
 import { describe, expect, it } from "vitest";
 import { consolidarNotas } from "../../src/indicadores/consolidacao.js";
-import { consolidar, montarNotasDoGrupo, type DadosDaEmpresa } from "../../src/paineis/dados.js";
-import { notaDoBanco } from "../apoio/notas.js";
-import { RAIZ } from "../apoio/construtores.js";
-
-const AGORA = new Date("2026-11-27T15:00:00.000Z");
-
-function consolidado(notas: ReturnType<typeof notaDoBanco>[]) {
-  const consulta = {
-    id: "00000000-0000-4000-8000-0000000000aa",
-    servico: "creditos" as const,
-    estado: "lida" as const,
-    criadaEm: new Date(AGORA.getTime() - 3_600_000),
-    concluidaEm: new Date(AGORA.getTime() - 3_000_000),
-    finalizadaEm: new Date(AGORA.getTime() - 2_900_000),
-  };
-  const dados: DadosDaEmpresa = {
-    raiz: RAIZ,
-    consultas: [consulta],
-    arquivos: [
-      ...new Set(notas.map((n) => n.arquivoId)),
-    ].map((id) => ({ id, consultaId: consulta.id, servico: "creditos" as const, situacao: "aceito" as const, recebidoEm: AGORA })),
-    creditos: notas,
-    debitos: [],
-  };
-  return consolidar(dados, AGORA);
-}
+import { montarNotasDoGrupo } from "../../src/paineis/dados.js";
+import { consolidadoDeCreditos as consolidado, notaDoBanco } from "../apoio/notas.js";
 
 describe("montarNotasDoGrupo traz a origem e o documento de cada nota", () => {
   const mesmaChave = { chave: "SEM-LEIAUTE-1", pa: "11/2026", documento: 55 };
