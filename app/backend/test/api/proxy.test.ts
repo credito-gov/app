@@ -68,18 +68,27 @@ describe("origem atrás de proxy, por endereço do proxy (CA-17, CA-26)", () => 
     expect(await origensGravadas(ctx)).toContain(chaveOrigem(SEGREDO, "2.2.2.2"));
   });
 
-  test("com CIDR, conexão fora da faixa e fora do endereço único mantém o próprio endereço como origem", async () => {
-    for (const ip of ["10.0.1.5", "192.168.1.2"]) {
-      ctx = await criarContexto({ confiarProxy: "10.0.0.0/24, 192.168.1.1" });
-      await ctx.login("a@exemplo.com.br", "senha errada qualquer", {
-        ip,
-        headers: { "x-forwarded-for": "2.2.2.2" },
-      });
+  const CIDR_E_UNICO = "10.0.0.0/24, 192.168.1.1";
+
+  test.each(["10.0.1.5", "192.168.1.2"])(
+    "com CIDR, conexão de %s (fora da faixa e do endereço único) mantém o próprio endereço como origem",
+    async (ip) => {
+      ctx = await criarContexto({ confiarProxy: CIDR_E_UNICO });
+      await ctx.login("a@exemplo.com.br", "senha errada qualquer", { ip, headers: { "x-forwarded-for": "2.2.2.2" } });
       const chaves = await origensGravadas(ctx);
-      expect(chaves, ip).toContain(chaveOrigem(SEGREDO, ip));
-      expect(chaves, ip).not.toContain(chaveOrigem(SEGREDO, "2.2.2.2"));
-      await ctx.encerrar();
-    }
-    ctx = await criarContexto();
+      expect(chaves).toContain(chaveOrigem(SEGREDO, ip));
+      expect(chaves).not.toContain(chaveOrigem(SEGREDO, "2.2.2.2"));
+    },
+  );
+
+  test("com CIDR, conexão do endereço único 192.168.1.1 é proxy confiável: vale o endereço do cabeçalho", async () => {
+    ctx = await criarContexto({ confiarProxy: CIDR_E_UNICO });
+    await ctx.login("a@exemplo.com.br", "senha errada qualquer", {
+      ip: "192.168.1.1",
+      headers: { "x-forwarded-for": "2.2.2.2" },
+    });
+    const chaves = await origensGravadas(ctx);
+    expect(chaves).toContain(chaveOrigem(SEGREDO, "2.2.2.2"));
+    expect(chaves).not.toContain(chaveOrigem(SEGREDO, "192.168.1.1"));
   });
 });

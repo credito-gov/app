@@ -37,15 +37,21 @@ function digitoVerificador(base: string): string {
 describe("varredura do repositório (035)", () => {
   test("a raiz 00000000 (de empresa real) não aparece em src/, test/ nem README.md", () => {
     const uuid = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
-    const proibida = /00000000|00\.000\.000/;
+    // também a forma escapada, de regex em teste (00\.000\.000)
+    const proibida = /00000000|00\\?\.000\\?\.000/;
     const achados: string[] = [];
+    const varridos: string[] = [];
     for (const c of arquivos(RAIZ)) {
       const r = rel(c);
       if (!r.startsWith("src/") && !r.startsWith("test/") && r !== "README.md") continue;
       if (r === "test/varredura.test.ts") continue;
+      varridos.push(r);
       if (proibida.test(readFileSync(c, "utf8").replace(uuid, ""))) achados.push(r);
     }
     expect(achados).toEqual([]);
+    // a lista varrida não pode estar vazia
+    expect(varridos.some((r) => r.startsWith("src/"))).toBe(true);
+    expect(varridos.some((r) => r.startsWith("test/"))).toBe(true);
   });
 
   test("o cálculo do DV dá 91 para a matriz de raiz 11111111", () => {
