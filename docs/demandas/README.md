@@ -4,7 +4,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 
 ## Nomeação
 
-- Demanda: `NNN-slug`, três dígitos em sequência, nunca reutilizados, slug em minúsculas com hífen e sem acento. A próxima é a **035**.
+- Demanda: `NNN-slug`, três dígitos em sequência, nunca reutilizados, slug em minúsculas com hífen e sem acento. A próxima é a **036**.
 - Pasta: `docs/demandas/NNN-slug/` com `us.md`, `spec.md` e `tasks.md` (ou só `bug.md`, numa correção).
 - Branch: `feat/NNN-slug` (código), `docs/NNN-slug` (só documentação) ou `fix/NNN-slug` (correção).
 - Modelos em [`_template/`](_template/).
@@ -25,6 +25,7 @@ Fonte única de status e backlog. O fluxo está descrito em [`../../AGENTS.md`](
 | 032 | [design-system-produto](032-design-system-produto/us.md) | Design system do produto | concluída | [credito-gov/app#33](https://github.com/credito-gov/app/pull/33) |
 | 033 | [dashboard-indicadores](033-dashboard-indicadores/us.md) | Primeiro dashboard do usuário final: indicadores do crédito de CBS | em-implementação | `feat/033-dashboard-indicadores` |
 | 034 | [login](034-login/us.md) | Login por e-mail e senha, convite e acesso por empresa | concluída | `feat/034-login` |
+| 035 | [correcoes-034](035-correcoes-034/bug.md) | Correções deixadas pela 034: raiz de CNPJ real nos dados fictícios e achados baixos | concluída | `fix/035-correcoes-034` |
 
 ## Backlog
 

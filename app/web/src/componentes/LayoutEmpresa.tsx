@@ -74,7 +74,7 @@ export function LayoutEmpresa() {
     return (
       <main className="conteudo">
         {carga.tipo === "rede" ? (
-          <AlertaDeRede tipo={carga.falha} aoTentar={tentarDeNovo} />
+          <AlertaDeRede aoTentar={tentarDeNovo} />
         ) : (
           <Alerta
             tipo="error"

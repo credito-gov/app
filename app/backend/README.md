@@ -36,7 +36,7 @@ Os cinco comandos (não há tela de administração):
 Exemplo, só com dados fictícios:
 
 ```bash
-npm run admin -- criar-empresa --cnpj-raiz 00000000 --nome "Comércio Exemplo Ltda."
+npm run admin -- criar-empresa --cnpj-raiz 11111111 --nome "Comércio Exemplo Ltda."
 npm run admin -- convidar --empresa <id> --email titular@exemplo.com.br --papel titular
 ```
 

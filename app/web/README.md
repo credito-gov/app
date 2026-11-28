@@ -29,7 +29,7 @@ Só `401` na leitura inicial da sessão vira "sem sessão"; os demais erros most
 
 ## Conferência no navegador
 
-Roteiro para o **responsável** executar antes do PR (P-9). Só dados fictícios: e-mails de `exemplo.com.br` e raízes de CNPJ `00000000`, `11111111` e `22222222`. A conferência ainda **não foi feita**; o resultado fica registrado no PR.
+Roteiro da conferência do **responsável** (P-9). Só dados fictícios: e-mails de `exemplo.com.br` e raízes de CNPJ `11111111`, `22222222` e `33333333`. O responsável fez a conferência em 2026-11-28, com dados fictícios (handoff da 034, "Verificação"). O roteiro continua aqui para repetir.
 
 1. Subir o banco e migrar, em `app/backend`: `npm run banco:subir` e `npm run migrar`.
 2. Com `npm run admin`, criar duas empresas fictícias e convidar um titular e um contador (exemplos em `app/backend/README.md`).

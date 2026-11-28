@@ -71,7 +71,7 @@ describe("LayoutEmpresa e BarraTopo (CA-32, CA-33)", () => {
     servir();
     renderizar(rotasApp, `/e/${EMPRESA_A.id}`);
     expect(await screen.findByText(EMPRESA_A.nome)).toBeInTheDocument();
-    expect(screen.getByText("CNPJ raiz 00.000.000")).toBeInTheDocument();
+    expect(screen.getByText("CNPJ raiz 11.111.111")).toBeInTheDocument();
   });
 
   it("o avatar tem as iniciais do usuário", async () => {
@@ -93,7 +93,7 @@ describe("LayoutEmpresa e BarraTopo (CA-32, CA-33)", () => {
     await userEvent.click(await screen.findByRole("button", { name: /Trocar empresa/ }));
     await userEvent.click(screen.getByRole("link", { name: new RegExp(EMPRESA_B.nome) }));
     await waitFor(() => expect(router.state.location.pathname).toBe(`/e/${EMPRESA_B.id}`));
-    expect(await screen.findByText("CNPJ raiz 11.111.111")).toBeInTheDocument();
+    expect(await screen.findByText("CNPJ raiz 22.222.222")).toBeInTheDocument();
   });
 
   it("Sair chama DELETE /api/sessao e leva a /entrar", async () => {

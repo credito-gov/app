@@ -85,7 +85,7 @@ export function AceitarConvite() {
     return (
       <PaginaCartao titulo="Convite">
         {carga.tipo === "rede" ? (
-          <AlertaDeRede tipo={carga.falha} aoTentar={tentarDeNovo} />
+          <AlertaDeRede aoTentar={tentarDeNovo} />
         ) : (
           <Alerta
             tipo="error"
@@ -151,7 +151,7 @@ export function AceitarConvite() {
       {aviso === "muitas_tentativas" ? (
         <Alerta tipo="warning" titulo="Muitas tentativas. Tente de novo em alguns minutos." />
       ) : null}
-      {aviso === "sem_conexao" ? <AlertaDeRede tipo={aviso} /> : null}
+      {aviso === "sem_conexao" ? <AlertaDeRede /> : null}
       {aviso === "outro" ? <Alerta tipo="error" titulo="Não foi possível aceitar o convite" /> : null}
       <form className="entrar-cartao" onSubmit={enviar} noValidate>
         {convite.contaExistente ? (

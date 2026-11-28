@@ -60,15 +60,15 @@ const motivo = async (p: Promise<unknown>): Promise<string> => {
 
 describe("criar-empresa (CA-5)", () => {
   test("aceita a raiz com e sem pontuação, grava e devolve o id", async () => {
-    const a = await admin.criarEmpresa({ cnpjRaiz: "00000000", nome: "Comércio Exemplo Ltda." });
-    const b = await admin.criarEmpresa({ cnpjRaiz: "11.111.111", nome: "Indústria Exemplo S.A." });
+    const a = await admin.criarEmpresa({ cnpjRaiz: "11111111", nome: "Comércio Exemplo Ltda." });
+    const b = await admin.criarEmpresa({ cnpjRaiz: "22.222.222", nome: "Indústria Exemplo S.A." });
     expect(a.id).toMatch(/^[0-9a-f-]{36}$/);
     expect(a.saida).toContain(a.id);
     const gravadas = await migracao.transaction().execute(async (trx) => {
       await sql`select set_config('app.empresas', ${`{${a.id},${b.id}}`}, true)`.execute(trx);
       return (await sql<{ cnpj_raiz: string }>`select cnpj_raiz from empresa order by cnpj_raiz`.execute(trx)).rows;
     });
-    expect(gravadas.map((g) => g.cnpj_raiz)).toEqual(["00000000", "11111111"]);
+    expect(gravadas.map((g) => g.cnpj_raiz)).toEqual(["11111111", "22222222"]);
   });
 
   test("recusa raiz com 7 dígitos ou com letras, dizendo o motivo", async () => {
@@ -77,18 +77,18 @@ describe("criar-empresa (CA-5)", () => {
   });
 
   test("recusa nome vazio", async () => {
-    expect(await motivo(admin.criarEmpresa({ cnpjRaiz: "00000000", nome: "  " }))).toMatch(/nome/i);
+    expect(await motivo(admin.criarEmpresa({ cnpjRaiz: "11111111", nome: "  " }))).toMatch(/nome/i);
   });
 
   test("recusa raiz repetida, dizendo o motivo", async () => {
-    await admin.criarEmpresa({ cnpjRaiz: "00000000", nome: "Comércio Exemplo Ltda." });
-    expect(await motivo(admin.criarEmpresa({ cnpjRaiz: "00.000.000", nome: "Outra" }))).toMatch(/já existe/i);
+    await admin.criarEmpresa({ cnpjRaiz: "11111111", nome: "Comércio Exemplo Ltda." });
+    expect(await motivo(admin.criarEmpresa({ cnpjRaiz: "11.111.111", nome: "Outra" }))).toMatch(/já existe/i);
   });
 });
 
 describe("convidar (CA-6)", () => {
   test.each(["titular", "contador"] as const)("convite de %s gera e-mail com o link, origem equipe e validade de 7 dias", async (papel) => {
-    const { id } = await admin.criarEmpresa({ cnpjRaiz: "00000000", nome: "Comércio Exemplo Ltda." });
+    const { id } = await admin.criarEmpresa({ cnpjRaiz: "11111111", nome: "Comércio Exemplo Ltda." });
     const r = await admin.convidar({ empresaId: id, email: " Novo@Exemplo.com.br ", papel });
     expect(email.mensagens).toHaveLength(1);
     const msg = email.mensagens[0]!;
@@ -121,7 +121,7 @@ describe("convidar (CA-6)", () => {
   });
 
   test("colaborador é recusado para a equipe", async () => {
-    const { id } = await admin.criarEmpresa({ cnpjRaiz: "00000000", nome: "Comércio Exemplo Ltda." });
+    const { id } = await admin.criarEmpresa({ cnpjRaiz: "11111111", nome: "Comércio Exemplo Ltda." });
     expect(await motivo(admin.convidar({ empresaId: id, email: "novo@exemplo.com.br", papel: "colaborador" }))).toMatch(/titular ou contador/);
     expect(email.mensagens).toHaveLength(0);
   });
@@ -141,9 +141,9 @@ describe("empresas-do-usuario", () => {
       const admin2 = criarComandosAdmin({ banco: ctx.banco, email: ctx.email, relogio: () => ctx.relogio.agora(), config: ctx.config });
       const u = await ctx.criarUsuario("pessoa@exemplo.com.br");
       const outro = await ctx.criarUsuario("outra@exemplo.com.br");
-      const a = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
-      const b = await ctx.criarEmpresa("Indústria Exemplo S.A.", "11111111");
-      const c = await ctx.criarEmpresa("Serviços Exemplo ME", "22222222");
+      const a = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "11111111");
+      const b = await ctx.criarEmpresa("Indústria Exemplo S.A.", "22222222");
+      const c = await ctx.criarEmpresa("Serviços Exemplo ME", "33333333");
       await ctx.vincular(a, u, "titular");
       await ctx.vincular(b, u, "contador");
       await ctx.vincular(c, outro, "titular");
@@ -175,7 +175,7 @@ describe("remover-vinculo (CA-34)", () => {
     const adminC = criarComandosAdmin({ banco: ctx.banco, email: ctx.email, relogio: () => ctx.relogio.agora(), config: ctx.config });
     const titular = await ctx.criarUsuario("titular@exemplo.com.br");
     const contador = await ctx.criarUsuario("contador@exemplo.com.br");
-    const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
+    const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "11111111");
     await ctx.vincular(empresa, titular, "titular");
     await ctx.vincular(empresa, contador, "contador");
 
@@ -223,7 +223,7 @@ describe("processo do admin (sem .env e sem shell)", () => {
   }, 130_000);
 
   test("criar-empresa válido sai com código 0, imprime o id e o nome chega inteiro", async () => {
-    const ok = rodar("criar-empresa", "--cnpj-raiz", "00.000.000", "--nome", "Comércio Exemplo Ltda.");
+    const ok = rodar("criar-empresa", "--cnpj-raiz", "11.111.111", "--nome", "Comércio Exemplo Ltda.");
     expect(ok.status).toBe(0);
     expect(ok.stderr).not.toContain("DEP0190");
     const id = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/.exec(ok.stdout)?.[1];
@@ -249,13 +249,13 @@ describe("processo do admin (sem .env e sem shell)", () => {
 
 describe("convidar: validação de e-mail e falha no envio", () => {
   test("usa a mesma validação da API: e-mail sem ponto no domínio é recusado", async () => {
-    const { id } = await admin.criarEmpresa({ cnpjRaiz: "00000000", nome: "Comércio Exemplo Ltda." });
+    const { id } = await admin.criarEmpresa({ cnpjRaiz: "11111111", nome: "Comércio Exemplo Ltda." });
     expect(await motivo(admin.convidar({ empresaId: id, email: "pessoa@exemplo", papel: "titular" }))).toMatch(/e-mail inválido/i);
     expect(email.mensagens).toHaveLength(0);
   });
 
   test("se o e-mail não sai, diz que o convite foi criado", async () => {
-    const { id } = await admin.criarEmpresa({ cnpjRaiz: "00000000", nome: "Comércio Exemplo Ltda." });
+    const { id } = await admin.criarEmpresa({ cnpjRaiz: "11111111", nome: "Comércio Exemplo Ltda." });
     const semEnvio = criarComandosAdmin({
       banco: criarBanco(app),
       email: {

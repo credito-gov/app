@@ -23,8 +23,8 @@ async function entrar(email: string, empresa: string | null, papel: "titular" | 
 
 beforeEach(async () => {
   ctx = await criarContexto();
-  A = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
-  B = await ctx.criarEmpresa("Indústria Exemplo S.A.", "11111111");
+  A = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "11111111");
+  B = await ctx.criarEmpresa("Indústria Exemplo S.A.", "22222222");
   const t = await entrar("titular-a@exemplo.com.br", A, "titular", "Maria Titular");
   const c = await entrar("contador-a@exemplo.com.br", A, "contador", "Carlos Contador");
   const k = await entrar("colaborador-a@exemplo.com.br", A, "colaborador", "Carla Colaboradora");
@@ -194,7 +194,7 @@ describe("aceitar sem conta (CA-11)", () => {
     const r = await consultar(ultimoLink());
     expect(r.status).toBe(200);
     expect(r.corpo).toEqual({
-      empresa: { nome: "Comércio Exemplo Ltda.", cnpjRaizFormatado: "00.000.000" },
+      empresa: { nome: "Comércio Exemplo Ltda.", cnpjRaizFormatado: "11.111.111" },
       papel: "contador",
       emailMascarado: "n***@exemplo.com.br",
       contaExistente: false,
@@ -211,7 +211,7 @@ describe("aceitar sem conta (CA-11)", () => {
     expect(r.cookie).toBeTruthy();
     expect(r.corpo.usuario.nome).toBe("Nova Pessoa");
     expect(r.corpo.empresas).toEqual([
-      { id: A, nome: "Comércio Exemplo Ltda.", cnpjRaiz: "00000000", cnpjRaizFormatado: "00.000.000", papel: "contador" },
+      { id: A, nome: "Comércio Exemplo Ltda.", cnpjRaiz: "11111111", cnpjRaizFormatado: "11.111.111", papel: "contador" },
     ]);
     expect(await contar("usuario")).toBe(usuarios + 1);
     const ident = await sql<{ provedor: string; sujeito: string; hash_senha: string }>`

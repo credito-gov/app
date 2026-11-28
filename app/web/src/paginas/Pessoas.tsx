@@ -20,9 +20,7 @@ type Retorno = { tipo: "sucesso" | "aviso" | "erro"; texto: string } | null;
 
 const MOTIVO_ULTIMO_TITULAR = "Não é possível remover o último titular.";
 
-function textoDeRede(tipo: FalhaDeRede): string {
-  return tipo === "sem_conexao" ? "Sem conexão" : "O serviço está indisponível no momento. Tente em alguns minutos.";
-}
+const TEXTO_DE_REDE = "Sem conexão";
 
 function data(iso: string): string {
   return new Date(iso).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
@@ -57,7 +55,7 @@ export function Pessoas() {
   }, [carregar]);
 
   if (falha && !dados) {
-    if (falha !== "outro") return <AlertaDeRede tipo={falha} aoTentar={() => void carregar()} />;
+    if (falha !== "outro") return <AlertaDeRede aoTentar={() => void carregar()} />;
     return (
       <Alerta
         tipo="error"
@@ -98,7 +96,7 @@ export function Pessoas() {
       setRetorno({ tipo: "sucesso", texto: "Convite enviado" });
       setEmail("");
       void carregar();
-    } else if (ehFalhaDeRede(r)) setRetorno({ tipo: "erro", texto: textoDeRede(r.tipo) });
+    } else if (ehFalhaDeRede(r)) setRetorno({ tipo: "erro", texto: TEXTO_DE_REDE });
     else if (r.status === 502 && r.codigo === "email_nao_enviado") {
       // O convite foi gravado; só o e-mail não saiu. A lista recarrega para mostrá-lo como pendente.
       setRetorno({ tipo: "erro", texto: r.mensagem || "O convite foi criado, mas o e-mail não saiu. Tente reenviar." });
@@ -121,7 +119,7 @@ export function Pessoas() {
         void cache?.invalidateQueries({ queryKey: ["carteira"] });
         navegar("/empresas");
       } else void carregar();
-    } else if (ehFalhaDeRede(r)) setRetorno({ tipo: "erro", texto: textoDeRede(r.tipo) });
+    } else if (ehFalhaDeRede(r)) setRetorno({ tipo: "erro", texto: TEXTO_DE_REDE });
     else if (r.status === 409) setRetorno({ tipo: "erro", texto: MOTIVO_ULTIMO_TITULAR });
     else if (r.status === 403) setRetorno({ tipo: "erro", texto: "Só o titular pode remover pessoas." });
     else if (r.status !== 401) setRetorno({ tipo: "erro", texto: "Não foi possível remover o acesso." });

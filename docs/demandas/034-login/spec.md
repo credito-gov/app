@@ -233,13 +233,13 @@ Um `401` com `sessao_expirada` ou `sem_sessao` em rota logada leva a `/entrar?mo
 | `/e/:empresaId/pessoas` | Pessoas com vínculo (nome, e-mail, papel, desde quando) e convites pendentes (e-mail, papel, validade). Formulário "Convidar" só com os papéis permitidos ao usuário. "Remover" só para o titular, desabilitado no último titular com o motivo | CA-8, CA-9, CA-34 |
 | `/e/:empresaId` com empresa sem vínculo | "Empresa não encontrada ou sem acesso" e o link para `/empresas` | CA-33 |
 
-- **`BarraTopo`:** `cg-appbar` com o logo, `cg-topnav` (por ora "Início" e "Pessoas"), a empresa em foco (`cg-company-name` e `cg-company-meta` com "CNPJ raiz 00.000.000"), a troca de empresa (`cg-company-switch`, só com mais de uma empresa, levando a `/e/:outraId` pela lista de `GET /api/empresas`), `cg-avatar` com as iniciais e "Sair" (CA-32).
+- **`BarraTopo`:** `cg-appbar` com o logo, `cg-topnav` (por ora "Início" e "Pessoas"), a empresa em foco (`cg-company-name` e `cg-company-meta` com "CNPJ raiz 11.111.111"), a troca de empresa (`cg-company-switch`, só com mais de uma empresa, levando a `/e/:outraId` pela lista de `GET /api/empresas`), `cg-avatar` com as iniciais e "Sair" (CA-32).
 - **`PainelMarca`** (P-S1): textos do artboard "Login" do canvas da 032, lidos pela sessão principal em 2026-11-27. Cada mensagem tem título, subtítulo e um cartão ilustrativo montado com componentes do design system:
 
   | # | Título | Subtítulo | Cartão |
   |---|---|---|---|
   | 1 | "Veja o crédito de CBS das suas compras, nota a nota." | "Quanto a Receita registrou nas notas de compra da sua empresa, num só lugar." | "Crédito apurado nas compras", um valor fictício, "896 notas de compra" e o selo "Exemplo fictício" |
-  | 2 | "Saiba o que ainda está a apropriar e de quem vem." | "O crédito que a Receita ainda não liberou, agrupado pelo emitente de cada nota." | "A apropriar, por emitente", com CNPJs fictícios do tipo `11.111.111/0001-11`, a linha "Emitente não identificado" e o selo "Exemplo fictício" |
+  | 2 | "Saiba o que ainda está a apropriar e de quem vem." | "O crédito que a Receita ainda não liberou, agrupado pelo emitente de cada nota." | "A apropriar, por emitente", com CNPJs fictícios do tipo `22.222.222/0001-22`, a linha "Emitente não identificado" e o selo "Exemplo fictício" |
   | 3 | "Saiba até quando cada número está atualizado." | "Os dados vêm da API de apuração da CBS da Receita Federal. O IBS ainda não está nessa fonte." | "Créditos atualizados em <data>", "Consulta à API de apuração da CBS da Receita" e o selo "Só CBS" |
 
   Os valores e a data dos cartões são fictícios, fixos no código e iguais aos do artboard (P-S3, resolvida em 2026-11-28; valores em DT-13). A troca é a cada 6 segundos. Ela pausa sob o ponteiro e com o foco, e não acontece sozinha com `prefers-reduced-motion: reduce`. Os pontos são `button` com `aria-label` "Mensagem N de 3" e `aria-current` na mensagem atual. O texto fica numa região `aria-live="polite"`.
@@ -273,7 +273,7 @@ Numa task própria, no fim:
 Todas as rotas ficam sob `/api` e usam JSON. Os erros têm a forma `{"erro": "<codigo>", "mensagem": "<texto para o usuário>"}`. A validação de entrada é por JSON Schema do Fastify, e um campo inválido dá `400 entrada_invalida`, com `campos: [{campo, mensagem}]`. A empresa é representada assim:
 
 ```json
-{ "id": "uuid", "nome": "Comércio Exemplo Ltda.", "cnpjRaiz": "00000000", "cnpjRaizFormatado": "00.000.000", "papel": "titular" }
+{ "id": "uuid", "nome": "Comércio Exemplo Ltda.", "cnpjRaiz": "11111111", "cnpjRaizFormatado": "11.111.111", "papel": "titular" }
 ```
 
 ### Sem sessão
@@ -341,14 +341,14 @@ Desvios técnicos registrados depois da implementação e da rodada de correçã
 
 - **DT-13 — Valores dos cartões do painel da marca (P-S3).** A sessão principal os leu no artboard "Login" aprovado da 032:
   - cartão 1: "R$ 52.121,58" e "896 notas de compra";
-  - cartão 2: `11.111.111/0001-11` com R$ 14.320,10, `22.222.222/0001-22` com R$ 9.870,45 e "Emitente não identificado" com R$ 7.950,30;
+  - cartão 2: `22.222.222/0001-22` com R$ 14.320,10, `33.333.333/0001-33` com R$ 9.870,45 e "Emitente não identificado" com R$ 7.950,30;
   - cartão 3: "Créditos atualizados em 24/11/2026, 08:12".
 
   São todos fictícios, com o selo da Spec.
 - **DT-14 — Provedor de migrações estático.** Um provedor que importa as migrações explicitamente substitui o `FileMigrationProvider`, porque funciona igual em `src` (testes) e em `dist` (build), sem depender de caminho de arquivo. O `Migrator` é importado de `kysely/migration`.
 - **DT-15 — `naEmpresaFixada` em `transacao.ts`.** É uma função a mais, que fixa uma empresa sem conferir vínculo. Só dois pontos a usam: a consulta e a aceitação de convite pelo token (DT-6) e o `npm run admin` (DT-7). Nenhuma rota com sessão a usa; essas passam por `naEmpresa`.
 - **DT-16 — `rotaDeEmpresa` como `onRequest`**, não `preHandler`. A conferência de sessão e de empresa acontece antes da leitura do corpo. O contrato para a 033 não muda: `request.naEmpresa(fn)` e `request.naCarteira(fn)`.
-- **DT-17 — Lista de senhas comuns por dependência.** O responsável decidiu em 2026-11-27 usar `@zxcvbn-ts/language-common` 4.2.0 (licença MIT). A lista é filtrada em tempo de execução: 12 caracteres ou mais, depois de NFC, em minúsculas, o que dá 308 senhas. A lista é local, sem consulta a serviço externo. É assim que se lê o "guardada no próprio código" de CA-14 e de P-4.
+- **DT-17 — Lista de senhas comuns por dependência.** O responsável decidiu em 2026-11-27 usar `@zxcvbn-ts/language-common` 4.2.0 (licença MIT). A lista é filtrada em tempo de execução: 12 caracteres ou mais, depois de NFC, em minúsculas, o que dá 308 senhas. A lista é local, sem consulta a serviço externo. O CA-14 da US descreve a lista desse jeito desde a 035 (redação alinhada).
 - **DT-18 — `CREDITOGOV_CONFIAR_PROXY` como lista de endereços.** Era um booleano. Na rodada de correção 1 passou a ser um número de saltos, e na rodada 2 (2026-11-28) passou a ser uma lista separada por vírgula de IPs, CIDRs ou dos nomes `loopback`, `linklocal` e `uniquelocal`, passada direto ao `trustProxy` do Fastify. Vazia ou ausente, que é o padrão, a API não confia em proxy nenhum e usa o endereço da conexão. No desenvolvimento, com o proxy do Vite (`xfwd: true`), o valor é `loopback`. **Motivo da troca:** com contagem de saltos, quem fala direto com a API consegue forjar a origem pelo `X-Forwarded-For` (o Fastify recusa a contagem de saltos por segurança). Com a lista, só o cabeçalho vindo de um proxy listado é considerado.
 - **DT-19 — Falhas de envio de e-mail e de sessão:**
   - **recuperação:** a resposta continua o mesmo `202`, e o log registra `email_falhou` sem e-mail. Assim a falha não revela se a conta existe (CA-23);
@@ -357,12 +357,12 @@ Desvios técnicos registrados depois da implementação e da rodada de correçã
   - **web:** vale o que foi aprovado em "Cliente da API". 502, 503 e 504 sem corpo de erro tipado da API viram `sem_conexao` ("Sem conexão"). Um 502 com corpo `{erro}`, como `email_nao_enviado`, continua erro tipado. O estado `servidor_indisponivel`, criado na rodada de correção 1, foi removido na rodada 2 (2026-11-28).
 - **DT-20 — Um só convite pendente por empresa e e-mail.** A migração `0001` cria o índice único parcial `convite_pendente_unico`, e `criarConvite` usa `pg_advisory_xact_lock` por empresa e e-mail, para dois convites simultâneos não ficarem pendentes juntos (CA-9).
 - **DT-21 — Recusa de papel com privilégio.** A API e o `npm run admin` conferem o papel conectado ao iniciar. Não sobem se ele for superusuário, tiver `BYPASSRLS` ou for dono de alguma tabela (AD-6, CA-2, CA-37).
-- **DT-22 — Raiz fictícia `22222222`** acrescentada às de teste, para casos com três empresas.
+- **DT-22 — Raiz fictícia `33333333`** (na 034 era `22222222`, antes do mapeamento da 035) acrescentada às de teste, para casos com três empresas. As três são `11111111`, `22222222` e `33333333`.
 
 Riscos novos:
 
 - **R-7. Lista de endereços do proxy errada.** Atrás de proxy, `CREDITOGOV_CONFIAR_PROXY` precisa listar exatamente os endereços dos proxies confiáveis. Se faltar o proxy, todos os acessos parecem vir dele, e a chave de origem do limite fica compartilhada, de modo que um usuário bloqueia os outros. Se a lista for ampla demais e incluir endereços de onde o cliente consegue falar direto com a API, ele forja a origem pelo `X-Forwarded-For` e escapa do limite por origem.
-- **R-8. A raiz `00000000` não é fictícia.** Ela foi adotada como fictícia no design (032) e na US, mas é a raiz real de um CNPJ (Banco do Brasil). Fica nesta demanda para não divergir do design aprovado. A troca nos testes, nos dados de exemplo e no design é de uma demanda futura.
+- **R-8. A raiz `00000000` não é fictícia.** Ela foi adotada como fictícia no design (032) e na US, mas é a raiz de um CNPJ real. Ficou nesta demanda para não divergir do design aprovado. A troca nos testes, nos dados de exemplo e no design foi feita na 035 (`docs/demandas/035-correcoes-034/bug.md`), pelo mapeamento `00000000`→`11111111`, `11111111`→`22222222` e `22222222`→`33333333`. Os exemplos deste documento já seguem esse mapeamento.
 
 ## Implantação
 
@@ -390,7 +390,7 @@ Riscos novos:
   - segredo gerado e guardado no gerenciador de segredos;
   - um adaptador de e-mail real. Sem ele, a API recusa iniciar em `producao`.
 - **Antes:** `npm run banco:subir` e `npm run migrar`. **Depois:** `npm run admin -- criar-empresa` e `convidar` para o primeiro acesso, com dados fictícios no ambiente local.
-- **Riscos para ir ao ar:** R-7 (lista de endereços do proxy errada) e R-8 (a raiz `00000000` é real e deve ser trocada nos dados de exemplo).
+- **Riscos para ir ao ar:** R-7 (lista de endereços do proxy errada) e R-8 (a raiz `00000000`, real, foi trocada na 035).
 - **Como voltar:** localmente, `npm run banco:apagar` apaga o volume. Não há nada publicado para desfazer.
 
 ## Estratégia de verificação
@@ -400,7 +400,7 @@ Riscos novos:
 - **`app/backend`:** `npm run banco:subir`, depois `npm test`, `npm run lint` e `npm run build`.
 - **`app/web`:** `npm test`, `npm run lint` e `npm run build`.
 
-Nenhum teste lê `.env`, chama serviço externo ou usa dado real. Os e-mails dos testes são de `exemplo.com.br` ou `example.com`, e as raízes de CNPJ são `00000000`, `11111111` e `22222222` (DT-22; ver R-8 sobre a `00000000`).
+Nenhum teste lê `.env`, chama serviço externo ou usa dado real. Os e-mails dos testes são de `exemplo.com.br` ou `example.com`, e as raízes de CNPJ são `11111111`, `22222222` e `33333333` (DT-22; ver R-8, trocada na 035).
 
 **Banco de teste:** o `globalSetup` do vitest do backend conecta como superusuário do contêiner local, só para apagar e recriar o banco `creditogov_teste` (dono `creditogov_migracao`), e roda as migrações com o papel de migração. Os testes usam o papel `creditogov_app`, e cada arquivo de teste limpa as tabelas com o papel de migração antes de começar. As URLs de teste são fixas no código, apontando para `127.0.0.1:5433` sem senha, e podem ser trocadas por `CREDITOGOV_BANCO_TESTE_URL` se a porta mudar.
 

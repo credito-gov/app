@@ -398,7 +398,7 @@ describe("/pendencias (CA-14, CA-15)", () => {
   });
 
   it("grupo inexistente dá 404", async () => {
-    expect((await (await painelCom(arquivosPendencias)).get("/pendencias?grupo=cnpj-00000000000000")).status).toBe(404);
+    expect((await (await painelCom(arquivosPendencias)).get("/pendencias?grupo=cnpj-11111111000100")).status).toBe(404);
   });
 
   it("não afirma o motivo da pendência nem que o emitente deixou de recolher (CA-15)", async () => {

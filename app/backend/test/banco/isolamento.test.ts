@@ -44,9 +44,9 @@ beforeAll(async () => {
     await sql`insert into usuario (id, nome, email_normalizado) values
       (${U1}, 'Pessoa Um', 'um@exemplo.com.br'), (${U2}, 'Pessoa Dois', 'dois@exemplo.com.br')`.execute(trx);
     await sql`insert into empresa (id, cnpj_raiz, nome) values
-      (${A}, '00000000', 'Comércio Exemplo Ltda.'),
-      (${B}, '11111111', 'Indústria Exemplo S.A.'),
-      (${C}, '22222222', 'Serviços Exemplo ME')`.execute(trx);
+      (${A}, '11111111', 'Comércio Exemplo Ltda.'),
+      (${B}, '22222222', 'Indústria Exemplo S.A.'),
+      (${C}, '33333333', 'Serviços Exemplo ME')`.execute(trx);
     await sql`insert into convite (id, empresa_id, email_normalizado, papel, token_hmac, origem, expira_em) values
       (${conviteA}, ${A}, 'novo-a@exemplo.com.br', 'colaborador', 'hmac-a', 'equipe', now() + interval '7 days'),
       (${conviteB}, ${B}, 'novo-b@exemplo.com.br', 'colaborador', 'hmac-b', 'equipe', now() + interval '7 days')`.execute(trx);

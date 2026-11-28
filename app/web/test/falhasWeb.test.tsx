@@ -137,7 +137,7 @@ describe("LayoutEmpresa (CA-32, CA-33)", () => {
     expect(await screen.findByRole("button", { name: "Tentar de novo" })).toBeInTheDocument();
     expect(screen.queryByText("Empresa não encontrada ou sem acesso")).toBeNull();
     await userEvent.click(screen.getByRole("button", { name: "Tentar de novo" }));
-    expect(await screen.findByText("CNPJ raiz 00.000.000")).toBeInTheDocument();
+    expect(await screen.findByText("CNPJ raiz 11.111.111")).toBeInTheDocument();
   });
 
   it("503 mostra sem conexão (proxy sem corpo)", async () => {
@@ -150,7 +150,7 @@ describe("LayoutEmpresa (CA-32, CA-33)", () => {
     const erro = vi.spyOn(console, "error").mockImplementation(() => undefined);
     servir({ empresas: [EMPRESA_A, EMPRESA_B], extra: (c) => (c.url === "/api/empresas" ? ERRO_500 : undefined) });
     renderizar(rotasApp, `/e/${EMPRESA_A.id}`);
-    expect(await screen.findByText("CNPJ raiz 00.000.000")).toBeInTheDocument();
+    expect(await screen.findByText("CNPJ raiz 11.111.111")).toBeInTheDocument();
     expect(erro).toHaveBeenCalled();
     erro.mockRestore();
   });
@@ -345,7 +345,7 @@ describe("AceitarConvite (CA-11 a CA-14)", () => {
     const router = renderizar(rotasApp, "/convite");
     await preencherSemConta();
     await waitFor(() => expect(router.state.location.pathname).toBe(`/e/${EMPRESA_A.id}`));
-    expect(await screen.findByText("CNPJ raiz 00.000.000")).toBeInTheDocument();
+    expect(await screen.findByText("CNPJ raiz 11.111.111")).toBeInTheDocument();
     expect(await screen.findByRole("heading", { level: 1, name: "Visão geral" })).toBeInTheDocument();
   });
 
@@ -356,7 +356,7 @@ describe("AceitarConvite (CA-11 a CA-14)", () => {
     await userEvent.type(await screen.findByLabelText("Senha atual"), SENHA);
     await userEvent.click(screen.getByRole("button", { name: "Aceitar convite" }));
     await waitFor(() => expect(router.state.location.pathname).toBe(`/e/${EMPRESA_A.id}`));
-    expect(await screen.findByText("CNPJ raiz 00.000.000")).toBeInTheDocument();
+    expect(await screen.findByText("CNPJ raiz 11.111.111")).toBeInTheDocument();
   });
 });
 

@@ -126,7 +126,7 @@ describe("e-mail que não sai", () => {
   });
 
   test("convite: 502 email_nao_enviado, convite criado e email_falhou registrado", async () => {
-    const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
+    const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "11111111");
     const titular = await ctx.criarUsuario("titular@exemplo.com.br");
     await ctx.vincular(empresa, titular, "titular");
     const cookie = (await ctx.login("titular@exemplo.com.br")).cookie!;
@@ -147,7 +147,7 @@ describe("e-mail que não sai", () => {
 
 describe("aceite com commit e falha ao abrir a sessão", () => {
   test("devolve convite_aceito_sem_sessao, sem cookie, e o login depois funciona", async () => {
-    const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
+    const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "11111111");
     const titular = await ctx.criarUsuario("titular@exemplo.com.br");
     await ctx.vincular(empresa, titular, "titular");
     const cookie = (await ctx.login("titular@exemplo.com.br")).cookie!;

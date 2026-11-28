@@ -16,13 +16,13 @@ const EMAIL = "pessoa@exemplo.com.br";
 describe("login (CA-15)", () => {
   test("e-mail com espaços e maiúsculas entra na conta normalizada; a resposta traz usuario e empresas", async () => {
     const id = await ctx.criarUsuario(EMAIL, "Pessoa Exemplo");
-    const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
+    const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "11111111");
     await ctx.vincular(empresa, id, "titular");
     const r = await ctx.login(" Pessoa@Exemplo.com.br ");
     expect(r.status).toBe(200);
     expect(r.corpo.usuario).toEqual({ id, nome: "Pessoa Exemplo" });
     expect(r.corpo.empresas).toEqual([
-      { id: empresa, nome: "Comércio Exemplo Ltda.", cnpjRaiz: "00000000", cnpjRaizFormatado: "00.000.000", papel: "titular" },
+      { id: empresa, nome: "Comércio Exemplo Ltda.", cnpjRaiz: "11111111", cnpjRaizFormatado: "11.111.111", papel: "titular" },
     ]);
     expect(r.cookie).toBeTruthy();
   });
