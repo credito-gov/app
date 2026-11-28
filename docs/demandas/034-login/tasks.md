@@ -61,7 +61,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 35 | READMEs de `app/backend` e `app/web` | Documentação | CA-1, CA-40 | revisão; comandos do README rodados | ☑ |
 | 36 | `AGENTS.md` e `docs/PROJECT_CONTEXT.md` | Documentação | CA-1, CA-40 | revisão; links abrem | ☑ |
 | 37 | Design, arquitetura §13 e `hipoteses.md` | Documentação; R-6 | CA-40 | revisão; links abrem | ☑ |
-| 38 | Verificação final | Estratégia de verificação | todos | os seis comandos passam; varreduras limpas; `git status` limpo | ☐ |
+| 38 | Verificação final | Estratégia de verificação | todos | os seis comandos passam; varreduras limpas; `git status` limpo | ☑ |
 
 ## Detalhe das tasks
 
