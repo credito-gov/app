@@ -30,5 +30,5 @@ Os dois artifacts são **privados ao dono** (conta do responsável). Quem não t
 
 ## Pontos de atenção
 
-- O login por provedor externo revê a decisão de 2026-08-25 de autenticação própria (e-mail e senha). Os provedores finais e o impacto na arquitetura ficam para a demanda 031. As marcas oficiais do Google e da Microsoft entram na implementação.
+- O login por provedor externo revê a decisão de 2026-08-25 de autenticação própria (e-mail e senha). **Na demanda 034 (decisão de 2026-11-27, D-1), os botões de provedor externo e o divisor "ou com e-mail" saíram do login até haver demanda própria;** o subtítulo passou a ser "Use o e-mail cadastrado no CreditoGov.". As marcas oficiais do Google e da Microsoft entram só quando o login federado for construído. As telas novas da 034 usam só componentes do design system (P-9).
 - A **landing mantém o tema próprio** (redesign escuro, tasks 015–027) e não usa estes tokens. Alinhá-la é outra demanda. As imagens da landing ficam em `app/landing-page/src/assets/`.
