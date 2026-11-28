@@ -339,7 +339,7 @@ describe("AceitarConvite (CA-11 a CA-14)", () => {
     await preencherSemConta();
     await waitFor(() => expect(router.state.location.pathname).toBe(`/e/${EMPRESA_A.id}`));
     expect(await screen.findByText("CNPJ raiz 00.000.000")).toBeInTheDocument();
-    expect(screen.getByRole("main")).toHaveTextContent("O painel de créditos ainda não está disponível nesta versão.");
+    expect(await screen.findByRole("heading", { level: 1, name: "Visão geral" })).toBeInTheDocument();
   });
 
   it("com as rotas reais, aceitar com conta leva à área logada da empresa (CA-12)", async () => {

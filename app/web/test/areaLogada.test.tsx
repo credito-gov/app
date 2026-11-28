@@ -121,15 +121,6 @@ describe("LayoutEmpresa e BarraTopo (CA-32, CA-33)", () => {
     expect(del).toBeDefined();
   });
 
-  it("a página inicial diz que o painel não está disponível, sem número nem data", async () => {
-    servir();
-    renderizar(rotasApp, `/e/${EMPRESA_A.id}`);
-    await screen.findByText(EMPRESA_A.nome);
-    const principal = screen.getByRole("main");
-    expect(principal).toHaveTextContent("O painel de créditos ainda não está disponível nesta versão.");
-    expect(principal.textContent).not.toMatch(/\d/);
-  });
-
   it("404 em /e/:id mostra a mensagem e o link para /empresas", async () => {
     servir({ empresas: [EMPRESA_A] });
     renderizar(rotasApp, "/e/99999999-9999-4999-8999-999999999999");
