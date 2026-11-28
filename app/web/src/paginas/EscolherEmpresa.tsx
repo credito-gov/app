@@ -55,7 +55,7 @@ export function EscolherEmpresa() {
             Carregando…
           </p>
         ) : carga.tipo === "rede" ? (
-          <AlertaDeRede tipo={carga.falha} aoTentar={tentarDeNovo} />
+          <AlertaDeRede aoTentar={tentarDeNovo} />
         ) : carga.tipo === "erro" ? (
           <Alerta
             tipo="error"

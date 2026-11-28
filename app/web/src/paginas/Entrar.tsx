@@ -82,7 +82,7 @@ export function Entrar() {
             </Alerta>
           ) : null}
           {falha === "sem_conexao" ? (
-            <AlertaDeRede tipo={falha} aoTentar={() => void enviar()} />
+            <AlertaDeRede aoTentar={() => void enviar()} />
           ) : null}
 
           <CampoTexto

@@ -121,7 +121,7 @@ export function RequerSessao() {
             }
           />
         ) : (
-          <AlertaDeRede tipo={estado.falha} aoTentar={recarregar} />
+          <AlertaDeRede aoTentar={recarregar} />
         )}
       </main>
     );
