@@ -1,6 +1,6 @@
 # 033-dashboard-indicadores — Tasks
 
-- **Status:** tasks-aprovada
+- **Status:** em-implementação
 - **Spec:** [`spec.md`](spec.md), aprovada em 2026-11-27 com as recomendações de P-S1 a P-S5
 - **US:** [`us.md`](us.md), aprovada em 2026-11-25
 

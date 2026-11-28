@@ -1,0 +1,113 @@
+/* Cópia de docs/design/tokens/tokens.css, commit fd784a5 (DT-11). Se o design mudar, atualize a cópia na demanda que mudar o design. */
+/* CreditoGov — generated from tokens.json */
+:root, [data-theme="claro"] {
+  --bg: #f5f7fa;
+  --surface: #eef2f7;
+  --surface-raised: #ffffff;
+  --surface-hover: #eef2f7;
+  --line: #e2e8f0;
+  --line-control: #7d899f;
+  --ink: #0b1530;
+  --ink-muted: #475569;
+  --ink-subtle: #5f6b7e;
+  --brand: #1a7d55;
+  --brand-hover: #166b49;
+  --brand-strong: #047857;
+  --brand-soft: #27a6711a;
+  --brand-line: #27a67159;
+  --navy: #354363;
+  --navy-deep: #001955;
+  --brand-plate: #ffffff;
+  --on-brand: #ffffff;
+  --on-navy: #ffffff;
+  --pending: #a14a07;
+  --pending-soft: #fef3c7;
+  --pending-line: #f5b54a;
+  --info: #3b5797;
+  --info-soft: #e9eef8;
+  --info-line: #a9b8de;
+  --neutral-soft: #f1f5f9;
+  --neutral-line: #cbd5e1;
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+  --danger-line: #fecaca;
+  --success: #15803d;
+  --success-soft: #ecfdf5;
+  --success-line: #a7f3d0;
+  --overlay: #0b153066;
+  --shadow-card: 0 1px 2px #0b15300d, 0 1px 3px #0b153014;
+  --shadow-pop: 0 12px 32px #0b15302e;
+  --focus-ring: 0 0 0 2px #ffffff, 0 0 0 4px #1a7d55;
+}
+[data-theme="escuro"] {
+  --bg: #060a13;
+  --surface: #0c121e;
+  --surface-raised: #0e1524;
+  --surface-hover: #172039;
+  --line: #1e293b;
+  --line-control: #5b6b91;
+  --ink: #f8fafc;
+  --ink-muted: #94a3b8;
+  --ink-subtle: #7c8aa0;
+  --brand: #27a671;
+  --brand-hover: #2fbf83;
+  --brand-strong: #047857;
+  --brand-soft: #27a67126;
+  --brand-line: #27a67166;
+  --navy: #354363;
+  --navy-deep: #001955;
+  --brand-plate: #ffffff;
+  --on-brand: #060a13;
+  --on-navy: #f8fafc;
+  --pending: #fbbf24;
+  --pending-soft: #fbbf241a;
+  --pending-line: #fbbf2440;
+  --info: #8fa3d6;
+  --info-soft: #8fa3d61f;
+  --info-line: #8fa3d64d;
+  --neutral-soft: #94a3b81f;
+  --neutral-line: #94a3b84d;
+  --danger: #f87171;
+  --danger-soft: #f871711a;
+  --danger-line: #f8717140;
+  --success: #34d399;
+  --success-soft: #34d3991a;
+  --success-line: #34d39940;
+  --overlay: #060a13cc;
+  --shadow-card: none;
+  --shadow-pop: 0 12px 32px #000000b3;
+  --focus-ring: 0 0 0 2px #060a13, 0 0 0 4px #27a671;
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  --control-sm: 32px;
+  --control-md: 40px;
+  --control-lg: 48px;
+  --appbar-height: 64px;
+  --content-max: 1200px;
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+}
+.display { font-family: var(--font-sans); font-size: 32px; line-height: 40px; font-weight: 800; letter-spacing: -0.02em; }
+.heading { font-family: var(--font-sans); font-size: 20px; line-height: 28px; font-weight: 700; letter-spacing: -0.01em; }
+.subheading { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 700; }
+.body { font-family: var(--font-sans); font-size: 14px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-sans); font-size: 14px; line-height: 22px; font-weight: 600; }
+.label { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 600; }
+.overline { font-family: var(--font-sans); font-size: 11px; line-height: 16px; font-weight: 700; letter-spacing: 0.06em; }
+.money-xl { font-family: var(--font-sans); font-size: 36px; line-height: 44px; font-weight: 800; letter-spacing: -0.02em; }
+.money-lg { font-family: var(--font-sans); font-size: 20px; line-height: 28px; font-weight: 700; }
+.money { font-family: var(--font-sans); font-size: 14px; line-height: 22px; font-weight: 600; }
+.mono { font-family: var(--font-mono); font-size: 13px; line-height: 20px; font-weight: 400; }
