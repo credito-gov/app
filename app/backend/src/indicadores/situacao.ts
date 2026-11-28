@@ -31,8 +31,9 @@ export type EstadoDoServico = "sem_consulta" | "sem_dados_usaveis" | "vazio" | "
 export interface SituacaoDoServico {
   estado: EstadoDoServico;
   emAndamento: boolean;
-  ultimaConcluidaEm: string | null;
-  diasSemConsulta: number | null;
+  /** A última consulta lida cujo arquivo entrou nos indicadores (aceito ou aceito com divergência). */
+  ultimaAceitaEm: string | null;
+  diasSemAtualizacao: number | null;
   desatualizado: boolean;
   falha: { em: string; tipo: "credencial" | "outra" } | null;
   atualizacao: { de: string; ate: string } | null;
@@ -67,7 +68,11 @@ export function situacaoDoServico(servico: ServicoDoPainel, entrada: EntradaDaSi
   const arquivos = entrada.arquivos.filter((a) => a.servico === servico);
 
   const lidas = consultas.filter((c) => c.estado === "lida" && c.concluidaEm !== null);
-  const ultima = lidas.reduce<Date | null>((maior, c) => (maior === null || c.concluidaEm! > maior ? c.concluidaEm : maior), null);
+  // Só conta a consulta lida cujo arquivo entrou nos números (ajuste de 2026-11-28): o recusado não atualiza nada.
+  const aceitas = new Set(arquivos.filter((a) => a.situacao !== "recusado").map((a) => a.consultaId));
+  const ultima = lidas
+    .filter((c) => aceitas.has(c.id))
+    .reduce<Date | null>((maior, c) => (maior === null || c.concluidaEm! > maior ? c.concluidaEm : maior), null);
   const decorrido = ultima === null ? null : agora.getTime() - ultima.getTime();
 
   const finalizadas = consultas.filter((c) => c.finalizadaEm !== null);
@@ -81,13 +86,13 @@ export function situacaoDoServico(servico: ServicoDoPainel, entrada: EntradaDaSi
   const ultimoRecusado = recusados.reduce<Date | null>((m, a) => (m === null || a.recebidoEm > m ? a.recebidoEm : m), null);
 
   const estado: EstadoDoServico =
-    ultima === null ? "sem_consulta" : entrada.notas.length > 0 ? "com_dados" : recusados.length > 0 ? "sem_dados_usaveis" : "vazio";
+    lidas.length === 0 ? "sem_consulta" : entrada.notas.length > 0 ? "com_dados" : recusados.length > 0 ? "sem_dados_usaveis" : "vazio";
 
   return {
     estado,
     emAndamento: consultas.some((c) => EM_ANDAMENTO.has(c.estado)),
-    ultimaConcluidaEm: ultima === null ? null : ultima.toISOString(),
-    diasSemConsulta: decorrido === null ? null : Math.floor(decorrido / DIA_MS),
+    ultimaAceitaEm: ultima === null ? null : ultima.toISOString(),
+    diasSemAtualizacao: decorrido === null ? null : Math.floor(decorrido / DIA_MS),
     desatualizado: decorrido !== null && decorrido > LIMITE_DESATUALIZADO_MS,
     falha,
     atualizacao: intervaloDeAtualizacao(entrada.notas),

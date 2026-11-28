@@ -4,7 +4,7 @@
 import type { Papel } from "../banco/esquema.js";
 import { consolidarNotas, type NotaDoBanco } from "./consolidacao.js";
 import { indicadoresDeCredito } from "./creditos.js";
-import { situacaoDoServico, type ArquivoResumo, type ConsultaResumo, type EstadoDoServico } from "./situacao.js";
+import { situacaoDoServico, type ArquivoResumo, type ConsultaResumo, type EstadoDoServico, type SituacaoDoServico } from "./situacao.js";
 
 const DIA_MS = 24 * 60 * 60_000;
 
@@ -28,7 +28,13 @@ export type ResumoDaSituacao = "atualizado" | "falhou" | "desatualizado" | "sem_
 
 export interface LinhaDaCarteira extends EmpresaDaCarteira {
   creditos: { estado: EstadoDoServico; aApropriar: string | null; apropriado: string | null; utilizado: string | null };
-  situacao: { resumo: ResumoDaSituacao; ultimaConcluidaEm: string | null; diasSemConsulta: number | null };
+  situacao: {
+    resumo: ResumoDaSituacao;
+    ultimaAceitaEm: string | null;
+    diasSemAtualizacao: number | null;
+    /** Retornos da Receita que não entraram nos indicadores (CA-20), por serviço. */
+    recusados: { creditos: SituacaoDoServico["recusados"]; debitos: SituacaoDoServico["recusados"] };
+  };
 }
 
 export function linhaDaCarteira(empresa: EmpresaDaCarteira, dados: DadosParaCarteira, agora: Date): LinhaDaCarteira {
@@ -44,14 +50,14 @@ export function linhaDaCarteira(empresa: EmpresaDaCarteira, dados: DadosParaCart
     if (!i.semNotasNoRecorte) valores = { aApropriar: i.totais.aApropriar, apropriado: i.totais.apropriado, utilizado: i.totais.utilizado };
   }
 
-  const concluidas = [sCreditos.ultimaConcluidaEm, sDebitos.ultimaConcluidaEm];
-  const semConcluida = concluidas.some((c) => c === null);
-  const maisAntiga = semConcluida ? null : (concluidas as string[]).reduce((m, c) => (c < m ? c : m));
+  const aceitas = [sCreditos.ultimaAceitaEm, sDebitos.ultimaAceitaEm];
+  const semAceita = aceitas.some((c) => c === null);
+  const maisAntiga = semAceita ? null : (aceitas as string[]).reduce((m, c) => (c < m ? c : m));
 
   const resumo: ResumoDaSituacao =
     sCreditos.falha !== null || sDebitos.falha !== null
       ? "falhou"
-      : semConcluida
+      : semAceita
         ? "sem_consulta"
         : sCreditos.desatualizado || sDebitos.desatualizado
           ? "desatualizado"
@@ -70,8 +76,9 @@ export function linhaDaCarteira(empresa: EmpresaDaCarteira, dados: DadosParaCart
     },
     situacao: {
       resumo,
-      ultimaConcluidaEm: maisAntiga,
-      diasSemConsulta: maisAntiga === null ? null : Math.floor((agora.getTime() - new Date(maisAntiga).getTime()) / DIA_MS),
+      ultimaAceitaEm: maisAntiga,
+      diasSemAtualizacao: maisAntiga === null ? null : Math.floor((agora.getTime() - new Date(maisAntiga).getTime()) / DIA_MS),
+      recusados: { creditos: sCreditos.recusados, debitos: sDebitos.recusados },
     },
   };
 }
