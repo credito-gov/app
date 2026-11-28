@@ -74,10 +74,13 @@ async function novaConsulta(servico: "creditos" | "debitos"): Promise<string> {
   return id;
 }
 
-async function ler(servico: "creditos" | "debitos", conteudo: Uint8Array, log?: { info(o: object, m?: string): void }) {
+// O log é obrigatório em registrarLeitura; os testes que não olham o log passam um que descarta.
+const SEM_LOG = { info() {}, warn() {} };
+
+async function ler(servico: "creditos" | "debitos", conteudo: Uint8Array, log: { info(o: object, m?: string): void; warn(o: object, m?: string): void } = SEM_LOG) {
   const consultaId = await novaConsulta(servico);
   const r = await banco.naEmpresaFixada(EMPRESA, (trx) =>
-    registrarLeitura(trx, { consultaId, servico, conteudo, recebidoEm: RECEBIDO, ...(log ? { log } : {}) }),
+    registrarLeitura(trx, { consultaId, servico, conteudo, recebidoEm: RECEBIDO, log }),
   );
   return { ...r, consultaId };
 }
@@ -321,5 +324,60 @@ describe("log (seção 8 da arquitetura)", () => {
     for (const proibido of ["CHAVE-SIGILOSA", "4321.09", RAIZ, NI14, NI14_OUTRA, "Comércio Exemplo"]) {
       expect(tudo, proibido).not.toContain(proibido);
     }
+  });
+});
+
+describe("log de retorno recusado (revisão B8)", () => {
+  async function comLog(servico: "creditos" | "debitos", conteudo: Uint8Array) {
+    const linhas: string[] = [];
+    const stream = new Writable({
+      write(chunk, _enc, cb) {
+        linhas.push(String(chunk));
+        cb();
+      },
+    });
+    const servidor = Fastify({ logger: opcoesDeLog({ stream }) });
+    const r = await ler(servico, conteudo, servidor.log);
+    await servidor.close();
+    return { r, linhas, registros: linhas.map((l) => JSON.parse(l) as Record<string, unknown>) };
+  }
+  const recusa = (registros: Record<string, unknown>[]) => registros.find((x) => x["evento"] === "leitura_recusada");
+
+  test("fora do schema: warn com servico, arquivoId, total e a lista de caminhos e regras, sem message nem valor", async () => {
+    const semChave = credito({ apurado: "4321.09" });
+    delete semChave["chave"];
+    const { r, linhas, registros } = await comLog(
+      "creditos",
+      bytes(arquivoCreditos([["11/2026", [semChave, credito({ chave: "CHAVE-SIGILOSA-91" })]]], { ni: "90817263" })),
+    );
+    const e = recusa(registros)!;
+    expect(e).toBeDefined();
+    expect(e["level"]).toBe(40);
+    expect(e).toMatchObject({ servico: "creditos", consultaId: r.consultaId, motivo: "fora_do_schema", causa: "fora_do_schema", divergencias: 1 });
+    expect(e["arquivoId"]).toBe(r.arquivoId);
+    expect(e["ocorrencias"]).toEqual(["/apuracao/0/creditos/0#required"]);
+    const tudo = linhas.join("");
+    for (const proibido of ["must have required property", "CHAVE-SIGILOSA", "4321.09", RAIZ, NI14]) expect(tudo, proibido).not.toContain(proibido);
+  });
+
+  test("aninhado e chave_repetida têm causa própria no log; ilegível também", async () => {
+    const aninhado = await comLog("creditos", new TextEncoder().encode(`${"[".repeat(100)}${"]".repeat(100)}`));
+    expect(recusa(aninhado.registros)).toMatchObject({ level: 40, causa: "aninhado", divergencias: 1 });
+    const repetida = await comLog("debitos", new TextEncoder().encode('{"ni":"1","ni":"2"}'));
+    expect(recusa(repetida.registros)).toMatchObject({ level: 40, servico: "debitos", causa: "chave_repetida" });
+    const ilegivel = await comLog("creditos", new TextEncoder().encode("isto não é JSON {"));
+    expect(recusa(ilegivel.registros)).toMatchObject({ level: 40, causa: "ilegivel" });
+  });
+
+  test("outra empresa: warn sem a raiz nem o ni", async () => {
+    const { registros, linhas } = await comLog("creditos", bytes(arquivoCreditos([["11/2026", [credito()]]], { ni: NI14_OUTRA })));
+    expect(recusa(registros)).toMatchObject({ level: 40, causa: "outra_empresa", motivo: "outra_empresa" });
+    expect(linhas.join("")).not.toContain(NI14_OUTRA);
+  });
+
+  test("aceito continua em info, sem evento de recusa", async () => {
+    const { registros } = await comLog("creditos", bytes(arquivoCreditos([["11/2026", [credito()]]], { ni: NI14 })));
+    expect(recusa(registros)).toBeUndefined();
+    expect(registros.find((x) => x["evento"] === "leitura_registrada")).toMatchObject({ level: 30 });
   });
 });

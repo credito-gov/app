@@ -31,8 +31,9 @@ let app: Kysely<Esquema>;
 let banco: Banco;
 let admin: ComandosAdmin;
 
-function comandos(ambiente = "local"): ComandosAdmin {
+function comandos(ambiente = "local", log?: { info(o: object): void; warn(o: object): void }): ComandosAdmin {
   return criarComandosAdmin({
+    ...(log ? { log } : {}),
     banco,
     email: criarEmailMemoria(),
     relogio: () => AGORA,
@@ -160,6 +161,19 @@ describe("os nove cenários gravam as consultas no estado da tabela da Spec", ()
     const idsRecusados = new Set(recusados.map((a) => a.id));
     expect(notas.length).toBeGreaterThan(0);
     expect(notas.some((n) => idsRecusados.has(n.arquivo_id))).toBe(false);
+  });
+
+  test("recusado passa o log à leitura: um warn por retorno recusado, com a causa e sem conteúdo (revisão B8)", async () => {
+    const id = await novaEmpresa();
+    const avisos: Record<string, unknown>[] = [];
+    await comandos("local", { info() {}, warn: (o) => void avisos.push(o as Record<string, unknown>) }).carregarCenario({ empresaId: id, cenario: "recusado" });
+    const recusas = avisos.filter((a) => a["evento"] === "leitura_recusada");
+    expect(recusas.map((a) => a["causa"]).sort()).toEqual(["fora_do_schema", "outra_empresa"]);
+    for (const a of recusas) {
+      expect(a).toMatchObject({ servico: "creditos" });
+      expect(typeof a["arquivoId"]).toBe("string");
+      expect(JSON.stringify(a)).not.toMatch(/must have|CHAVE|d{8}/);
+    }
   });
 
   test("desatualizado grava concluida_em 9 dias antes do relógio", async () => {
