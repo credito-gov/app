@@ -8,6 +8,8 @@ import type { Config } from "../config.js";
 import { criarConvite, linkConvite } from "../convites/criar.js";
 import { modeloConvite } from "../email/modelos.js";
 import type { EnvioEmail } from "../email/tipos.js";
+import { CENARIOS, montarCenario } from "../ficticios/cenarios.js";
+import { registrarLeitura, type LogLeitura } from "../leitura/registrar.js";
 import { listarEmpresas, type EmpresaDto } from "../empresas/empresas.js";
 import { removerVinculo } from "../empresas/vinculos.js";
 
@@ -24,7 +26,12 @@ export interface ComandosAdmin {
   convidar(d: { empresaId: string; email: string; papel: string }): Promise<{ saida: string }>;
   empresasDoUsuario(d: { email: string }): Promise<{ empresas: EmpresaDto[]; saida: string }>;
   removerVinculo(d: { empresaId: string; email: string }): Promise<{ saida: string }>;
+  /** Grava um cenário fictício (033): só no ambiente local, só em empresa sem consulta, nunca a partir de arquivo. */
+  carregarCenario(d: { empresaId: string; cenario: string }): Promise<{ saida: string }>;
 }
+
+/** Semente fixa: o mesmo cenário dá sempre os mesmos retornos. */
+const SEMENTE_DOS_CENARIOS = 1;
 
 function exigirEmpresaId(id: string): void {
   if (!ehUuid(id)) throw new ErroAdmin("O id da empresa deve ser um uuid.");
@@ -35,8 +42,11 @@ export function criarComandosAdmin(deps: {
   email: EnvioEmail;
   relogio: () => Date;
   config: Config;
+  /** Para a leitura dos cenários; sem ele, nada é registrado. */
+  log?: LogLeitura;
 }): ComandosAdmin {
   const { banco, email, relogio, config } = deps;
+  const log: LogLeitura = deps.log ?? { info() {}, warn() {} };
 
   const usuarioPorEmail = async (emailInformado: string): Promise<string> => {
     const normalizado = normalizarEmail(emailInformado);
@@ -133,6 +143,58 @@ export function criarComandosAdmin(deps: {
       if (r === "nao_encontrado") throw new ErroAdmin("Vínculo ativo não encontrado.");
       if (r === "ultimo_titular") throw new ErroAdmin("Não é possível remover o último titular da empresa.");
       return { saida: "Vínculo removido." };
+    },
+
+    async carregarCenario({ empresaId, cenario }) {
+      if (config.ambiente !== "local") {
+        throw new ErroAdmin("O carregamento de cenários só roda com CREDITOGOV_AMBIENTE=local.");
+      }
+      exigirEmpresaId(empresaId);
+      if (!(CENARIOS as readonly string[]).includes(cenario)) {
+        throw new ErroAdmin(`Cenário desconhecido: ${cenario}. Os válidos são: ${CENARIOS.join(", ")}.`);
+      }
+      const agora = relogio();
+      const r = await banco.naEmpresaFixada(empresaId, async (trx) => {
+        const empresa = await trx.selectFrom("empresa").select("cnpj_raiz").where("id", "=", empresaId).executeTakeFirst();
+        if (!empresa) return { tipo: "empresa_inexistente" as const };
+        const existente = await trx.selectFrom("consulta").select("id").limit(1).executeTakeFirst();
+        if (existente) return { tipo: "ja_tem_consulta" as const };
+        const consultas = montarCenario(cenario, { raiz: empresa.cnpj_raiz, agora, semente: SEMENTE_DOS_CENARIOS });
+        let arquivos = 0;
+        let notasDeCredito = 0;
+        let notasDeDebito = 0;
+        for (const c of consultas) {
+          const { id } = await trx
+            .insertInto("consulta")
+            .values({
+              empresa_id: empresaId,
+              servico: c.servico,
+              estado: c.estado,
+              criada_em: c.criadaEm,
+              concluida_em: c.concluidaEm,
+              finalizada_em: c.finalizadaEm,
+            })
+            .returning("id")
+            .executeTakeFirstOrThrow();
+          if (c.estado !== "lida" || c.retorno === null) continue;
+          const lido = await registrarLeitura(trx, {
+            consultaId: id,
+            servico: c.servico,
+            conteudo: c.retorno,
+            recebidoEm: c.finalizadaEm ?? c.criadaEm,
+            log,
+          });
+          arquivos++;
+          if (c.servico === "creditos") notasDeCredito += lido.notas;
+          else notasDeDebito += lido.notas;
+        }
+        return { tipo: "ok" as const, consultas: consultas.length, arquivos, notasDeCredito, notasDeDebito };
+      });
+      if (r.tipo === "empresa_inexistente") throw new ErroAdmin("Empresa não encontrada.");
+      if (r.tipo === "ja_tem_consulta") throw new ErroAdmin("Esta empresa já tem consulta gravada; o cenário só vai para empresa sem consulta.");
+      return {
+        saida: `Cenário ${cenario} carregado na empresa ${empresaId}: ${r.consultas} consultas, ${r.arquivos} arquivos lidos, ${r.notasDeCredito} notas de crédito e ${r.notasDeDebito} notas de débito.`,
+      };
     },
   };
 }

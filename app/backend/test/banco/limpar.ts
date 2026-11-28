@@ -6,6 +6,10 @@ import type { Esquema } from "../../src/banco/esquema.js";
 import { URL_MIGRACAO } from "./urls.js";
 
 const TABELAS = [
+  "debito_lido",
+  "credito_lido",
+  "arquivo_bruto",
+  "consulta",
   "falha_acesso",
   "bloqueio_acesso",
   "recuperacao_senha",

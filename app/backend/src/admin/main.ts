@@ -13,7 +13,8 @@ const USO = `Uso: npm run admin -- <comando> [opções]
   criar-empresa --cnpj-raiz <8 dígitos> --nome <nome>
   convidar --empresa <id> --email <e-mail> --papel <titular|contador>
   empresas-do-usuario --email <e-mail>
-  remover-vinculo --empresa <id> --email <e-mail>`;
+  remover-vinculo --empresa <id> --email <e-mail>
+  carregar-cenario --empresa <id> --cenario <nome>   (só com CREDITOGOV_AMBIENTE=local; dados fictícios)`;
 
 function falhar(mensagem: string): never {
   console.error(mensagem);
@@ -30,6 +31,7 @@ const { positionals, values } = (() => {
         empresa: { type: "string" },
         email: { type: "string" },
         papel: { type: "string" },
+        cenario: { type: "string" },
       },
     });
   } catch (e) {
@@ -59,6 +61,8 @@ const admin = criarComandosAdmin({
   email: criarEnvioEmail(config.email, { pastaArquivo: join(process.cwd(), ".local", "emails") }),
   relogio: () => new Date(),
   config,
+  // O terminal do operador vê só o aviso de retorno recusado (identificadores e caminhos, nunca o conteúdo).
+  log: { info() {}, warn: (objeto) => console.error(JSON.stringify({ nivel: "aviso", ...objeto })) },
 });
 
 const exigir = (nome: keyof typeof values): string => {
@@ -84,6 +88,9 @@ try {
       break;
     case "remover-vinculo":
       saida = (await admin.removerVinculo({ empresaId: exigir("empresa"), email: exigir("email") })).saida;
+      break;
+    case "carregar-cenario":
+      saida = (await admin.carregarCenario({ empresaId: exigir("empresa"), cenario: exigir("cenario") })).saida;
       break;
     default:
       throw new ErroAdmin(`Comando desconhecido: ${comando}\n${USO}`);

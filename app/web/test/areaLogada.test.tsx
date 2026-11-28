@@ -59,26 +59,10 @@ describe("rota / e escolha de empresa (CA-31)", () => {
     await waitFor(() => expect(router.state.location.pathname).toBe(`/e/${EMPRESA_A.id}`));
   });
 
-  it("com duas empresas leva a /empresas, com nome, CNPJ raiz formatado e papel", async () => {
+  it("com duas empresas leva a /empresas (nome, CNPJ raiz e papel da lista ficam na carteira: test/carteira.test.tsx)", async () => {
     servir({ empresas: [EMPRESA_A, EMPRESA_B] });
     const router = renderizar(rotasApp, "/");
     await waitFor(() => expect(router.state.location.pathname).toBe("/empresas"));
-    const linkA = await screen.findByRole("link", { name: EMPRESA_A.nome });
-    expect(linkA).toHaveAttribute("href", `/e/${EMPRESA_A.id}`);
-    expect(screen.getByText("11.111.111", { exact: false })).toBeInTheDocument();
-    expect(screen.getByText("22.222.222", { exact: false })).toBeInTheDocument();
-    expect(screen.getByText("Titular")).toBeInTheDocument();
-    expect(screen.getByText("Contador")).toBeInTheDocument();
-  });
-
-  it("sem nenhuma empresa mostra a mensagem e Sair, sem erro técnico", async () => {
-    servir({ empresas: [] });
-    renderizar(rotasApp, "/");
-    expect(
-      await screen.findByText("Você ainda não tem acesso a nenhuma empresa. Peça um convite à equipe CreditoGov ou ao seu contador."),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Sair" })).toBeInTheDocument();
-    expect(screen.queryByText(/erro|404|undefined/i)).toBeNull();
   });
 });
 
@@ -119,15 +103,6 @@ describe("LayoutEmpresa e BarraTopo (CA-32, CA-33)", () => {
     await waitFor(() => expect(router.state.location.pathname).toBe("/entrar"));
     const del = chamadas.find((c) => c.metodo === "DELETE" && c.url === "/api/sessao");
     expect(del).toBeDefined();
-  });
-
-  it("a página inicial diz que o painel não está disponível, sem número nem data", async () => {
-    servir();
-    renderizar(rotasApp, `/e/${EMPRESA_A.id}`);
-    await screen.findByText(EMPRESA_A.nome);
-    const principal = screen.getByRole("main");
-    expect(principal).toHaveTextContent("O painel de créditos ainda não está disponível nesta versão.");
-    expect(principal.textContent).not.toMatch(/\d/);
   });
 
   it("404 em /e/:id mostra a mensagem e o link para /empresas", async () => {

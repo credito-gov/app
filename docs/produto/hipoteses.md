@@ -79,6 +79,12 @@ A API não está nos manuais do Split Payment, que tratam de outra plataforma (e
 
 **O que se sabe:** não há fonte para nenhum desses números. Não usar em material externo.
 
+## Dashboard (demanda 033): decisões de escopo
+
+- **P-S1, CPF do emitente (aprovada em 2026-11-27):** a NF-e de série 910 ou acima traz o CPF do emitente na chave, e o dashboard o mostra formatado, com o rótulo "CPF do emitente". Fica isolado na empresa e nunca vai a log. **A pergunta de LGPD sobre CPF continua aberta para advogado** (ver "Outras decisões em aberto").
+- **P-S2, campo `excedente` (aprovada em 2026-11-27):** entra em "Outros valores do crédito" com o mesmo tratamento dos demais (só com valor diferente de zero, com o nome oficial e a nota neutra). **O significado dele continua aberto para o tributarista**, junto com P-1 e P-4.
+- **D-5 e D-6 seguem hipóteses** (ver H1): a consolidação e a soma de origens diferentes de normal estão em `consolidacao.ts` e em `creditos.ts`, com testes próprios.
+
 ## Outras decisões em aberto
 
 - **Vários CNPJs por cliente:** cadastros separados ou agrupados?

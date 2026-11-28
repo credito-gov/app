@@ -93,6 +93,89 @@ export interface BloqueioAcessoTabela {
   ate: Date;
 }
 
+export type ServicoConsulta = "creditos" | "debitos" | "recolhimentos" | "pagamentos";
+export type EstadoConsulta =
+  | "agendada"
+  | "abrindo"
+  | "aberta"
+  | "concluida"
+  | "baixada"
+  | "lida"
+  | "erro"
+  | "expirada"
+  | "credencial_invalida"
+  | "servico_indisponivel"
+  | "aberta_sem_tiquete";
+export type SituacaoArquivo = "aceito" | "aceito_com_divergencia" | "recusado";
+export type MotivoRecusa = "ilegivel" | "fora_do_schema" | "outra_empresa" | "valor_fora_do_limite";
+
+/** numeric(20,2) volta do pg como texto; nulo quer dizer "não veio no arquivo". */
+type Valor = ColumnType<string | null, string | null | undefined, string | null>;
+
+export interface ConsultaTabela {
+  id: Generated<string>;
+  empresa_id: string;
+  servico: ServicoConsulta;
+  estado: EstadoConsulta;
+  criada_em: Criado;
+  concluida_em: Opcional<Date>;
+  finalizada_em: Opcional<Date>;
+}
+
+export interface ArquivoBrutoTabela {
+  id: Generated<string>;
+  empresa_id: string;
+  consulta_id: string;
+  servico: "creditos" | "debitos";
+  recebido_em: Date;
+  tamanho: number;
+  sha256: string;
+  gerado_em: Opcional<string>;
+  versao_schema: Opcional<string>;
+  situacao: SituacaoArquivo;
+  motivo_recusa: Opcional<MotivoRecusa>;
+  versao_leitor: string;
+  objeto: Opcional<string>;
+}
+
+interface NotaLida {
+  id: Generated<string>;
+  empresa_id: string;
+  arquivo_id: string;
+  pa: string;
+  chave: string;
+  documento: number;
+  origem: number;
+  emissao: Opcional<string>;
+  registro: Opcional<string>;
+  atualizacao: Opcional<string>;
+}
+
+export interface CreditoLidoTabela extends NotaLida {
+  apurado: Valor;
+  a_apropriar: Valor;
+  apropriado: Valor;
+  suspenso: Valor;
+  inapropriavel: Valor;
+  prescrito: Valor;
+  utilizado: Valor;
+  restabelecido: Valor;
+  inutilizavel: Valor;
+  saldo_credor: Valor;
+  pedido_ressarcimento: Valor;
+  excedente: Valor;
+}
+
+export interface DebitoLidoTabela extends NotaLida {
+  apurado: Valor;
+  extinto: Valor;
+  saldo_devedor: Valor;
+  suspenso: Valor;
+  inexigivel: Valor;
+  pgto_antecipado: Valor;
+  excedente: Valor;
+}
+
 export interface Esquema {
   empresa: EmpresaTabela;
   usuario: UsuarioTabela;
@@ -103,4 +186,8 @@ export interface Esquema {
   recuperacao_senha: RecuperacaoSenhaTabela;
   falha_acesso: FalhaAcessoTabela;
   bloqueio_acesso: BloqueioAcessoTabela;
+  consulta: ConsultaTabela;
+  arquivo_bruto: ArquivoBrutoTabela;
+  credito_lido: CreditoLidoTabela;
+  debito_lido: DebitoLidoTabela;
 }

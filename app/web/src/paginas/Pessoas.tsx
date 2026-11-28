@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { QueryClientContext } from "@tanstack/react-query";
+import { useCallback, useContext, useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { requisitar, type Papel } from "../api/cliente";
 import { ROTULO_PAPEL } from "../api/papeis";
@@ -32,6 +33,7 @@ export function Pessoas() {
   const [falha, setFalha] = useState<FalhaDeRede | "outro" | null>(null);
   const { estado, atualizarEmpresas } = useSessao();
   const navegar = useNavigate();
+  const cache = useContext(QueryClientContext);
 
   const [email, setEmail] = useState("");
   const [papel, setPapel] = useState<Papel | "">("");
@@ -113,6 +115,8 @@ export function Pessoas() {
       if (estado.status === "logada" && usuarioId === estado.usuario.id) {
         // Saiu da própria empresa: não há mais o que mostrar aqui.
         atualizarEmpresas(estado.empresas.filter((e) => e.id !== empresa.id));
+        // A carteira guardada ainda traz a empresa de que a pessoa acabou de sair.
+        void cache?.invalidateQueries({ queryKey: ["carteira"] });
         navegar("/empresas");
       } else void carregar();
     } else if (ehFalhaDeRede(r)) setRetorno({ tipo: "erro", texto: TEXTO_DE_REDE });

@@ -1,11 +1,14 @@
 import { Navigate, type RouteObject } from "react-router";
+import { ErroDeTela } from "./componentes/ErroDeTela";
 import { LayoutEmpresa } from "./componentes/LayoutEmpresa";
 import { AceitarConvite } from "./paginas/AceitarConvite";
-import { EscolherEmpresa } from "./paginas/EscolherEmpresa";
+import { Carteira } from "./paginas/Carteira";
 import { EsqueciSenha } from "./paginas/EsqueciSenha";
 import { Entrar } from "./paginas/Entrar";
-import { Inicio } from "./paginas/Inicio";
+import { NotasDoGrupo } from "./paginas/NotasDoGrupo";
+import { Pendencias } from "./paginas/Pendencias";
 import { Pessoas } from "./paginas/Pessoas";
+import { VisaoGeral } from "./paginas/VisaoGeral";
 import { RedefinirSenha } from "./paginas/RedefinirSenha";
 import { RequerSessao, useSessao } from "./sessao/ProvedorSessao";
 import { destinoPosLogin } from "./sessao/destino";
@@ -24,14 +27,17 @@ export const rotasApp: RouteObject[] = [
   { path: "/convite", element: <AceitarConvite /> },
   {
     element: <RequerSessao />,
+    errorElement: <ErroDeTela />,
     children: [
       { path: "/", element: <Raiz /> },
-      { path: "/empresas", element: <EscolherEmpresa /> },
+      { path: "/empresas", element: <Carteira /> },
       {
         path: "/e/:empresaId",
         element: <LayoutEmpresa />,
         children: [
-          { index: true, element: <Inicio /> },
+          { index: true, element: <VisaoGeral /> },
+          { path: "pendencias", element: <Pendencias /> },
+          { path: "pendencias/:grupo", element: <NotasDoGrupo /> },
           { path: "pessoas", element: <Pessoas /> },
         ],
       },

@@ -49,9 +49,22 @@ html[data-theme="claro"] { --font-sans: "Inter Variable", Inter, ui-sans-serif, 
 .troca-empresa { position: relative; }
 .troca-empresa-lista { position: absolute; right: 0; top: calc(100% + 4px); z-index: 10; list-style: none; margin: 0; padding: var(--space-2); min-width: 260px; box-shadow: var(--shadow-pop); }
 .troca-empresa-item { display: flex; flex-direction: column; padding: var(--space-3); }
-.lista-empresas { list-style: none; margin: 0; padding: 0; }
-.lista-empresas-item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--line); }
-.lista-empresas-item:last-child { border-bottom: 0; }
+.pagina-carteira { min-height: 100vh; display: flex; justify-content: center; padding: var(--space-8) var(--space-6); }
+.pagina-carteira-corpo { width: 100%; max-width: 1100px; display: flex; flex-direction: column; gap: var(--space-4); align-items: flex-start; }
+.pagina-carteira-corpo .heading { margin: 0; }
+.pagina-carteira-corpo .cg-card { width: 100%; }
+.carteira-linha { cursor: pointer; }
 .pessoas { display: flex; flex-direction: column; gap: var(--space-6); }
 .pessoas .heading { margin: 0; }
 .pessoas-convidar { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: flex-end; }
+
+/* Dashboard (033) */
+.painel { display: flex; flex-direction: column; gap: var(--space-6); }
+.painel .heading { margin: 0; }
+.painel-recorte { display: flex; align-items: center; gap: var(--space-3); }
+.painel-bloco { display: flex; flex-direction: column; gap: var(--space-4); }
+.painel-bloco > h3, .painel-recorte-titulo { margin: 0; }
+.painel-cartoes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+.painel-cartoes > .is-xl { grid-column: 1 / -1; }
+.cg-total-pendente .cg-total-value { color: var(--pending); }
+@media (max-width: 880px) { .painel-cartoes { grid-template-columns: minmax(0, 1fr); } }

@@ -1,6 +1,8 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { vi } from "vitest";
 import { createBrowserRouter, createMemoryRouter, RouterProvider, type RouteObject } from "react-router";
+import { criarClienteDeCache } from "../src/paineis/busca";
 import { ProvedorSessao } from "../src/sessao/ProvedorSessao";
 
 export type RespostaSimulada = { status: number; corpo?: unknown } | "rejeitar";
@@ -59,9 +61,11 @@ export const SEM_SESSAO = json(401, { erro: "sem_sessao", mensagem: "Entre para 
 export function renderizarNavegador(rotas: RouteObject[]) {
   const router = createBrowserRouter(rotas);
   render(
-    <ProvedorSessao>
-      <RouterProvider router={router} />
-    </ProvedorSessao>,
+    <QueryClientProvider client={criarClienteDeCache()}>
+      <ProvedorSessao>
+        <RouterProvider router={router} />
+      </ProvedorSessao>
+    </QueryClientProvider>,
   );
   return router;
 }
@@ -69,9 +73,11 @@ export function renderizarNavegador(rotas: RouteObject[]) {
 export function renderizar(rotas: RouteObject[], rota: string) {
   const router = createMemoryRouter(rotas, { initialEntries: [rota] });
   render(
-    <ProvedorSessao>
-      <RouterProvider router={router} />
-    </ProvedorSessao>,
+    <QueryClientProvider client={criarClienteDeCache()}>
+      <ProvedorSessao>
+        <RouterProvider router={router} />
+      </ProvedorSessao>
+    </QueryClientProvider>,
   );
   return router;
 }
