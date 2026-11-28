@@ -1,6 +1,6 @@
 # 035-correcoes-034 — Correções deixadas pela 034: raiz de CNPJ real nos dados fictícios e achados baixos
 
-- **Status:** em-implementação (diagnóstico aprovado pelo responsável em 2026-11-28)
+- **Status:** em-review (diagnóstico aprovado pelo responsável em 2026-11-28)
 - **Tipo:** correção
 - **Trivial:** não
 - **Branch:** `fix/035-correcoes-034`
