@@ -11,7 +11,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "dev": "npm run build && node --env-file-if-exists=.env dist/api/main.js",
-    "migrar": "node scripts/naoImplementado.mjs migrar",
+    "migrar": "npm run build && node --env-file-if-exists=.env dist/banco/migrar-main.js",
     "admin": "node scripts/naoImplementado.mjs admin",
     "banco:subir": "docker compose up -d --wait",
     "banco:parar": "docker compose stop",
