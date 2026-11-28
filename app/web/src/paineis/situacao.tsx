@@ -88,7 +88,7 @@ export function EstadoDoBloco({
   if (situacao.estado === "vazio") {
     return (
       <>
-        <Vazio>{TEXTOS.vazio(n.plural, situacao.ultimaAceitaEm === null ? "" : formatarInstante(situacao.ultimaAceitaEm))}</Vazio>
+        <Vazio>{TEXTOS.vazio(n.plural, situacao.ultimaAceitaEm === null ? null : formatarInstante(situacao.ultimaAceitaEm))}</Vazio>
         {falha}
         {andamento}
       </>
