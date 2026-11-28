@@ -11,15 +11,22 @@ import type { LinhaDaCarteira } from "./tipos";
 const T = TEXTOS.carteira;
 
 function Selo({ situacao }: { situacao: LinhaDaCarteira["situacao"] }) {
-  switch (situacao.resumo) {
+  const resumo = situacao.resumo;
+  switch (resumo) {
+    case "atualizado":
+      return <span className="cg-badge cg-badge-brand">{T.selos.atualizado}</span>;
     case "falhou":
       return <span className="cg-badge cg-badge-danger">{T.selos.falhou}</span>;
     case "sem_consulta":
       return <span className="cg-badge cg-badge-info">{T.selos.sem_consulta}</span>;
     case "desatualizado":
-      return <span className="cg-badge cg-badge-pending">{T.selos.desatualizado(situacao.diasSemConsulta ?? 0)}</span>;
-    default:
-      return <span className="cg-badge cg-badge-brand">{T.selos.atualizado}</span>;
+      return <span className="cg-badge cg-badge-pending">{T.selos.desatualizado(situacao.diasSemAtualizacao ?? 0)}</span>;
+    default: {
+      // Resumo novo no servidor que a tela ainda não conhece: selo neutro, nunca "Atualizado".
+      const _exaustivo: never = resumo;
+      void _exaustivo;
+      return <span className="cg-badge cg-badge-info">{T.selos.sem_consulta}</span>;
+    }
   }
 }
 
@@ -61,8 +68,11 @@ export function LinhaCarteira({ linha }: { linha: LinhaDaCarteira }) {
       </td>
       <td>
         <Selo situacao={linha.situacao} />
+        {linha.situacao.recusados.creditos !== null || linha.situacao.recusados.debitos !== null ? (
+          <span className="cg-company-meta">{T.recusados}</span>
+        ) : null}
       </td>
-      <td>{linha.situacao.ultimaConcluidaEm === null ? T.semData : formatarInstante(linha.situacao.ultimaConcluidaEm)}</td>
+      <td>{linha.situacao.ultimaAceitaEm === null ? T.semData : formatarInstante(linha.situacao.ultimaAceitaEm)}</td>
     </tr>
   );
 }

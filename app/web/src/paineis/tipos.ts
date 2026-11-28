@@ -7,8 +7,8 @@ export type EstadoDoServico = "sem_consulta" | "sem_dados_usaveis" | "vazio" | "
 export type SituacaoDoServico = {
   estado: EstadoDoServico;
   emAndamento: boolean;
-  ultimaConcluidaEm: string | null;
-  diasSemConsulta: number | null;
+  ultimaAceitaEm: string | null;
+  diasSemAtualizacao: number | null;
   desatualizado: boolean;
   falha: { em: string; tipo: "credencial" | "outra" } | null;
   atualizacao: { de: string; ate: string } | null;
@@ -98,7 +98,12 @@ export type LinhaDaCarteira = {
   cnpjRaizFormatado: string;
   papel: Papel;
   creditos: { estado: EstadoDoServico; aApropriar: string | null; apropriado: string | null; utilizado: string | null };
-  situacao: { resumo: ResumoDaSituacao; ultimaConcluidaEm: string | null; diasSemConsulta: number | null };
+  situacao: {
+    resumo: ResumoDaSituacao;
+    ultimaAceitaEm: string | null;
+    diasSemAtualizacao: number | null;
+    recusados: { creditos: SituacaoDoServico["recusados"]; debitos: SituacaoDoServico["recusados"] };
+  };
 };
 
 /** Uma linha por empresa; a resposta não tem campo de total (CA-C4). */

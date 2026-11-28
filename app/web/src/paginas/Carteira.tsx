@@ -33,9 +33,9 @@ function ordenar(linhas: readonly LinhaDaCarteira[], { coluna, direcao }: Ordem)
       if (x === null || y === null) return x === y ? porNome(a, b) : x === null ? 1 : -1;
       return fator * compararDecimal(x, y) || porNome(a, b);
     }
-    // sem consulta concluída conta como a mais antiga: vem primeiro na ordem crescente
-    const x = a.situacao.ultimaConcluidaEm ?? "";
-    const y = b.situacao.ultimaConcluidaEm ?? "";
+    // sem atualização conta como a mais antiga: vem primeiro na ordem crescente
+    const x = a.situacao.ultimaAceitaEm ?? "";
+    const y = b.situacao.ultimaAceitaEm ?? "";
     return fator * (x < y ? -1 : x > y ? 1 : 0) || porNome(a, b);
   });
 }

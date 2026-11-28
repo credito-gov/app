@@ -59,9 +59,9 @@ export const TEXTOS = {
   fraseDasConsultas:
     "Os números são os das consultas feitas pelo CreditoGov à API de apuração da CBS da Receita Federal. A Receita não fornece histórico anterior a essas consultas.",
   ultimaConsulta: (servico: string, instante: string, de: string | null, ate: string | null) =>
-    `${servico}: última consulta concluída em ${instante}.${de !== null && ate !== null ? ` Notas atualizadas de ${de} a ${ate}.` : ""}`,
+    `${servico}: última consulta que entrou nos indicadores em ${instante}.${de !== null && ate !== null ? ` Notas atualizadas de ${de} a ${ate}.` : ""}`,
   desatualizado: (servico: string, dias: number) =>
-    `${servico} sem consulta concluída há ${dias} dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida.`,
+    `${servico} sem atualização há ${dias} dias. Cada consulta à Receita só devolve as alterações dos últimos 8 dias, então pode haver alteração que não foi recebida.`,
   aindaNaoConsultados: (plural: string) => `Os ${plural} ainda não foram consultados na Receita.`,
   emAndamento: "Há uma consulta em andamento.",
   vazio: (plural: string, instante: string) => `A Receita não devolveu ${plural} nas consultas feitas até ${instante}. Isto não é um saldo de R$ 0,00.`,
@@ -82,7 +82,7 @@ export const TEXTOS = {
     subtitulo: "Valores de cada empresa como a Receita informou. Valores de empresas diferentes não se somam.",
     colunaEmpresa: "Empresa",
     colunaSituacao: "Situação",
-    colunaConsulta: "Última consulta",
+    colunaConsulta: "Última atualização",
     cnpjRaiz: (formatado: string) => `CNPJ raiz ${formatado}`,
     semData: "—",
     estados: {
@@ -90,11 +90,12 @@ export const TEXTOS = {
       vazio: "Nenhum crédito nas consultas",
       sem_dados_usaveis: "Nenhum retorno utilizado",
     },
+    recusados: "Há retornos da Receita que não entraram nos indicadores.",
     selos: {
       atualizado: "Atualizado",
       falhou: "Consulta falhou",
-      sem_consulta: "Sem consulta concluída",
-      desatualizado: (dias: number) => `${dias} dias sem consulta`,
+      sem_consulta: "Sem dados nos indicadores",
+      desatualizado: (dias: number) => `${dias} dias sem atualização`,
     },
   },
 } as const;

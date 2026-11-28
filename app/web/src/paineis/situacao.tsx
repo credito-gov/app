@@ -24,14 +24,14 @@ export function SituacaoDosDados({ situacao }: { situacao: Painel["situacao"] })
         const n = NOMES[servico];
         return (
           <div key={servico} className="painel-situacao-servico">
-            {s.desatualizado && s.diasSemConsulta !== null ? <Alerta tipo="warning" titulo={TEXTOS.desatualizado(n.Titulo, s.diasSemConsulta)} /> : null}
+            {s.desatualizado && s.diasSemAtualizacao !== null ? <Alerta tipo="warning" titulo={TEXTOS.desatualizado(n.Titulo, s.diasSemAtualizacao)} /> : null}
             {s.falha ? (
               <Alerta tipo="error" titulo={TEXTOS.falhou(n.plural, formatarInstante(s.falha.em))}>
                 {s.falha.tipo === "credencial" ? TEXTOS.falhaDeCredencial : TEXTOS.falhaSemCulpa}
               </Alerta>
             ) : null}
-            {s.ultimaConcluidaEm !== null ? (
-              <p className="cg-help">{TEXTOS.ultimaConsulta(n.Titulo, formatarInstante(s.ultimaConcluidaEm), s.atualizacao ? formatarData(s.atualizacao.de) : null, s.atualizacao ? formatarData(s.atualizacao.ate) : null)}</p>
+            {s.ultimaAceitaEm !== null ? (
+              <p className="cg-help">{TEXTOS.ultimaConsulta(n.Titulo, formatarInstante(s.ultimaAceitaEm), s.atualizacao ? formatarData(s.atualizacao.de) : null, s.atualizacao ? formatarData(s.atualizacao.ate) : null)}</p>
             ) : null}
           </div>
         );
@@ -75,7 +75,7 @@ export function EstadoDoBloco({
   if (situacao.estado === "vazio") {
     return (
       <>
-        <Vazio>{TEXTOS.vazio(n.plural, formatarInstante(situacao.ultimaConcluidaEm ?? ""))}</Vazio>
+        <Vazio>{TEXTOS.vazio(n.plural, situacao.ultimaAceitaEm === null ? "" : formatarInstante(situacao.ultimaAceitaEm))}</Vazio>
         {andamento}
       </>
     );
@@ -94,8 +94,8 @@ export function EstadoDoBloco({
       {situacao.recusados ? (
         <Alerta tipo="warning" titulo={TEXTOS.recusados(situacao.recusados.quantidade, n.plural, formatarInstante(situacao.recusados.ultimoEm).split(" ")[0] ?? "")} />
       ) : null}
-      {situacao.falha && situacao.ultimaConcluidaEm !== null ? (
-        <p className="cg-inline-note">{TEXTOS.numerosAnteriores(formatarInstante(situacao.ultimaConcluidaEm))}</p>
+      {situacao.falha && situacao.ultimaAceitaEm !== null ? (
+        <p className="cg-inline-note">{TEXTOS.numerosAnteriores(formatarInstante(situacao.ultimaAceitaEm))}</p>
       ) : null}
       {semNotas ? <Vazio>{servico === "creditos" ? TEXTOS.semNotasCreditos : TEXTOS.semNotasDebitos}</Vazio> : children}
     </>
