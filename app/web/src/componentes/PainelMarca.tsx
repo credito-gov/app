@@ -52,8 +52,8 @@ const MENSAGENS: Mensagem[] = [
           A apropriar, por emitente
         </div>
         <ul className="marca-lista">
-          <LinhaEmitente nome="11.111.111/0001-11" valor="R$ 14.320,10" percentual={100} cor="var(--pending)" />
-          <LinhaEmitente nome="22.222.222/0001-22" valor="R$ 9.870,45" percentual={69} cor="var(--pending)" />
+          <LinhaEmitente nome="22.222.222/0001-22" valor="R$ 14.320,10" percentual={100} cor="var(--pending)" />
+          <LinhaEmitente nome="33.333.333/0001-33" valor="R$ 9.870,45" percentual={69} cor="var(--pending)" />
           <LinhaEmitente nome="Emitente não identificado" valor="R$ 7.950,30" percentual={56} cor="var(--ink-subtle)" apagado />
         </ul>
         <div className="marca-rodape">

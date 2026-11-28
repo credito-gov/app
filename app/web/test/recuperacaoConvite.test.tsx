@@ -179,7 +179,7 @@ describe("AceitarConvite (CA-11 a CA-14)", () => {
     simularConvite(CONSULTA_SEM_CONTA);
     renderizar(rotas, "/convite");
     expect(await screen.findByText(EMPRESA_A.nome)).toBeInTheDocument();
-    expect(screen.getByText(/CNPJ raiz 00\.000\.000/)).toBeInTheDocument();
+    expect(screen.getByText(/CNPJ raiz 11\.111\.111/)).toBeInTheDocument();
     expect(screen.getByText(/Contador/)).toBeInTheDocument();
     expect(screen.getByLabelText("Nome")).toBeInTheDocument();
     expect(screen.getByLabelText("Senha")).toBeInTheDocument();

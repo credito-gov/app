@@ -124,6 +124,17 @@ describe("Entrar: envio (CA-15, CA-18)", () => {
     expect(chamadas.filter((c) => c.metodo === "POST")).toHaveLength(2);
   });
 
+  it("503 sem corpo em POST /api/sessao mostra Sem conexão, e não o alerta de credencial", async () => {
+    simular(() => json(503));
+    renderizar(rotas, "/entrar");
+    await preencher();
+    await userEvent.click(entrarBotao());
+    const alerta = await screen.findByRole("alert");
+    expect(alerta).toHaveTextContent("Sem conexão");
+    expect(within(alerta).getByRole("button", { name: "Tentar de novo" })).toBeInTheDocument();
+    expect(screen.queryByText("E-mail ou senha incorretos")).not.toBeInTheDocument();
+  });
+
   it("campos vazios mostram erro de campo ligado por aria-describedby e não enviam", async () => {
     const chamadas = simular(() => ERRO_CREDENCIAL);
     renderizar(rotas, "/entrar");

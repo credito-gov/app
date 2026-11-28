@@ -10,7 +10,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 **Regras para o Developer em todas as tasks:**
 
 - Trabalhar só em `app/backend/`, `app/web/` e nos documentos citados nas tasks 36 e 37. **Nenhuma task altera** `app/landing-page`, `app/apuracao-cbs` nem `app/painel`. De `docs/design/` só se **copia** (tokens, `bundle.css`, logo); ele só muda na task 37.
-- **Nenhum dado real:** e-mails só de `exemplo.com.br` ou `example.com`, raízes de CNPJ `00000000`, `11111111` e `22222222`, nomes como "Comércio Exemplo Ltda.". Isso vale para código, teste, documento e mensagem de commit.
+- **Nenhum dado real:** e-mails só de `exemplo.com.br` ou `example.com`, raízes de CNPJ `11111111`, `22222222` e `33333333`, nomes como "Comércio Exemplo Ltda.". Isso vale para código, teste, documento e mensagem de commit.
 - **Sem segredo:** não criar `.env` nem pedir credencial. O `.env.example` só traz nomes. Os testes montam a configuração em código, com valores fictícios. O backend só aponta para o PostgreSQL local do Compose.
 - **Rede:** o `test/setup.ts` das duas aplicações bloqueia `fetch` para fora; o único destino de rede permitido é o banco de teste em `127.0.0.1:5433`. A web não abre socket nos testes: o `fetch` é simulado.
 - **Comandos de verificação**, sempre na pasta da aplicação:
@@ -57,7 +57,7 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | 31 | Implementar `EsqueciSenha`, `RedefinirSenha` e `AceitarConvite` | idem 30 | idem 30 | testes da task 30 passam | ☑ |
 | 32 | Testes de `/`, `EscolherEmpresa`, `LayoutEmpresa`, `BarraTopo`, `TrocaEmpresa`, `Inicio` e `Pessoas` | Web › Telas e rotas; O que a 033 consome | CA-8, CA-9, CA-31 a CA-34 | falham | ☑ |
 | 33 | Implementar essas telas e a rota `/` | idem 32 | idem 32 | testes da task 32 passam | ☑ |
-| 34 | Roteiro de conferência no navegador | Estratégia › CA-18; P-9 | CA-18, CA-31, CA-32 | roteiro escrito; conferência pelo responsável pendente (antes do PR) | ☑ |
+| 34 | Roteiro de conferência no navegador | Estratégia › CA-18; P-9 | CA-18, CA-31, CA-32 | roteiro escrito; conferência feita pelo responsável em 2026-11-28, com dados fictícios | ☑ |
 | 35 | READMEs de `app/backend` e `app/web` | Documentação | CA-1, CA-40 | revisão; comandos do README rodados | ☑ |
 | 36 | `AGENTS.md` e `docs/PROJECT_CONTEXT.md` | Documentação | CA-1, CA-40 | revisão; links abrem | ☑ |
 | 37 | Design, arquitetura §13 e `hipoteses.md` | Documentação; R-6 | CA-40 | revisão; links abrem | ☑ |
@@ -223,7 +223,7 @@ Com `fastify.inject`, sem socket, e o banco de teste. Dados criados direto pelo 
 Os testes chamam as funções dos comandos direto, com o banco de teste e o adaptador em memória, e uma vez o processo pelo `npm run admin`, só para conferir os códigos de saída.
 
 - **CA-5:**
-  - `criar-empresa` aceita `00000000` e `00.000.000`, grava e imprime o `id`;
+  - `criar-empresa` aceita `11111111` e `11.111.111`, grava e imprime o `id`;
   - recusa raiz com 7 dígitos ou com letras, e raiz repetida, com mensagem que diz o motivo.
 - **CA-6:**
   - `convidar` com `titular` ou `contador` gera um e-mail com o link no formato da Spec;
@@ -259,7 +259,7 @@ Pela API, com sessões de titular, contador e colaborador nas empresas A e B:
 ### 19. Testes de empresas, pessoas, remoção e empresa em foco
 
 - **CA-29:** um usuário com vínculo em duas empresas; uma empresa com titular, contador e colaborador.
-- **CA-30:** `GET /api/empresas` traz só as empresas com vínculo ativo, ordenadas por nome, com `cnpjRaizFormatado` `00.000.000`. A empresa de outro usuário não aparece. O vínculo removido some.
+- **CA-30:** `GET /api/empresas` traz só as empresas com vínculo ativo, ordenadas por nome, com `cnpjRaizFormatado` `11.111.111`. A empresa de outro usuário não aparece. O vínculo removido some.
 - **CA-33:** `GET /api/empresas/<id de B>` por quem só tem A, `GET /api/empresas/<uuid inexistente>` e `GET /api/empresas/abc` dão o mesmo `404 empresa_nao_encontrada`, com corpo idêntico.
 - **CA-34:**
   - o titular remove o contador (`204`);
@@ -364,7 +364,7 @@ Como na Spec.
 
 - **CA-31:** `/` sem sessão leva a `/entrar`. Com uma empresa, leva a `/e/:id`; com duas, a `/empresas` com a lista (nome, CNPJ raiz formatado, papel). Sem nenhuma, mostra a mensagem da Spec e "Sair", sem erro técnico.
 - **CA-32:**
-  - a barra mostra o nome e "CNPJ raiz 00.000.000";
+  - a barra mostra o nome e "CNPJ raiz 11.111.111";
   - a troca de empresa aparece só com mais de uma empresa e leva a `/e/:outroId`;
   - o avatar tem as iniciais;
   - "Sair" chama `DELETE /api/sessao` e leva a `/entrar`;
@@ -388,7 +388,7 @@ Como na Spec.
 4. conferir login, erro, sem conexão (parar a API), muitas tentativas, recuperação, aceitar convite com e sem conta, escolha e troca de empresa, pessoas, remoção e sair;
 5. repetir em largura de celular (por volta de 375 px) e de desktop, e com `prefers-reduced-motion` ligado.
 
-O Developer roda o roteiro e registra o resultado no commit. A conferência visual que vale (P-9) é a do responsável, pedida pela sessão principal antes do PR.
+O Developer roda o roteiro e registra o resultado no commit. A conferência visual que vale (P-9) é a do responsável: ele a fez em 2026-11-28, com dados fictícios (handoff da 034, "Verificação"; registrado na 035).
 
 ### 35. READMEs de `app/backend` e `app/web`
 

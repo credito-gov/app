@@ -126,9 +126,9 @@ describe("PainelMarca (CA-18)", () => {
     render(<PainelMarca />);
     avancar(6000);
     expect(screen.getByText("A apropriar, por emitente")).toBeInTheDocument();
-    expect(screen.getByText("11.111.111/0001-11")).toBeInTheDocument();
-    expect(screen.getByText("R$ 14.320,10")).toBeInTheDocument();
     expect(screen.getByText("22.222.222/0001-22")).toBeInTheDocument();
+    expect(screen.getByText("R$ 14.320,10")).toBeInTheDocument();
+    expect(screen.getByText("33.333.333/0001-33")).toBeInTheDocument();
     expect(screen.getByText("R$ 9.870,45")).toBeInTheDocument();
     expect(screen.getByText("Emitente não identificado")).toBeInTheDocument();
     expect(screen.getByText("R$ 7.950,30")).toBeInTheDocument();

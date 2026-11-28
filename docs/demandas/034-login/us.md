@@ -61,7 +61,7 @@ A 034 **não** entrega indicadores, carteira com valores nem dados fiscais.
 
 ## Critérios de aceite
 
-"Usuário" é uma pessoa com conta; "vínculo" liga um usuário a uma empresa com um papel; "convite" é o pedido pendente de vínculo enviado a um e-mail. As respostas de P-1 a P-13 já estão nos critérios. Todo exemplo, teste e dado de desenvolvimento usa e-mails de domínio reservado para exemplo e CNPJ fictício (como `00.000.000/0001-00` do design), nunca dado real.
+"Usuário" é uma pessoa com conta; "vínculo" liga um usuário a uma empresa com um papel; "convite" é o pedido pendente de vínculo enviado a um e-mail. As respostas de P-1 a P-13 já estão nos critérios. Todo exemplo, teste e dado de desenvolvimento usa e-mails de domínio reservado para exemplo e CNPJ fictício (como `11.111.111/0001-00` do design, raiz conferida e DV errado de propósito), nunca dado real.
 
 ### Estrutura e verificação
 
@@ -87,7 +87,7 @@ A 034 **não** entrega indicadores, carteira com valores nem dados fiscais.
 - **CA-11:** O convidado sem conta abre o link, vê o nome da empresa e o papel, define a senha (regra de CA-14) e informa o nome. Ao concluir, a conta, a identidade de e-mail e senha e o vínculo são criados, o convite fica usado e ele entra na área logada já com sessão.
 - **CA-12:** O convidado que já tem conta (por exemplo, o contador convidado para mais uma empresa) abre o link, entra com a senha que já tem e, ao aceitar, ganha o vínculo novo, sem definir outra senha. A senha dele não muda.
 - **CA-13:** Link expirado, já usado, invalidado (CA-9) ou adulterado não cria conta nem vínculo; a tela diz que o convite não vale mais e orienta a pedir um novo a quem convidou.
-- **CA-14:** A senha tem de 12 a 128 caracteres, sem exigência de tipos de caractere, e não pode estar na lista de senhas comuns guardada no próprio código, sem consulta a serviço externo (P-4). Senha fora da regra é recusada com mensagem no campo que diz o que falta. A senha é guardada só como hash `argon2id`; nenhuma tabela, log ou resposta guarda ou devolve a senha.
+- **CA-14:** A senha tem de 12 a 128 caracteres, sem exigência de tipos de caractere, e não pode estar na lista de senhas comuns local, vinda da dependência `@zxcvbn-ts/language-common` 4.2.0 (DT-17), sem consulta a serviço externo (P-4). _(Redação alinhada na 035.)_ Senha fora da regra é recusada com mensagem no campo que diz o que falta. A senha é guardada só como hash `argon2id`; nenhuma tabela, log ou resposta guarda ou devolve a senha.
 
 ### Login
 

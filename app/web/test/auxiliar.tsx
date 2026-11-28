@@ -40,15 +40,15 @@ export function simularFetch(tratador: Tratador) {
 export const EMPRESA_A = {
   id: "11111111-1111-4111-8111-111111111111",
   nome: "Comércio Exemplo Ltda.",
-  cnpjRaiz: "00000000",
-  cnpjRaizFormatado: "00.000.000",
+  cnpjRaiz: "11111111",
+  cnpjRaizFormatado: "11.111.111",
   papel: "titular",
 };
 export const EMPRESA_B = {
   id: "22222222-2222-4222-8222-222222222222",
   nome: "Indústria Exemplo S.A.",
-  cnpjRaiz: "11111111",
-  cnpjRaizFormatado: "11.111.111",
+  cnpjRaiz: "22222222",
+  cnpjRaizFormatado: "22.222.222",
   papel: "contador",
 };
 export const USUARIO = { id: "33333333-3333-4333-8333-333333333333", nome: "Maria Exemplo" };

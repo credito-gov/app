@@ -10,7 +10,7 @@ export interface EmpresaDto {
   papel: Papel;
 }
 
-/** `00000000` vira `00.000.000`. */
+/** `11111111` vira `11.111.111`. */
 export function formatarCnpjRaiz(raiz: string): string {
   return `${raiz.slice(0, 2)}.${raiz.slice(2, 5)}.${raiz.slice(5, 8)}`;
 }

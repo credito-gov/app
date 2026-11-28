@@ -46,7 +46,7 @@ async function rodarFluxos() {
 
   const titular = await ctx.criarUsuario("titular@exemplo.com.br", "Maria Titular");
   const contador = await ctx.criarUsuario("contador@exemplo.com.br", "Carlos Contador");
-  const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
+  const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "11111111");
   await ctx.vincular(empresa, titular, "titular");
   await ctx.vincular(empresa, contador, "contador");
   segredos.push(

@@ -20,7 +20,7 @@ async function pendentes(empresa: string): Promise<number> {
 }
 
 test("o banco recusa um segundo convite pendente do mesmo e-mail na mesma empresa", async () => {
-  const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
+  const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "11111111");
   const inserir = (token: string) =>
     ctx.migracao.transaction().execute(async (trx) => {
       await sql`select set_config('app.empresas', ${`{${empresa}}`}, true)`.execute(trx);
@@ -32,7 +32,7 @@ test("o banco recusa um segundo convite pendente do mesmo e-mail na mesma empres
 });
 
 test("dois pedidos simultâneos deixam um só convite pendente e nenhum dá erro", async () => {
-  const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
+  const empresa = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "11111111");
   const titular = await ctx.criarUsuario("titular@exemplo.com.br");
   await ctx.vincular(empresa, titular, "titular");
   const cookie = (await ctx.login("titular@exemplo.com.br")).cookie!;

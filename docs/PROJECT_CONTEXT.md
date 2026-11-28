@@ -192,6 +192,10 @@ As tasks 001–005 do modelo antigo foram escritas sobre endpoints e tabelas que
 - Nunca commitar `node_modules/`, `dist/` nem arquivos temporários.
 - Sem PR com lint ou build falhando.
 - Não criar funcionalidade que não foi pedida. Decisão técnica relevante vai para a Spec da demanda, não fica implícita no código.
+- **Raiz de CNPJ fictícia só da lista conferida:** `11111111`, `22222222`, `33333333` e `44444444` (esta de reserva, sem uso). O responsável conferiu em 2026-11-28, na página pública "Comprovante de Inscrição e de Situação Cadastral" da Receita, a matriz `<raiz>0001` com o DV certo (`91`): nenhuma inscrição encontrada. Raiz nova exige a mesma conferência, com data. A conferência vale na data em que foi feita.
+- **CNPJ completo de exemplo sempre com DV errado** (o certo para as raízes da lista, com `0001`, é `91`). O backend e a web têm varredura que recusa a raiz `00000000`, de empresa real.
+- **Nunca nomear o dono de uma raiz de CNPJ real**, em arquivo, mensagem de commit ou PR.
+- **Pendência (P-2 da 035, adiada):** as raízes do `app/painel` (`90817263`, `55443322`, `11223344`, `44556677`, `55667788` e `66778899`) e o `12.345.678` da Spec da 030 não foram conferidas.
 
 ---
 
@@ -290,3 +294,4 @@ O fluxo de trabalho está em [`../AGENTS.md`](../AGENTS.md).
 | 2026-11-25 | Demanda 032: design system do produto aprovado e registrado em `docs/design/` (tokens claro e escuro, componentes, telas de login, dashboard e carteira do contador, com dados fictícios). Login com provedor externo revê a decisão de autenticação de 2026-08-25. O wireframe da concepção fica superado |
 | 2026-11-25 | Demanda 031: arquitetura do produto decidida em `docs/arquitetura/` (AD-1 a AD-14; nada construído). SaaS multi-inquilino; cada cliente informa a própria credencial da Receita; login federado não bloqueado; `app/painel` é ferramenta interna. Stack do backend e hospedagem resolvidas em `hipoteses.md`, com o provedor pendente da PD-1 |
 | 2026-11-27 | Demanda 034: construído o login do produto. `app/backend` (Fastify, PostgreSQL local no Compose, Kysely) e `app/web` (React + Vite), só com e-mail e senha; conta por convite; papéis titular, contador e colaborador. Google e Microsoft ficam para demanda própria (D-1). Isolamento por linha e `numeric` como texto confirmados com Kysely (R-3). Lista de senhas comuns: `@zxcvbn-ts/language-common` 4.2.0, decidida pelo responsável |
+| 2026-11-28 | Demanda 035: corrigidas as pendências da 034. A raiz de CNPJ `00000000`, de empresa real, sai de código, testes e documentos; raízes fictícias passam a ser `11111111`, `22222222` e `33333333` (`44444444` de reserva), conferidas pelo responsável, e as regras entram no §6 (varredura no backend e na web). Raízes do painel e o `12.345.678` da 030 seguem sem conferência (P-2). Também: removido código sem uso de `app/web`, dois testes negativos novos (origem fora do CIDR do proxy; login com 503), CA-14 da 034 alinhado ao DT-17 e conferência no navegador da 034 registrada |

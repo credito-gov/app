@@ -58,7 +58,7 @@ export function RedefinirSenha() {
 
   return (
     <PaginaCartao titulo="Nova senha">
-      {aviso === "sem_conexao" ? <AlertaDeRede tipo={aviso} /> : null}
+      {aviso === "sem_conexao" ? <AlertaDeRede /> : null}
       {aviso === "muitas_tentativas" ? (
         <Alerta tipo="warning" titulo="Muitas tentativas. Tente de novo em alguns minutos." />
       ) : null}
