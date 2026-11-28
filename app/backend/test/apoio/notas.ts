@@ -57,7 +57,12 @@ export function notasBrutasDe(consultas: ConsultaDeCenario[], servico: "creditos
 }
 
 /** Notas consolidadas de um cenário e serviço. */
-export function notasDoCenario(nome: string, servico: "creditos" | "debitos" = "creditos", raiz = RAIZ): NotaDoBanco[] {
-  const consultas = montarCenario(nome, { raiz, agora: AGORA_DOS_TESTES, semente: 7 });
+export function notasDoCenario(
+  nome: string,
+  servico: "creditos" | "debitos" = "creditos",
+  raiz = RAIZ,
+  opcoes: { agora?: Date; semente?: number } = {},
+): NotaDoBanco[] {
+  const consultas = montarCenario(nome, { raiz, agora: opcoes.agora ?? AGORA_DOS_TESTES, semente: opcoes.semente ?? 7 });
   return consolidarNotas(notasBrutasDe(consultas, servico, raiz));
 }
