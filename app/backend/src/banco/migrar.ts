@@ -2,12 +2,13 @@ import { Kysely, PostgresDialect } from "kysely";
 import { Migrator, type MigrationProvider } from "kysely/migration";
 import pg from "pg";
 import * as inicial from "./migracoes/0001_inicial.js";
+import * as dadosFiscais from "./migracoes/0002_dados_fiscais.js";
 
 // Provedor estático: evita carregar arquivos por caminho, que difere entre
 // `src` (testes) e `dist` (build). Cada migração nova entra aqui, na ordem.
 const provedor: MigrationProvider = {
   async getMigrations() {
-    return { "0001_inicial": inicial };
+    return { "0001_inicial": inicial, "0002_dados_fiscais": dadosFiscais };
   },
 };
 

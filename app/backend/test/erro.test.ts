@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { migrarParaCima, ErroMigracao } from "../src/banco/migrar.js";
 import * as inicial from "../src/banco/migracoes/0001_inicial.js";
+import * as dadosFiscais from "../src/banco/migracoes/0002_dados_fiscais.js";
 import { descreverErro } from "../src/erro.js";
 import { URL_MIGRACAO } from "./banco/urls.js";
 
@@ -23,7 +24,8 @@ describe("migrar: diz qual migração falhou", () => {
       async getMigrations() {
         return {
           "0001_inicial": inicial,
-          "0002_falha_de_teste": {
+          "0002_dados_fiscais": dadosFiscais,
+          "0003_falha_de_teste": {
             async up() {
               throw new Error("falha simulada");
             },
@@ -33,6 +35,6 @@ describe("migrar: diz qual migração falhou", () => {
     };
     const erro = await migrarParaCima(URL_MIGRACAO, provedor).catch((e: unknown) => e);
     expect(erro).toBeInstanceOf(ErroMigracao);
-    expect((erro as ErroMigracao).migracao).toBe("0002_falha_de_teste");
+    expect((erro as ErroMigracao).migracao).toBe("0003_falha_de_teste");
   });
 });

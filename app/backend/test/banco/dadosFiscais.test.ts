@@ -157,7 +157,8 @@ describe("catálogo (CA-37 da 034)", () => {
 
 describe("chaves estrangeiras compostas", () => {
   test("arquivo_bruto de A ligado a consulta de B é recusado", async () => {
-    const { consulta: consultaB } = await semearFiscal(B);
+    // consulta de B sem arquivo: a recusa tem de vir da chave composta, não da unicidade
+    const consultaB = await semear(migracao, [B], (trx) => inserirConsulta(trx, B));
     await expect(semear(migracao, [A, B], (trx) => inserirArquivo(trx, A, consultaB))).rejects.toMatchObject({ code: "23503" });
   });
 

@@ -45,8 +45,8 @@ Tasks pequenas e ordenadas, com um commit por task. Cada task cita a seção da 
 | # | Task | Spec | CA | Verificação | Status |
 |---|---|---|---|---|---|
 | 1 | Conferir a 034 na `main` e ajustar as referências | Dependências › Da demanda 034; R-1 | — (pré-requisito de todas) | tabela de conferência preenchida; os seis comandos da 034 passam na branch | ☑ |
-| 2 | Testes da migração `0002` e da transação interna | Banco; Estratégia › Isolamento | CA-20, CA-24, CA-26; AD-6 | falham (não há migração) | ☐ |
-| 3 | Migração `0002_dados_fiscais`, tipos do esquema e `naEmpresaInterna` | Banco › Migração `0002`; Transação sem usuário | idem 2 | testes da task 2 passam; `npm run migrar` sobe e o `down` desfaz | ☐ |
+| 2 | Testes da migração `0002` e da transação interna | Banco; Estratégia › Isolamento | CA-20, CA-24, CA-26; AD-6 | falham (não há migração) | ☑ |
+| 3 | Migração `0002_dados_fiscais`, tipos do esquema e `naEmpresaInterna` | Banco › Migração `0002`; Transação sem usuário | idem 2 | testes da task 2 passam; `npm run migrar` sobe e o `down` desfaz | ☑ |
 | 4 | Dependências do backend e cópia do núcleo e dos schemas do painel | Leitura (AD-14); Implantação › Dependências | CA-23 | testes copiados passam; `app/painel` sem alteração | ☐ |
 | 5 | Testes de `registrarLeitura` | Leitura; Contratos › Função de leitura | CA-20, CA-23, CA-24 | falham | ☐ |
 | 6 | Validação revisada (múltiplo de 0,01 com `big.js`) e `registrarLeitura` | Leitura; DT-6 | idem 5 | testes da task 5 passam | ☐ |
