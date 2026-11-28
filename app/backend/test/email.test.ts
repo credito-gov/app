@@ -142,3 +142,21 @@ describe("modelo de recuperação (CA-28)", () => {
     expect(semPermitidos).not.toMatch(/\d/);
   });
 });
+
+
+describe("texto de apresentação dos modelos (PROJECT_CONTEXT §6)", () => {
+  const frase = "O CreditoGov é a plataforma para acompanhar o crédito de CBS das compras da empresa.";
+
+  test("o convite não descreve como existente o que ainda não existe", () => {
+    const convite = modeloConvite({
+      para: "pessoa@exemplo.com.br",
+      quemConvidou: "Maria Titular",
+      empresaNome: "Comércio Exemplo Ltda.",
+      papel: "contador",
+      link: "http://localhost:5173/convite#e=x&t=y",
+      expiraEm: new Date("2026-12-08T12:00:00Z"),
+    });
+    expect(convite.texto).toContain(frase);
+    expect(convite.texto).not.toContain("mostra o crédito");
+  });
+});

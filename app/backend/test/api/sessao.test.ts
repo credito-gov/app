@@ -42,6 +42,23 @@ describe("login sem revelar o e-mail (CA-16)", () => {
   });
 });
 
+describe("login de conta sem senha cadastrada (CA-16)", () => {
+  test("sem linha em identidade, ou com hash nulo, a resposta é igual e o verificador roda", async () => {
+    await sql`insert into usuario (nome, email_normalizado) values ('Sem Identidade', 'sem-identidade@exemplo.com.br')`.execute(ctx.migracao);
+    const comHashNulo = await ctx.criarUsuario("hash-nulo@exemplo.com.br");
+    await sql`update identidade set hash_senha = null where usuario_id = ${comHashNulo}`.execute(ctx.migracao);
+    const inexistente = await ctx.login("ninguem@exemplo.com.br", "senha errada ficticia");
+    const semIdentidade = await ctx.login("sem-identidade@exemplo.com.br", "senha errada ficticia");
+    const hashNulo = await ctx.login("hash-nulo@exemplo.com.br", SENHA_BOA);
+    for (const r of [semIdentidade, hashNulo]) {
+      expect(r.status).toBe(inexistente.status);
+      expect(r.corpo).toEqual(inexistente.corpo);
+      expect(r.cookie).toBeNull();
+    }
+    expect(ctx.verificador).toHaveBeenCalledTimes(3);
+  });
+});
+
 describe("limite pela rota (CA-17)", () => {
   test("a 6ª tentativa dá 429, também com a senha certa", async () => {
     await ctx.criarUsuario(EMAIL);

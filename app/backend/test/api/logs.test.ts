@@ -1,4 +1,5 @@
 import { Writable } from "node:stream";
+import { sql } from "kysely";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { chaveEmail, chaveOrigem } from "../../src/autenticacao/limite.js";
 import { hmacToken } from "../../src/autenticacao/tokens.js";
@@ -100,7 +101,7 @@ async function rodarFluxos() {
   const de = guardar(await ctx.login("titular@exemplo.com.br", NOVA));
   guardar(await ctx.req("DELETE", "/api/sessao", { cookie: de.cookie }));
 
-  return { respostas, segredos };
+  return { respostas, segredos, empresa };
 }
 
 describe("logs (CA-39)", () => {
@@ -145,6 +146,34 @@ describe("logs (CA-39)", () => {
     }
     for (const e of eventos.filter((x) => x["evento"] === "login_recusado")) {
       expect("usuarioId" in e).toBe(false);
+    }
+  });
+
+  test("nenhuma tabela guarda senha em texto (CA-14)", async () => {
+    const { empresa } = await rodarFluxos();
+    const tabelas = [
+      "usuario",
+      "identidade",
+      "sessao",
+      "recuperacao_senha",
+      "falha_acesso",
+      "bloqueio_acesso",
+      "empresa",
+      "vinculo_empresa",
+      "convite",
+    ];
+    const conteudo = await ctx.migracao.transaction().execute(async (trx) => {
+      await sql`select set_config('app.empresas', ${`{${empresa}}`}, true)`.execute(trx);
+      const partes: string[] = [];
+      for (const t of tabelas) {
+        const r = await sql<{ txt: string }>`select coalesce(string_agg(to_jsonb(x)::text, ' '), '') as txt from ${sql.table(t)} x`.execute(trx);
+        partes.push(r.rows[0]!.txt);
+      }
+      return partes.join(" ");
+    });
+    expect(conteudo).toContain("$argon2id$"); // a varredura leu o que importa
+    for (const senha of [SENHA_BOA, NOVA, ERRADA, SENHA_CONVITE, "curta"]) {
+      expect(conteudo.includes(senha), "uma tabela guarda uma senha em texto").toBe(false);
     }
   });
 

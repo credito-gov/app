@@ -33,6 +33,14 @@ describe("varredura do repositório", () => {
     expect(comValor.test(exemplo)).toBe(false);
   });
 
+  test("o compose fixa a imagem postgres:18.7 e prende a porta a 127.0.0.1 (CA-3)", () => {
+    const compose = readFileSync(join(RAIZ, "compose.yaml"), "utf8");
+    expect(compose).toMatch(/^\s*image:\s*postgres:18\.7\s*$/m);
+    const portas = compose.split(/\r?\n/).filter((l) => /^\s*-\s*"?\d/.test(l) && l.includes(":"));
+    expect(portas.length).toBeGreaterThan(0);
+    for (const p of portas) expect(p, "porta sem 127.0.0.1").toMatch(/"127\.0\.0\.1:/);
+  });
+
   test(".env está no .gitignore e não há .env versionável na pasta", () => {
     expect(readFileSync(join(RAIZ, ".gitignore"), "utf8")).toMatch(/^\.env$/m);
   });

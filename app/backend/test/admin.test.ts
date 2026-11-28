@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
+import { join } from "node:path";
 import { sql, type Kysely } from "kysely";
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { criarComandosAdmin, ErroAdmin, type ComandosAdmin } from "../src/admin/comandos.js";
 import { hmacToken } from "../src/autenticacao/tokens.js";
 import { abrirKysely } from "../src/banco/conexao.js";
@@ -9,7 +10,7 @@ import { criarBanco } from "../src/banco/transacao.js";
 import { carregarConfig } from "../src/config.js";
 import { criarEmailMemoria, type EnvioEmailMemoria } from "../src/email/memoria.js";
 import { abrirComoMigracao, limparTabelas } from "./banco/limpar.js";
-import { URL_APP } from "./banco/urls.js";
+import { URL_APP, URL_MIGRACAO } from "./banco/urls.js";
 import { criarContexto, SEGREDO, WEB_URL, type Contexto } from "./api/ajudas.js";
 
 const ENV = {
@@ -142,7 +143,7 @@ describe("empresas-do-usuario", () => {
       const outro = await ctx.criarUsuario("outra@exemplo.com.br");
       const a = await ctx.criarEmpresa("Comércio Exemplo Ltda.", "00000000");
       const b = await ctx.criarEmpresa("Indústria Exemplo S.A.", "11111111");
-      const c = await ctx.criarEmpresa("Serviços Exemplo ME", "00000002");
+      const c = await ctx.criarEmpresa("Serviços Exemplo ME", "22222222");
       await ctx.vincular(a, u, "titular");
       await ctx.vincular(b, u, "contador");
       await ctx.vincular(c, outro, "titular");
@@ -166,8 +167,8 @@ describe("remover-vinculo (CA-34)", () => {
   beforeEach(async () => {
     ctx = await criarContexto();
   });
-  afterAll(async () => {
-    await ctx?.encerrar();
+  afterEach(async () => {
+    await ctx.encerrar();
   });
 
   test("remove o contador e recusa o último titular", async () => {
@@ -191,13 +192,26 @@ describe("remover-vinculo (CA-34)", () => {
   });
 });
 
-describe("processo npm run admin", () => {
+describe("processo do admin (sem .env e sem shell)", () => {
+  const RAIZ = join(import.meta.dirname, "..");
+
+  // Um build só para os testes de processo. O processo roda com `node dist/admin/main.js`,
+  // sem --env-file-if-exists: o .env do desenvolvedor nunca é lido.
+  beforeAll(() => {
+    const b = spawnSync(process.execPath, [join(RAIZ, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.json"], {
+      cwd: RAIZ,
+      encoding: "utf8",
+      timeout: 120_000,
+    });
+    expect(b.status, b.stdout + b.stderr).toBe(0);
+  }, 130_000);
+
   const rodar = (...args: string[]) =>
-    spawnSync("npm", ["run", "admin", "--", ...args], {
-      shell: true,
+    spawnSync(process.execPath, [join(RAIZ, "dist", "admin", "main.js"), ...args], {
+      cwd: RAIZ,
       encoding: "utf8",
       env: { ...process.env, ...ENV },
-      timeout: 120_000,
+      timeout: 60_000,
     });
 
   test("raiz inválida sai com código 1 e diz o motivo; sem comando também falha", () => {
@@ -208,10 +222,28 @@ describe("processo npm run admin", () => {
     expect(vazio.status).toBe(1);
   }, 130_000);
 
-  test("criar-empresa válido sai com código 0 e imprime o id", () => {
+  test("criar-empresa válido sai com código 0, imprime o id e o nome chega inteiro", async () => {
     const ok = rodar("criar-empresa", "--cnpj-raiz", "00.000.000", "--nome", "Comércio Exemplo Ltda.");
     expect(ok.status).toBe(0);
-    expect(ok.stdout).toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/);
+    expect(ok.stderr).not.toContain("DEP0190");
+    const id = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/.exec(ok.stdout)?.[1];
+    expect(id).toBeDefined();
+    const nome = await migracao.transaction().execute(async (trx) => {
+      await sql`select set_config('app.empresas', ${`{${id}}`}, true)`.execute(trx);
+      return (await sql<{ nome: string }>`select nome from empresa`.execute(trx)).rows[0]?.nome;
+    });
+    expect(nome).toBe("Comércio Exemplo Ltda.");
+  }, 130_000);
+
+  test("com o papel de migração na URL do app, o processo recusa subir", () => {
+    const r = spawnSync(process.execPath, [join(RAIZ, "dist", "admin", "main.js"), "empresas-do-usuario", "--email", "a@exemplo.com.br"], {
+      cwd: RAIZ,
+      encoding: "utf8",
+      env: { ...process.env, ...ENV, CREDITOGOV_BANCO_URL: URL_MIGRACAO },
+      timeout: 60_000,
+    });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toMatch(/papel do banco/i);
   }, 130_000);
 });
 

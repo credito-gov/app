@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { sql } from "kysely";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { removerVinculo } from "../../src/empresas/vinculos.js";
 import { criarContexto, MIN, type Contexto } from "./ajudas.js";
 
 const DIA = 24 * 60 * MIN;
@@ -99,6 +100,27 @@ describe("empresa em foco (CA-33)", () => {
 
   test("sem sessão dá 401, antes de qualquer 404", async () => {
     expect((await ctx.req("GET", `/api/empresas/${A}`)).status).toBe(401);
+  });
+});
+
+describe("toda rota com :empresaId (CA-33)", () => {
+  test("usuário sem vínculo recebe o mesmo 404 empresa_nao_encontrada em todas", async () => {
+    const rotas = ctx.app.rotas.filter((r) => r.includes(":empresaId") && !r.startsWith("HEAD "));
+    expect(rotas.length).toBeGreaterThanOrEqual(4);
+    const respostas = [];
+    for (const rota of rotas) {
+      const [metodo, caminho] = rota.split(" ") as [string, string];
+      // titular de A não tem vínculo em B; o :usuarioId é de alguém de B
+      const url = caminho.replace(":empresaId", B).replace(":usuarioId", u["titularb"]!.id);
+      const r = await ctx.req(metodo, url, {
+        cookie: u["titular"]!.cookie,
+        corpo: metodo === "POST" ? { email: "novo@exemplo.com.br", papel: "colaborador" } : undefined,
+      });
+      expect(r.status, rota).toBe(404);
+      expect(r.corpo, rota).toEqual({ erro: "empresa_nao_encontrada", mensagem: "Empresa não encontrada ou sem acesso." });
+      respostas.push(r.texto);
+    }
+    expect(new Set(respostas).size).toBe(1);
   });
 });
 
@@ -208,14 +230,28 @@ describe("remoção de vínculo (CA-34)", () => {
     expect(invalido.corpo.erro).toBe("vinculo_nao_encontrado");
   });
 
-  test("duas remoções simultâneas dos dois únicos titulares deixam pelo menos um", async () => {
-    const C = await ctx.criarEmpresa("Serviços Exemplo ME", "00000002");
+  test("remoção simultânea dos dois únicos titulares: a segunda espera a primeira e é recusada", async () => {
+    const C = await ctx.criarEmpresa("Serviços Exemplo ME", "22222222");
     await entrar("x", [[C, "titular"]]);
     await entrar("y", [[C, "titular"]]);
-    const [r1, r2] = await Promise.all([remover(C, "x", u["y"]!.id), remover(C, "y", u["x"]!.id)]);
-    const status = [r1.status, r2.status].sort();
-    expect(status[0]).toBe(204);
-    expect([404, 409]).toContain(status[1]);
+    const agora = ctx.relogio.agora();
+    let segunda!: Promise<string>;
+    // Duas transações manuais: a primeira remove y e segue aberta (com as linhas travadas)
+    // enquanto a segunda tenta remover x; só depois a primeira confirma.
+    const primeira = await ctx.banco.naEmpresaFixada(C, async (trx) => {
+      const r = await removerVinculo(trx, { empresaId: C, usuarioId: u["y"]!.id, removidoPor: u["x"]!.id, agora });
+      segunda = ctx.banco.naEmpresaFixada(C, (t2) =>
+        removerVinculo(t2, { empresaId: C, usuarioId: u["x"]!.id, removidoPor: u["y"]!.id, agora }),
+      );
+      const estado = await Promise.race([
+        segunda.then(() => "terminou"),
+        new Promise((resolver) => setTimeout(() => resolver("esperando"), 400)),
+      ]);
+      expect(estado).toBe("esperando");
+      return r;
+    });
+    expect(primeira).toBe("ok");
+    expect(await segunda).toBe("ultimo_titular");
     const ativos = await ctx.migracao.transaction().execute(async (trx) => {
       await sql`select set_config('app.empresas', ${`{${C}}`}, true)`.execute(trx);
       return (await sql<{ n: string }>`select count(*)::text as n from vinculo_empresa where papel = 'titular' and removido_em is null`.execute(trx)).rows[0]!.n;

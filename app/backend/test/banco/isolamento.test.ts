@@ -46,7 +46,7 @@ beforeAll(async () => {
     await sql`insert into empresa (id, cnpj_raiz, nome) values
       (${A}, '00000000', 'Comércio Exemplo Ltda.'),
       (${B}, '11111111', 'Indústria Exemplo S.A.'),
-      (${C}, '00000002', 'Serviços Exemplo ME')`.execute(trx);
+      (${C}, '22222222', 'Serviços Exemplo ME')`.execute(trx);
     await sql`insert into convite (id, empresa_id, email_normalizado, papel, token_hmac, origem, expira_em) values
       (${conviteA}, ${A}, 'novo-a@exemplo.com.br', 'colaborador', 'hmac-a', 'equipe', now() + interval '7 days'),
       (${conviteB}, ${B}, 'novo-b@exemplo.com.br', 'colaborador', 'hmac-b', 'equipe', now() + interval '7 days')`.execute(trx);
@@ -94,6 +94,19 @@ describe("CA-35: segurança por linha, direto no banco", () => {
         sql`insert into vinculo_empresa (empresa_id, usuario_id, papel) values (${B}, ${U2}, 'colaborador')`.execute(trx),
       ),
     ).rejects.toThrow(/row-level security/);
+  });
+
+  test("UPDATE que move linha de A para B falha com A fixada (WITH CHECK)", async () => {
+    await expect(
+      comoApp([A], (trx) => sql`update convite set empresa_id = ${B} where empresa_id = ${A}`.execute(trx)),
+    ).rejects.toThrow(/row-level security/);
+    await expect(
+      comoApp([A], (trx) => sql`update vinculo_empresa set empresa_id = ${B} where empresa_id = ${A}`.execute(trx)),
+    ).rejects.toThrow(/row-level security/);
+    await comoApp([A], async (trx) => {
+      const r = await sql<{ n: string }>`select count(*)::text as n from convite`.execute(trx);
+      expect(r.rows[0]?.n).toBe("1"); // continua em A
+    });
   });
 
   test("UPDATE e DELETE em linha de B afetam 0 linhas com A fixada", async () => {

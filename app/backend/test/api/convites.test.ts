@@ -257,6 +257,32 @@ describe("aceitar com conta (CA-12)", () => {
     expect(sessao.corpo.empresas.map((e: { id: string }) => e.id).sort()).toEqual([A, B].sort());
   });
 
+  test("depois de ter o vínculo removido, aceitar um convite novo funciona (CA-12)", async () => {
+    const titularB = await entrar("titular-b@exemplo.com.br", B, "titular");
+    const primeiro = await convidar(B, titularB.cookie, "contador-a@exemplo.com.br", "contador");
+    expect(primeiro.status).toBe(202);
+    expect((await aceitar(ultimoLink(), { senha: SENHA_BOA })).status).toBe(200);
+    const alvo = (await sql<{ id: string }>`select id from usuario where email_normalizado = 'contador-a@exemplo.com.br'`.execute(ctx.migracao)).rows[0]!.id;
+    expect((await ctx.req("DELETE", `/api/empresas/${B}/vinculos/${alvo}`, { cookie: titularB.cookie })).status).toBe(204);
+
+    expect((await convidar(B, titularB.cookie, "contador-a@exemplo.com.br", "contador")).status).toBe(202);
+    const deNovo = await aceitar(ultimoLink(), { senha: SENHA_BOA });
+    expect(deNovo.status).toBe(200);
+    expect(deNovo.corpo.empresas.map((e: { id: string }) => e.id)).toContain(B);
+  });
+
+  test("aceitar com um cookie anterior válido troca a sessão: a antiga deixa de valer (CA-22)", async () => {
+    const link = await conviteParaContador();
+    const antigo = (await ctx.login("contador-a@exemplo.com.br")).cookie!;
+    expect((await ctx.req("GET", "/api/sessao", { cookie: antigo })).status).toBe(200);
+    const r = await aceitar(link, { senha: SENHA_BOA }, { cookie: antigo });
+    expect(r.status).toBe(200);
+    expect(r.cookie).toBeTruthy();
+    expect(r.cookie).not.toBe(antigo);
+    expect((await ctx.req("GET", "/api/sessao", { cookie: antigo })).status).toBe(401);
+    expect((await ctx.req("GET", "/api/sessao", { cookie: r.cookie })).status).toBe(200);
+  });
+
   test("senha errada dá 401 credencial_invalida, não consome o convite e conta no limite", async () => {
     const link = await conviteParaContador();
     const r = await aceitar(link, { senha: "senha errada ficticia" });
