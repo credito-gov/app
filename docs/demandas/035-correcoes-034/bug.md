@@ -56,9 +56,9 @@ Impacto: nenhum em produção (nada foi ao ar). O impacto do item 1 é de confor
 
 Conclusão: não há fonte que torne uma raiz numérica impossível de atribuir. Por isso a raiz substituta é conferida pelo responsável (P-1, decidida: alternativa A).
 
-**As raízes `11111111` e `22222222` têm o mesmo problema, com uma diferença.** Elas também foram escolhidas sem conferência, e não se sabe se pertencem a alguém. A consulta pública do CNPJ pede o número completo e tem captcha: a conferência é do responsável. Os CNPJs completos `11.111.111/0001-11` e `22.222.222/0001-22`, que a tela de login mostra (`PainelMarca.tsx:55-56`), têm DV errado (o certo é `91` nos dois) e não existem. As raízes não foram conferidas.
+**As raízes `11111111` e `22222222` têm o mesmo problema, com uma diferença.** Elas também foram escolhidas sem conferência, e não se sabe se pertencem a alguém. A consulta pública do CNPJ pede o número completo e tem captcha: a conferência é do responsável. Os CNPJs completos `11.111.111/0001-11` e `22.222.222/0001-22`, que a tela de login mostra (`PainelMarca.tsx:55-56`), têm DV errado (o certo é `91` nos dois) e não existem. **Resultado da conferência (P-1, 2026-11-28):** o responsável consultou as matrizes `11.111.111/0001-91` e `22.222.222/0001-91` no "Comprovante de Inscrição e de Situação Cadastral" da Receita, e nenhuma existe. Essas duas raízes passam a ser fictícias conferidas.
 
-**Raízes do painel.** `app/painel` usa outras raízes escolhidas sem conferência: `90817263` (empresa dos fictícios), `55443322`, `11223344`, `44556677`, `55667788` e `66778899` (emitentes), e `12.345.678` no exemplo da Spec da 030. A dúvida é a mesma (P-2).
+**Raízes do painel.** `app/painel` usa outras raízes escolhidas sem conferência: `90817263` (empresa dos fictícios), `55443322`, `11223344`, `44556677`, `55667788` e `66778899` (emitentes), e `12.345.678` no exemplo da Spec da 030. A dúvida é a mesma. P-2 foi adiada pelo responsável: elas não mudam nesta correção e ficam registradas como pendência no §6.
 
 **Inventário da raiz `00000000`** (usos como empresa fictícia; levantado com `git grep` em 2026-11-28, na `main` em `39e4fae`):
 
@@ -114,18 +114,32 @@ Não é defeito de comportamento. É falta de cobertura, apontada pelo Reviewer 
 
 ## Correção proposta
 
-P-1 foi decidida pela alternativa A: o responsável confere as raízes. Até ele informar os valores, a raiz nova aparece como **`RAIZ_A`**, **`RAIZ_B`** e **`RAIZ_C`**. Elas substituem, nessa ordem, `00000000`, `11111111` e `22222222`, e respeitam `RAIZ_A < RAIZ_B < RAIZ_C`. A ordem importa: `admin.test.ts:71` ordena por `cnpj_raiz`. Nenhuma raiz entra no repositório antes da conferência. Se a conferência mostrar que `11111111` ou `22222222` não existem, essas ficam e são registradas como conferidas.
+**Raízes conferidas (P-1, 2026-11-28).** `11111111`, `22222222`, `33333333` e `44444444`. As matrizes `<raiz>0001-91` não existem no "Comprovante de Inscrição e de Situação Cadastral" da Receita.
+
+**Mapeamento.** Mantém a ordem das empresas de teste, porque `admin.test.ts:71` ordena por `cnpj_raiz`:
+
+| Raiz antiga | Raiz nova |
+|---|---|
+| `00000000` (`00.000.000`) | `11111111` (`11.111.111`) |
+| `11111111` (`11.111.111`) | `22222222` (`22.222.222`) |
+| `22222222` (`22.222.222`) | `33333333` (`33.333.333`) |
+
+`44444444` fica registrada no §6 como conferida e de reserva, sem uso nesta correção.
+
+**Troca em uma passada só.** Como as raízes se deslocam, a troca sequencial converte duas vezes: `00000000` vira `11111111` e, na regra seguinte, `22222222`. A troca é feita em uma passada só, com o mapa aplicado de uma vez, ou na ordem decrescente: primeiro `22222222`→`33333333`, depois `11111111`→`22222222`, por fim `00000000`→`11111111`. Vale o mesmo para as formas com pontuação.
+
+**UUIDs não mudam.** UUIDs com esses dígitos (`00000000-0000-4000-8000-000000000000` em `admin.test.ts:131`; `11111111-1111-…` e `22222222-2222-…` em `web/test/auxiliar.tsx:41, 48`) não são raiz e ficam como estão. A conferência depois da troca é o diff, e não um novo `git grep` das raízes, que hoje são todas válidas.
 
 1. **Backend.**
-   - **Testes e README:** em todos os arquivos do inventário, `00000000` e `00.000.000` viram `RAIZ_A`, nas formas sem e com pontuação. `11111111` vira `RAIZ_B` e `22222222` vira `RAIZ_C`, se forem trocadas.
-   - **Comentário:** o de `src/empresas/empresas.ts:13` passa a usar um exemplo da lista conferida.
-   - **Varredura:** `test/varredura.test.ts` ganha um teste. Em `src/`, `test/` e `README.md`, depois de tirar os UUIDs, não pode aparecer nenhuma raiz da lista proibida (`00000000`, e `11111111` e `22222222` se forem trocadas), nem sem nem com pontuação. O próprio arquivo de varredura fica de fora, como já acontece hoje.
+   - **Testes e README:** troca pelo mapeamento acima em todos os arquivos do inventário, nas formas sem e com pontuação.
+   - **Comentário:** o de `src/empresas/empresas.ts:13` passa a ser "`11111111` vira `11.111.111`".
+   - **Varredura:** `test/varredura.test.ts` ganha um teste. Em `src/`, `test/` e `README.md`, depois de tirar os UUIDs, não pode aparecer a raiz proibida `00000000`, nem `00.000.000`. O próprio arquivo de varredura fica de fora, como já acontece hoje. A lista proibida é só essa.
 2. **Web.**
    - **Testes:** `test/auxiliar.tsx`, `areaLogada.test.tsx`, `falhasWeb.test.tsx` e `painelMarca.test.tsx`, com a mesma troca.
-   - **Tela de login:** em `src/componentes/PainelMarca.tsx:55-56`, os CNPJs completos passam a usar as raízes conferidas, com **DV errado de propósito**.
-   - **Varredura nova:** `test/varredura.test.ts`, igual à do backend, sobre `src/`, `test/` e `README.md`. Ganha também um teste de que todo CNPJ completo exibido em `PainelMarca` tem DV inválido.
-   - **README:** em `app/web/README.md:32`, as raízes conferidas no lugar das antigas, e a frase da conferência passa a dizer que o responsável a fez em 2026-11-28, com dados fictícios.
-3. **Painel:** em `test/paginas2.test.ts:401`, o grupo inexistente passa a usar uma raiz conferida, com sufixo e DV errado. As demais raízes do painel dependem de P-2.
+   - **Tela de login:** em `src/componentes/PainelMarca.tsx:55-56`, `11.111.111/0001-11` vira `22.222.222/0001-22` e `22.222.222/0001-22` vira `33.333.333/0001-33`, os dois com **DV errado de propósito** (o certo é `91`). `painelMarca.test.tsx:129, 131` acompanham.
+   - **Varredura nova:** `test/varredura.test.ts`, igual à do backend (só `00000000` e `00.000.000`), sobre `src/`, `test/` e `README.md`. Ganha também um teste de que todo CNPJ completo exibido em `PainelMarca` tem DV inválido.
+   - **README:** em `app/web/README.md:32`, as raízes `11111111`, `22222222` e `33333333` no lugar de `00000000`, `11111111` e `22222222`. A frase da conferência passa a dizer que o responsável a fez em 2026-11-28, com dados fictícios.
+3. **Painel:** em `test/paginas2.test.ts:401`, o grupo inexistente `cnpj-00000000000000` passa a usar a raiz conferida `11111111`, com sufixo `0001` e DV errado (`cnpj-11111111000100`). O teste continua esperando 404, porque nenhum dado ou teste do painel usa essa raiz (busca de 2026-11-28). As demais raízes do painel não mudam (P-2 adiada).
 4. **B-2, `app/web`.**
    - **`AlertaDeRede.tsx`:** sai `tipo?` da assinatura, e os 9 pontos de chamada deixam de passar o parâmetro. `FalhaDeRede` e `ehFalhaDeRede` ficam, porque estão em uso.
    - **`Pessoas.tsx`:** `textoDeRede` vira a constante `"Sem conexão"`, usada nas linhas 99 e 120.
@@ -133,19 +147,24 @@ P-1 foi decidida pela alternativa A: o responsável confere as raízes. Até ele
    - **Backend:** em `test/api/proxy.test.ts`, um teste com `confiarProxy: "10.0.0.0/24, 192.168.1.1"` e conexão de `10.0.1.5` (fora da faixa) e de `192.168.1.2` (fora do endereço único), com `X-Forwarded-For: 2.2.2.2`. A chave de origem tem de ser o endereço da conexão, e não `2.2.2.2`.
    - **Web:** em `test/entrar.test.tsx`, um teste com `POST /api/sessao` respondendo 503 sem corpo. Tem de aparecer o alerta "Sem conexão" com "Tentar de novo", e não o alerta de credencial.
 6. **Documentos** (só os vivos).
-   - **Design:** em `docs/design/design-system.md:8` e `docs/design/briefing.md:46`, os exemplos passam a usar as raízes conferidas, com o CNPJ completo de DV errado.
-   - **`docs/PROJECT_CONTEXT.md` §6, "Código":** entra a regra nova. Raiz de CNPJ fictícia só da lista conferida, com data e método da conferência. CNPJ completo de exemplo sempre com DV errado. Nunca nomear o dono de uma raiz real. O changelog (§11) ganha a linha da 035.
+   - **Design:** em `docs/design/design-system.md:8` e `docs/design/briefing.md:46`, pelo mesmo mapeamento. A empresa de exemplo passa a ser `11.111.111/0001-00` e o emitente de exemplo `22.222.222/0001-22`, os dois com DV errado.
+   - **`docs/PROJECT_CONTEXT.md` §6, "Código":** entram as regras novas.
+     - Raiz de CNPJ fictícia só da lista conferida: `11111111`, `22222222`, `33333333` e `44444444` (esta de reserva). Conferidas pelo responsável em 2026-11-28 no "Comprovante de Inscrição e de Situação Cadastral" da Receita, pela matriz `<raiz>0001` com o DV certo, sem inscrição encontrada. Raiz nova exige a mesma conferência, com data.
+     - CNPJ completo de exemplo sempre com DV errado.
+     - Nunca nomear o dono de uma raiz real.
+     - **Pendência (P-2, adiada):** as raízes do painel (`90817263`, `55443322`, `11223344`, `44556677`, `55667788`, `66778899`) e o `12.345.678` da Spec da 030 não foram conferidas.
+     - O changelog (§11) ganha a linha da 035.
    - **Demanda 034** (Spec, US e tasks descrevem o código que está na `main` e servem de modelo para as próximas):
-     - os exemplos de `00000000` e `00.000.000` trocados pelas raízes conferidas;
+     - os exemplos trocados pelo mapeamento, em uma passada só;
      - o R-8 da Spec sem o nome da empresa, e com remissão à 035;
-     - o DT-22 e a linha 403 da Spec com as raízes novas;
+     - o DT-22 e a linha 403 da Spec com as raízes `11111111`, `22222222` e `33333333`;
      - o CA-14 da US com a redação do DT-17: "fora da lista de senhas comuns local, vinda da dependência `@zxcvbn-ts/language-common` (DT-17), sem consulta a serviço externo", com a nota "redação alinhada na 035";
      - a frase final do DT-17 ajustada;
      - a task 34 (linha 60 e §34) registrando a conferência do responsável em 2026-11-28.
 
 ## Implantação
 
-- **Apps afetadas:** `app/backend` (só testes, README e um comentário), `app/web` (testes, README, `PainelMarca`, `AlertaDeRede` e os 9 pontos de chamada, `Pessoas`) e `app/painel` (um teste, mais o que P-2 decidir).
+- **Apps afetadas:** `app/backend` (só testes, README e um comentário), `app/web` (testes, README, `PainelMarca`, `AlertaDeRede` e os 9 pontos de chamada, `Pessoas`) e `app/painel` (uma linha de teste).
 - **Banco e configuração:** sem migration e sem variável de ambiente nova.
 - **Compatibilidade:** compatível com a versão anterior. Nenhum contrato da API muda.
 - **Antes e depois:** nada vai ao ar, porque as aplicações só rodam localmente. Nenhuma ação além do deploy.
@@ -155,8 +174,15 @@ P-1 foi decidida pela alternativa A: o responsável confere as raízes. Até ele
 ## Critérios de aceite
 
 - **CA-1 (R-8):** seguindo "Como reproduzir", os passos 1 a 3 não acham mais a raiz `00000000` como empresa fictícia em `app/`, `docs/design/`, `docs/PROJECT_CONTEXT.md` nem `docs/demandas/034-login/{us,spec,tasks}.md`. Sobram só os falsos positivos listados e os registros (handoff e `flow-evaluation.md` da 034, este `bug.md`). As varreduras novas do backend e da web falham se a raiz voltar.
-- **CA-2 (R-8):** as raízes fictícias usadas no lugar são as conferidas pelo responsável (P-1), com data e método registrados no `PROJECT_CONTEXT.md` §6. Todo CNPJ completo de exemplo, no código, nos testes e nos documentos tocados, tem DV inválido. A web tem teste disso para `PainelMarca`.
-- **CA-3 (R-8):** o `PROJECT_CONTEXT.md` §6 tem a regra da raiz fictícia conferida, a do DV errado no CNPJ completo e a de não nomear o dono de raiz real. O §11 tem a linha da 035.
+- **CA-2 (R-8):** as raízes fictícias seguem o mapeamento de "Correção proposta": `00000000`→`11111111`, `11111111`→`22222222` e `22222222`→`33333333`, sem conversão dupla. A ordem das empresas de teste é preservada, e os UUIDs não mudam. Todo CNPJ completo de exemplo, no código, nos testes e nos documentos tocados, tem DV inválido (diferente de `91`). A web tem teste disso para `PainelMarca`.
+- **CA-3 (R-8):** o `PROJECT_CONTEXT.md` §6 tem:
+  - a lista conferida (`11111111`, `22222222`, `33333333` e `44444444` de reserva), com a data 2026-11-28 e o método;
+  - a regra de conferir raiz nova;
+  - a do DV errado no CNPJ completo;
+  - a de não nomear o dono de raiz real;
+  - a pendência P-2 (raízes do painel e `12.345.678` da 030, não conferidas).
+
+  O §11 tem a linha da 035.
 - **CA-4 (R-8):** nenhum arquivo do repositório nomeia a empresa dona da raiz `00000000`. A mensagem de commit também não.
 - **CA-5 (não-regressão):** o comportamento coberto pelos testes que usavam as raízes antigas não muda:
   - formatação `NN.NNN.NNN`;
@@ -174,27 +200,27 @@ P-1 foi decidida pela alternativa A: o responsável confere as raízes. Até ele
 
 ## Tasks
 
-**Teste primeiro.** As tasks 1 e 2 reproduzem o R-8 e falham hoje, pela causa raiz. As tasks 3 e 4 cobrem lacunas, sem defeito de comportamento, e passam na primeira execução. Para mostrar que o teste pega o defeito, o Developer faz uma mutação local, sem commit: na task 3, passar `trustProxy: true` em `servidor.ts:58`; na task 4, tirar 503 da regra de `cliente.ts:83`. Ele registra no commit que o teste falhou com a mutação. As tasks 5 a 7 e 9 só são feitas depois que o responsável informar as raízes conferidas e a data (P-1); a 7 espera também P-2. Um commit por task, sem nome de empresa real na mensagem.
+**Teste primeiro.** As tasks 1 e 2 reproduzem o R-8 e falham hoje, pela causa raiz. As tasks 3 e 4 cobrem lacunas, sem defeito de comportamento, e passam na primeira execução. Para mostrar que o teste pega o defeito, o Developer faz uma mutação local, sem commit: na task 3, passar `trustProxy: true` em `servidor.ts:58`; na task 4, tirar 503 da regra de `cliente.ts:83`. Ele registra no commit que o teste falhou com a mutação. As tasks 5, 6 e 9 trocam as raízes pelo mapeamento de "Correção proposta", **em uma passada só**, sem mexer em UUIDs; cada uma confere o diff antes do commit. Um commit por task, sem nome de empresa real na mensagem.
 
 | # | Task | Spec | Verificação | Status |
 |---|---|---|---|---|
-| 1 | Backend: teste de varredura da lista de raízes proibidas em `src/`, `test/` e `README.md`, sem contar UUIDs (CA-1) | §Correção proposta, item 1 | falha hoje, apontando os arquivos do inventário (`npm test` em `app/backend`, com `npm run banco:subir`) | ☐ |
+| 1 | Backend: teste de varredura da raiz proibida `00000000` (e `00.000.000`) em `src/`, `test/` e `README.md`, sem contar UUIDs (CA-1) | §Correção proposta, item 1 | falha hoje, apontando os arquivos do inventário (`npm test` em `app/backend`, com `npm run banco:subir`) | ☐ |
 | 2 | Web: `test/varredura.test.ts` com a mesma regra, mais o teste de DV inválido dos CNPJs de `PainelMarca` (CA-1, CA-2) | §Correção proposta, item 2 | a varredura falha hoje (`npm test` em `app/web`) | ☐ |
 | 3 | Backend: teste de conexão de fora do CIDR e de fora do endereço único (CA-7) | §Correção proposta, item 5 | passa; falha com a mutação `trustProxy: true` | ☐ |
 | 4 | Web: teste de login com 503 sem corpo mostrando "Sem conexão" (CA-8) | §Correção proposta, item 5 | passa; falha com a mutação em `cliente.ts:83` | ☐ |
-| 5 | Backend: trocar as raízes nos testes, no README e no comentário de `empresas.ts`, mantendo `RAIZ_A < RAIZ_B < RAIZ_C` (CA-1, CA-5) | §Correção proposta, item 1 | task 1 passa; `npm test`, `npm run lint` e `npm run build` em `app/backend` | ☐ |
-| 6 | Web: trocar as raízes nos testes, em `PainelMarca` (DV errado) e no `README.md:32`, que também passa a registrar a conferência de 2026-11-28 (CA-1, CA-2, CA-5, CA-10) | §Correção proposta, item 2 | task 2 passa; `npm test`, `npm run lint` e `npm run build` em `app/web` | ☐ |
-| 7 | Painel: `paginas2.test.ts:401` com raiz conferida, e as demais raízes do painel conforme P-2 (CA-1, CA-5) | §Correção proposta, item 3 | `npm test`, `npm run lint` e `npm run build` em `app/painel` | ☐ |
+| 5 | Backend: trocar as raízes nos testes, no README e no comentário de `empresas.ts`, em uma passada só (`22222222`→`33333333`, `11111111`→`22222222`, `00000000`→`11111111`, com e sem pontuação), sem tocar em UUIDs (CA-1, CA-2, CA-5) | §Correção proposta, item 1 | task 1 passa; o diff mostra cada raiz trocada uma vez só; `npm test`, `npm run lint` e `npm run build` em `app/backend` | ☐ |
+| 6 | Web: a mesma troca nos testes, em `PainelMarca` (`22.222.222/0001-22` e `33.333.333/0001-33`, DV errado) e no `README.md:32`, que também passa a registrar a conferência de 2026-11-28 (CA-1, CA-2, CA-5, CA-10) | §Correção proposta, item 2 | task 2 passa; o diff mostra cada raiz trocada uma vez só; `npm test`, `npm run lint` e `npm run build` em `app/web` | ☐ |
+| 7 | Painel: em `paginas2.test.ts:401`, `cnpj-00000000000000` vira `cnpj-11111111000100`; as demais raízes do painel não mudam (P-2 adiada) (CA-1, CA-5) | §Correção proposta, item 3 | o teste continua esperando 404; `npm test`, `npm run lint` e `npm run build` em `app/painel` | ☐ |
 | 8 | Web: tirar `tipo?` de `AlertaDeRede` e dos 9 pontos de chamada; trocar `textoDeRede` em `Pessoas.tsx` pela constante (CA-6) | §Correção proposta, item 4 | `npm test`, `npm run lint` e `npm run build` em `app/web` | ☐ |
-| 9 | Documentos: `docs/design/` (2 arquivos), `PROJECT_CONTEXT.md` §6 e §11, e a 034: exemplos, R-8 sem o nome da empresa, DT-22, CA-14 e DT-17, task 34 (CA-1 a CA-4, CA-9, CA-10) | §Correção proposta, item 6 | o `git grep` de "Como reproduzir" só acha falsos positivos e registros; uma busca pelo nome da empresa (feita pelo Developer, sem escrever o nome em arquivo nem em commit) não acha nada | ☐ |
+| 9 | Documentos: `docs/design/` (2 arquivos) e a 034 (exemplos, R-8 sem o nome da empresa, DT-22, CA-14 e DT-17, task 34), pelo mapeamento em uma passada só; `PROJECT_CONTEXT.md` §6 (lista conferida com data e método, `44444444` de reserva, regras e pendência P-2) e §11 (CA-1 a CA-4, CA-9, CA-10) | §Correção proposta, item 6 | o `git grep` de "Como reproduzir" só acha falsos positivos e registros; o diff mostra cada raiz trocada uma vez só; uma busca pelo nome da empresa (feita pelo Developer, sem escrever o nome em arquivo nem em commit) não acha nada | ☐ |
 | 10 | Verificação final (CA-5) | §Critérios de aceite | `npm test`, `npm run lint` e `npm run build` em `app/backend`, `app/web` e `app/painel`; `npm test` em `app/apuracao-cbs` | ☐ |
 
 ## Riscos e impacto na 033
 
-- **A 033 (dashboard) usa a raiz `00000000`.** As tasks dela usam a raiz `00000000` (`docs/demandas/033-dashboard-indicadores/tasks.md:31`, na branch `feat/033-dashboard-indicadores`). Quando a 035 entrar na `main`, a 033 precisa adotar as raízes conferidas. A varredura da task 1 recusa a raiz antiga em `app/backend/src`, `test` e `README.md`, então um merge da `main` na 033 quebra os testes dela até a troca. **Recomendação:** a sessão principal avisa a 033 assim que o responsável informar as raízes, para que ela já nasça com as raízes novas.
+- **A 033 (dashboard) usa a raiz `00000000`.** As tasks dela usam a raiz `00000000` (`docs/demandas/033-dashboard-indicadores/tasks.md:31`, na branch `feat/033-dashboard-indicadores`). Quando a 035 entrar na `main`, a 033 precisa adotar o mesmo mapeamento: `00000000`→`11111111`, `11111111`→`22222222` e `22222222`→`33333333`, com `44444444` de reserva. A varredura da task 1 recusa `00000000` em `app/backend/src`, `test` e `README.md`, então um merge da `main` na 033 quebra os testes dela até a troca. Atenção também ao deslocamento: um teste da 033 que já use `11111111` como "segunda empresa" pode colidir com a nova primeira empresa. **Recomendação:** a sessão principal avisa a 033 agora, para que ela já nasça com as raízes novas.
 - **Conflito de texto nos READMEs.** A task 29 da 033 edita `app/backend/README.md` e a "Conferência no navegador" de `app/web/README.md`. A 035 mexe só em `app/backend/README.md:38` (uma linha) e em `app/web/README.md:32` (um parágrafo). O conflito esperado é pequeno e localizado.
 - **Outras pastas da 033.** A 033 cria `app/backend/src/leitura/`, `app/backend/schemas/oficiais/` e `app/web/test/formatacao/`, e a 035 não toca nelas. A varredura nova vai cobrir esses arquivos quando a 033 entrar. Os schemas oficiais copiados do painel não trazem raiz de exemplo, mas o Developer da 033 deve rodar a varredura depois do merge.
-- **Validade da conferência.** A conferência do P-1 vale na data em que for feita. Pela página da Receita (F-E), as inscrições novas recebem CNPJ alfanumérico desde julho de 2026. Se isso quiser dizer que não se atribui mais raiz só numérica, a conferência vale de forma permanente. Isso não está confirmado: a IN RFB nº 2.229/2024 não foi lida. A consulta pela matriz (`/0001`) também não prova que a raiz não tem outro estabelecimento. A regra do §6 pede a data, e quem usar a raiz depois pode repetir a consulta.
+- **Validade da conferência.** A conferência do P-1 vale na data em que foi feita (2026-11-28). Pela página da Receita (F-E), as inscrições novas recebem CNPJ alfanumérico desde julho de 2026. Se isso quiser dizer que não se atribui mais raiz só numérica, a conferência vale de forma permanente. Isso não está confirmado: a IN RFB nº 2.229/2024 não foi lida. A consulta pela matriz (`/0001`) também não prova que a raiz não tem outro estabelecimento. A regra do §6 pede a data, e quem usar a raiz depois pode repetir a consulta.
 - **Landing.** A landing (`app/landing-page`) não foi varrida por esta correção, porque não está nos achados. Ela não mostra CNPJ, mas isso não foi conferido linha a linha.
 
 ## Fora de escopo
@@ -208,14 +234,16 @@ P-1 foi decidida pela alternativa A: o responsável confere as raízes. Até ele
 ## Decisões
 
 - **P-1 — decidida em 2026-11-28 pelo responsável: alternativa A** ("Opção A, eu confiro").
-  - **Como a conferência é feita:** o responsável escolhe três raízes numéricas e monta o CNPJ da matriz de cada uma (`<raiz>0001` mais o DV certo). Confere na consulta pública de comprovante de inscrição da Receita que nenhuma existe. Depois informa as três raízes e a data. A data e o método vão para o `PROJECT_CONTEXT.md` §6, e os valores substituem `RAIZ_A`, `RAIZ_B` e `RAIZ_C`.
-  - **`11111111` e `22222222`:** entram na mesma conferência. As que existirem são trocadas; as que não existirem ficam e são registradas como conferidas.
+  - **Conferência feita em 2026-11-28:** o responsável consultou na página pública "Comprovante de Inscrição e de Situação Cadastral" da Receita os CNPJs de matriz `11.111.111/0001-91`, `22.222.222/0001-91`, `33.333.333/0001-91` e `44.444.444/0001-91` (raiz + `0001` + DV certo). Resposta dele: "nenhum existe".
+  - **Mapeamento:** `00000000`→`11111111`, `11111111`→`22222222` e `22222222`→`33333333`, preservando a ordem. A troca é feita em uma passada só.
+  - **Reserva:** `44444444` fica registrada no §6 como conferida e de reserva.
+  - **Varredura:** a lista proibida é só `00000000`, com e sem pontuação.
   - **Alternativas descartadas:**
     - **(B) raiz com letras:** raízes alfanuméricas são atribuídas desde 31/07/2026, e mudar `^\d{8}$` é mudança de contrato;
     - **(C) valor fora do formato:** a validação recusaria, e seria preciso exceção só para os testes;
     - **(D) manter `00000000`:** contraria a regra de não usar dado real.
+- **P-2 — adiada em 2026-11-28 pelo responsável.** As raízes do painel (`90817263`, `55443322`, `11223344`, `44556677`, `55667788`, `66778899`) e o `12.345.678` da Spec da 030 não foram conferidas. Elas ficam registradas como pendência no `PROJECT_CONTEXT.md` §6, e a task 7 só corrige `paginas2.test.ts:401`.
 
 ## Perguntas em aberto
 
-- **Valores de P-1 (bloqueia as tasks 5 a 7 e 9):** as três raízes conferidas e a data da conferência, a informar pelo responsável.
-- **P-2 (bloqueia parte da task 7).** As raízes do painel (`90817263`, `55443322`, `11223344`, `44556677`, `55667788`, `66778899`) e o `12.345.678` da Spec da 030 também não foram conferidas. Recomendação: o responsável as confere junto com P-1. As que existirem são trocadas, o que regera os fictícios com `npm run gerar-ficticios` e aumenta o diff do painel. As que não existirem entram na lista do §6. Se ele preferir não conferir agora, o item vira pendência registrada no §6, e a task 7 se limita à linha 401.
+- Nenhuma.
